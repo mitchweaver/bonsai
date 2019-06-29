@@ -1,8 +1,8 @@
-#!/bin/sh
-#name=`basename $PWD`
 name=hello
+version=1.0
 source=http://ix.io/1Nci
 build() {
     make
     make install
 }
+#name=`basename $PWD`

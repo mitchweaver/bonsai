@@ -1,0 +1,8 @@
+name=dash
+version=0.5.10
+source=http://gondor.apana.org.au/~herbert/$name/files/$name-$version.tar.gz
+build() {
+    configure
+    make
+    make install
+}

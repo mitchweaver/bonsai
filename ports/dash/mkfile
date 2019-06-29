@@ -1,9 +1,0 @@
-</home/mitch/src/bore/bore.rc
-
-version=0.5.10
-source=http://gondor.apana.org.au/~herbert/${name}/files/${name}-${version}.tar.gz
-
-$name:Q:
-    bore get $name $version $source
-
-#<$boremkc

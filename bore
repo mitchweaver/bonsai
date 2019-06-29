@@ -5,36 +5,154 @@
 # package manager for [NAME] Linux
 #
 
+#set -ex
+
 die() { >&2 echo "$@" ; exit 1 ; }
 
 borerc='/home/mitch/src/bore/bore.rc'
 . $borerc || die "Error: Could not source $borerc"
 
-portdb='/home/mitch/src/bore/bore.db'
-[ -f "$portdb" ] || touch "$portdb"
+[ -f "$boredb" ] || :> "$boredb"
 
-get_file_ext() {
-    case $(file "$1") in
-        *tar*gzip*)  echo -n tar.gz    ;;
-        *tar*bzip2*) echo -n tar.bzip2 ;;
-        *tar*xz*)    echo -n tar.xz    ;;
-        *gzip*)      echo -n gz        ;;
-        *bzip2*)     echo -n bzip2     ;;
-        *xz*)        echo -n xz        ;;
-        *zip*)       echo -n zip       ;;
-        *) die "Error: could not discern archive type of $1"
-    esac
+configure() {
+    [ "$docs" = false ] && _docs="--disable-docs \
+                                  --disable-gtk-docs \
+                                  --disable-gtk-docs-html"
+    ./configure --prefix="$opt"/$name $docs \
+        $configure_flags "$@"
 }
 
-# --------------------------------------
+make() {
+    [ "$docs" = false ] && _docs="MANPREFIX=/dev/null"
+
+    command make -j$jobs DESTDIR=$opt/$name PREFIX=/ \
+        LDFLAGS=$ldflags $makeflags $_docs "$@"
+}
 
 addpkg() {
-    echo hi
+    pkg=$1
+    pkgfile="$ports"/$pkg/pkgfile
+
+    # sanity checks
+    if [ -f "$pkgfile" ] ; then
+        . "$pkgfile"
+    else
+        die "Error: can't source $pkg's pkgfile?"
+    fi
+    [ -n "$1" ] || die 'addpkg: no argument given'
+    [ "$(ls $boredb | wc -l)" -gt 0 ] ||
+        die "no ports available, use 'sync' to fetch some"
+    isinst $pkg > /dev/null &&
+        die "port $pkg is already installed"
+
+    # download/extract package
+    get $pkg $version $source
+    cd "$work"/${pkg}#${version} || die "Error: unable to cd to $work/$pkg"
+    echo ". installing $pkg..."
+    mkdir -p $opt/$pkg
+
+    # run user defined prebuild() if exists
+    if type prebuild > /dev/null ; then
+        prebuild || die "$pkg prebuild() failed"
+    fi
+    # run build() method inside pkgfile
+    build || die "$pkg build() failed"
+    echo "$pkg installed!"
+    rm -r "$work"/"${pkg}#${version}"
+    echo $pkg >> "$boredb"
+    sort "$boredb" -o "$boredb"
+}
+
+# downloads to $sources and extracts to $work
+# params: $name, $version, $url
+get() {
+    [ $# -lt 3 ] && die 'get(): insufficient arguments'
+    echo ". downloading $1..."
+    pkg=$1 ; version=$2 ; url=$3
+
+    mkdir -p "$sources"
+    cd "$sources"
+
+    tmp=$(mktemp -d)
+    # check if tarball already downloaded
+    if [ ! -f "${pkg}#${version}".* ] ; then
+        wget $wget_opts "$url" -P $tmp
+
+        # store backup to be moved to $sources later
+        bkup=$(mktemp -d)
+        cp -f $tmp/* $bkup
+    else
+        cp -f "${pkg}#${version}".* $tmp
+    fi
+
+    case $(file $tmp/*) in
+        *gzip*)  ext=gz    ;;
+        *bzip2*) ext=bzip2 ;;
+        *XZ*)    ext=xz    ;;
+        *) die "Error: could not discern compression type of $pkg"
+    esac
+
+    # decompressors bug out if dont have the extension...
+    mv -f $tmp/* $tmp/${pkg}.${ext}
+
+    case $ext in
+        xz)   xz      -d $tmp/* ;;
+        gz)   gunzip  -d $tmp/* ;;
+        bz2)  bunzip2 -d $tmp/* ;;
+    esac
+
+    if file $tmp/* | grep 'tar archive' > /dev/null ; then
+        ext=tar.${ext}
+        tar -xf $tmp/* -C $tmp/ || \
+            die "Error: could not extract ${pkg}#${version}.${ext}"       
+    fi
+
+    if $keep_tarballs && [ ! -f "$sources"/"${pkg}#${version}".* ] ; then
+        cp -f $bkup/* "$sources"/"${pkg}#${version}.${ext}"
+    fi
+
+    mkdir -p "$work"/"${pkg}#${version}"
+    mv -f $tmp/*/* "$work"/"${pkg}#${version}"
+    rm -r $tmp
+}
+
+delpkg() {
+    pkg="$1"
+
+    grep "$pkg" "$boredb" > /dev/null 2>&1 || \
+        die "$pkg is not installed"
+
+    [ -d "$opt/$pkg" ] &&
+        rm -rf "$opt/$pkg"
+
+    [ -d "$work/$pkg" ] &&
+        rm -rf "$work/$pkg"
+
+    # checks if "$1" is a symlink 
+    # and its target still exists
+    # test_link() {
+    #     if [ -L "$1" ] ; then
+    #         [ -e "$1" ] || return 1
+    #     fi
+    #     return 0
+    # }
+
+    # the pkg's data has already been deleted
+    # but now we must remove all of its symlinks
+    # for dir in bin share include etc lib ; do
+    #     for i in `find "$prefix/$dir" ! -path "$prefix/$dir"` ; do
+    #         test_link "$i" || rm -f "$i"
+    #     done
+    # done
+
+    sed -i -e "s/$pkg//" -e '/^$/d' "$boredb"
+    sort "$boredb" -o "$boredb"
+
+    echo "$pkg deleted"
 }
 
 search() {
-    [ -n "$1" ] || die 'search: no string given'
-    
+    [ -n "$1" ] || die 'search: no argument given'
     for p in `find "$ports" ! -path "$ports" \
                 -iname *${1}* | sort` ; do
         p=${p##*/}
@@ -44,45 +162,26 @@ search() {
     [ -n "$p" ] || die "port $1 not found"
 }
 
-# downloads and extracts tarball
-# params: $name, $version, $url
-get() {
-    [ $# -lt 3 ] && die 'get(): insufficient arguments'
-
-    mkdir -p "$sources"
-    cd "$sources"
-
-    local tmp=$(mktemp -d)
-    wget $wget_opts "$3" -P $tmp
-
-    local ext="$(get_file_ext $tmp/*)"
-
-    if $keep_tarballs ; then
-        cp -f $tmp/* "$sources"/"${1}#${2}.${ext}"
+isinst() {
+    [ -n "$1" ] || die 'isinst: no argument given'
+    if grep $1 "$boredb" > /dev/null ; then
+        echo "port $1 is installed"
+        return 0
+    else
+        echo "port $1 is not installed"
+        return 1
     fi
-
-    case "$ext" in
-        tar.gzip) gunzip  -d $tmp/* ;;
-        tar.bz2)  bunzip2 -d $tmp/* ;;
-        tar.xz)   xz      -d $tmp/* ;;
-    esac
-
-    tar -xf $tmp/* -C $tmp/ || \
-        die "Error: could not extract ${1}#${2}.${ext}"
-
-    mkdir -p "$work"/"${1}#${2}"
-    mv -f $tmp/*/* "$work"/"${1}#${2}"
-    rm -r $tmp
 }
 
 if [ $# -gt 0 ] ; then
     case $1 in
-        get) shift ; get     $1 "$2" "$3" ; exit ;;
-        add) shift ; addpkg  $1           ; exit ;;
-        add|-a)    shift ; addpkg $1 ; exit ;;
-        search|-s) shift ; search $1 ; exit ;;
-        list|-l)   sort "$portdb" ;;
+        add|-a)    shift ; addpkg $1 ; exit $? ;;
+        del|-d)    shift ; delpkg $1 ; exit $? ;;
+        search|-s) shift ; search $1 ;;
+        list|-l)   sort "$boredb" ;;
+        isinst|-i) shift ; isinst $1 ; exit $? ;;
         count|-c)  cat "$db" | wc -l | sed 's/ //' ;;
+        *) addpkg $1 ; exit $? ;;
     esac
 else
     die 'error: no arguments'

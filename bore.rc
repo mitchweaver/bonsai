@@ -1,11 +1,6 @@
-# --- bore configuration file --- #
-
-# bore script location
+# bore variables
 bore=/home/mitch/src/bore
-
-# mk include files
 borerc=$bore/bore.rc
-boremkc=$bore/bore.mkc
 boredb=$bore/bore.db
 
 # dirs
@@ -13,17 +8,18 @@ ports=$bore/ports
 sources=$bore/sources
 work=$bore/work
 pkgs=$bore/pkgs
+opt=/home/mitch/src/bore/opt
 
 # compiling
-tcc='tcc -static'
-gcc='gcc -static -O0'
+jobs=$(grep cores /proc/cpuinfo | grep -m 1 -o '.$')
+tcc='tcc'
+gcc='gcc -O0'
 cc=$gcc
-if type nproc > /dev/null ; then
-    jobs=$(nproc)
-else
-    jobs=1
-fi
+makeflags=''
+ldflags='-static'
+configure_flags="--disable-option-checking"
+docs=true
 
 # downloads
-wget_opts='-c --quiet --show-progress'
+wget_opts='-c -nc -q --show-progress'
 keep_tarballs=true
