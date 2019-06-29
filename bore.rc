@@ -14,9 +14,6 @@ sources=$bore/sources
 work=$bore/work
 pkgs=$bore/pkgs
 
-# name of port
-name=`basename $PWD`
-
 # compilers
 tcc='tcc -static'
 gcc='gcc -static -O0'

@@ -10,16 +10,22 @@ die() { >&2 echo "$@" ; exit 1 ; }
 borerc='/home/mitch/src/bore/bore.rc'
 . $borerc || die "Error: Could not source $borerc"
 
+get_file_ext() {
+    case $(file "$1") in
+        *tar*gzip*)  echo -n tar.gz    ;;
+        *tar*bzip2*) echo -n tar.bzip2 ;;
+        *tar*xz*)    echo -n tar.xz    ;;
+        *gzip*)      echo -n gz        ;;
+        *bzip2*)     echo -n bzip2     ;;
+        *xz*)        echo -n xz        ;;
+        *zip*)       echo -n zip       ;;
+        *) die "Error: could not discern archive type of $1"
+    esac
+}
+
 # --------------------------------------
 
 #addpkg() { ; }
-
-get_file_ext() {
-    case $(file "$1") in
-        *tar*gzip*) echo -n tar.gz ;;
-        *gzip*) echo -n gz
-    esac
-}
 
 # downloads and extracts tarball
 # params: $name, $version, $url
@@ -53,7 +59,6 @@ get() {
 
 if [ $# -gt 0 ] ; then
     case $1 in
-        get)   shift ; get     $1 "$2" "$3" ; exit ;;
         add|*) shift ; addpkg  $1  ; exit ;;
     esac
 else
