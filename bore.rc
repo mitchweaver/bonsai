@@ -1,0 +1,26 @@
+# bore configuration file
+
+# where is bore's home?
+bore=/home/mitch/src/bore
+
+# mk include files
+borerc=$bore/bore.rc
+boremkc=$bore/bore.mkc
+boredb=$bore/bore.db
+
+# dirs
+ports=$bore/ports
+sources=$bore/sources
+work=$bore/work
+pkgs=$bore/pkgs
+
+# name of port
+name=`basename $PWD`
+
+# compilers
+tcc='tcc -static'
+gcc='gcc -static -O0'
+cc=$gcc
+
+# download utils
+wget_opts='-c --quiet --show-progress'

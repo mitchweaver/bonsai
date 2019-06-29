@@ -1,0 +1,7 @@
+</home/mitch/src/bore/bore.rc
+
+version=1.0
+
+$name: $name.c
+
+<$boremkc

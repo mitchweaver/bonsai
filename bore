@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# http://github.com/mitchweaver/bore
+#
+# package manager for [NAME] Linux
+#
+
+die() { >&2 echo "$@" ; exit 1 ; }
+
+borerc='/home/mitch/src/bore/bore.rc'
+. $borerc || die "Error: Could not source $borerc"
+
+# --------------------------------------
+
+#addpkg() { ; }
+
+get_file_ext() {
+    case $(file "$1") in
+        *tar*gzip*) echo -n tar.gz ;;
+        *gzip*) echo -n gz
+    esac
+}
+
+# downloads and extracts tarball
+# params: $name, $version, $url
+get() {
+    [ $# -lt 3 ] && die 'get(): insufficient arguments'
+
+    mkdir -p "$sources"
+    cd "$sources"
+
+    local tmp=$(mktemp -d)
+    wget $wget_opts "$3" -P $tmp
+
+    local ext="$(get_file_ext $tmp/*)"
+
+    # save tarball
+    cp -f $tmp/* "$sources"/"${1}#${2}.${ext}"
+
+    case "$ext" in
+        tar.gzip) gunzip  -d $tmp/* ;;
+        tar.bz2)  bunzip2 -d $tmp/* ;;
+        tar.xz)   xz      -d $tmp/* ;;
+    esac
+
+    tar -xf $tmp/* -C $tmp/ || \
+        die "Error: could not extract ${1}#${2}.${3}"
+
+    mkdir -p "$work"/"${1}#${2}"
+    mv -f $tmp/*/* "$work"/"${1}#${2}"
+    rm -r $tmp
+}
+
+if [ $# -gt 0 ] ; then
+    case $1 in
+        get)   shift ; get     $1 "$2" "$3" ; exit ;;
+        add|*) shift ; addpkg  $1  ; exit ;;
+    esac
+else
+    die 'error: no arguments'
+fi

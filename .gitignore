@@ -1,0 +1,11 @@
+work
+work/*
+sources
+sources/*
+*~*
+./*old*
+a.out
+*core*
+*dump*
+test
+*bkup
