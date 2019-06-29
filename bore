@@ -52,7 +52,7 @@ configure() {
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
     ./configure --prefix="$opt"/$name $docs \
-        $configure_flags "$@"
+        $configure_flags "$@" > /dev/null
 }
 
 make() {
@@ -62,7 +62,7 @@ make() {
     [ -z "$ldflags" ] && ldflags=""
 
     command make -j$jobs DESTDIR=$opt/$name PREFIX=/usr \
-        CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@"
+        CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@" > /dev/null
 }
 
 addpkg() {
@@ -106,64 +106,77 @@ addpkg() {
 }
 
 # downloads to $sources and extracts to $work
-# params: $name, $version, $url
+# params: $name, $version, $source
 get() {
     [ $# -lt 3 ] && die 'get(): insufficient arguments'
     echo ". downloading $1..."
-    pkg=$1 ; version=$2 ; url=$3
+    local pkg=$1
+    local version="$2"
+    local url="$3"
+    local tmp=$(mktemp -d)
 
+    mkdir -p "$work"/"${pkg}${delim}${version}"
     mkdir -p "$sources"
     cd "$sources"
 
-    tmp=$(mktemp -d)
-    # check if tarball already downloaded
-    if [ ! -f "${pkg}${delim}${version}".* ] ; then
-        wget $wget_opts "$url" -P $tmp ||
-            die "wget: could not download $pkg"
+    if [ "$version" = git ] ; then
+        local repo_name="${pkg}${delim}${version}"
+        if [ ! -d "$repo_name" ] ; then
+            git clone $git_opts "$url" $tmp ||
+                die "get(): could not clone $url"
+            mv -f "$tmp"/* "$work"/"$repo_name"
+            $keep_tarballs &&
+                cp -rf "$work"/"$repo_name" "$sources"/"$repo_name"
+        else
+            cp -rf "$sources"/"$repo_name" "$work"
+        fi
+    else # we are downloading with wget
+        # check if tarball already downloaded
+        if [ ! -f "${pkg}${delim}${version}".* ] ; then
+            wget $wget_opts "$url" -P $tmp ||
+                die "wget: could not download $pkg"
 
-        # store backup to be moved to $sources later
-        bkup=$(mktemp -d)
-        cp -f $tmp/* $bkup
-    else
-        cp -f "${pkg}${delim}${version}".* $tmp
+            # store backup to be moved to $sources later
+            local bkup=$(mktemp -d)
+            cp -f $tmp/* $bkup
+        else
+            cp -f "${pkg}${delim}${version}".* $tmp
+        fi
+        case $(file $tmp/*) in
+            *gzip*)  ext=gz    ;;
+            *bzip2*) ext=bzip2 ;;
+            *XZ*)    ext=xz    ;;
+            *) die "Error: could not discern compression type of $pkg"
+        esac
+
+        # decompressors bug out if no extension...
+        mv -f $tmp/* $tmp/${pkg}.${ext}
+
+        case $ext in
+            xz)   xz      -d $tmp/* ;;
+            gz)   gunzip  -d $tmp/* ;;
+            bz2)  bunzip2 -d $tmp/* ;;
+            *) die "$ext: unknown compression algorithm"
+        esac
+        [ $? -gt 0 ] && die "$ext: failed to decompress $pkg"
+
+        if file $tmp/* | grep 'tar archive' > /dev/null ; then
+            ext=tar.${ext}
+            tar -xf $tmp/* -C $tmp/ || \
+                die "tar: could not extract ${pkg}${delim}${version}.${ext}"       
+        fi
+
+        if $keep_tarballs && [ ! -f "$sources"/"${pkg}${delim}${version}".* ] ; then
+            cp -f $bkup/* "$sources"/"${pkg}${delim}${version}.${ext}"
+        fi
+
+        mv -f $tmp/*/* "$work"/"${pkg}${delim}${version}" ||
+            die "get(): failed to move unpacked tarball"
     fi
-
-    case $(file $tmp/*) in
-        *gzip*)  ext=gz    ;;
-        *bzip2*) ext=bzip2 ;;
-        *XZ*)    ext=xz    ;;
-        *) die "Error: could not discern compression type of $pkg"
-    esac
-
-    # decompressors bug out if no extension...
-    mv -f $tmp/* $tmp/${pkg}.${ext}
-
-    case $ext in
-        xz)   xz      -d $tmp/* ;;
-        gz)   gunzip  -d $tmp/* ;;
-        bz2)  bunzip2 -d $tmp/* ;;
-        *) die "$ext: unknown compression algorithm"
-    esac
-    [ $? -gt 0 ] && die "$ext: failed to decompress $pkg"
-
-    if file $tmp/* | grep 'tar archive' > /dev/null ; then
-        ext=tar.${ext}
-        tar -xf $tmp/* -C $tmp/ || \
-            die "tar: could not extract ${pkg}${delim}${version}.${ext}"       
-    fi
-
-    if $keep_tarballs && [ ! -f "$sources"/"${pkg}${delim}${version}".* ] ; then
-        cp -f $bkup/* "$sources"/"${pkg}${delim}${version}.${ext}"
-    fi
-
-    mkdir -p "$work"/"${pkg}${delim}${version}"
-    mv -f $tmp/*/* "$work"/"${pkg}${delim}${version}" ||
-        die "get(): failed to move unpacked tarball"
-    rm -r $tmp
 }
 
 delpkg() {
-    pkg="$1"
+    local pkg="$1"
 
     grep "$pkg" "$boredb" > /dev/null 2>&1 || \
         die "$pkg is not installed"

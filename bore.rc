@@ -22,6 +22,7 @@ docs=false
 
 # downloads
 wget_opts='-c -nc -q --show-progress'
+git_opts='-q --progress --depth 1'
 keep_tarballs=true
 
 # package/version delimiter
