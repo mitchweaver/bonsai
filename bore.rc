@@ -1,6 +1,6 @@
-# bore configuration file
+# --- bore configuration file --- #
 
-# where is bore's home?
+# bore script location
 bore=/home/mitch/src/bore
 
 # mk include files
@@ -14,10 +14,15 @@ sources=$bore/sources
 work=$bore/work
 pkgs=$bore/pkgs
 
-# compilers
+# compiling
 tcc='tcc -static'
 gcc='gcc -static -O0'
 cc=$gcc
+if type nproc > /dev/null ; then
+    jobs=$(nproc)
+else
+    jobs=1
+fi
 
 # download utils
 wget_opts='-c --quiet --show-progress'

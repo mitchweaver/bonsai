@@ -10,6 +10,9 @@ die() { >&2 echo "$@" ; exit 1 ; }
 borerc='/home/mitch/src/bore/bore.rc'
 . $borerc || die "Error: Could not source $borerc"
 
+portdb='/home/mitch/src/bore/bore.db'
+[ -f "$portdb" ] || touch "$portdb"
+
 get_file_ext() {
     case $(file "$1") in
         *tar*gzip*)  echo -n tar.gz    ;;
@@ -25,7 +28,21 @@ get_file_ext() {
 
 # --------------------------------------
 
-#addpkg() { ; }
+addpkg() {
+    echo hi
+}
+
+search() {
+    [ -n "$1" ] || die 'search: no string given'
+    
+    for p in `find "$ports" ! -path "$ports" \
+                -iname *${1}* | sort` ; do
+        p=${p##*/}
+        p=${p%.*}
+        echo $p
+    done
+    [ -n "$p" ] || die "port $1 not found"
+}
 
 # downloads and extracts tarball
 # params: $name, $version, $url
@@ -59,7 +76,10 @@ get() {
 
 if [ $# -gt 0 ] ; then
     case $1 in
-        add|*) shift ; addpkg  $1  ; exit ;;
+        add|-a)    shift ; addpkg $1 ; exit ;;
+        search|-s) shift ; search $1 ; exit ;;
+        list|-l)   sort "$portdb" ;;
+        count|-c)  cat "$db" | wc -l | sed 's/ //' ;;
     esac
 else
     die 'error: no arguments'
