@@ -22,5 +22,6 @@ tcc='tcc -static'
 gcc='gcc -static -O0'
 cc=$gcc
 
-# download utils
+# downloads
 wget_opts='-c --quiet --show-progress'
+keep_tarballs=true

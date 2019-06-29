@@ -17,6 +17,8 @@ borerc='/home/mitch/src/bore/bore.rc'
 get_file_ext() {
     case $(file "$1") in
         *tar*gzip*) echo -n tar.gz ;;
+#        *tar*bz2*) echo -n tar.gz ;;
+#        *tar*xz*) echo -n tar.gz ;;
         *gzip*) echo -n gz
     esac
 }
@@ -34,8 +36,9 @@ get() {
 
     local ext="$(get_file_ext $tmp/*)"
 
-    # save tarball
-    cp -f $tmp/* "$sources"/"${1}#${2}.${ext}"
+    if $keep_tarballs ; then
+        cp -f $tmp/* "$sources"/"${1}#${2}.${ext}"
+    fi
 
     case "$ext" in
         tar.gzip) gunzip  -d $tmp/* ;;
@@ -44,7 +47,7 @@ get() {
     esac
 
     tar -xf $tmp/* -C $tmp/ || \
-        die "Error: could not extract ${1}#${2}.${3}"
+        die "Error: could not extract ${1}#${2}.${ext}"
 
     mkdir -p "$work"/"${1}#${2}"
     mv -f $tmp/*/* "$work"/"${1}#${2}"
@@ -53,8 +56,8 @@ get() {
 
 if [ $# -gt 0 ] ; then
     case $1 in
-        get)   shift ; get     $1 "$2" "$3" ; exit ;;
-        add|*) shift ; addpkg  $1  ; exit ;;
+        get) shift ; get     $1 "$2" "$3" ; exit ;;
+        add) shift ; addpkg  $1           ; exit ;;
     esac
 else
     die 'error: no arguments'
