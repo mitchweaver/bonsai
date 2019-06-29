@@ -5,7 +5,7 @@
 # package manager for [NAME] Linux
 #
 
-die() { >&2 echo "$@" ; exit 1 ; }
+die() { >&2 echo "$@" ; clean ; exit 1 ; }
 
 usage() {
 cat << EOF
@@ -58,10 +58,11 @@ configure() {
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
 
-    [ -z "$CC" ] && CC="$cc"
+    [ -z "$cc" ] && cc="$gcc"
+    [ -z "$ldflags" ] && ldflags=""
 
     command make -j$jobs DESTDIR=$opt/$name PREFIX=/usr \
-        LDFLAGS=$ldflags $makeflags $_docs "$@"
+        CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@"
 }
 
 addpkg() {
@@ -86,7 +87,7 @@ addpkg() {
     # download/extract package
     get $pkg $version $source
     cd "$work"/"${pkg}${delim}${version}" || die "Error: unable to cd to $work/$pkg"
-    echo ". installing $pkg..."
+    echo ". building $pkg..."
     mkdir -p $opt/$pkg
 
     # run user defined prebuild() if exists

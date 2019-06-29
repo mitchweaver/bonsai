@@ -14,10 +14,7 @@ opt=/home/mitch/src/bore/opt
 jobs=$(grep cores /proc/cpuinfo | grep -m 1 -o '.$')
 tcc='tcc'
 gcc='gcc -O0'
-# default cc
-cc=$gcc
 makeflags='-s'
-ldflags='-static'
 configure_flags="--silent --disable-option-checking"
 
 mans=true
