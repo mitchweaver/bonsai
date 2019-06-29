@@ -1,8 +1,5 @@
-name=hello
-version=1.0
 source=http://ix.io/1NgC
 build() {
     make
     make install
 }
-#name=`basename $PWD`

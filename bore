@@ -5,9 +5,23 @@
 # package manager for [NAME] Linux
 #
 
-#set -ex
-
 die() { >&2 echo "$@" ; exit 1 ; }
+
+usage() {
+cat << EOF
+bore pkg mgr
+
+commands:
+-----------
+add    | -a
+del    | -d
+search | -s
+list   | -l
+isinst | -i
+count  | -c
+EOF
+exit
+}
 
 borerc='/home/mitch/src/bore/bore.rc'
 . $borerc || die "Error: Could not source $borerc"
@@ -34,22 +48,24 @@ clean() {
 }
 
 configure() {
-    [ "$docs" = false ] && _docs="--disable-docs \
-                                  --disable-gtk-docs \
-                                  --disable-gtk-docs-html"
+    ! $docs && local _docs="--disable-docs \
+                      --disable-gtk-docs \
+                      --disable-gtk-docs-html"
     ./configure --prefix="$opt"/$name $docs \
         $configure_flags "$@"
 }
 
 make() {
-    [ "$docs" = false ] && _docs="MANPREFIX=/dev/null"
+    ! $mans && local _docs="MANPREFIX=/dev/null"
+
+    [ -z "$CC" ] && CC="$cc"
 
     command make -j$jobs DESTDIR=$opt/$name PREFIX=/usr \
         LDFLAGS=$ldflags $makeflags $_docs "$@"
 }
 
 addpkg() {
-    pkg=$1
+    pkg="$1"
     pkgfile="$ports"/$pkg/pkgfile
 
     # sanity checks
@@ -58,15 +74,18 @@ addpkg() {
     else
         die "Error: can't source $pkg's pkgfile?"
     fi
-    [ -n "$1" ] || die 'addpkg: no argument given'
     [ "$(ls $boredb | wc -l)" -gt 0 ] ||
         die "no ports available, use 'sync' to fetch some"
     isinst $pkg > /dev/null &&
         die "port $pkg is already installed"
 
+
+    name="${pkg##*/}"
+    [ -z "$version" ] && version='1.0'
+
     # download/extract package
     get $pkg $version $source
-    cd "$work"/${pkg}#${version} || die "Error: unable to cd to $work/$pkg"
+    cd "$work"/"${pkg}${delim}${version}" || die "Error: unable to cd to $work/$pkg"
     echo ". installing $pkg..."
     mkdir -p $opt/$pkg
 
@@ -76,8 +95,8 @@ addpkg() {
     fi
     # run build() method inside pkgfile
     if build ; then
-        rm -r "$work"/"${pkg}#${version}"
-        echo "${pkg}#${version}" >> "$boredb"
+        rm -r "$work"/"${pkg}${delim}${version}"
+        echo "${pkg}${delim}${version}" >> "$boredb"
         echo "$pkg installed!"
         clean
     else
@@ -97,14 +116,15 @@ get() {
 
     tmp=$(mktemp -d)
     # check if tarball already downloaded
-    if [ ! -f "${pkg}#${version}".* ] ; then
-        wget $wget_opts "$url" -P $tmp
+    if [ ! -f "${pkg}${delim}${version}".* ] ; then
+        wget $wget_opts "$url" -P $tmp ||
+            die "wget: could not download $pkg"
 
         # store backup to be moved to $sources later
         bkup=$(mktemp -d)
         cp -f $tmp/* $bkup
     else
-        cp -f "${pkg}#${version}".* $tmp
+        cp -f "${pkg}${delim}${version}".* $tmp
     fi
 
     case $(file $tmp/*) in
@@ -121,20 +141,23 @@ get() {
         xz)   xz      -d $tmp/* ;;
         gz)   gunzip  -d $tmp/* ;;
         bz2)  bunzip2 -d $tmp/* ;;
+        *) die "$ext: unknown compression algorithm"
     esac
+    [ $? -gt 0 ] && die "$ext: failed to decompress $pkg"
 
     if file $tmp/* | grep 'tar archive' > /dev/null ; then
         ext=tar.${ext}
         tar -xf $tmp/* -C $tmp/ || \
-            die "Error: could not extract ${pkg}#${version}.${ext}"       
+            die "tar: could not extract ${pkg}${delim}${version}.${ext}"       
     fi
 
-    if $keep_tarballs && [ ! -f "$sources"/"${pkg}#${version}".* ] ; then
-        cp -f $bkup/* "$sources"/"${pkg}#${version}.${ext}"
+    if $keep_tarballs && [ ! -f "$sources"/"${pkg}${delim}${version}".* ] ; then
+        cp -f $bkup/* "$sources"/"${pkg}${delim}${version}.${ext}"
     fi
 
-    mkdir -p "$work"/"${pkg}#${version}"
-    mv -f $tmp/*/* "$work"/"${pkg}#${version}"
+    mkdir -p "$work"/"${pkg}${delim}${version}"
+    mv -f $tmp/*/* "$work"/"${pkg}${delim}${version}" ||
+        die "get(): failed to move unpacked tarball"
     rm -r $tmp
 }
 
@@ -164,7 +187,7 @@ delpkg() {
     #     done
     # done
 
-    sed -i -e "s/$pkg//" -e '/^$/d' "$boredb"
+    sed -i -e "s/${pkg}${delim}.*//" -e '/^$/d' "$boredb"
     clean
 
     echo "$pkg deleted"
@@ -193,19 +216,23 @@ isinst() {
     fi
 }
 
-# main
-clean
-
-if [ $# -gt 0 ] ; then
-    case $1 in
-        add|-a)    shift ; addpkg $1 ; exit $? ;;
-        del|-d)    shift ; delpkg $1 ; exit $? ;;
-        search|-s) shift ; search $1 ;;
-        list|-l)   cat "$boredb" ;;
-        isinst|-i) shift ; isinst $1 ; exit $? ;;
+main() {
+    clean
+    case "$1" in
+        add|-a)    addpkg $2 ; exit $? ;;
+        del|-d)    delpkg $2 ; exit $? ;;
+        search|-s) search $2 ; exit $? ;;
+        isinst|-i) isinst $2 ; exit $? ;;
+        list|-l)   cat "$boredb"       ;;
         count|-c)  cat "$db" | wc -l | sed 's/ //' ;;
-        *) addpkg $1 ; exit $? ;;
+        *help|-h)  usage ;;
+        *) if [ -n "$1" ] ; then
+            addpkg $1
+            exit $?
+        else
+            usage
+        fi
     esac
-else
-    die 'error: no arguments'
-fi
+}
+
+main "$@"

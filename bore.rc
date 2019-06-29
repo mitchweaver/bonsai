@@ -14,12 +14,19 @@ opt=/home/mitch/src/bore/opt
 jobs=$(grep cores /proc/cpuinfo | grep -m 1 -o '.$')
 tcc='tcc'
 gcc='gcc -O0'
+# default cc
 cc=$gcc
 makeflags='-s'
 ldflags='-static'
 configure_flags="--silent --disable-option-checking"
-docs=true
+
+mans=true
+docs=false
 
 # downloads
 wget_opts='-c -nc -q --show-progress'
 keep_tarballs=true
+
+# package/version delimiter
+# note: must be sane, (no #,/,*, etc...)
+delim='-'

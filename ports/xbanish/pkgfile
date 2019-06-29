@@ -1,0 +1,6 @@
+version=1.6
+source=http://github.com/jcs/xbanish/archive/v${version}.tar.gz
+build() {
+    make
+    make install
+}

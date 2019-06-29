@@ -1,19 +1,18 @@
 # WIP
 --------
 
-# features to implement
--------------------------
-* CC=?
-* source=
-* dependencies
-* purge feature --^
+# dependencies required:
+------------
 
-* all pkg mgr files stored in /src
-* 
-* 
-* 
-* 
+### compile
+make, gcc, tcc
 
-### later:
+### net
+wget
 
-static?
+### compression
+gzip, bzip2, xz
+
+## provided by sbase / ubase:
+-----------------------------
+find, sort, wc, grep, sed, tar
