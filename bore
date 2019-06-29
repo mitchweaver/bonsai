@@ -12,7 +12,26 @@ die() { >&2 echo "$@" ; exit 1 ; }
 borerc='/home/mitch/src/bore/bore.rc'
 . $borerc || die "Error: Could not source $borerc"
 
-[ -f "$boredb" ] || :> "$boredb"
+clean() {
+    if [ -z "$work" ] || [ -z "$opt" ] || [ "$opt" = / ] ; then
+        die "Error: $work or $opt were unset!"
+    fi
+
+    [ -n "$work" ] &&
+        rm -rf "$work"/*
+
+    # remove empty dirs in $opt
+    for dir in $(find "$opt" -nowarn -type d ! -wholename "$opt") ; do
+        [ -z "$(ls $dir)" ] &&
+            rm -r "$dir"
+    done
+
+    if [ -f "$boredb" ] ; then
+        sort "$boredb" -o "$boredb"
+    else
+        :> "$boredb"
+    fi
+}
 
 configure() {
     [ "$docs" = false ] && _docs="--disable-docs \
@@ -25,7 +44,7 @@ configure() {
 make() {
     [ "$docs" = false ] && _docs="MANPREFIX=/dev/null"
 
-    command make -j$jobs DESTDIR=$opt/$name PREFIX=/ \
+    command make -j$jobs DESTDIR=$opt/$name PREFIX=/usr \
         LDFLAGS=$ldflags $makeflags $_docs "$@"
 }
 
@@ -56,11 +75,14 @@ addpkg() {
         prebuild || die "$pkg prebuild() failed"
     fi
     # run build() method inside pkgfile
-    build || die "$pkg build() failed"
-    echo "$pkg installed!"
-    rm -r "$work"/"${pkg}#${version}"
-    echo $pkg >> "$boredb"
-    sort "$boredb" -o "$boredb"
+    if build ; then
+        rm -r "$work"/"${pkg}#${version}"
+        echo "${pkg}#${version}" >> "$boredb"
+        echo "$pkg installed!"
+        clean
+    else
+        die "$pkg build() failed"
+    fi
 }
 
 # downloads to $sources and extracts to $work
@@ -92,7 +114,7 @@ get() {
         *) die "Error: could not discern compression type of $pkg"
     esac
 
-    # decompressors bug out if dont have the extension...
+    # decompressors bug out if no extension...
     mv -f $tmp/* $tmp/${pkg}.${ext}
 
     case $ext in
@@ -125,9 +147,6 @@ delpkg() {
     [ -d "$opt/$pkg" ] &&
         rm -rf "$opt/$pkg"
 
-    [ -d "$work/$pkg" ] &&
-        rm -rf "$work/$pkg"
-
     # checks if "$1" is a symlink 
     # and its target still exists
     # test_link() {
@@ -146,7 +165,7 @@ delpkg() {
     # done
 
     sed -i -e "s/$pkg//" -e '/^$/d' "$boredb"
-    sort "$boredb" -o "$boredb"
+    clean
 
     echo "$pkg deleted"
 }
@@ -164,21 +183,25 @@ search() {
 
 isinst() {
     [ -n "$1" ] || die 'isinst: no argument given'
-    if grep $1 "$boredb" > /dev/null ; then
-        echo "port $1 is installed"
+    result=$(grep -i "$1" "$boredb")
+    if [ -n "$result" ] ; then
+        echo "port $result is installed"
         return 0
     else
-        echo "port $1 is not installed"
+        echo "port $result is not installed"
         return 1
     fi
 }
+
+# main
+clean
 
 if [ $# -gt 0 ] ; then
     case $1 in
         add|-a)    shift ; addpkg $1 ; exit $? ;;
         del|-d)    shift ; delpkg $1 ; exit $? ;;
         search|-s) shift ; search $1 ;;
-        list|-l)   sort "$boredb" ;;
+        list|-l)   cat "$boredb" ;;
         isinst|-i) shift ; isinst $1 ; exit $? ;;
         count|-c)  cat "$db" | wc -l | sed 's/ //' ;;
         *) addpkg $1 ; exit $? ;;

@@ -9,4 +9,5 @@ a.out
 *dump*
 test
 *bkup
-./opt
+opt
+opt/*

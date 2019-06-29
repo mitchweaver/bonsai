@@ -15,9 +15,9 @@ jobs=$(grep cores /proc/cpuinfo | grep -m 1 -o '.$')
 tcc='tcc'
 gcc='gcc -O0'
 cc=$gcc
-makeflags=''
+makeflags='-s'
 ldflags='-static'
-configure_flags="--disable-option-checking"
+configure_flags="--silent --disable-option-checking"
 docs=true
 
 # downloads
