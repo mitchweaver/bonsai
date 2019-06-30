@@ -23,24 +23,30 @@ EOF
 exit
 }
 
+sortdb() {
+    if [ -f "$boredb" ] ; then
+        sort "$boredb" -o "$boredb"
+    else
+        :> "$boredb"
+    fi
+}
+
 clean() {
-    # sanity check
+    # sanity checks
     for var in bore opt src work boredb ; do
         [ -n "$var" ] || exit 1
     done
 
-    rm -rf "$work"/*
+    echo "CLEAN: I'm about to delete $work/\*!"
+    exit 1
+#    rm -rfi "$work"/*
 
     # remove empty dirs in $opt
     for dir in $(find "$opt" -nowarn -type d ! -wholename "$opt") ; do
         rmdir "$dir" 2> /dev/null
     done
 
-    if [ -f "$boredb" ] ; then
-        sort "$boredb" -o "$boredb"
-    else
-        :> "$boredb"
-    fi
+    sortdb
 }
 
 configure() {
@@ -71,6 +77,9 @@ addpkg() {
     else
         die "Error: can't source $pkg's pkgfile?"
     fi
+    for var in work delim ; do
+        [ -n "$var" ] || die "addpkg(): $var was not set"
+    done
     [ "$(ls $boredb | wc -l)" -gt 0 ] ||
         die "no ports available, use 'sync' to fetch some"
     isinst $pkg > /dev/null &&
@@ -227,8 +236,7 @@ isinst() {
     fi
 }
 
-main() {
-    
+loadconfig() {
     # Warning: These options are used when bootstrapping a system.
     #          ... calling them otherwise is not recommended.
     for arg in "$@" ; do
@@ -245,22 +253,35 @@ main() {
             die "Error: Could not source $chroot_src/bore.rc"
     fi
 
+    # sanity check
+    for var in src opt bore borerc boredb ports sources work pkgs jobs \
+               tcc gcc makeflags configure_flags wget_opts git_opts \
+               docs mans keep_tarballs delim ; do
+        [ -n "$var" ] || die "loadconfig(): $var was not set"
+    done
+}
+
+main() {
+    loadconfig "$@"
+
+    sortdb
+
     while [ $# -gt 0 ] ; do
         case "$1" in
             add|-a)    addpkg $2 ; exit $? ;;
             del|-d)    delpkg $2 ; exit $? ;;
             search|-s) search $2 ; exit $? ;;
             isinst|-i) isinst $2 ; exit $? ;;
-            list|-l)   cat "$boredb"     ; exit $? ;;
-            count|-c)  cat "$db" | wc -l | sed 's/ //' ; exit $? ;;
+            list|-l)   cat "$boredb" ; exit $? ;;
+            count|-c)  cat "$db" | wc -l | sed 's/ //' ; exit ;;
             *help|-h)  usage ;;
             --opt=*|--src=*) shift ;; # see above
             *) if [ -n "$1" ] ; then
-                    addpkg $1
-                    exit $?
-                else
-                    usage
-                fi
+                   addpkg $1
+                   exit $?
+               else
+                   usage
+               fi
         esac
     done
 }
