@@ -249,8 +249,14 @@ loadconfig() {
     if [ -z "$chroot_src" ] ; then
         . /src/bore.rc || die "Error: Could not source /src/bore.rc"
     else
-        "$chroot_src"/bore.rc "$chroot_src" "$chroot_opt" || 
-            die "Error: Could not source $chroot_src/bore.rc"
+        # we are making a chroot, create and load config with given /src + /opt
+        chroot_bore_rc=$(mktemp)
+        cp -f "$chroot_src"/bore.rc "$chroot_bore_rc" || 
+            die "Error: could not load $chroot_src/bore.rc"
+
+        sed -i "s|^src=.*|src=$chroot_src|" "$chroot_bore_rc"
+        sed -i "s|^opt=.*|opt=$chroot_opt|" "$chroot_bore_rc"
+        . "$chroot_bore_rc"
     fi
 
     # sanity check
