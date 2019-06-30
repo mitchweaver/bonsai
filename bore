@@ -32,20 +32,11 @@ sortdb() {
 }
 
 clean() {
-    # sanity checks
-    for var in bore opt src work boredb ; do
-        [ -n "$var" ] || exit 1
-    done
-
-    echo "CLEAN: I'm about to delete $work/\*!"
-    exit 1
-#    rm -rfi "$work"/*
-
+    [ -d "$work" ] && rm -rf "$work"/*
     # remove empty dirs in $opt
     for dir in $(find "$opt" -nowarn -type d ! -wholename "$opt") ; do
         rmdir "$dir" 2> /dev/null
     done
-
     sortdb
 }
 
@@ -77,14 +68,10 @@ addpkg() {
     else
         die "Error: can't source $pkg's pkgfile?"
     fi
-    for var in work delim ; do
-        [ -n "$var" ] || die "addpkg(): $var was not set"
-    done
     [ "$(ls $boredb | wc -l)" -gt 0 ] ||
         die "no ports available, use 'sync' to fetch some"
     isinst $pkg > /dev/null &&
         die "port $pkg is already installed"
-
 
     name="${pkg##*/}"
     [ -z "$version" ] && version='1.0'
@@ -258,13 +245,12 @@ loadconfig() {
         sed -i "s|^opt=.*|opt=$chroot_opt|" "$chroot_bore_rc"
         . "$chroot_bore_rc"
     fi
-
-    # sanity check
-    for var in src opt bore borerc boredb ports sources work pkgs jobs \
-               tcc gcc makeflags configure_flags wget_opts git_opts \
-               docs mans keep_tarballs delim ; do
-        [ -n "$var" ] || die "loadconfig(): $var was not set"
-    done
+    # todo: find a way to loop through config and check every var
+    [ -n "$src" ]    || die "loadconfig(): \$src failed to set"
+    [ -n "$opt" ]    || die "loadconfig(): \$opt failed to set"
+    [ -n "$bore" ]   || die "loadconfig(): \$bore failed to set"
+    [ -n "$boredb" ] || die "loadconfig(): \$boredb failed to set"
+    [ -n "$delim" ]  || die "loadconfig(): \$delim failed to set"
 }
 
 main() {
