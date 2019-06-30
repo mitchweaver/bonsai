@@ -23,7 +23,7 @@ EOF
 exit
 }
 
-borerc='/home/mitch/src/bore/bore.rc'
+borerc=/src/bore.rc
 . $borerc || die "Error: Could not source $borerc"
 
 clean() {
@@ -109,7 +109,6 @@ addpkg() {
 # params: $name, $version, $source
 get() {
     [ $# -lt 3 ] && die 'get(): insufficient arguments'
-    echo ". downloading $1..."
     local pkg=$1
     local version="$2"
     local url="$3"
@@ -122,6 +121,7 @@ get() {
     if [ "$version" = git ] ; then
         local repo_name="${pkg}${delim}${version}"
         if [ ! -d "$repo_name" ] ; then
+            echo ". cloning $1..."
             git clone $git_opts "$url" $tmp ||
                 die "get(): could not clone $url"
             mv -f "$tmp"/* "$work"/"$repo_name"
@@ -133,6 +133,7 @@ get() {
     else # we are downloading with wget
         # check if tarball already downloaded
         if [ ! -f "${pkg}${delim}${version}".* ] ; then
+            echo ". downloading $1..."
             wget $wget_opts "$url" -P $tmp ||
                 die "wget: could not download $pkg"
 

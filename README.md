@@ -16,4 +16,4 @@ gzip, bzip2, xz
 -------------
 
 ### provided by sbase / ubase:
-find, sort, wc, grep, sed, tar
+find, sort, wc, grep, sed, tar, mktemp
