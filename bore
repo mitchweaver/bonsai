@@ -241,10 +241,8 @@ main() {
     if [ -z "$chroot_src" ] ; then
         . /src/bore.rc || die "Error: Could not source /src/bore.rc"
     else
-        . "$chroot_src"/bore.rc || 
+        "$chroot_src"/bore.rc "$chroot_src" "$chroot_opt" || 
             die "Error: Could not source $chroot_src/bore.rc"
-        opt="$chroot_opt"
-        src="$chroot_src"
     fi
 
     while [ $# -gt 0 ] ; do
