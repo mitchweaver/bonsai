@@ -1,0 +1,6 @@
+source=git://git.suckless.org/ubase
+version=git
+build() {
+    make ubase-box
+    make ubase-box-install
+}

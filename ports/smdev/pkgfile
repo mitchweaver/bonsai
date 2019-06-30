@@ -1,4 +1,4 @@
-source=git://git.2f30.org/sdhcp.git
+source=git://git.2f30.org/smdev.git
 version=git
 build() {
     make
