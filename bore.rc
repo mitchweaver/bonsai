@@ -17,16 +17,17 @@ tcc='tcc -w'
 gcc='gcc -w -O0 -pipe'
 makeflags='-s'
 ldflags='-static'
-configure_flags="--silent --disable-option-checking"
+configure_flags="--silent --disable-option-checking --disable-debug"
 
 # downloads
 wget_opts='-c -nc -q --show-progress'
 git_opts='-q --progress --depth 1'
 
-# files
-docs=false
-mans=true
+# options
 keep_tarballs=true
+mans=true  # install man pages?
+docs=false # install extra documentation?
+nls=false  # provide native-language-support?
 
 # package/version delimiter
 # note: must be sane, (no #,/,*, etc...)

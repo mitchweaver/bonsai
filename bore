@@ -44,7 +44,9 @@ configure() {
     ! $docs && local _docs="--disable-docs \
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
-    ./configure $docs --prefix="$opt/$name" $configure_flags "$@" > /dev/null
+    ! $nls && local _nls='--disable-nls'
+    ./configure --prefix="$opt/$name" $_docs $_nls \
+        $configure_flags "$@" > /dev/null
 }
 
 make() {
