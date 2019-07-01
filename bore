@@ -44,8 +44,7 @@ configure() {
     ! $docs && local _docs="--disable-docs \
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
-    ./configure --prefix="$opt"/$name $docs \
-        $configure_flags "$@" > /dev/null
+    ./configure $docs --prefix="$opt/$name" $configure_flags "$@" > /dev/null
 }
 
 make() {
@@ -54,7 +53,7 @@ make() {
     [ -z "$cc" ] && cc="$gcc"
     [ -z "$ldflags" ] && ldflags=""
 
-    command make -j$jobs DESTDIR=$opt/$name PREFIX=/ \
+    command make -j$jobs PREFIX="$opt/$name" \
         CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@" > /dev/null
 }
 
