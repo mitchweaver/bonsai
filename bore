@@ -113,7 +113,7 @@ create_symlinks() {
         done
     done
     $mans &&
-        for manX in $(printf "man%d " $(seq 1 8)) ; do
+        for manX in $(seq -f "man%g" -s " " 1 8) ; do
             for i in $(find "$opt/$pkg/share/man/$manX" \
                     ! -path "*/$manX" 2> /dev/null) ; do
                 [ -e "$i" ] || continue
