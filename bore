@@ -161,7 +161,7 @@ get() {
 
             # store backup to be moved to $sources later
             local bkup=$(mktemp -d)
-            cp -f $tmp/* $bkup
+            cp -f "$tmp/"* $bkup
         else
             cp -f "${pkg}${delim}${version}".* $tmp
         fi
@@ -195,7 +195,9 @@ get() {
 
         mv -f $tmp/*/* "$work"/"${pkg}${delim}${version}" ||
             die "get(): failed to move unpacked tarball"
+        rm -rf $bkup
     fi
+    rm -rf $tmp
 }
 
 delpkg() {
@@ -274,6 +276,7 @@ loadconfig() {
         sed -i "s|^src=.*|src=$chroot_src|" "$chroot_bore_rc"
         sed -i "s|^opt=.*|opt=$chroot_opt|" "$chroot_bore_rc"
         . "$chroot_bore_rc"
+        rm -f "$chroot_bore_rc"
     fi
     # todo: find a way to loop through config and check every var
     [ -n "$src" ]    || die "loadconfig(): \$src failed to set"
