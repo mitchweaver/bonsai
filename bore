@@ -54,7 +54,7 @@ make() {
     [ -z "$cc" ] && cc="$gcc"
     [ -z "$ldflags" ] && ldflags=""
 
-    command make -j$jobs DESTDIR=$opt/$name PREFIX=/usr \
+    command make -j$jobs DESTDIR=$opt/$name PREFIX=/ \
         CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@" > /dev/null
 }
 
@@ -101,25 +101,18 @@ addpkg() {
 # creates symlinks for a port
 create_symlinks() {
     pkg=$1
+    echo '. creating symlinks...'
     # sym link all $opt/$pkg/$dir to the /$dir
-    for dir in bin sbin etc share include lib ; do
-        for subdir in $(find "$opt/$pkg/$dir" ! -path "*$dir" \
+    for dir in bin sbin share include etc lib lib32 lib64 usr ; do
+        for i in $(find "$opt/$pkg/$dir" ! -path "*$dir" \
                 ! -path "*$pkg/share/man" -maxdepth 1 2> /dev/null) ; do
-            [ -e "$subdir" ] || continue
-            subdir="$(basename $subdir)"
-            ln -s "$opt/$pkg/$dir/$subdir" "/$dir/$subdir" || 
-                die "failed to link $dir for $pkg"
+            [ -e "$i" ] || continue
+            i="$(basename $i)"
+            cd "$src"
+            cd ..
+            ln -s "$opt/$pkg/$dir/$i" "./$dir/$i"
         done
     done
-    # man pages
-    $mans &&
-        for page in $(find "$opt/$pkg/share/man/man1" \
-                ! -path "*/man1" 2> /dev/null) ; do
-            [ -e "$page" ] || continue
-            i=$(basename $page)
-            ln -s "$opt/$pkg/share/man/man1/$page" "/share/man/man1/$page" || 
-                    die "Failed to link man pages for $pkg"
-        done
 }
 
 # downloads to $sources and extracts to $work
