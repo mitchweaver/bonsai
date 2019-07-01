@@ -1,0 +1,11 @@
+version=git
+source=http://git.suckless.org/sinit
+build() {
+    cp -f config.def.h config.h
+
+    # change rc script dir from /bin to /etc
+    sed -i 's|/bin|/etc|g' config.h
+
+    make
+    make install
+}
