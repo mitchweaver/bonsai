@@ -51,7 +51,6 @@ make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
 
     [ -z "$cc" ] && cc="$gcc"
-    [ -z "$ldflags" ] && ldflags=""
 
     command make -j$jobs PREFIX="$opt/$name" \
         CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@" > /dev/null

@@ -16,6 +16,7 @@ jobs=$(grep cores /proc/cpuinfo | grep -m 1 -o '.$')
 tcc='tcc -w'
 gcc='gcc -w -O0 -pipe'
 makeflags='-s'
+ldflags='-static'
 configure_flags="--silent --disable-option-checking"
 
 # downloads
