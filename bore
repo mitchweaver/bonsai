@@ -113,6 +113,17 @@ create_symlinks() {
             ln -s "$opt/$pkg/$dir/$i" "./$dir/$i"
         done
     done
+    $mans &&
+        for manX in $(printf "man%d " $(seq 1 8)) ; do
+            for i in $(find "$opt/$pkg/share/man/$manX" \
+                    ! -path "*/$manX" 2> /dev/null) ; do
+                [ -e "$i" ] || continue
+                i=$(basename $i)
+                cd "$src"
+                cd ..
+                ln -s "$opt/$pkg/share/man/$manX/$i" "./share/man/$manX/$i"
+            done
+        done
 }
 
 # downloads to $sources and extracts to $work
