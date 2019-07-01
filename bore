@@ -108,7 +108,8 @@ create_symlinks() {
             i="$(basename $i)"
             cd "$src"
             cd ..
-            ln -s "$opt/$pkg/$dir/$i" "./$dir/$i"
+            # important: this is /opt not $opt !
+            ln -s "/opt/$pkg/$dir/$i" "./$dir/$i"
         done
     done
     $mans &&
@@ -119,7 +120,7 @@ create_symlinks() {
                 i=$(basename $i)
                 cd "$src"
                 cd ..
-                ln -s "$opt/$pkg/share/man/$manX/$i" "./share/man/$manX/$i"
+                ln -s "/opt/$pkg/share/man/$manX/$i" "./share/man/$manX/$i"
             done
         done
 }
