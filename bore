@@ -53,6 +53,7 @@ make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
 
     [ -z "$cc" ] && cc="$gcc"
+    [ -n "$bootstrap_cc" ] && cc="$bootstrap_cc"
 
     command make -j$jobs PREFIX="$opt/$name" \
         CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@" > /dev/null
@@ -261,7 +262,8 @@ loadconfig() {
     for arg in "$@" ; do
         case "$arg" in
             --src=*) chroot_src="${arg#--src=}" ;;
-            --opt=*) chroot_opt="${arg#--opt=}"
+            --opt=*) chroot_opt="${arg#--opt=}" ;;
+            --cc=*)  bootstrap_cc="${arg#--cc=}"
         esac
     done
 
@@ -299,7 +301,7 @@ main() {
             isinst|-i) isinst $2 ; exit $? ;;
             list|-l)   cat "$boredb" ; exit $? ;;
             count|-c)  cat "$db" | wc -l | sed 's/ //' ; exit ;;
-            --opt=*|--src=*) shift ;; # see above
+            --opt=*|--src=*|--cc=*) shift ;; # see above
             *help|-h)  usage ;;
             *) if [ -n "$1" ] ; then
                    addpkg $1
