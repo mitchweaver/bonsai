@@ -1,7 +1,6 @@
 version=0.5.10
 source=http://gondor.apana.org.au/~herbert/dash/files/dash-$version.tar.gz
-build() {
-
+prebuild() {
 # as taken from sabotage's pkgbuild
 cat > nl.c << EOF
 #include <stdio.h>
@@ -10,9 +9,9 @@ int main() {
     while(fgets(b, sizeof b, stdin)) { printf("%zu %s", i, b); i++; ; }
 }
 EOF
-
     cc nl.c -o nl
-    
+}
+build() {
     configure
     make
     make install
