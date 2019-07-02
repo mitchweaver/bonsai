@@ -55,8 +55,6 @@ configure() {
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
     ! $nls && local _nls='--disable-nls'
-    getcc
-    getflags
     ./configure CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
         --prefix="$opt/$name" $_docs $_nls \
         $configure_flags "$@" -C > /dev/null
@@ -64,12 +62,23 @@ configure() {
 
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
-    getcc
-    getflags
     command make $makeflags \
         CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
         -j$jobs PREFIX="$opt/$name" \
         $_docs "$@" > /dev/null
+}
+
+cc() { $cc "$@" ; }
+
+run_build() {
+    # run user defined prebuild() if exists
+    if type prebuild > /dev/null ; then
+        prebuild || die "$pkg prebuild() failed"
+    fi
+    getcc
+    getflags
+    # run build() method inside pkgfile
+    build || die "$pkg build() failed"
 }
 
 addpkg() {
@@ -93,22 +102,16 @@ addpkg() {
     # download/extract package
     get $pkg $version $source
     cd "$work"/"${pkg}${delim}${version}" || die "Error: unable to cd to $work/$pkg"
+
     echo ". building $pkg..."
     mkdir -p $opt/$pkg
 
-    # run user defined prebuild() if exists
-    if type prebuild > /dev/null ; then
-        prebuild || die "$pkg prebuild() failed"
-    fi
-    # run build() method inside pkgfile
-    if build ; then
+    if run_build ; then
         rm -r "$work"/"${pkg}${delim}${version}"
         create_symlinks $pkg
         echo "${pkg}${delim}${version}" >> "$boredb"
         echo "$pkg installed!"
         clean
-    else
-        die "$pkg build() failed"
     fi
 }
 
