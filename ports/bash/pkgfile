@@ -1,0 +1,7 @@
+version=5.0
+source=http://ftp.gnu.org/gnu/bash/bash-$version.tar.gz
+build() {
+    configure --without-bash-malloc
+    make
+    make install
+}
