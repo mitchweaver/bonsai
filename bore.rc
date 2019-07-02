@@ -17,6 +17,7 @@ tcc='tcc -w'
 gcc='gcc -w -O0 -pipe'
 makeflags='-s'
 ldflags='-static'
+cflags=''
 configure_flags="--silent --disable-option-checking --disable-debug"
 
 # downloads

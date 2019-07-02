@@ -40,23 +40,36 @@ clean() {
     sortdb
 }
 
+getcc() {
+    [ -z "$cc" ] && cc="$gcc"
+    [ -n "$bootstrap_cc" ] && cc="$bootstrap_cc"
+}
+
+getflags() {
+    CFLAGS="-D_GNU_SOURCE -static $cflags"
+    LDFLAGS="-static $ldflags"
+}
+
 configure() {
     ! $docs && local _docs="--disable-docs \
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
     ! $nls && local _nls='--disable-nls'
-    ./configure --prefix="$opt/$name" $_docs $_nls \
-        $configure_flags "$@" > /dev/null
+    getcc
+    getflags
+    ./configure CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+        --prefix="$opt/$name" $_docs $_nls \
+        $configure_flags "$@" -C > /dev/null
 }
 
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
-
-    [ -z "$cc" ] && cc="$gcc"
-    [ -n "$bootstrap_cc" ] && cc="$bootstrap_cc"
-
-    command make -j$jobs PREFIX="$opt/$name" \
-        CC="$cc" LDFLAGS="$ldflags" $makeflags $_docs "$@" > /dev/null
+    getcc
+    getflags
+    command make $makeflags \
+        CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+        -j$jobs PREFIX="$opt/$name" \
+        $_docs "$@" > /dev/null
 }
 
 addpkg() {
