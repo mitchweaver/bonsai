@@ -47,7 +47,8 @@ getcc() {
 
 getflags() {
     LDFLAGS="-static $ldflags"
-    CFLAGS="-D_GNU_SOURCE -static $cflags -I$root/include"
+    CPPFLAGS="-D_GNU_SOURCE"
+    CFLAGS="-static $cflags -I$root/include"
     [ -n "$chroot_root" ] && CFLAGS="$CFLAGS -I$root/opt/kernel-headers/include"
 }
 
@@ -57,14 +58,14 @@ configure() {
                       --disable-gtk-docs-html"
     ! $nls && local _nls='--disable-nls'
     ./configure CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
-        --prefix="$opt/$name" $_docs $_nls \
+        CPPFLAGS="$CPPFLAGS" --prefix="$opt/$name" $_docs $_nls \
         $configure_flags "$@" -C > /dev/null
 }
 
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
     command make $makeflags \
-        CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+        CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
         $_docs "$@" > /dev/null
 }
