@@ -154,6 +154,7 @@ create_symlinks() {
 # params: $name, $version, $source
 get() {
     [ $# -lt 3 ] && die 'get(): insufficient arguments'
+    clean # clean $work, incase bore was interrupted
     local pkg=$1
     local version="$2"
     local url="$3"
