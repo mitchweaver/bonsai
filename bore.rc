@@ -1,6 +1,7 @@
 # bore variables
-src=/src
-opt=/opt
+root=/
+src="$root"/src
+opt="$root"/opt
 bore="$src"/bore
 borerc="$src"/bore.rc
 boredb="$src"/bore.db

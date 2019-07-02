@@ -5,7 +5,7 @@
 # package manager for [NAME] Linux
 #
 
-die() { >&2 echo "$@" ; clean ; exit 1 ; }
+die() { >&2 echo "$@" ; exit 1 ; }
 
 usage() {
 cat << EOF
@@ -46,9 +46,9 @@ getcc() {
 }
 
 getflags() {
-    INCLUDE="-I/include -I/local/include"
-    CFLAGS="-D_GNU_SOURCE -static $cflags $INCLUDE"
     LDFLAGS="-static $ldflags"
+    CFLAGS="-D_GNU_SOURCE -static $cflags -I$root/include"
+    [ -n "$chroot_root" ] && CFLAGS="$CFLAGS -I$root/opt/kernel-headers/include"
 }
 
 configure() {
@@ -133,7 +133,7 @@ create_symlinks() {
             cd "$src"
             cd ..
             # important: this is /opt not $opt !
-            ln -s "/opt/$pkg/$dir/$i" "./$dir/$i"
+            ln -sn "/opt/$pkg/$dir/$i" "./$dir/$i"
         done
     done
     $mans &&
@@ -144,7 +144,7 @@ create_symlinks() {
                 i=$(basename $i)
                 cd "$src"
                 cd ..
-                ln -s "/opt/$pkg/share/man/$manX/$i" "./share/man/$manX/$i"
+                ln -sn "/opt/$pkg/share/man/$manX/$i" "./share/man/$manX/$i"
             done
         done
 }
@@ -282,26 +282,24 @@ loadconfig() {
     #          ... calling them otherwise is not recommended.
     for arg in "$@" ; do
         case "$arg" in
-            --src=*) chroot_src="${arg#--src=}" ;;
-            --opt=*) chroot_opt="${arg#--opt=}" ;;
-            --cc=*)  bootstrap_cc="${arg#--cc=}"
+            --root=*) chroot_root="${arg#--root=}" ;;
+            --cc=*)   bootstrap_cc="${arg#--cc=}"
         esac
     done
 
-    if [ -z "$chroot_src" ] ; then
+    if [ -z "$chroot_root" ] ; then
         . /src/bore.rc || die "Error: Could not source /src/bore.rc"
     else
-        # we are making a chroot, create and load config with given /src + /opt
         chroot_bore_rc=$(mktemp)
-        cp -f "$chroot_src"/bore.rc "$chroot_bore_rc" || 
+        cp -f "$chroot_root"/src/bore.rc "$chroot_bore_rc" || 
             die "Error: could not load $chroot_src/bore.rc"
 
-        sed -i "s|^src=.*|src=$chroot_src|" "$chroot_bore_rc"
-        sed -i "s|^opt=.*|opt=$chroot_opt|" "$chroot_bore_rc"
+        sed -i "s|^root=.*|root=$chroot_root|" "$chroot_bore_rc"
         . "$chroot_bore_rc"
         rm -f "$chroot_bore_rc"
     fi
     # todo: find a way to loop through config and check every var
+    [ -n "$root" ]   || die "loadconfig(): \$root failed to set"
     [ -n "$src" ]    || die "loadconfig(): \$src failed to set"
     [ -n "$opt" ]    || die "loadconfig(): \$opt failed to set"
     [ -n "$bore" ]   || die "loadconfig(): \$bore failed to set"
@@ -322,7 +320,7 @@ main() {
             isinst|-i) isinst $2 ; exit $? ;;
             list|-l)   cat "$boredb" ; exit $? ;;
             count|-c)  cat "$db" | wc -l | sed 's/ //' ; exit ;;
-            --opt=*|--src=*|--cc=*) shift ;; # see above
+            --cc=*|--root=*) shift ;; # see above
             *help|-h)  usage ;;
             *) if [ -n "$1" ] ; then
                    addpkg $1
