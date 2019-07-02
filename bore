@@ -272,7 +272,7 @@ isinst() {
         echo "port $result is installed"
         return 0
     else
-        echo "port $result is not installed"
+        echo "port $1 is not installed"
         return 1
     fi
 }
