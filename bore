@@ -64,21 +64,25 @@ make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
     command make $makeflags \
         CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
-        -j$jobs PREFIX="$opt/$name" \
+        -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
         $_docs "$@" > /dev/null
 }
 
 cc() { $cc "$@" ; }
 
 run_build() {
-    # run user defined prebuild() if exists
+    getcc
+    getflags
+    # run user defined prebuild(), if exists
     if type prebuild > /dev/null ; then
         prebuild || die "$pkg prebuild() failed"
     fi
-    getcc
-    getflags
     # run build() method inside pkgfile
     build || die "$pkg build() failed"
+    # run user defined postbuild(), if exists
+    if type postbuild > /dev/null ; then
+        postbuild || die "$pkg postbuild() failed"
+    fi
 }
 
 addpkg() {
