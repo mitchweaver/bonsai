@@ -46,7 +46,8 @@ getcc() {
 }
 
 getflags() {
-    CFLAGS="-D_GNU_SOURCE -static $cflags"
+    INCLUDE="-I/include -I/local/include"
+    CFLAGS="-D_GNU_SOURCE -static $cflags $INCLUDE"
     LDFLAGS="-static $ldflags"
 }
 
