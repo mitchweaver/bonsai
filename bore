@@ -50,11 +50,22 @@ cc() { $cc "$@" ; }
 getflags() {
     LDFLAGS="-static $ldflags"
     CPPFLAGS="-D_GNU_SOURCE"
-    CFLAGS="-static $cflags -I$root/include -L$root/lib"
+    local INCLUDES=""
+    # If we are bootstrapping, all of our created symlinks
+    # will be non-functional. This is because they will be
+    # pointing to, for example, "/lib" instead of "$chroot/lib".
+    # As a fix for this, we will find and include every $pkg/lib.
     if [ -n "$chroot_root" ] ; then
-        CFLAGS="$CFLAGS -I$root/opt/kernel-headers/include"
-        CFLAGS="$CFLAGS -L$root/opt/libressl/lib"
+        for pkg in $(ls $root/opt) ; do
+            [ -d $root/opt/$pkg/lib ] &&
+                INCLUDES="$INCLUDES -L$root/opt/$pkg/lib"
+            [ -d $root/opt/$pkg/include ] &&
+                INCLUDES="$INCLUDES -I$root/opt/$pkg/include"
+        done
+    else
+        INCLUDES="-I$root/include -L$root/lib"
     fi
+    CFLAGS="-static $cflags $INCLUDES"
 }
 
 patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
@@ -215,8 +226,9 @@ create_symlinks() {
     # sym link all $opt/$pkg_name/$dir to the /$dir
     for dir in bin sbin share include etc lib lib32 lib64 usr ; do
         for i in $(find "$opt/$pkg_name/$dir" ! -path "*$dir" \
-                ! -path "*$pkg_name/share/man" -maxdepth 1 2> /dev/null \
-                ! -path "*$pkg_name/lib/pkgconfig") ; do
+                ! -path "*$pkg_name/share/man" \
+                ! -path "*$pkg_name/lib/pkgconfig" \
+                -maxdepth 1 2> /dev/null) ; do
             [ -e "$i" ] || continue
             i="$(basename $i)"
             cd "$src"

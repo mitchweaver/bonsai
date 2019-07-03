@@ -1,0 +1,10 @@
+version=7.65.1
+source=https://curl.haxx.se/download/curl-$version.tar.xz
+build() {
+    configure --with-ssl \
+              --without-librtmp \
+              --without-cyassl \
+              #--with-ca-bundle=/etc/ssl/cert.pem
+    make
+    make install
+}
