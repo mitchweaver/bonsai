@@ -237,7 +237,7 @@ create_symlinks() {
             cd "$src"
             cd ..
             # important: this is /opt not $opt !
-            ln -sn "/opt/$pkg_name/$dir/$i" "./$dir/$i"
+            ln -sfn "/opt/$pkg_name/$dir/$i" "./$dir/$i"
         done
     done
 
@@ -248,7 +248,7 @@ create_symlinks() {
             i=$(basename $i)
             cd "$src"
             cd ..
-            ln -sn "/opt/$pkg_name/lib/pkgconfig/$i" "./lib/pkgconfig/$i"
+            ln -sfn "/opt/$pkg_name/lib/pkgconfig/$i" "./lib/pkgconfig/$i"
         done
     fi
 
@@ -261,7 +261,7 @@ create_symlinks() {
                     i=$(basename $i)
                     cd "$src"
                     cd ..
-                    ln -sn "/opt/$pkg_name/share/man/$manX/$i" "./share/man/$manX/$i"
+                    ln -sfn "/opt/$pkg_name/share/man/$manX/$i" "./share/man/$manX/$i"
                 done
             done
         fi
