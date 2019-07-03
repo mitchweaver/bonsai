@@ -50,8 +50,11 @@ cc() { $cc "$@" ; }
 getflags() {
     LDFLAGS="-static $ldflags"
     CPPFLAGS="-D_GNU_SOURCE"
-    CFLAGS="-static $cflags -I$root/include"
-    [ -n "$chroot_root" ] && CFLAGS="$CFLAGS -I$root/opt/kernel-headers/include"
+    CFLAGS="-static $cflags -I$root/include -L$root/lib"
+    if [ -n "$chroot_root" ] ; then
+        CFLAGS="$CFLAGS -I$root/opt/kernel-headers/include"
+        CFLAGS="$CFLAGS -L$root/opt/libressl/lib"
+    fi
 }
 
 patch() { for p ; do command patch -p0 < "$p" ; done ; }
@@ -61,9 +64,21 @@ configure() {
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
     ! $nls && local _nls='--disable-nls'
-    ./configure CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
-        CPPFLAGS="$CPPFLAGS" --prefix="$opt/$pkg_name" $_docs $_nls \
-        $configure_flags "$@" -C > /dev/null
+
+    # try to enable as many options as possible
+    # if they are allowed in the configure script
+    local allowed=""
+    for flag in --static --silent --quiet \
+                --disable-option-checking --disable-debug \
+                --disable-debugger --enable-static-link \
+                $_nls $_docs ; do
+        grep -- "$flag" ./configure && allowed="$allowed $flag"
+    done
+
+    CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
+        PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
+        ./configure $allowed --prefix="$opt"/$pkg_name \
+        $configure_flags "$@"
 }
 
 make() {
