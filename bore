@@ -60,12 +60,15 @@ getflags() {
         for pkg in $(ls $root/opt) ; do
             [ -d $root/opt/$pkg/lib ] &&
                 LDFLAGS="$LDFLAGS -L$root/opt/$pkg/lib"
-            [ -d $root/opt/$pkg/include ] &&
+            if [ -d $root/opt/$pkg/include ] ; then
                 CPPFLAGS="$CPPFLAGS -I$root/opt/$pkg/include"
+                CFLAGS="$CFLAGS -I$root/opt/$pkg/include"
+            fi
         done
     else
         LDFLAGS="$LDFLAGS -L$root/lib"
         CPPFLAGS="$CPPFLAGS -I$root/include"
+        CLAGS="$CFLAGS -I$root/include"
     fi
 }
 
@@ -90,7 +93,7 @@ configure() {
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
         ./configure $allowed --prefix="$opt"/$pkg_name \
-        $configure_flags "$@" -- > /dev/null
+        $configure_flags "$@" > /dev/null
 }
 
 make() {
@@ -99,7 +102,7 @@ make() {
     command make $makeflags \
         CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         -j$jobs prefix="$opt/$pkg_name" PREFIX="$opt/$pkg_name" \
-        $_docs $_quiet "$@" -- > /dev/null
+        $_docs $_quiet "$@" > /dev/null
 }
 
 run_build() {

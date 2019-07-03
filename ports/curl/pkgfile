@@ -1,15 +1,29 @@
 version=7.65.1
 source=https://curl.haxx.se/download/curl-$version.tar.xz
+depends: libressl zlib
 build() {
     # Note: As this is part of the base system
     #       when bootstrapping, we must pass
     #       the required zlib and libressl library
     #       paths with the relative $root variable.
-    configure --without-librtmp \
-              --without-cyassl \
+    configure --disable-shared --enable-static \
+              --without-librtmp --without-cyassl \
+              --without-libpsl --without-winidn \
+              --without-libidn2 --without-gnutls \
+              --without-winssl --without-schannel \
+              --without-darwinssl --without-secure-transport \
+              --without-amissl --disable-ldap \
+              --disable-ldaps --disable-telnet \
+              --disable-file --disable-sspi \
+              --disable-dict --disable-telnet \
+              --disable-ldaps --disable-librtsp \
+              --disable-pop3 --disable-imap \
+              --disable-smtp --disable-gopher \
+              --disable-smb --without-libidn \
               --with-ssl=$root/opt/libressl \
               --with-zlib=$root/opt/zlib \
-              --with-ca-bundle=$root/etc/ssl/cert.pem
-    make
-    make install
+              --with-ca-bundle=/etc/ssl/cert.pem
+
+    make curl_LDFLAGS=-all-static
+    make curl_LDFLAGS=-all-static install
 }
