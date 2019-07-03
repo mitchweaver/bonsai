@@ -45,12 +45,16 @@ getcc() {
     [ -n "$bootstrap_cc" ] && cc="$bootstrap_cc"
 }
 
+cc() { $cc "$@" ; }
+
 getflags() {
     LDFLAGS="-static $ldflags"
     CPPFLAGS="-D_GNU_SOURCE"
     CFLAGS="-static $cflags -I$root/include"
     [ -n "$chroot_root" ] && CFLAGS="$CFLAGS -I$root/opt/kernel-headers/include"
 }
+
+patch() { for p ; do command patch -p0 < "$p" ; done ; }
 
 configure() {
     ! $docs && local _docs="--disable-docs \
@@ -69,8 +73,6 @@ make() {
         -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
         $_docs "$@" > /dev/null
 }
-
-cc() { $cc "$@" ; }
 
 run_build() {
     getcc
