@@ -57,7 +57,7 @@ getflags() {
     fi
 }
 
-patch() { for p ; do command patch -p0 < "$p" ; done ; }
+patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
 
 configure() {
     ! $docs && local _docs="--disable-docs \
@@ -72,7 +72,9 @@ configure() {
                 --disable-option-checking --disable-debug \
                 --disable-debugger --enable-static-link \
                 $_nls $_docs ; do
-        grep -- "$flag" ./configure && allowed="$allowed $flag"
+        ./configure --help | \
+            grep -- "$flag" > /dev/null && \
+            allowed="$allowed $flag"
     done
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
@@ -213,7 +215,8 @@ create_symlinks() {
     # sym link all $opt/$pkg_name/$dir to the /$dir
     for dir in bin sbin share include etc lib lib32 lib64 usr ; do
         for i in $(find "$opt/$pkg_name/$dir" ! -path "*$dir" \
-                ! -path "*$pkg_name/share/man" -maxdepth 1 2> /dev/null) ; do
+                ! -path "*$pkg_name/share/man" -maxdepth 1 2> /dev/null \
+                ! -path "*$pkg_name/lib/pkgconfig") ; do
             [ -e "$i" ] || continue
             i="$(basename $i)"
             cd "$src"
@@ -222,17 +225,31 @@ create_symlinks() {
             ln -sn "/opt/$pkg_name/$dir/$i" "./$dir/$i"
         done
     done
-    $mans &&
-        for manX in $(seq -f "man%g" -s " " 1 8) ; do
-            for i in $(find "$opt/$pkg_name/share/man/$manX" \
-                    ! -path "*/$manX" 2> /dev/null) ; do
-                [ -e "$i" ] || continue
-                i=$(basename $i)
-                cd "$src"
-                cd ..
-                ln -sn "/opt/$pkg_name/share/man/$manX/$i" "./share/man/$manX/$i"
-            done
+
+    if [ -d "$opt"/$pkg_name/lib/pkgconfig ] ; then
+        for i in $(find "$opt"/$pkg_name/lib/pkgconfig \
+                ! -path "*/lib/pkgconfig" 2> /dev/null) ; do
+            [ -e "$i" ] || continue
+            i=$(basename $i)
+            cd "$src"
+            cd ..
+            ln -sn "/opt/$pkg_name/lib/pkgconfig/$i" "./lib/pkgconfig/$i"
         done
+    fi
+
+    $mans &&
+        if [ -d "$opt"/$pkg_name/share/man ] ; then
+            for manX in $(seq -f "man%g" -s " " 1 8) ; do
+                for i in $(find "$opt/$pkg_name/share/man/$manX" \
+                        ! -path "*/$manX" 2> /dev/null) ; do
+                    [ -e "$i" ] || continue
+                    i=$(basename $i)
+                    cd "$src"
+                    cd ..
+                    ln -sn "/opt/$pkg_name/share/man/$manX/$i" "./share/man/$manX/$i"
+                done
+            done
+        fi
 }
 
 delpkg() {
