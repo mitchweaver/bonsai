@@ -48,9 +48,10 @@ getcc() {
 cc() { $cc "$@" ; }
 
 getflags() {
+    PKG_CONFIG="pkg-config --static"
+    CFLAGS="-static $cflags"
     LDFLAGS="-static $ldflags"
-    CPPFLAGS="-D_GNU_SOURCE"
-    local INCLUDES=""
+    CPPFLAGS="-static -D_GNU_SOURCE $cppflags"
     # If we are bootstrapping, all of our created symlinks
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
@@ -58,48 +59,47 @@ getflags() {
     if [ -n "$chroot_root" ] ; then
         for pkg in $(ls $root/opt) ; do
             [ -d $root/opt/$pkg/lib ] &&
-                INCLUDES="$INCLUDES -L$root/opt/$pkg/lib"
+                LDFLAGS="$LDFLAGS -L$root/opt/$pkg/lib"
             [ -d $root/opt/$pkg/include ] &&
-                INCLUDES="$INCLUDES -I$root/opt/$pkg/include"
+                CPPFLAGS="$CPPFLAGS -I$root/opt/$pkg/include"
         done
     else
-        INCLUDES="-I$root/include -L$root/lib"
+        LDFLAGS="$LDFLAGS -L$root/lib"
+        CPPFLAGS="$CPPFLAGS -I$root/include"
     fi
-    CFLAGS="-static $cflags $INCLUDES"
 }
 
 patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
 
 configure() {
-    ! $docs && local _docs="--disable-docs \
+    ! $docs  && local _docs="--disable-docs \
                       --disable-gtk-docs \
                       --disable-gtk-docs-html"
-    ! $nls && local _nls='--disable-nls'
+    ! $nls   && local _nls='--disable-nls'
+    ! $debug && local _debug='--disable-debug --disable-debugger'
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
     local allowed=""
-    for flag in --static --silent --quiet \
-                --disable-option-checking --disable-debug \
-                --disable-debugger --enable-static-link \
-                $_nls $_docs ; do
-        ./configure --help | \
-            grep -- "$flag" > /dev/null && \
+    for flag in --static --enable-static-link $quiet $debug $_nls $_docs \
+                --disable-option-checking ; do
+        ./configure --help | grep -- "$flag" > /dev/null && \
             allowed="$allowed $flag"
     done
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
         ./configure $allowed --prefix="$opt"/$pkg_name \
-        $configure_flags "$@"
+        $configure_flags "$@" -- > /dev/null
 }
 
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
+    $quiet  && local _quiet='-s'
     command make $makeflags \
         CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         -j$jobs prefix="$opt/$pkg_name" PREFIX="$opt/$pkg_name" \
-        $_docs "$@" > /dev/null
+        $_docs $_quiet "$@" -- > /dev/null
 }
 
 run_build() {
