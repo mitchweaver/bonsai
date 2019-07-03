@@ -1,10 +1,15 @@
 version=7.65.1
 source=https://curl.haxx.se/download/curl-$version.tar.xz
 build() {
-    configure --with-ssl \
-              --without-librtmp \
+    # Note: As this is part of the base system
+    #       when bootstrapping, we must pass
+    #       the required zlib and libressl library
+    #       paths with the relative $root variable.
+    configure --without-librtmp \
               --without-cyassl \
-              #--with-ca-bundle=/etc/ssl/cert.pem
+              --with-ssl=$root/opt/libressl \
+              --with-zlib=$root/opt/zlib \
+              --with-ca-bundle=$root/etc/ssl/cert.pem
     make
     make install
 }
