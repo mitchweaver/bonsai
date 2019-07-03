@@ -91,34 +91,103 @@ addpkg() {
     pkg="$1"
     pkgfile="$ports"/$pkg/pkgfile
 
-    # sanity checks
     if [ -f "$pkgfile" ] ; then
         . "$pkgfile"
     else
         die "Error: can't source $pkg's pkgfile?"
     fi
-    [ "$(ls $boredb | wc -l)" -gt 0 ] ||
-        die "no ports available, use 'sync' to fetch some"
-    isinst $pkg > /dev/null &&
-        die "port $pkg is already installed"
+    [ "$(ls $boredb | wc -l)" -gt 0 ] || die "no ports found"
+    isinst $pkg > /dev/null && die "port $pkg is already installed"
 
-    name="${pkg##*/}"
+    pkg_name="${pkg##*/}"
     [ -z "$version" ] && version='1.0'
+    pkgid="${pkg_name}${delim}${version}"
+    pkgdir="$work"/"$pkgid"
 
     # download/extract package
-    get $pkg $version $source
-    cd "$work"/"${pkg}${delim}${version}" || die "Error: unable to cd to $work/$pkg"
+    get "$source"
+    cd "$pkgdir" || die "Error: unable to cd to $pkgdir"
 
     echo ". building $pkg..."
     mkdir -p $opt/$pkg
 
     if run_build ; then
-        rm -r "$work"/"${pkg}${delim}${version}"
+        rm -r "$pkgdir"
         create_symlinks $pkg
-        echo "${pkg}${delim}${version}" >> "$boredb"
+        echo "$pkgid" >> "$boredb"
         echo "$pkg installed!"
         clean
     fi
+}
+
+# downloads a given url and extracts to $work
+get() {
+    [ $# -lt 1 ] && die 'get(): no source given'
+    clean # clean $work, incase bore was interrupted
+    local url="$1"
+    local tmp=$(mktemp -d)
+
+    mkdir -p "$pkgdir" "$sources"
+    cd "$sources"
+
+    if [ "$version" = git ] ; then
+        if [ ! -d "$pkgid" ] ; then
+            echo ". cloning $1..."
+            git clone $git_opts "$url" $tmp || die "get(): could not clone $url"
+            mv -f "$tmp"/* "$work"/"$pkgid"
+            $keep_tarballs && cp -rf "$work"/"$pkgid" "$sources"/"$pkgid"
+        else
+            cp -rf "$sources"/"$pkgid" "$work"
+        fi
+    else # we are downloading with wget
+        if [ ! -f "$pkgid".* ] ; then
+            echo ". downloading $1..."
+            wget $wget_opts "$url" -P $tmp ||
+                die "wget: could not download $pkg_name"
+
+            # store backup to be moved to $sources later
+            local bkup=$(mktemp -d)
+            cp -f "$tmp/"* $bkup
+        else
+            cp -f "$pkgid".* $tmp
+        fi
+        case $(file $tmp/*) in
+            *gzip*)  ext=gz    ;;
+            *bzip2*) ext=bzip2 ;;
+            *XZ*)    ext=xz    ;;
+            *) die "Error: could not discern compression type of $pkg_name"
+        esac
+
+        # decompressors bug out if no extension...
+        mv -f $tmp/* $tmp/${pkg_name}.${ext}
+
+        case $ext in
+            xz)   xz      -d $tmp/* ;;
+            gz)   gunzip  -d $tmp/* ;;
+            bz2)  bunzip2 -d $tmp/* ;;
+            *) die "$ext: unknown compression algorithm"
+        esac
+        [ $? -gt 0 ] && die "$ext: failed to decompress $pkg_name"
+
+        if file $tmp/* | grep 'tar archive' > /dev/null ; then
+            ext=tar.${ext}
+            tar -xf $tmp/* -C $tmp/ || 
+                die "tar: could not extract $pkgid.$ext"       
+        fi
+
+        if $keep_tarballs && [ ! -f "$sources"/"$pkgid".* ] ; then
+            cp -f $bkup/* "$sources"/"$pkgid".$ext
+        fi
+
+        mv -f $tmp/*/* "$work"/"$pkgid" ||
+            die "get(): failed to move unpacked tarball"
+        rm -rf $bkup
+    fi
+    rm -rf $tmp
+    # copy all port's files, except its pkgfile
+    for file in $(ls -A "$ports"/"$pkg_name"/* | grep -v pkgfile) ; do
+        cp -f "$file" "$pkgdir"
+    done
 }
 
 # creates symlinks for a port
@@ -150,88 +219,12 @@ create_symlinks() {
         done
 }
 
-# downloads to $sources and extracts to $work
-# params: $name, $version, $source
-get() {
-    [ $# -lt 3 ] && die 'get(): insufficient arguments'
-    clean # clean $work, incase bore was interrupted
-    local pkg=$1
-    local version="$2"
-    local url="$3"
-    local tmp=$(mktemp -d)
-
-    mkdir -p "$work"/"${pkg}${delim}${version}"
-    mkdir -p "$sources"
-    cd "$sources"
-
-    if [ "$version" = git ] ; then
-        local repo_name="${pkg}${delim}${version}"
-        if [ ! -d "$repo_name" ] ; then
-            echo ". cloning $1..."
-            git clone $git_opts "$url" $tmp ||
-                die "get(): could not clone $url"
-            mv -f "$tmp"/* "$work"/"$repo_name"
-            $keep_tarballs &&
-                cp -rf "$work"/"$repo_name" "$sources"/"$repo_name"
-        else
-            cp -rf "$sources"/"$repo_name" "$work"
-        fi
-    else # we are downloading with wget
-        # check if tarball already downloaded
-        if [ ! -f "${pkg}${delim}${version}".* ] ; then
-            echo ". downloading $1..."
-            wget $wget_opts "$url" -P $tmp ||
-                die "wget: could not download $pkg"
-
-            # store backup to be moved to $sources later
-            local bkup=$(mktemp -d)
-            cp -f "$tmp/"* $bkup
-        else
-            cp -f "${pkg}${delim}${version}".* $tmp
-        fi
-        case $(file $tmp/*) in
-            *gzip*)  ext=gz    ;;
-            *bzip2*) ext=bzip2 ;;
-            *XZ*)    ext=xz    ;;
-            *) die "Error: could not discern compression type of $pkg"
-        esac
-
-        # decompressors bug out if no extension...
-        mv -f $tmp/* $tmp/${pkg}.${ext}
-
-        case $ext in
-            xz)   xz      -d $tmp/* ;;
-            gz)   gunzip  -d $tmp/* ;;
-            bz2)  bunzip2 -d $tmp/* ;;
-            *) die "$ext: unknown compression algorithm"
-        esac
-        [ $? -gt 0 ] && die "$ext: failed to decompress $pkg"
-
-        if file $tmp/* | grep 'tar archive' > /dev/null ; then
-            ext=tar.${ext}
-            tar -xf $tmp/* -C $tmp/ || \
-                die "tar: could not extract ${pkg}${delim}${version}.${ext}"       
-        fi
-
-        if $keep_tarballs && [ ! -f "$sources"/"${pkg}${delim}${version}".* ] ; then
-            cp -f $bkup/* "$sources"/"${pkg}${delim}${version}.${ext}"
-        fi
-
-        mv -f $tmp/*/* "$work"/"${pkg}${delim}${version}" ||
-            die "get(): failed to move unpacked tarball"
-        rm -rf $bkup
-    fi
-    rm -rf $tmp
-}
-
 delpkg() {
     local pkg="$1"
 
-    grep "$pkg" "$boredb" > /dev/null 2>&1 || \
-        die "$pkg is not installed"
+    grep "$pkg" "$boredb" > /dev/null 2>&1 || die "$pkg is not installed"
 
-    [ -d "$opt/$pkg" ] &&
-        rm -rf "$opt/$pkg"
+    [ -d "$opt/$pkg" ] && rm -rf "$opt/$pkg"
 
     # checks if "$1" is a symlink 
     # and its target still exists
@@ -258,8 +251,7 @@ delpkg() {
 
 search() {
     [ -n "$1" ] || die 'search: no argument given'
-    for p in `find "$ports" ! -path "$ports" \
-                -iname *${1}* | sort` ; do
+    for p in `find "$ports" ! -path "$ports" -iname *${1}* | sort` ; do
         p=${p##*/}
         p=${p%.*}
         echo $p
@@ -297,6 +289,7 @@ loadconfig() {
             die "Error: could not load $chroot_src/bore.rc"
 
         sed -i "s|^root=.*|root=$chroot_root|" "$chroot_bore_rc"
+
         . "$chroot_bore_rc"
         rm -f "$chroot_bore_rc"
     fi
