@@ -62,7 +62,7 @@ configure() {
                       --disable-gtk-docs-html"
     ! $nls && local _nls='--disable-nls'
     ./configure CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
-        CPPFLAGS="$CPPFLAGS" --prefix="$opt/$name" $_docs $_nls \
+        CPPFLAGS="$CPPFLAGS" --prefix="$opt/$pkg_name" $_docs $_nls \
         $configure_flags "$@" -C > /dev/null
 }
 
@@ -70,7 +70,7 @@ make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
     command make $makeflags \
         CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
+        -j$jobs prefix="$opt/$pkg_name" PREFIX="$opt/$pkg_name" \
         $_docs "$@" > /dev/null
 }
 
@@ -90,18 +90,17 @@ run_build() {
 }
 
 addpkg() {
-    pkg="$1"
-    pkgfile="$ports"/$pkg/pkgfile
+    pkg_name=$1
+    pkgfile="$ports"/$pkg_name/pkgfile
 
     if [ -f "$pkgfile" ] ; then
         . "$pkgfile"
     else
-        die "Error: can't source $pkg's pkgfile?"
+        die "Error: can't source $pkg_name's pkgfile?"
     fi
     [ "$(ls $boredb | wc -l)" -gt 0 ] || die "no ports found"
-    isinst $pkg > /dev/null && die "port $pkg is already installed"
+    isinst $pkg_name > /dev/null && die "port $pkg_name is already installed"
 
-    pkg_name="${pkg##*/}"
     [ -z "$version" ] && version='1.0'
     pkgid="${pkg_name}${delim}${version}"
     pkgdir="$work"/"$pkgid"
@@ -110,14 +109,14 @@ addpkg() {
     get "$source"
     cd "$pkgdir" || die "Error: unable to cd to $pkgdir"
 
-    echo ". building $pkg..."
-    mkdir -p $opt/$pkg
+    echo ". building $pkg_name..."
+    mkdir -p $opt/$pkg_name
 
     if run_build ; then
         rm -r "$pkgdir"
-        create_symlinks $pkg
+        create_symlinks $pkg_name
         echo "$pkgid" >> "$boredb"
-        echo "$pkg installed!"
+        echo "$pkg_name installed!"
         clean
     fi
 }
@@ -194,29 +193,29 @@ get() {
 
 # creates symlinks for a port
 create_symlinks() {
-    pkg=$1
+    pkg_name=$1
     echo '. creating symlinks...'
-    # sym link all $opt/$pkg/$dir to the /$dir
+    # sym link all $opt/$pkg_name/$dir to the /$dir
     for dir in bin sbin share include etc lib lib32 lib64 usr ; do
-        for i in $(find "$opt/$pkg/$dir" ! -path "*$dir" \
-                ! -path "*$pkg/share/man" -maxdepth 1 2> /dev/null) ; do
+        for i in $(find "$opt/$pkg_name/$dir" ! -path "*$dir" \
+                ! -path "*$pkg_name/share/man" -maxdepth 1 2> /dev/null) ; do
             [ -e "$i" ] || continue
             i="$(basename $i)"
             cd "$src"
             cd ..
             # important: this is /opt not $opt !
-            ln -sn "/opt/$pkg/$dir/$i" "./$dir/$i"
+            ln -sn "/opt/$pkg_name/$dir/$i" "./$dir/$i"
         done
     done
     $mans &&
         for manX in $(seq -f "man%g" -s " " 1 8) ; do
-            for i in $(find "$opt/$pkg/share/man/$manX" \
+            for i in $(find "$opt/$pkg_name/share/man/$manX" \
                     ! -path "*/$manX" 2> /dev/null) ; do
                 [ -e "$i" ] || continue
                 i=$(basename $i)
                 cd "$src"
                 cd ..
-                ln -sn "/opt/$pkg/share/man/$manX/$i" "./share/man/$manX/$i"
+                ln -sn "/opt/$pkg_name/share/man/$manX/$i" "./share/man/$manX/$i"
             done
         done
 }
