@@ -92,8 +92,7 @@ configure() {
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
-        ./configure $allowed --prefix="$opt"/$pkg_name \
-        $configure_flags "$@" > /dev/null
+        ./configure $allowed --prefix="$opt"/$pkg_name "$@" > /dev/null
 }
 
 make() {
