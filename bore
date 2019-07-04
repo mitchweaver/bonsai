@@ -34,7 +34,7 @@ sortdb() {
 clean() {
     [ -d "$work" ] && rm -rf "$work"/*
     # remove empty dirs in $opt
-    for dir in $(find "$opt" -nowarn -type d ! -wholename "$opt") ; do
+    for dir in $(find "$opt" -type d ! -wholename "$opt" 2> /dev/null) ; do
         rmdir "$dir" 2> /dev/null
     done
     sortdb
