@@ -314,7 +314,7 @@ delpkg() {
 
 search() {
     [ -n "$1" ] || die 'search: no argument given'
-    for p in `find "$ports" ! -path "$ports" -iname *${1}* | sort` ; do
+    for p in `find "$ports" ! -path "$ports" -name *${1}* | sort` ; do
         p=${p##*/}
         p=${p%.*}
         echo $p
