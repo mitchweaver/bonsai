@@ -92,8 +92,8 @@ configure() {
     done
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        CXXFLAGS="$CXXFLAGS" PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
-        ./configure $allowed --prefix="$opt"/$pkg_name "$@" > /dev/null
+        CXXFLAGS="$CXXFLAGS" PREFIX="$opt"/$name prefix="$opt"/$name \
+        ./configure $allowed --prefix="$opt"/$name "$@" > /dev/null
 }
 
 make() {
@@ -101,7 +101,7 @@ make() {
     $quiet  && local _quiet='-s'
     command make $makeflags \
         CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        -j$jobs prefix="$opt/$pkg_name" PREFIX="$opt/$pkg_name" \
+        -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
         $_docs $_quiet "$@" > /dev/null
 }
 
@@ -131,34 +131,34 @@ run_build() {
 }
 
 addpkg() {
-    pkg_name=$1
-    pkgfile="$ports"/$pkg_name/pkgfile
+    name=$1
+    pkgfile="$ports"/$name/pkgfile
 
     if [ -f "$pkgfile" ] ; then
         . "$pkgfile"
     else
-        die "Error: can't source $pkg_name's pkgfile?"
+        die "Error: can't source $name's pkgfile?"
     fi
     [ "$(ls $boredb | wc -l)" -gt 0 ] || die "no ports found"
-    isinst $pkg_name > /dev/null && die "port $pkg_name is already installed"
+    isinst $name > /dev/null && die "port $name is already installed"
 
     [ -z "$version" ] && version='1.0'
-    pkgid="${pkg_name}${delim}${version}"
+    pkgid="${name}${delim}${version}"
     pkgdir="$work"/"$pkgid"
 
     # download/extract package
     get "$source"
     cd "$pkgdir" || die "Error: unable to cd to $pkgdir"
 
-    echo ". building $pkg_name..."
-    mkdir -p $opt/$pkg_name
+    echo ". building $name..."
+    mkdir -p $opt/$name
 
     if run_build ; then
         rm -rf "$pkgdir"
-        create_symlinks $pkg_name
-        clear_junk $pkg_name
+        create_symlinks $name
+        clear_junk $name
         echo "$pkgid" >> "$boredb"
-        echo "$pkg_name installed!"
+        echo "$name installed!"
         clean
     fi
 }
@@ -183,28 +183,26 @@ get() {
             cp -rf "$sources"/"$pkgid" "$work"
         fi
     else # we are downloading with curl
-        if [ ! -f "$pkgid".* ] ; then
+
+        if [ ! -f "$pkgid" ] ; then
             echo ". downloading $1..."
-            cd $tmp
-            curl -q -L -C - -O $curl_opts --url "$url" ||
-                die "get(): could not download $pkg_name"
-            cd "$sources"
-            # store backup to be moved to $sources later
-            local bkup=$(mktemp -d)
-            cp -f "$tmp/"* $bkup
+            curl -q -L -C - $curl_opts -o "$pkgid" --url "$url" ||
+                die "get(): could not download $name"
+            cp -f "$pkgid" $tmp
         else
-            cp -f "$pkgid".* $tmp
+            cp -f "$pkgid" $tmp
         fi
+
         case $(file $tmp/*) in
             *tgz*)   local ext=tgz   ;;
             *gzip*)  local ext=gz    ;;
             *bzip2*) local ext=bzip2 ;;
             *XZ*)    local ext=xz    ;;
-            *) die "get(): could not discern compression type of $pkg_name"
+            *) die "get(): could not discern compression type of $name"
         esac
 
         # decompressors bug out if no extension...
-        mv -f $tmp/* $tmp/${pkg_name}.${ext}
+        mv -f $tmp/* $tmp/${name}.${ext}
 
         case $ext in
             xz)     xz      -d $tmp/* ;;
@@ -212,7 +210,7 @@ get() {
             gz|tgz) gunzip  -d $tmp/* ;;
             *) die "get(): unknown compression algorithm"
         esac
-        [ $? -gt 0 ] && die "get(): failed to decompress $pkg_name"
+        [ $? -gt 0 ] && die "get(): failed to decompress $name"
 
         if file $tmp/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
@@ -220,61 +218,56 @@ get() {
                 die "get(): tar could not extract $pkgid.$ext"       
         fi
 
-        if $keep_tarballs && [ ! -f "$sources"/"$pkgid".* ] ; then
-            cp -f $bkup/* "$sources"/"$pkgid".$ext
-        fi
+        ! $keep_tarballs && rm -f "$sources"/"$pkgid" 
 
         mv -f $tmp/*/* "$work"/"$pkgid" ||
             die "get(): failed to move unpacked tarball"
-        rm -rf $bkup
     fi
     rm -rf $tmp
     # copy all port's files, except its pkgfile
-    for file in $(ls -A "$ports"/"$pkg_name"/* | grep -v pkgfile) ; do
+    for file in $(ls -A "$ports"/"$name"/* | grep -v pkgfile) ; do
         cp -f "$file" "$pkgdir"
     done
 }
 
 # creates symlinks for a port
 create_symlinks() {
-    pkg_name=$1
+    local name=$1
+    cd "$opt"/"$name"
     echo '. creating symlinks...'
-    # sym link all $opt/$pkg_name/$dir to the /$dir
-    for dir in bin sbin share include etc lib lib32 lib64 usr ; do
-        for i in $(find "$opt/$pkg_name/$dir" ! -path "*$dir" \
-                ! -path "*$pkg_name/share/man" \
-                ! -path "*$pkg_name/lib/pkgconfig" \
-                -maxdepth 1 2> /dev/null) ; do
+    for dir in bin sbin share include etc lib libexec lib32 lib64 usr ; do
+        # recursively create pkg subdirectories in
+        # equilavant /root subdirectories
+        # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
+        for i in $(find "$opt/$name/$dir" ! -path "*$dir" \
+                ! -path "*share/*man" \-type d 2> /dev/null) ; do
+            i=$(echo $i | sed "s|$opt\/$name\/||")
+            cd "$src"
+            cd ..
+            mkdir -p "$i"
+        done
+        # recursively link all files
+        # example: $pkg/include/asm/*.h -> /include/asm/*.h
+        for i in $(find "$opt/$name/$dir" ! -path "*share/man" \
+                        -type f 2> /dev/null) ; do
             [ -e "$i" ] || continue
-            i="$(basename $i)"
+            i=$(echo $i | sed "s|$opt\/$name\/||")
             cd "$src"
             cd ..
             # important: this is /opt not $opt !
-            ln -sfn "/opt/$pkg_name/$dir/$i" "./$dir/$i"
+            ln -sfn "/opt/$name/$dir/$i" "./$i"
         done
     done
-
-    if [ -d "$opt"/$pkg_name/lib/pkgconfig ] ; then
-        for i in $(find "$opt"/$pkg_name/lib/pkgconfig \
-                ! -path "*/lib/pkgconfig" 2> /dev/null) ; do
-            [ -e "$i" ] || continue
-            i=$(basename $i)
-            cd "$src"
-            cd ..
-            ln -sfn "/opt/$pkg_name/lib/pkgconfig/$i" "./lib/pkgconfig/$i"
-        done
-    fi
-
-    $mans &&
-        if [ -d "$opt"/$pkg_name/share/man ] ; then
+    $mans && # only link mans if config boolean is true
+        if [ -d "$opt"/$name/share/man ] ; then
             for manX in $(seq -f "man%g" -s " " 1 8) ; do
-                for i in $(find "$opt/$pkg_name/share/man/$manX" \
+                for i in $(find "$opt/$name/share/man/$manX" \
                         ! -path "*/$manX" 2> /dev/null) ; do
                     [ -e "$i" ] || continue
-                    i=$(basename $i)
+                    i=$(echo $i | sed "s|$opt\/$name\/||")
                     cd "$src"
                     cd ..
-                    ln -sfn "/opt/$pkg_name/share/man/$manX/$i" "./share/man/$manX/$i"
+                    ln -sfn "/opt/$name/share/man/$manX/$i" "./$i"
                 done
             done
         fi
