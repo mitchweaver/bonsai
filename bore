@@ -324,7 +324,7 @@ search() {
 
 isinst() {
     [ -n "$1" ] || die 'isinst: no argument given'
-    result=$(grep -i "$1" "$boredb")
+    result=$(grep -i -- "$1" "$boredb")
     if [ -n "$result" ] ; then
         echo "port $result is installed"
         return 0
@@ -356,6 +356,7 @@ loadconfig() {
         . "$chroot_bore_rc"
         rm -f "$chroot_bore_rc"
     fi
+    [ -z "$jobs" ] && jobs=1
     # todo: find a way to loop through config and check every var
     [ -n "$root" ]   || die "loadconfig(): \$root failed to set"
     [ -n "$src" ]    || die "loadconfig(): \$src failed to set"
