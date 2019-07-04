@@ -240,22 +240,21 @@ create_symlinks() {
         # equilavant /root subdirectories
         # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
         for i in $(find "$opt/$name/$dir" ! -path "*$dir" \
-                ! -path "*share/*man" \-type d 2> /dev/null) ; do
-            i=$(echo $i | sed "s|$opt\/$name\/||")
+                ! -path "*share/*man" -type d 2> /dev/null) ; do
             cd "$src"
             cd ..
-            mkdir -p "$i"
+            mkdir -p "$(echo $i | sed "s|$opt\/$name\/||")"
         done
         # recursively link all files
         # example: $pkg/include/asm/*.h -> /include/asm/*.h
         for i in $(find "$opt/$name/$dir" ! -path "*share/man" \
                         -type f 2> /dev/null) ; do
             [ -e "$i" ] || continue
-            i=$(echo $i | sed "s|$opt\/$name\/||")
             cd "$src"
             cd ..
+            i=$(echo $i | sed "s|$opt\/$name\/||")
             # important: this is /opt not $opt !
-            ln -sfn "/opt/$name/$dir/$i" "./$i"
+            ln -sfn "/opt/$name/$dir/${i##*/}" "./$i"
         done
     done
     $mans && # only link mans if config boolean is true
@@ -264,10 +263,10 @@ create_symlinks() {
                 for i in $(find "$opt/$name/share/man/$manX" \
                         ! -path "*/$manX" 2> /dev/null) ; do
                     [ -e "$i" ] || continue
-                    i=$(echo $i | sed "s|$opt\/$name\/||")
                     cd "$src"
                     cd ..
-                    ln -sfn "/opt/$name/share/man/$manX/$i" "./$i"
+                    i=$(echo $i | sed "s|$opt\/$name\/||")
+                    ln -sfn "/opt/$name/share/man/$manX/${i##*/}" "./$i"
                 done
             done
         fi
