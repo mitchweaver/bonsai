@@ -239,7 +239,7 @@ create_symlinks() {
         # recursively create pkg subdirectories in
         # equilavant /root subdirectories
         # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
-        for i in $(find "$opt/$name/$dir" ! -path "*$dir" \
+        for i in $(find -P "$opt/$name/$dir" ! -path "*$dir" \
                 ! -path "*share/*man" -type d 2> /dev/null) ; do
             cd "$src"
             cd ..
@@ -247,8 +247,8 @@ create_symlinks() {
         done
         # recursively link all files
         # example: $pkg/include/asm/*.h -> /include/asm/*.h
-        for i in $(find "$opt/$name/$dir" ! -path "*share/man" \
-                        -type f 2> /dev/null) ; do
+        for i in $(find -P "$opt/$name/$dir" ! -path "*share/man" \
+                    -type f -o -type l 2> /dev/null) ; do
             [ -e "$i" ] || continue
             cd "$src"
             cd ..
@@ -260,7 +260,7 @@ create_symlinks() {
     $mans && # only link mans if config boolean is true
         if [ -d "$opt"/$name/share/man ] ; then
             for manX in $(seq -f "man%g" -s " " 1 8) ; do
-                for i in $(find "$opt/$name/share/man/$manX" \
+                for i in $(find -P "$opt/$name/share/man/$manX" \
                         ! -path "*/$manX" 2> /dev/null) ; do
                     [ -e "$i" ] || continue
                     cd "$src"
