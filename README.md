@@ -5,15 +5,15 @@
 ------------
 
 ### compile
-make, gcc, tcc, muslc
+make, gcc, ~~tcc~~, musl-libc
 
 ### net
-wget, git (for some packages)
+curl, git (for some packages)
 
 ### compression
-gzip, bzip2, xz
+gzip, ~~bzip2~~, xz
 
 -------------
 
 ### provided by sbase / ubase:
-find, sort, wc, grep, sed, tar, mktemp
+find, sort, wc, grep, sed, tar
