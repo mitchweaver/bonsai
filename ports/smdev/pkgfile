@@ -1,6 +1,2 @@
-source=git://git.2f30.org/smdev.git
 version=git
-build() {
-    make
-    make install
-}
+source=git://git.2f30.org/smdev.git

@@ -6,7 +6,3 @@ prebuild() {
     # change rc script dir from /bin to /etc
     sed -i 's|/bin|/etc|g' config.h
 }
-build() {
-    make
-    make install
-}

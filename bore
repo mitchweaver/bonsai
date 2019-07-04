@@ -108,16 +108,26 @@ make() {
 run_build() {
     getcc
     getflags
+    has() { type $1 | grep 'is.*.function' > /dev/null ; return $? ; }
     # run user defined prebuild(), if exists
-    if type prebuild > /dev/null ; then
+    if has prebuild ; then
         prebuild || die "$pkg prebuild() failed"
     fi
     # run build() method inside pkgfile
-    build || die "$pkg build() failed"
+    if has build ; then
+        build || die "$pkg build() failed"
+    else
+        { # if build() wasn't defined, try to build generically
+          [ -f ./configure ] && configure
+          make
+          make install
+        } || die "$pkg generic build() failed"
+    fi
     # run user defined postbuild(), if exists
-    if type postbuild > /dev/null ; then
+    if has postbuild ; then
         postbuild || die "$pkg postbuild() failed"
     fi
+    unset -f has
 }
 
 addpkg() {
@@ -175,7 +185,7 @@ get() {
         if [ ! -f "$pkgid".* ] ; then
             echo ". downloading $1..."
             cd $tmp
-            curl -q -C - -O $curl_opts --url "$url" ||
+            curl -q -L -C - -O $curl_opts --url "$url" ||
                 die "get(): could not download $pkg_name"
             cd "$sources"
             # store backup to be moved to $sources later
