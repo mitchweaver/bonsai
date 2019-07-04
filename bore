@@ -185,27 +185,28 @@ get() {
             cp -f "$pkgid".* $tmp
         fi
         case $(file $tmp/*) in
+            *tgz*)   local ext=tgz   ;;
             *gzip*)  local ext=gz    ;;
             *bzip2*) local ext=bzip2 ;;
             *XZ*)    local ext=xz    ;;
-            *) die "Error: could not discern compression type of $pkg_name"
+            *) die "get(): could not discern compression type of $pkg_name"
         esac
 
         # decompressors bug out if no extension...
         mv -f $tmp/* $tmp/${pkg_name}.${ext}
 
         case $ext in
-            xz)   xz      -d $tmp/* ;;
-            gz)   gunzip  -d $tmp/* ;;
-            bz2)  bunzip2 -d $tmp/* ;;
-            *) die "$ext: unknown compression algorithm"
+            xz)     xz      -d $tmp/* ;;
+            bz2)    bunzip2 -d $tmp/* ;;
+            gz|tgz) gunzip  -d $tmp/* ;;
+            *) die "get(): unknown compression algorithm"
         esac
-        [ $? -gt 0 ] && die "$ext: failed to decompress $pkg_name"
+        [ $? -gt 0 ] && die "get(): failed to decompress $pkg_name"
 
         if file $tmp/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
             tar -xf $tmp/* -C $tmp/ || 
-                die "tar: could not extract $pkgid.$ext"       
+                die "get(): tar could not extract $pkgid.$ext"       
         fi
 
         if $keep_tarballs && [ ! -f "$sources"/"$pkgid".* ] ; then
