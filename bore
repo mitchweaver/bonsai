@@ -144,7 +144,7 @@ addpkg() {
     mkdir -p $opt/$pkg_name
 
     if run_build ; then
-        rm -r "$pkgdir"
+        rm -rf "$pkgdir"
         create_symlinks $pkg_name
         echo "$pkgid" >> "$boredb"
         echo "$pkg_name installed!"
@@ -171,12 +171,13 @@ get() {
         else
             cp -rf "$sources"/"$pkgid" "$work"
         fi
-    else # we are downloading with wget
+    else # we are downloading with curl
         if [ ! -f "$pkgid".* ] ; then
             echo ". downloading $1..."
-            wget $wget_opts "$url" -P $tmp ||
-                die "wget: could not download $pkg_name"
-
+            cd $tmp
+            curl -q -C - -O $curl_opts --url "$url" ||
+                die "get(): could not download $pkg_name"
+            cd "$sources"
             # store backup to be moved to $sources later
             local bkup=$(mktemp -d)
             cp -f "$tmp/"* $bkup
@@ -184,9 +185,9 @@ get() {
             cp -f "$pkgid".* $tmp
         fi
         case $(file $tmp/*) in
-            *gzip*)  ext=gz    ;;
-            *bzip2*) ext=bzip2 ;;
-            *XZ*)    ext=xz    ;;
+            *gzip*)  local ext=gz    ;;
+            *bzip2*) local ext=bzip2 ;;
+            *XZ*)    local ext=xz    ;;
             *) die "Error: could not discern compression type of $pkg_name"
         esac
 

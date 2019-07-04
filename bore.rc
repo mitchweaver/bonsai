@@ -23,7 +23,7 @@ cppflags=''
 configure_flags=''
 
 # downloads
-wget_opts='-c -nc -q --show-progress'
+curl_opts='-# --ssl'
 git_opts='-q --progress --depth 1'
 
 # options

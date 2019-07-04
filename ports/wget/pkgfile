@@ -1,9 +1,0 @@
-version=1.20.3
-source=https://ftp.gnu.org/gnu/wget/wget-$version.tar.gz
-build() {
-    configure --sysconfdir=/etc
-# note: this to be used later, possibly with libressl
-#              --with-ssl=openssl
-    make
-    make install
-}
