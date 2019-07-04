@@ -1,0 +1,7 @@
+version=R57
+source=http://www.mirbsd.org/MirOS/dist/mir/mksh/mksh-$version.tgz
+build() {
+    sh Build.sh -r -Q -j > /dev/null
+    install -Dm755 mksh $opt/mksh/bin/mksh
+    install -Dm644 mksh.1 $opt/mksh/share/man/man1/mksh.1
+}
