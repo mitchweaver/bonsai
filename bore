@@ -156,6 +156,7 @@ addpkg() {
     if run_build ; then
         rm -rf "$pkgdir"
         create_symlinks $pkg_name
+        clear_junk $pkg_name
         echo "$pkgid" >> "$boredb"
         echo "$pkg_name installed!"
         clean
@@ -277,6 +278,16 @@ create_symlinks() {
                 done
             done
         fi
+}
+
+clear_junk() {
+    [ -d "$opt"/$1/share/info ] && rm -r "$opt"/$1/share/info
+    if ! $docs && [ -d "$opt"/$1/share/doc ] ; then
+        rm -r "$opt"/$1/share/doc
+    fi
+    if ! $mans && [ -d "$opt"/$1/share/man ] ; then
+        rm -r "$opt"/$1/share/man
+    fi
 }
 
 delpkg() {
