@@ -84,8 +84,8 @@ configure() {
     # try to enable as many options as possible
     # if they are allowed in the configure script
     local allowed=""
-    for flag in --static --enable-static-link $quiet $debug $_nls $_docs \
-                --disable-option-checking ; do
+    for flag in --static --enable-static-link --disable-shared \
+                $quiet $debug $_nls $_docs --disable-option-checking ; do
         ./configure --help | grep -- "$flag" > /dev/null && \
             allowed="$allowed $flag"
     done
