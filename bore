@@ -49,9 +49,10 @@ cc() { $cc "$@" ; }
 
 getflags() {
     PKG_CONFIG="pkg-config --static"
-    CFLAGS="-static $cflags"
-    LDFLAGS="-static $ldflags"
-    CPPFLAGS="-static -D_GNU_SOURCE $cppflags"
+    CFLAGS="-static --static $cflags"
+    CXXFLAGS="-static --static"
+    LDFLAGS="-static --static $ldflags"
+    CPPFLAGS="-static --static -D_GNU_SOURCE $cppflags"
     # If we are bootstrapping, all of our created symlinks
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
@@ -91,7 +92,7 @@ configure() {
     done
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
+        CXXFLAGS="$CXXFLAGS" PREFIX="$opt"/$pkg_name prefix="$opt"/$pkg_name \
         ./configure $allowed --prefix="$opt"/$pkg_name "$@" > /dev/null
 }
 
