@@ -23,13 +23,7 @@ EOF
 exit
 }
 
-sortdb() {
-    if [ -f "$boredb" ] ; then
-        sort -o "$boredb" "$boredb"
-    else
-        :> "$boredb"
-    fi
-}
+sortdb() { [ -f "$boredb" ] && sort -o "$boredb" "$boredb" ; }
 
 clean() {
     [ -d "$work" ] && rm -rf "$work"/*
@@ -356,7 +350,10 @@ loadconfig() {
         . "$chroot_bore_rc"
         rm -f "$chroot_bore_rc"
     fi
+
     [ -z "$jobs" ] && jobs=1
+    [ -f "$boredb" ] || :> "$boredb"
+
     # todo: find a way to loop through config and check every var
     [ -n "$root" ]   || die "loadconfig(): \$root failed to set"
     [ -n "$src" ]    || die "loadconfig(): \$src failed to set"
@@ -368,8 +365,6 @@ loadconfig() {
 
 main() {
     loadconfig "$@"
-
-    sortdb
 
     while [ $# -gt 0 ] ; do
         case "$1" in
