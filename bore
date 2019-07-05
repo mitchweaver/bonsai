@@ -71,23 +71,24 @@ patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
 
 configure() {
     ! $docs  && local _docs="--disable-docs \
-                      --disable-gtk-docs \
-                      --disable-gtk-docs-html"
+                             --disable-gtk-docs \
+                             --disable-gtk-docs-html"
     ! $nls   && local _nls='--disable-nls'
     ! $debug && local _debug='--disable-debug --disable-debugger'
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
     local allowed=""
-    for flag in --static --enable-static-link --disable-shared \
-                $quiet $debug $_nls $_docs --disable-option-checking ; do
-        ./configure --help | grep -- "$flag" > /dev/null && \
+    local help="$(./configure --help)"
+    for flag in --static '--enable-static ' --enable-static-link --disable-shared \
+                --disable-option-checking $quiet $debug $_nls $_docs ; do
+        echo "$help" | grep -- "$flag" > /dev/null && \
             allowed="$allowed $flag"
     done
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         CXXFLAGS="$CXXFLAGS" PREFIX="$opt"/$name prefix="$opt"/$name \
-        ./configure $allowed --prefix="$opt"/$name "$@" > /dev/null
+        ./configure --prefix="$opt"/$name $allowed "$@" > /dev/null
 }
 
 make() {
