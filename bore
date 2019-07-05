@@ -42,11 +42,17 @@ getcc() {
 cc() { $cc "$@" ; }
 
 getflags() {
+    # try to search for includes and libs in
+    # any dirs that came with the package
+    for dir in $(find . -type d) ; do
+        PKG_DIR_INCS="$PKG_DIR_INCS -I${dir#./}"
+        PKG_DIR_LIBS="$PKG_DIR_LIBS -L${dir#./}"
+    done
     PKG_CONFIG="$PKG_CONFIG pkg-config --static"
-    LDFLAGS="$LDFLAGS -static --static -Wl,--gc-sections $ldflags"
-    CFLAGS="$CFLAGS -static --static -fdata-sections -ffunction-sections $cflags"
-    CPPFLAGS="$CPPFLAGS -static --static $cppflags"
-    CXXFLAGS="$CXXFLAGS -static --static $cxxflags"
+    LDFLAGS="$LDFLAGS -static --static -Wl,--gc-sections $PKG_DIR_LIBS $ldflags"
+    CFLAGS="$CFLAGS -static --static -fdata-sections -ffunction-sections $PKG_DIR_INCS $cflags"
+    CPPFLAGS="$CPPFLAGS -static --static $PKG_DIR_INCS $cppflags"
+    CXXFLAGS="$CXXFLAGS -static --static $PKG_DIR_INCS $cxxflags"
     # If we are bootstrapping, all of our created symlinks
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
@@ -81,7 +87,7 @@ configure() {
     local allowed=""
     local help="$(./configure --help)"
     for flag in --static '--enable-static ' --enable-static-link --disable-shared \
-                --disable-option-checking $quiet $debug $_nls $_docs ; do
+                --disable-option-checking --without-tests $quiet $debug $_nls $_docs ; do
         echo "$help" | grep -- "$flag" > /dev/null && \
             allowed="$allowed $flag"
     done
