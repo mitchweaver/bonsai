@@ -301,12 +301,12 @@ delpkg() {
 
 search() {
     [ -n "$1" ] || die 'search: no argument given'
-    find "$ports" ! -path "$ports" -name *${1}* | sort | while read port ; do
+    local results="$(find "$ports" ! -path "$ports" -name *${1}* | sort)"
+    [ -n "$results" ] || die "port $1 not found"
+    for port in $results ; do
         port=${port##*/}
-        port=${port%.*}
-        echo $port
+        echo ${port%.*}
     done
-    [ -n "$port" ] || die "port $1 not found"
 }
 
 isinst() {
