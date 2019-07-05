@@ -15,11 +15,12 @@ pkgs="$src"/pkgs
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
 tcc='tcc -w'
-gcc='gcc -w -Os -pipe'
+gcc='gcc -w'
 makeflags='-s'
-cflags=''
 ldflags=''
-cppflags=''
+cflags='-Os -s -pipe'
+cppflags='-Os -s -pipe'
+cxxflags='-Os -s -pipe'
 
 # downloads
 curl_opts='-# --ssl'

@@ -42,11 +42,11 @@ getcc() {
 cc() { $cc "$@" ; }
 
 getflags() {
-    PKG_CONFIG="pkg-config --static"
-    CFLAGS="-static --static $cflags"
-    CXXFLAGS="-static --static"
-    LDFLAGS="-static --static $ldflags"
-    CPPFLAGS="-static --static -D_GNU_SOURCE $cppflags"
+    PKG_CONFIG="$PKG_CONFIG pkg-config --static"
+    LDFLAGS="$LDFLAGS -static --static -Wl,--gc-sections $ldflags"
+    CFLAGS="$CFLAGS -static --static -fdata-sections -ffunction-sections $cflags"
+    CPPFLAGS="$CPPFLAGS -static --static $cppflags"
+    CXXFLAGS="$CXXFLAGS -static --static $cxxflags"
     # If we are bootstrapping, all of our created symlinks
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
