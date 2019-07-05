@@ -1,0 +1,2 @@
+version=5.37
+source=ftp://ftp.astron.com/pub/file/file-$version.tar.gz

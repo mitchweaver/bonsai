@@ -1,6 +1,6 @@
 version=7.65.1
 source=https://curl.haxx.se/download/curl-$version.tar.xz
-depends: libressl zlib
+#depends: libressl zlib
 build() {
     # Note: As this is part of the base system
     #       when bootstrapping, we must pass
