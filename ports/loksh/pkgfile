@@ -1,0 +1,6 @@
+version=6.5
+source=http://github.com/dimkr/loksh/archive/$version.tar.gz
+prebuild() {
+    patch loksh-6.5_Makefile.patch
+    patch loksh-6.5_time.patch
+}
