@@ -235,38 +235,35 @@ create_symlinks() {
     local name=$1
     cd "$opt"/"$name"
     echo '. creating symlinks...'
-    for dir in bin sbin share include etc lib libexec lib32 lib64 usr ; do
+    for dir in bin sbin share include etc lib libexec ; do
         # recursively create pkg subdirectories in
-        # equilavant /root subdirectories
+        # equivalent /root subdirectories
         # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
-        for i in $(find -P "$opt/$name/$dir" ! -path "*$dir" \
-                ! -path "*share/*man" -type d 2> /dev/null) ; do
+        find -P $dir ! -path "*$dir" ! -path "*share/*man" -mindepth 1 -type d 2> /dev/null | while read -r subdir ; do
             cd "$src"
             cd ..
-            mkdir -p "$(echo $i | sed "s|$opt\/$name\/||")"
+            mkdir -p "${subdir#$opt/$name/}"
         done
         # recursively link all files
         # example: $pkg/include/asm/*.h -> /include/asm/*.h
-        for i in $(find -P "$opt/$name/$dir" ! -path "*share/man" \
-                    -type f -o -type l 2> /dev/null) ; do
-            [ -e "$i" ] || continue
+        find -P $dir ! -path "*share/man" -mindepth 1 -type f -o -type l 2> /dev/null | while read -r file ; do
+            [ -e "$file" ] || continue
             cd "$src"
             cd ..
-            i=$(echo $i | sed "s|$opt\/$name\/||")
+            file="${file#$opt/$name/}"
             # important: this is /opt not $opt !
-            ln -sfn "/opt/$name/$dir/${i##*/}" "./$i"
+            ln -sfn "/opt/$name/$dir/${i##*/}" "./$file"
         done
     done
     $mans && # only link mans if config boolean is true
         if [ -d "$opt"/$name/share/man ] ; then
             for manX in $(seq -f "man%g" -s " " 1 8) ; do
-                for i in $(find -P "$opt/$name/share/man/$manX" \
-                        ! -path "*/$manX" 2> /dev/null) ; do
-                    [ -e "$i" ] || continue
+                find -P share/man/$manX ! -path "*/$manX" -mindepth 1 2> /dev/null | while read -r man ; do
+                    [ -f "$man" ] || continue
                     cd "$src"
                     cd ..
-                    i=$(echo $i | sed "s|$opt\/$name\/||")
-                    ln -sfn "/opt/$name/share/man/$manX/${i##*/}" "./$i"
+                    man="${man#$opt/$name/}"
+                    ln -sfn "/opt/$name/share/man/$manX/${man##*/}" "$man"
                 done
             done
         fi
