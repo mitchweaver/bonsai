@@ -227,35 +227,28 @@ get() {
 # creates symlinks for a port
 create_symlinks() {
     local name=$1
-    cd "$opt"/"$name"
+    cd "$src"
+    cd ..
     echo '. creating symlinks...'
     for dir in bin sbin share include etc lib libexec ; do
         # recursively create pkg subdirectories in
         # equivalent /root subdirectories
         # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
-        find -P $dir ! -path "*$dir" ! -path "*share/*man" -mindepth 1 -type d 2> /dev/null | while read -r subdir ; do
-            cd "$src"
-            cd ..
+        find -P "$opt"/$name/$dir ! -path "*$dir" ! -path "*share/*man*" -mindepth 1 -type d 2> /dev/null | while read -r subdir ; do
             mkdir -p "${subdir#$opt/$name/}"
         done
         # recursively link all files
         # example: $pkg/include/asm/*.h -> /include/asm/*.h
-        find -P $dir ! -path "*share/man" -mindepth 1 -type f -o -type l 2> /dev/null | while read -r file ; do
-            [ -e "$file" ] || continue
-            cd "$src"
-            cd ..
+        find -P "$opt"/$name/$dir ! -path "*share/*man*" -mindepth 1 -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$opt/$name/}"
             # important: this is /opt not $opt !
-            ln -sfn "/opt/$name/$dir/${i##*/}" "./$file"
+            ln -sfn "/opt/$name/$dir/${file##*/}" ./$file
         done
     done
     $mans && # only link mans if config boolean is true
         if [ -d "$opt"/$name/share/man ] ; then
             for manX in $(seq -f "man%g" -s " " 1 8) ; do
-                find -P share/man/$manX ! -path "*/$manX" -mindepth 1 2> /dev/null | while read -r man ; do
-                    [ -f "$man" ] || continue
-                    cd "$src"
-                    cd ..
+                find -P "$opt"/$name/share/man/$manX ! -path "*/$manX" -mindepth 1 2> /dev/null | while read -r man ; do
                     man="${man#$opt/$name/}"
                     ln -sfn "/opt/$name/share/man/$manX/${man##*/}" "$man"
                 done
@@ -308,12 +301,12 @@ delpkg() {
 
 search() {
     [ -n "$1" ] || die 'search: no argument given'
-    for p in `find "$ports" ! -path "$ports" -name *${1}* | sort` ; do
-        p=${p##*/}
-        p=${p%.*}
-        echo $p
+    find "$ports" ! -path "$ports" -name *${1}* | sort | while read port ; do
+        port=${port##*/}
+        port=${port%.*}
+        echo $port
     done
-    [ -n "$p" ] || die "port $1 not found"
+    [ -n "$port" ] || die "port $1 not found"
 }
 
 isinst() {
