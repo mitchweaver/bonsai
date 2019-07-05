@@ -1,2 +1,8 @@
 version=5.37
 source=ftp://ftp.astron.com/pub/file/file-$version.tar.gz
+depends=zlib
+build() {
+    configure --disable-libseccomp
+    make
+    make install
+}
