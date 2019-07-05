@@ -306,7 +306,10 @@ delpkg() {
     #     done
     # done
 
-    sed -i -e "s/${pkg}${delim}.*//" -e '/^$/d' "$boredb"
+    local tmp=$(mktemp)
+    sed -e "s/${pkg}${delim}.*//" -e '/^$/d' "$boredb" > $tmp
+    cat $tmp > "$boredb"
+    rm -f $tmp
     clean
 
     echo "$pkg deleted"
