@@ -1,6 +1,6 @@
 version=git
 source=git://git.suckless.org/ubase
 build() {
-    make ubase-box
+    make ubase-box CFLAGS="$CFLAGS -D_GNU_SOURCE"
     make ubase-box-install
 }
