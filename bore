@@ -381,7 +381,7 @@ main() {
             search|-s) search $2 ; exit $? ;;
             isinst|-i) isinst $2 ; exit $? ;;
             list|-l)   cat "$boredb" ; exit $? ;;
-            count|-c)  cat "$db" | wc -l | sed 's/ //' ; exit ;;
+            count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
             --cc=*|--root=*) shift ;; # see above
             *help|-h)  usage ;;
             *) if [ -n "$1" ] ; then
