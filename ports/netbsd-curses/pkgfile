@@ -1,5 +1,8 @@
 version=0.3.1
 source=https://github.com/sabotage-linux/netbsd-curses/archive/v$version.tar.gz
+prebuild() {
+    include_pkg_headers
+}
 build() {
     make all-static
     make all-static install-static
