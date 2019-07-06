@@ -15,7 +15,7 @@ pkgs="$src"/pkgs
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
 tcc='tcc -w'
-gcc='gcc -w'
+gcc='gcc -w -s'
 makeflags='-s'
 ldflags=''
 cflags='-Os -s -pipe'
