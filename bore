@@ -42,17 +42,7 @@ getcc() {
 cc() { $cc "$@" ; }
 
 getflags() {
-    # try to search for includes and libs in
-    # any dirs that came with the package
-    for dir in $(find . -type d) ; do
-        PKG_DIR_INCS="$PKG_DIR_INCS -I${dir#./}"
-        PKG_DIR_LIBS="$PKG_DIR_LIBS -L${dir#./}"
-    done
-    PKG_CONFIG="$PKG_CONFIG pkg-config --static"
-    LDFLAGS="$LDFLAGS -static --static -Wl,--gc-sections $PKG_DIR_LIBS $ldflags"
-    CFLAGS="$CFLAGS -static --static -fdata-sections -ffunction-sections $PKG_DIR_INCS $cflags"
-    CPPFLAGS="$CPPFLAGS -static --static $PKG_DIR_INCS $cppflags"
-    CXXFLAGS="$CXXFLAGS -static --static $PKG_DIR_INCS $cxxflags"
+    unset LDFLAGS CFLAGS CPPFLAGS CXXFLAGS PKG_CONFIG
     # If we are bootstrapping, all of our created symlinks
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
@@ -66,11 +56,25 @@ getflags() {
                 CFLAGS="$CFLAGS -I$root/opt/$pkg/include"
             fi
         done
-    else
-        LDFLAGS="$LDFLAGS -L$root/lib"
-        CPPFLAGS="$CPPFLAGS -I$root/include"
-        CLAGS="$CFLAGS -I$root/include"
+    else # we are not bootstrapping
+        LDFLAGS="-L$root/lib"
+        CFLAGS="-isystem $root/include"
+        CPPFLAGS="-isystem $root/include"
     fi
+    # search for includes in dirs that came with pkg
+    # note: this bugs out libressl's readpassphrase.h
+    #       for some reason -- please let me know why
+    [ $name != libressl ] &&
+        for dir in $(find -maxdepth 2 -type d) ; do
+            PKG_INCLUDES="$PKG_INCLUDES -I$dir"
+        done
+
+    # note: flag order DOES matter, edit with caution
+    LDFLAGS="-static --static -Wl,--gc-sections $LDFLAGS $ldflags"
+    CFLAGS="-static --static -fdata-sections -ffunction-sections $CFLAGS $cflags $PKG_INCLUDES"
+    CPPFLAGS="-static --static $CPPFLAGS $cppflags"
+    CXXFLAGS="-static --static $CXXFLAGS $cxxflags"
+    PKG_CONFIG="pkg-config --static"
 }
 
 patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
@@ -85,12 +89,14 @@ configure() {
     # try to enable as many options as possible
     # if they are allowed in the configure script
     local allowed=""
-    local help="$(./configure --help)"
+    local tmp_help=$(mktemp)
+    ./configure --help > $tmp_help
     for flag in --static '--enable-static ' --enable-static-link --disable-shared \
                 --disable-option-checking --without-tests $quiet $debug $_nls $_docs ; do
-        echo "$help" | grep -- "$flag" > /dev/null && \
+        grep -- "$flag" $tmp_help > /dev/null && \
             allowed="$allowed $flag"
     done
+    rm -f $tmp_help
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         CXXFLAGS="$CXXFLAGS" PREFIX="$opt"/$name prefix="$opt"/$name \
@@ -112,21 +118,21 @@ run_build() {
     has() { type $1 | grep 'is.*.function' > /dev/null ; return $? ; }
     # run user defined prebuild(), if exists
     if has prebuild ; then
-        prebuild || die "$pkg prebuild() failed"
+        prebuild || die "$name prebuild() failed"
     fi
     # run build() method inside pkgfile
     if has build ; then
-        build || die "$pkg build() failed"
+        build || die "$name build() failed"
     else
         { # if build() wasn't defined, try to build generically
           [ -f ./configure ] && configure
           make
           make install
-        } || die "$pkg generic build() failed"
+        } || die "$name generic build() failed"
     fi
     # run user defined postbuild(), if exists
     if has postbuild ; then
-        postbuild || die "$pkg postbuild() failed"
+        postbuild || die "$name postbuild() failed"
     fi
     unset -f has
 }
