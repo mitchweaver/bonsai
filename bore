@@ -44,13 +44,13 @@ cc() { $cc "$@" ; }
 # macros for convenience when dealing with borked makefiles:
 # add includes/libs coming with pkg to search paths
 include_pkg_headers() {
-    for dir in $(find -maxdepth 3 -type d) ; do
+    for dir in $(find -type d) ; do
         PKG_INCLUDES="$PKG_INCLUDES -I$dir"
     done
     CFLAGS="$CFLAGS $PKG_INCLUDES"
 }
 link_pkg_libs() {
-    for dir in $(find -maxdepth 3 -type d) ; do
+    for dir in $(find -type d) ; do
         PKG_LIBS="$PKG_INCLUDES -L$dir"
     done
     LDFLAGS="$PKG_LIBS $LDFLAGS"
@@ -225,15 +225,16 @@ get() {
 
         case $ext in
             xz)     xz      -d $tmp/* ;;
-            bz2)    bunzip2 -d $tmp/* ;;
             gz|tgz) gunzip  -d $tmp/* ;;
+            bz2)    bunzip2 -d $tmp/* ;;
             *) die "get(): unknown compression algorithm"
         esac
         [ $? -gt 0 ] && die "get(): failed to decompress $name"
 
         if file $tmp/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
-            tar -xf $tmp/* -C $tmp/ || 
+            mv $tmp/* $tmp/${name}.tar
+            tar -xf $tmp/${name}.tar -C $tmp/ || 
                 die "get(): tar could not extract $pkgid.$ext"       
         fi
 
@@ -259,23 +260,23 @@ create_symlinks() {
         # recursively create pkg subdirectories in
         # equivalent /root subdirectories
         # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
-        find -P "$opt"/$name/$dir ! -path "*$dir" ! -path "*share/*man*" -mindepth 1 -type d 2> /dev/null | while read -r subdir ; do
+        find "$opt"/$name/$dir ! -path "*$dir" ! -path "*share/*man*" -type d 2> /dev/null | while read -r subdir ; do
             mkdir -p "${subdir#$opt/$name/}"
         done
         # recursively link all files
         # example: $pkg/include/asm/*.h -> /include/asm/*.h
-        find -P "$opt"/$name/$dir ! -path "*share/*man*" -mindepth 1 -type f -o -type l 2> /dev/null | while read -r file ; do
+        find "$opt"/$name/$dir ! -path "*share/*man*" -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$opt/$name/}"
             # important: this is /opt not $opt !
-            ln -sfn "/opt/$name/$dir/${file##*/}" ./$file
+            ln -sf "/opt/$name/$dir/${file##*/}" ./$file
         done
     done
     $mans && # only link mans if config boolean is true
         if [ -d "$opt"/$name/share/man ] ; then
             for manX in $(seq -f "man%g" -s " " 1 8) ; do
-                find -P "$opt"/$name/share/man/$manX ! -path "*/$manX" -mindepth 1 2> /dev/null | while read -r man ; do
+                find "$opt"/$name/share/man/$manX ! -path "*/$manX" 2> /dev/null | while read -r man ; do
                     man="${man#$opt/$name/}"
-                    ln -sfn "/opt/$name/share/man/$manX/${man##*/}" "$man"
+                    ln -sf "/opt/$name/share/man/$manX/${man##*/}" "$man"
                 done
             done
         fi
