@@ -98,12 +98,15 @@ configure() {
     local allowed=""
     local tmp_help=$(mktemp)
     ./configure --help > $tmp_help
-    for flag in --static '--enable-static ' --enable-static-link --disable-shared \
+    for flag in --static --enable-static --enable-static-link \
                 --disable-rpath --disable-option-checking --without-tests \
                 $quiet $debug $_nls $_docs ; do
         grep -- "$flag" $tmp_help > /dev/null && \
             allowed="$allowed $flag"
     done
+    if grep -- --enable-shared $tmp_help > /dev/null ; then
+        allowed="$allowed --disable-shared"
+    fi
     rm -f $tmp_help
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
@@ -211,9 +214,9 @@ get() {
 
         case $(file $tmp/*) in
             *tgz*)   local ext=tgz   ;;
-            *gzip*)  local ext=gz    ;;
-            *bzip2*) local ext=bzip2 ;;
-            *XZ*)    local ext=xz    ;;
+            *'gzip comp'*)  local ext=gz    ;;
+            *'bzip2 comp'*) local ext=bzip2 ;;
+            *'XZ comp'*)    local ext=xz    ;;
             *) die "get(): could not discern compression type of $name"
         esac
 
