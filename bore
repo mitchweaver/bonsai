@@ -41,8 +41,22 @@ getcc() {
 
 cc() { $cc "$@" ; }
 
+# macros for convenience when dealing with borked makefiles:
+# add includes/libs coming with pkg to search paths
+include_pkg_headers() {
+    for dir in $(find -maxdepth 3 -type d) ; do
+        PKG_INCLUDES="$PKG_INCLUDES -I$dir"
+    done
+    CFLAGS="$CFLAGS $PKG_INCLUDES"
+}
+link_pkg_libs() {
+    for dir in $(find -maxdepth 3 -type d) ; do
+        PKG_LIBS="$PKG_INCLUDES -L$dir"
+    done
+    LDFLAGS="$PKG_LIBS $LDFLAGS"
+}
+
 getflags() {
-    unset LDFLAGS CFLAGS CPPFLAGS CXXFLAGS PKG_CONFIG
     # If we are bootstrapping, all of our created symlinks
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
@@ -52,26 +66,19 @@ getflags() {
             [ -d $root/opt/$pkg/lib ] &&
                 LDFLAGS="$LDFLAGS -L$root/opt/$pkg/lib"
             if [ -d $root/opt/$pkg/include ] ; then
-                CPPFLAGS="$CPPFLAGS -I$root/opt/$pkg/include"
                 CFLAGS="$CFLAGS -I$root/opt/$pkg/include"
+                CPPFLAGS="$CPPFLAGS -I$root/opt/$pkg/include"
             fi
         done
     else # we are not bootstrapping
-        LDFLAGS="-L$root/lib"
-        CFLAGS="-isystem $root/include"
-        CPPFLAGS="-isystem $root/include"
+        LDFLAGS="$LDFLAGS -L$root/lib"
+        CFLAGS="$CFLAGS -isystem $root/include"
+        CPPFLAGS="$CPPFLAGS -isystem $root/include"
     fi
-    # search for includes in dirs that came with pkg
-    # note: this bugs out libressl's readpassphrase.h
-    #       for some reason -- please let me know why
-    [ $name != libressl ] &&
-        for dir in $(find -maxdepth 2 -type d) ; do
-            PKG_INCLUDES="$PKG_INCLUDES -I$dir"
-        done
 
     # note: flag order DOES matter, edit with caution
     LDFLAGS="-static --static -Wl,--gc-sections $LDFLAGS $ldflags"
-    CFLAGS="-static --static -fdata-sections -ffunction-sections $CFLAGS $cflags $PKG_INCLUDES"
+    CFLAGS="-static --static -fdata-sections -ffunction-sections $CFLAGS $cflags "
     CPPFLAGS="-static --static $CPPFLAGS $cppflags"
     CXXFLAGS="-static --static $CXXFLAGS $cxxflags"
     PKG_CONFIG="pkg-config --static"
@@ -92,15 +99,17 @@ configure() {
     local tmp_help=$(mktemp)
     ./configure --help > $tmp_help
     for flag in --static '--enable-static ' --enable-static-link --disable-shared \
-                --disable-option-checking --without-tests $quiet $debug $_nls $_docs ; do
+                --disable-rpath --disable-option-checking --without-tests \
+                $quiet $debug $_nls $_docs ; do
         grep -- "$flag" $tmp_help > /dev/null && \
             allowed="$allowed $flag"
     done
     rm -f $tmp_help
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        CXXFLAGS="$CXXFLAGS" PREFIX="$opt"/$name prefix="$opt"/$name \
-        ./configure --prefix="$opt"/$name $allowed "$@" > /dev/null
+        CXXFLAGS="$CXXFLAGS" ./configure $allowed "$@" > /dev/null
+
+ # PREFIX="$opt"/$name prefix="$opt"/$name --prefix="$opt"/$name 
 }
 
 make() {
@@ -120,7 +129,7 @@ run_build() {
     if has prebuild ; then
         prebuild || die "$name prebuild() failed"
     fi
-    # run build() method inside pkgfile
+    # run user defined build(), if exists
     if has build ; then
         build || die "$name build() failed"
     else
@@ -280,11 +289,22 @@ clear_junk() {
 }
 
 delpkg() {
-    local pkg="$1"
+    local name="$1"
+    grep "$name" "$boredb" > /dev/null 2>&1 || die "$name is not installed"
 
-    grep "$pkg" "$boredb" > /dev/null 2>&1 || die "$pkg is not installed"
+    FOLDERS=""
+    FILES=""
 
-    [ -d "$opt/$pkg" ] && rm -rf "$opt/$pkg"
+    for i in $(find "$opt"/$name ! -name "$opt"/$name) ; do
+        if [ -d "$i" ] ; then
+            FOLDERS="$FOLDERS $i"
+        else
+            FILES="$FILES $i"
+        fi
+    done
+
+    echo "folders: $FOLDERS"
+    echo "files: $FILES"
 
     # checks if "$1" is a symlink 
     # and its target still exists
@@ -303,13 +323,15 @@ delpkg() {
     #     done
     # done
 
+    [ -d "$opt/$name" ] && rm -rf "$opt/$name"
+
     local tmp=$(mktemp)
-    sed -e "s/${pkg}${delim}.*//" -e '/^$/d' "$boredb" > $tmp
+    sed -e "s/${name}${delim}.*//" -e '/^$/d' "$boredb" > $tmp
     cat $tmp > "$boredb"
     rm -f $tmp
     clean
 
-    echo "$pkg deleted"
+    echo "$name deleted"
 }
 
 search() {
