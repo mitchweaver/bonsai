@@ -230,7 +230,7 @@ get() {
         case $(file $tmp/*) in
             *tgz*)   local ext=tgz   ;;
             *'gzip comp'*)  local ext=gz    ;;
-            *'bzip2 comp'*) local ext=bzip2 ;;
+            *'bzip2 comp'*) local ext=bz2   ;;
             *'XZ comp'*)    local ext=xz    ;;
             *) die "get(): could not discern compression type of $name"
         esac
