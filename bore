@@ -135,7 +135,7 @@ GNU_sucks() {
     # causing the makefile to abort unless $ENV variables are set. Absurd.
     # Should a makefile not work correctly with our coreutils, 
     # it will be patched on a per-port basis.
-    export GREP=/bin/grep SED=/bin/sed AWK=/bin/awk
+    export GREP=$(which grep) SED=$(which sed) AWK=$(which awk)
 }
 
 run_build() {
@@ -283,7 +283,7 @@ create_symlinks() {
         find "$opt"/$name/$dir ! -path "*share/*man*" -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$opt/$name/}"
             # important: this is /opt not $opt !
-            ln -sf "/opt/$name/$dir/${file##*/}" ./$file
+            ln -sf "/opt/$name/$file" ./$file
         done
     done
     $mans && # only link mans if config boolean is true
