@@ -121,9 +121,21 @@ make() {
         $_docs $_quiet "$@" > /dev/null
 }
 
+# helper to get around all things that GNU does wrong with packaging
+GNU_sucks() {
+    # GNU programs have the most insane dependency tracking I have ever seen.
+    # To check for dependencies, they often simply try to run the program
+    # and if it has a -gt 0 exit code, the dependency must not be in $PATH.
+    #
+    # This breaks all kinds of things, namely if we are running under `set -e`
+    # As a workaround, just manually track depedencies -- clear the file.
+    [ -f build-aux/missing ] && :> build-aux/missing
+}
+
 run_build() {
     getcc
     getflags
+    GNU_sucks
     has() { type $1 | grep 'is.*.function' > /dev/null ; return $? ; }
     # run user defined prebuild(), if exists
     if has prebuild ; then
