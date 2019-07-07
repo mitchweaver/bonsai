@@ -4,5 +4,6 @@ prebuild() {
     cp -f config.def.h config.h
 
     # change rc script dir from /bin to /etc
-    sed -i 's|/bin|/etc|g' config.h
+    sed 's|/bin|/etc|g' config.h > config.h.tmp &&
+        mv -f config.h.tmp config.h
 }
