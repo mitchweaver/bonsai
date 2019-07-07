@@ -311,46 +311,45 @@ delpkg() {
     local name="$1"
     grep "$name" "$boredb" > /dev/null 2>&1 || die "$name is not installed"
 
-    FOLDERS=""
-    FILES=""
-
-    for i in $(find "$opt"/$name ! -name "$opt"/$name) ; do
-        if [ -d "$i" ] ; then
-            FOLDERS="$FOLDERS $i"
-        else
-            FILES="$FILES $i"
+    # checks if "$1" is a symlink and its target still exists
+    test_link() {
+        if [ -L "$1" ] ; then
+            [ -e "$1" ] || return 1
         fi
+        return 0
+    }
+    # check if dir is empty
+    is_empty() {
+        test -e "$1/"* 2>/dev/null
+        case $? in
+            1)   return 0 ;;
+            *)   return 1 ;;
+        esac
+    }
+
+    # go through /opt/name, deleting files as we go
+    # afterwards, remove its symlink in the root
+    find "$opt"/$name -type f -o -type l | while read -r file ; do
+        rm $file
+        file=${file#$opt/$name}
+        test_link $file || rm -f "$file"
     done
+    # recurse through dirs in reverse, removing empty dirs as we go
+    # note: the sed command here is to emulate `tac`
+    find "$opt"/$name ! -path "$opt"/$name -type d | sed '1!G;h;$!d' | while read -r dir ; do
+        is_empty "$dir" && rmdir "$dir"
+        dir=${dir#$opt/$name}
+        is_empty "$dir" && rmdir "$dir"
+    done
+    rmdir "$opt"/$name
 
-    echo "folders: $FOLDERS"
-    echo "files: $FILES"
-
-    # checks if "$1" is a symlink 
-    # and its target still exists
-    # test_link() {
-    #     if [ -L "$1" ] ; then
-    #         [ -e "$1" ] || return 1
-    #     fi
-    #     return 0
-    # }
-
-    # the pkg's data has already been deleted
-    # but now we must remove all of its symlinks
-    # for dir in bin share include etc lib ; do
-    #     for i in `find "$prefix/$dir" ! -path "$prefix/$dir"` ; do
-    #         test_link "$i" || rm -f "$i"
-    #     done
-    # done
-
-    [ -d "$opt/$name" ] && rm -rf "$opt/$name"
-
-    local tmp=$(mktemp)
-    sed -e "s/${name}${delim}.*//" -e '/^$/d' "$boredb" > $tmp
-    cat $tmp > "$boredb"
-    rm -f $tmp
+    # remove entry in database
+    sed -e "s/${name}${delim}.*//" -e '/^$/d' "$boredb" > "$boredb".tmp
+    mv -f "$boredb".tmp "$boredb"
     clean
 
     echo "$name deleted"
+    unset -f test_link is_empty
 }
 
 search() {
