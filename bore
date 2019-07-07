@@ -44,13 +44,13 @@ cc() { $cc "$@" ; }
 # macros for convenience when dealing with borked makefiles:
 # add includes/libs coming with pkg to search paths
 include_pkg_headers() {
-    for dir in $(find -type d) ; do
+    for dir in $(find . -type d) ; do
         PKG_INCLUDES="$PKG_INCLUDES -I$dir"
     done
     CFLAGS="$CFLAGS $PKG_INCLUDES"
 }
 link_pkg_libs() {
-    for dir in $(find -type d) ; do
+    for dir in $(find . -type d) ; do
         PKG_LIBS="$PKG_INCLUDES -L$dir"
     done
     LDFLAGS="$PKG_LIBS $LDFLAGS"
