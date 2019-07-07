@@ -80,7 +80,11 @@ getflags() {
     PKG_CONFIG="pkg-config --static"
 }
 
-patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
+patch() {
+    find . -type f -name "*.patch" | while read -r patch ; do
+        command patch -p0 < "$patch"
+    done
+}
 
 configure() {
     ! $docs  && local _docs="--disable-docs \
@@ -146,13 +150,16 @@ run_build() {
     # run user defined prebuild(), if exists
     if has prebuild ; then
         prebuild || die "$name prebuild() failed"
+    # else, try to apply any patches (convenience)
+    else
+        patch
     fi
     # run user defined build(), if exists
     if has build ; then
         build || die "$name build() failed"
     else
         { # if build() wasn't defined, try to build generically
-          [ -f ./configure ] && configure
+          [ -f configure ] && configure
           make
           make install
         } || die "$name generic build() failed"

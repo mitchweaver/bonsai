@@ -1,8 +1,5 @@
 version=2.9.2
 source=https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$version.tar.gz
-prebuild() {
-    patch libressl-$version.patch
-}
 build() {
     configure --disable-hardening
     make CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"

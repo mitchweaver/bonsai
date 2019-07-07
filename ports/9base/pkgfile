@@ -3,10 +3,6 @@
 # easier here to simply clone the most recent snapshot via git.
 version=git
 source=http://git.suckless.org/9base
-prebuild() {
-    patch 9base_config.mk.patch
-    patch 9base_Makefile.patch
-}
 build() {
     # not sure why 9base bugs out with our custom make function
     # for now, just go without it with `command` 
