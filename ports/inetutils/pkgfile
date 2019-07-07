@@ -4,6 +4,7 @@ build() {
     configure --localstatedir=/var \
                 --sysconfdir=/etc  \
                 --disable-servers  \
+                --disable-clients  \
                 --disable-rsh      \
                 --disable-rcp      \
                 --disable-rexec    \
