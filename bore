@@ -36,7 +36,7 @@ clean() {
 
 getcc() {
     [ -z "$cc" ] && cc="$gcc"
-    [ -n "$bootstrap_cc" ] && cc="$bootstrap_cc"
+    [ "$bootstrap_cc" ] && cc="$bootstrap_cc"
 }
 
 cc() { $cc "$@" ; }
@@ -61,7 +61,7 @@ getflags() {
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
     # As a fix for this, we will find and include every $pkg/lib.
-    if [ -n "$chroot_root" ] ; then
+    if [ "$chroot_root" ] ; then
         for pkg in $(ls $root/opt) ; do
             [ -d $root/opt/$pkg/lib ] &&
                 LDFLAGS="$LDFLAGS -L$root/opt/$pkg/lib"
@@ -70,18 +70,15 @@ getflags() {
                 CPPFLAGS="$CPPFLAGS -I$root/opt/$pkg/include"
             fi
         done
-    else # we are not bootstrapping
-        LDFLAGS="$LDFLAGS -L$root/lib"
-        CFLAGS="$CFLAGS -isystem $root/include"
-        CPPFLAGS="$CPPFLAGS -isystem $root/include"
     fi
 
     # note: flag order DOES matter, edit with caution
     LDFLAGS="-static --static -Wl,--gc-sections $LDFLAGS $ldflags"
-    CFLAGS="-static --static -fdata-sections -ffunction-sections $CFLAGS $cflags "
+    CFLAGS="-static --static -fdata-sections -ffunction-sections $CFLAGS $cflags"
     CPPFLAGS="-static --static $CPPFLAGS $cppflags"
     CXXFLAGS="-static --static $CXXFLAGS $cxxflags"
     PKG_CONFIG="pkg-config --static"
+    export GREP=$(which grep) SED=$(which sed) AWK=$(which awk)
 }
 
 patch() { for p ; do command patch -p0 < "$p" > /dev/null ; done ; }
@@ -118,8 +115,8 @@ configure() {
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
     $quiet  && local _quiet='-s'
-    command make $makeflags \
-        CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
+    command make $makeflags CC="$cc" CFLAGS="$CFLAGS" \
+        LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
         $_docs $_quiet "$@" > /dev/null
 }
@@ -339,9 +336,9 @@ delpkg() {
 }
 
 search() {
-    [ -n "$1" ] || die 'search: no argument given'
+    [ "$1" ] || die 'search: no argument given'
     local results="$(find "$ports" ! -path "$ports" -name *${1}* | sort)"
-    [ -n "$results" ] || die "port $1 not found"
+    [ "$results" ] || die "port $1 not found"
     for port in $results ; do
         port=${port##*/}
         echo ${port%.*}
@@ -349,9 +346,9 @@ search() {
 }
 
 isinst() {
-    [ -n "$1" ] || die 'isinst: no argument given'
+    [ "$1" ] || die 'isinst: no argument given'
     result=$(grep -i -- "$1" "$boredb")
-    if [ -n "$result" ] ; then
+    if [ "$result" ] ; then
         echo "port $result is installed"
         return 0
     else
@@ -387,12 +384,12 @@ loadconfig() {
     [ -f "$boredb" ] || :> "$boredb"
 
     # todo: find a way to loop through config and check every var
-    [ -n "$root" ]   || die "loadconfig(): \$root failed to set"
-    [ -n "$src" ]    || die "loadconfig(): \$src failed to set"
-    [ -n "$opt" ]    || die "loadconfig(): \$opt failed to set"
-    [ -n "$bore" ]   || die "loadconfig(): \$bore failed to set"
-    [ -n "$boredb" ] || die "loadconfig(): \$boredb failed to set"
-    [ -n "$delim" ]  || die "loadconfig(): \$delim failed to set"
+    [ "$root" ]   || die "loadconfig(): \$root failed to set"
+    [ "$src" ]    || die "loadconfig(): \$src failed to set"
+    [ "$opt" ]    || die "loadconfig(): \$opt failed to set"
+    [ "$bore" ]   || die "loadconfig(): \$bore failed to set"
+    [ "$boredb" ] || die "loadconfig(): \$boredb failed to set"
+    [ "$delim" ]  || die "loadconfig(): \$delim failed to set"
 }
 
 main() {
@@ -408,7 +405,7 @@ main() {
             count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
             --cc=*|--root=*) shift ;; # see above
             *help|-h)  usage ;;
-            *) if [ -n "$1" ] ; then
+            *) if [ "$1" ] ; then
                    addpkg $1
                    exit $?
                else
