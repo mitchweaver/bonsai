@@ -1,2 +1,5 @@
 version=050325
 source=http://prdownloads.sourceforge.net/ex-vi/ex-$version.tar.bz2
+prebuild() {
+    include_pkg_headers()
+}
