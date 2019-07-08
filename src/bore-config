@@ -1,10 +1,11 @@
 loadconfig() {
     if [ "$config" ] ; then
         borerc="$config"
-    elif [ -f ${HOME}/.local/$0/src/$0.rc ] ; then
-        borerc="${HOME}/.local/$0/src/$0.rc"
-    elif [ -f /src/$0.rc ] ; then
-        borerc="/src/$0.rc"
+    elif [ -f /src/$PKG_MGR_NAME.rc ] ; then
+        borerc="/src/$PKG_MGR_NAME.rc"
+    else 
+        borerc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
+        [ ! -f "$borerc" ] && create_skeleton_config
     fi
     . "$borerc" || die "loadconfig(): could not source config"
 
@@ -25,11 +26,11 @@ create_skeleton_config() {
             die "create_skeleton_config(): Refusing to overwrite $1"
         fi
     else
-        path="${HOME}/.local/$0/src/$0.rc"
-        mkdir -p ${HOME}/.local/$0/src
-        msg "creating skeleton config \~/.local/$0/${0}"
+        path="${HOME}/.local/$PKG_MGR_NAME/src"
+        mkdir -p "$path"
+        echo "copying default config to ~/.local/$PKG_MGR_NAME/$PKG_MGR_NAME.rc"
     fi
-cat > "$path"/$0.rc.skel << "EOF"
+cat > "$path"/$PKG_MGR_NAME.rc << "EOF"
 # bore variables
 root=${HOME}/.local/bore
 borehome="$root"/src
@@ -63,7 +64,7 @@ docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
 quiet=true  # configure/make silently?
 debug=false # compile in debugging tools/information?
-prompt='→ ' # msg prompt
+prompt='→' # msg prompt
 delim='-'   # package/version delimiter
 EOF
 }

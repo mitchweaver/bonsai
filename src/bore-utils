@@ -1,10 +1,10 @@
-msg()  { echo "$prompt $@" ; }
-die()  { >&2 msg Error "$@" ; exit 1 ; }
-warn() { >&2 msg Warning "$@" ; }
+msg()  { printf "%b\n" "$prompt $@" ; }
+die()  { >&2 msg "Error: $@" ; exit 1 ; }
+warn() { >&2 msg "Warning: $@" ; }
 
 usage() {
 cat << EOF
-$0 pkg mgr
+$PKG_MGR_NAME pkg mgr
 
 commands:
 -----------
@@ -30,7 +30,7 @@ defined() {
 # params: $command_name(s)
 has() { 
     for arg ; do
-        type arg || return 1
+        type $arg || return 1
     done > /dev/null
     unset arg
 }
@@ -54,6 +54,10 @@ test_link() {
         return 1
     fi
 }
+
+# posix shell utilities to commonly missing programs
+basename() { printf "%s" "${1##*/}" ; }
+tac() { printf "%s" "$@" | sed '1!G;h;$!d' ; }
 
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none
@@ -79,11 +83,28 @@ sanity_check() {
     [ "$gcc" ]      || warn "\$gcc is not set"
     [ "$tcc" ]      || warn "\$tcc is not set"
     [ "$jobs" ]     || jobs=1
-
     for var in "$root" "$borehome" "$pkgs" "$ports" "$sources" "$work" ; do
         if [ -z "$var" ] || [ "$var" = / ] ; then
             die "config is not sane!"
         fi
     done
-    unset var
+    for dir in "$borehome" "$pkgs" "$ports" "$sources" "$work" ; do
+        [ ! -d "$dir" ] && mkdir "$dir"
+    done
+    unset var dir
+}
+
+# check if all dependencies are met on startup
+check_deps() {
+    for prog in cat cp find grep ln ls mkdir mv rm rmdir \
+                sort sed tar wc file gcc make ; do
+        has $prog || die "required program $prog is not available"
+    done
+    for prog in gzip bzip2 xz ; do
+        has $prog || warn "$prog is not installed. Some ports may not extract."
+    done
+    has git || warn "git is not installed. Some ports may not download."
+    has curl || warn "curl is not installed. Some ports may not download."
+    has patch || warn "patch is not installed. Some ports may not compile."
+    unset prog
 }

@@ -1,26 +1,28 @@
 delpkg() {
-    local name="$1"
-    grep "$name" "$boredb" > /dev/null 2>&1 || die "$name is not installed"
+    sanity_check
+    pkgname="$1"
+    grep "$pkgname" "$boredb" > /dev/null 2>&1 || \
+        die "$pkgname is not installed"
 
-    # go through /opt/name, deleting files as we go
+    # go through $pkgs/pkgname, deleting files as we go
     # afterwards, remove its symlink in the root
-    find "$opt"/$name -type f -o -type l | while read -r file ; do
+    find "$pkgs"/$pkgname -type f -o -type l | while read -r file ; do
         rm $file
-        file=${file#$opt/$name}
+        file=${file#$pkgs/$pkgname}
         test_link $file || rm -f "$file"
     done
     # recurse through dirs in reverse, removing empty dirs as we go
-    # note: the sed command here is to emulate `tac`
-    find "$opt"/$name ! -path "$opt"/$name -type d | sed '1!G;h;$!d' | while read -r dir ; do
+    find "$pkgs"/$pkgname ! -path "$pkgs"/$pkgname -type d | \
+            tac | while read -r dir ; do
         is_empty "$dir" && rmdir "$dir"
-        dir=${dir#$opt/$name}
+        dir=${dir#$pkgs/$pkgname}
         is_empty "$dir" && rmdir "$dir"
     done
-    rmdir "$opt"/$name
+    rmdir "$pkgs"/$pkgname
 
-    del_db $name
+    del_db $pkgname
     clean
 
-    echo "$name deleted"
-    unset -f test_link
+    msg "$pkgname deleted"
+    unset pkgname file dir
 }

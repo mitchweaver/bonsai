@@ -21,7 +21,7 @@ addpkg() {
     msg "building $pkgname..."
     mkdir -p "$pkgs"/$pkgname
 
-    if run_build ; then
+    if run_build $pkgname ; then
         sanity_check && rm -rf "$pkgdir"
         link_pkg $pkgname
         clear_junk $pkgname
@@ -35,6 +35,7 @@ addpkg() {
 # create symlinks for a port
 # params: $pkgname
 link_pkg() {
+    sanity_check
     pkgname=$1
     cd "$borehome"
     cd ..
@@ -55,7 +56,8 @@ link_pkg() {
 
             # BUG: important: this is /src/pkgs not $pkgs for
             #      now until I find a pathing fix!
-            ln -sf "/src/pkgs/$pkgname/$file" ./$file
+            # ln -sf "/src/pkgs/$pkgname/$file" ./$file
+            ln -sf "$pkgs/$pkgname/$file" ./$file
 
         done
     done

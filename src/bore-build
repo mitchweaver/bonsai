@@ -1,28 +1,24 @@
 # runs build() method inside a pkgfile
-# params: none
+# params: pkgname
 run_build() {
     getcc
     getflags
     GNU_sucks
-    # run user defined prebuild(), if exists
+
     if defined prebuild ; then
-        prebuild || die "$name prebuild() failed"
+        name=$1 prebuild || die "$1 prebuild() failed"
     else # else, try to apply any patches (convenience)
-        patch || die "$name generic prebuild() failed"
+        patch || die "$1 generic prebuild() failed"
     fi
     # run user defined build(), if exists
     if defined build ; then
-        build || die "$name build() failed"
+        name=$1 build || die "$1 build() failed"
     else
-        { # if build() wasn't defined, try to build generically
-          [ -f configure ] && configure
-          make
-          make install
-        } || die "$name generic build() failed"
+        name=$1 generic_build || die "$1 generic build() failed"
     fi
     # run user defined postbuild(), if exists
     if defined postbuild ; then
-        postbuild || die "$name postbuild() failed"
+        name=$1 postbuild || die "$1 postbuild() failed"
     fi
 }
 
@@ -116,6 +112,13 @@ make() {
         command make $makeflags -j$jobs $_docs $_quiet \
         CC="$cc" PREFIX="$pkgs/$pkgname" prefix="$pkgs/$pkgname" "$@" > /dev/null
     unset _docs _quiet
+}
+
+# run if pkgfile doesn't define a custom build()
+generic_build() {
+    [ -f configure ] && configure
+    make
+    make install
 }
 
 # helper to get around all things that GNU does wrong with packaging
