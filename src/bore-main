@@ -1,3 +1,6 @@
+# default variables
+BOOTSTRAP=false
+
 main() {
     loadconfig "$@"
 
@@ -9,7 +12,9 @@ main() {
             isinst|-i) isinst $2 ; exit $? ;;
             list|-l)   cat "$boredb" ; exit $? ;;
             count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
-            --cc=*|--root=*) shift ;; # see above
+            --*skeleton) shift ; create_skeleton_config "$1" ; exit ;;
+            --bootstrap) BOOTSTRAP=true ; shift ;;
+            --cc=*|--root=*|--config=*) shift ;; # see above
             *help|-h)  usage ;;
             *) if [ "$1" ] ; then
                    addpkg $1

@@ -1,24 +1,22 @@
 loadconfig() {
-    # Warning: These options are used when bootstrapping a system.
-    #          ... calling them otherwise is not recommended.
     for arg in "$@" ; do
         case "$arg" in
+            --config=*) config="${arg#--config=}" ;;
             --root=*) chroot_root="${arg#--root=}" ;;
-            --cc=*)   bootstrap_cc="${arg#--cc=}"
+            --cc=*)   bootstrap_cc="${arg#--cc=}" ;;
+            --*skeleton) return;
         esac
     done
 
-    if [ -z "$chroot_root" ] ; then
+    if [ -n "$config" ] ; then
+        . "$config"
+    elif [ -z "$chroot_root" ] ; then
         . /src/bore.rc || die "Error: Could not source /src/bore.rc"
     else
-        chroot_bore_rc=$(mktemp)
-        cp -f "$chroot_root"/src/bore.rc "$chroot_bore_rc" || 
-            die "Error: could not load $chroot_src/bore.rc"
-
-        sed -i "s|^root=.*|root=$chroot_root|" "$chroot_bore_rc"
-
-        . "$chroot_bore_rc"
-        rm -f "$chroot_bore_rc"
+        tmp=$(mktemp)
+        sed "s|^root=.*|root=$chroot_root|" "$chroot_root"/src/bore.rc > "$tmp"
+        . "$tmp"
+        rm -f "$tmp"
     fi
 
     [ -z "$jobs" ] && jobs=1
@@ -33,4 +31,57 @@ check_vars() {
     [ "$bore" ]   || die "loadconfig(): \$bore failed to set"
     [ "$boredb" ] || die "loadconfig(): \$boredb failed to set"
     [ "$delim" ]  || die "loadconfig(): \$delim failed to set"
+}
+
+# creates a skeleton config
+# params: $path
+create_skeleton_config() {
+    if [ "$1" ] ; then
+        if [ ! -e "$1" ] ; then
+            path="$1"
+        else
+            die "create_skeleton_config(): Refusing to overwrite $1"
+        fi
+    else
+        path='.'
+    fi
+cat > "$path"/bore.rc.skel << "EOF"
+# bore variables
+root=${HOME}/.local/bore
+borehome="$root"/bore
+borerc="$borehome"/bore.rc
+boredb="$borehome"/bore.db
+pkgs="$borehome"/pkgs
+ports="$borehome"/ports
+sources="$borehome"/sources
+work="$borehome"/work
+
+# compiling
+jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
+tcc='tcc -w'
+gcc='gcc -w -s'
+
+# flags
+makeflags='-s'
+cflags='-static --static -Os -s -pipe -Wl,--gc-sections'
+ldflags='-static --static -fdata-sections -ffunction-sections'
+cppflags='-static --static'
+cxxflags='-static --static'
+pkgcfgflags='pkg-config --static'
+
+# downloads
+curl_opts='-# --ssl'
+git_opts='-q --progress --depth 1'
+keep_tarballs=true
+
+# options
+mans=true  # install man pages?
+docs=false # install extra documentation?
+nls=false  # provide native-language-support?
+quiet=true # configure/make silently?
+debug=false # compile in debugging tools/information?
+
+# package/version delimiter
+delim='-'
+EOF
 }

@@ -1,6 +1,0 @@
-version=050325
-source=http://prdownloads.sourceforge.net/ex-vi/ex-$version.tar.bz2
-prebuild() {
-    patch
-    include_pkg_headers
-}

@@ -1,6 +1,0 @@
-source=git://git.suckless.org/sbase
-version=git
-build() {
-    make sbase-box
-    make sbase-box-install
-}

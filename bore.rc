@@ -1,33 +1,31 @@
 # bore variables
 root=/
-src="$root"/src
-opt="$root"/opt
-bore="$src"/bore
-borerc="$src"/bore.rc
-boredb="$src"/bore.db
-
-# dirs
-ports="$src"/ports
-sources="$src"/sources
-work="$src"/work
-pkgs="$src"/pkgs
+borehome="$root"/bore
+borerc="$borehome"/bore.rc
+boredb="$borehome"/bore.db
+pkgs="$borehome"/pkgs
+ports="$borehome"/ports
+sources="$borehome"/sources
+work="$borehome"/work
 
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
 tcc='tcc -w'
 gcc='gcc -w -s'
+
+# flags
 makeflags='-s'
-ldflags=''
 cflags='-Os -s -pipe'
-cppflags='-Os -s -pipe'
-cxxflags='-Os -s -pipe'
+ldflags=''
+cppflags=''
+cxxflags=''
 
 # downloads
 curl_opts='-# --ssl'
 git_opts='-q --progress --depth 1'
+keep_tarballs=true
 
 # options
-keep_tarballs=true
 mans=true  # install man pages?
 docs=false # install extra documentation?
 nls=false  # provide native-language-support?
@@ -35,5 +33,4 @@ quiet=true # configure/make silently?
 debug=false # compile in debugging tools/information?
 
 # package/version delimiter
-# note: must be sane, (no #,/,*, etc...)
 delim='-'

@@ -1,7 +1,0 @@
-version=20180827
-source=https://github.com/onetrueawk/awk/archive/$version.tar.gz
-depends=yacc
-build() {
-    make
-    cp -f a.out $root/bin/awk
-}

@@ -55,7 +55,7 @@ getflags() {
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
     # As a fix for this, we will find and include every $pkg/lib.
-    if [ "$chroot_root" ] ; then
+    if $BOOTSTRAP ; then
         for pkg in $(ls $root/opt) ; do
             [ -d $root/opt/$pkg/lib ] &&
                 LDFLAGS="$LDFLAGS -L$root/opt/$pkg/lib"
@@ -67,11 +67,11 @@ getflags() {
     fi
 
     # note: flag order DOES matter, edit with caution
-    LDFLAGS="-static --static -Wl,--gc-sections $LDFLAGS $ldflags"
-    CFLAGS="-static --static -fdata-sections -ffunction-sections $CFLAGS $cflags"
-    CPPFLAGS="-static --static $CPPFLAGS $cppflags"
-    CXXFLAGS="-static --static $CXXFLAGS $cxxflags"
-    PKG_CONFIG="pkg-config --static"
+    LDFLAGS="$LDFLAGS $ldflags"
+    CFLAGS="$CFLAGS $cflags"
+    CPPFLAGS="$CPPFLAGS $cppflags"
+    CXXFLAGS="$CXXFLAGS $cxxflags"
+    PKG_CONFIG="$pkgcfgflags"
 }
 
 # convenience function, tries to find all *.patch
