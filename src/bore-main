@@ -16,15 +16,18 @@ main() {
     loadconfig "$@"
     create_root_dirs "$root"
 
-    while [ $# -gt 0 ] ; do
-        case "$1" in
-            add|-a)    addpkg $2 ; exit $? ;;
-            del|-d)    delpkg $2 ; exit $? ;;
-            search|-s) search $2 ; exit $? ;;
-            isinst|-i) isinst $2 ; exit $? ;;
-            list|-l)   listpkgs  ; exit    ;;
-            count|-c)  countpkgs ; exit    ;;
-            *) addpkg $1 ; exit $?
-        esac
-    done
+    case "$1" in
+        add|-a)    addpkg $2        ;;
+        del|-d)    delpkg $2        ;;
+        search|-s) search $2        ;;
+        isinst|-i) isinst $2        ;;
+        list|-l)   listpkgs         ;;
+        count|-c)  countpkgs        ;;
+        info)      portinfo $2      ;;
+        cat)       portcat $2       ;;
+        link)      link_pkg "$2"    ;;
+        relink_all) relink_all      ;;
+        *) addpkg $1
+    esac
+    exit $?
 }

@@ -8,18 +8,18 @@ FORCE:
 all: $(name)
 
 $(name):
-	@echo collating sources into executable...
+	@echo '[*] collating sources into executable...'
 	echo '#!/bin/sh' > bore
 	ls src | while read -r file ; do \
 		cat src/$$file >> $(name) ; \
 	done
 	echo 'main "$$@"' >> $(name)
-	@echo removing comments from executable...
+	@echo '[*] removing comments from executable...'
 	sed 's:^\s*#.*$$::g' $(name) > $(name).tmp
-	@mv -f $(name).tmp $(name)
-	@echo removing blank lines from executable...
+	mv -f $(name).tmp $(name)
+	@echo '[*] removing blank lines from executable...'
 	sed '/^$$/d' $(name) > $(name).tmp
-	@mv -f $(name).tmp $(name)
+	mv -f $(name).tmp $(name)
 	chmod +x $(name)
 
 install:
@@ -31,3 +31,6 @@ install:
 
 clean:
 	rm -f $(name)
+
+uninstall:
+	@echo "Unsafe. Please do this manually."

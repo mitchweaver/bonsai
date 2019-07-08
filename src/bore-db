@@ -11,6 +11,11 @@ isinst() {
     fi
 }
 
+# list packages currently installed
+listpkgs() { cat "$boredb" ; }
+# count packages installed
+countpkgs() { listpkgs | wc -l | sed 's/ //' ; }
+
 sort_db() { [ -f "$boredb" ] && sort -o "$boredb" "$boredb" ; }
 
 update_db() {

@@ -1,0 +1,54 @@
+# check if path is a symlink and its target exists
+# params: path
+# return: 0 if true
+test_link() {
+    if [ ! -L "$1" ] || [ ! -e "$1" ]; then
+        return 1
+    fi
+}
+
+# create symlinks for a port
+# params: $pkgname
+link_pkg() {
+    sanity_check
+    pkgname=$1
+    [ -d "$pkgs"/$pkgname ] || die "link_pkg(): $pkgname is not in \$pkgs dir"
+    cd "$root"
+    msg 'creating symlinks...'
+    for dir in bin sbin share include etc lib libexec ; do
+        # recursively create pkg subdirectories in
+        # equivalent /root subdirectories
+        # example: $pkgname/lib/pkgconfig -> $root/lib/pkgconfig
+        find "$pkgs"/$pkgname/$dir ! -path "*$dir" ! -path "*share/*man*" \
+                -type d 2> /dev/null | while read -r subdir ; do
+            mkdir -p "${subdir#$pkgs/$pkgname/}"
+        done
+        # recursively link all files
+        # example: $pkgname/include/asm/*.h -> $root/include/asm/*.h
+        find "$pkgs"/$pkgname/$dir ! -path "*share/*man*" \
+            -type f -o -type l 2> /dev/null | while read -r file ; do
+            file="${file#$pkgs/$pkgname/}"
+
+            # BUG: how to fix this when bootstrapping...
+            ln -sf "$pkgs/$pkgname/$file" ./$file
+        done
+    done
+    $mans && # only link mans if config boolean is true
+    if [ -d "$pkgs"/$pkgname/share/man ] ; then
+        seq -f "man%g" -s " " 1 8 | while read -r manX ; do
+            find "$pkgs"/$pkgname/share/man/$manX \
+                    ! -path "*/$manX" 2> /dev/null | while read -r man ; do
+                ln -sf "$pkgs/$pkgname/share/man/$manX/${man##*/}" \
+                    "${man#$pkgs/$pkgname/}"
+            done
+        done
+    fi
+    unset dir subdir file manX man
+}
+
+# relinks every package installed, useful for setting up chroots.
+relink_all() {
+    listpkgs | while read -r pkg ; do
+        link_pkg ${pkg%%-*}
+    done
+}

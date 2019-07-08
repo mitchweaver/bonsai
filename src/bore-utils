@@ -1,20 +1,18 @@
-msg()  { printf "%b\n" "$prompt $@" ; }
+msg()  { printf "%s\n" "$prompt $@" ; }
 die()  { >&2 msg "Error: $@" ; exit 1 ; }
 warn() { >&2 msg "Warning: $@" ; }
+separator() { printf '%s\n' '-----------' ; }
 
 usage() {
-cat << EOF
-$PKG_MGR_NAME pkg mgr
-
-commands:
------------
+    printf "%s\n\n%s\n" "$PKG_MGR_NAME pkg mgr" \
+"commands:
+$(separator)
 add    | -a
 del    | -d
 search | -s
 list   | -l
 isinst | -i
-count  | -c
-EOF
+count  | -c"
 exit
 }
 
@@ -44,15 +42,6 @@ is_empty() {
         1)   return 0 ;;
         *)   return 1 ;;
     esac
-}
-
-# check if path is a symlink and its target exists
-# params: path
-# return: 0 if true
-test_link() {
-    if [ ! -L "$1" ] || [ ! -e "$1" ]; then
-        return 1
-    fi
 }
 
 # posix shell utilities to commonly missing programs

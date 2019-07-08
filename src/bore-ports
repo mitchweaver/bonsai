@@ -10,5 +10,35 @@ search() {
     unset results port
 }
 
-listpkgs() { cat "$boredb" ; }
-countpkgs() { cat "$boredb" | wc -l | sed 's/ //' ; }
+# print info about a given $pkgname
+portinfo() {
+    [ $# -gt 1 ] && die "info(): too many arguments"
+    [ $# -eq 0 ] && die "info(): no argument provided"
+    pkgname=$1
+    pkgfile="$ports"/$pkgname/pkgfile
+
+    [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
+    . "$pkgfile"
+
+    [ "$depends" ] || depends=none
+    [ "$version" ] || version=unknown
+    [ "$info" ]    || info='?'
+
+cat << EOF
+name:    $pkgname
+info:    $info
+version: $version
+source:  $source
+depends: $depends
+EOF
+    unset pkgname pkgfile name info version source depends 
+}
+
+# print out the contents of a given $pkgname's pkgfile
+portcat() {
+    [ $# -gt 1 ] && die "pkgcat(): too many arguments"
+    [ $# -eq 0 ] && die "pkgcat(): no argument provided"
+    pkgfile="$ports"/$1/pkgfile
+    [ -f "$pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
+    cat "$pkgfile"
+}
