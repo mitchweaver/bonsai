@@ -1,10 +1,10 @@
-msg() { echo "→ $@" ; }
-die() { >&2 msg "$@" ; exit 1 ; }
-warn() { >&2 msg "$@" ; }
+msg()  { echo "$prompt $@" ; }
+die()  { >&2 msg Error "$@" ; exit 1 ; }
+warn() { >&2 msg Warning "$@" ; }
 
 usage() {
 cat << EOF
-bore pkg mgr
+$0 pkg mgr
 
 commands:
 -----------
@@ -44,12 +44,11 @@ test_link() {
     fi
 }
 
-# cleans $opt tree and clears $work
+# cleans $pkgs tree of empty dirs and clears $work
 # params: none
 clean() {
     [ -d "$work" ] && rm -rf "$work"/*
-    # remove empty dirs in $opt
-    for dir in $(find "$opt" -type d ! -wholename "$opt" 2> /dev/null) ; do
+    for dir in $(find "$pkgs" -type d ! -wholename "$pkgs" 2> /dev/null) ; do
         rmdir "$dir" 2> /dev/null
     done
     update_db

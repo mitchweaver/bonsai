@@ -6,6 +6,7 @@ sources
 sources/*
 opt
 opt/*
+old
 
 a.out
 *~*

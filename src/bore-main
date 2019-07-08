@@ -2,6 +2,14 @@
 BOOTSTRAP=false
 
 main() {
+    case "$1" in
+        *skeleton) shift ; create_skeleton_config "$1" ; exit ;;
+        *bootstrap) BOOTSTRAP=true ; shift ;;
+        --config=*) config="${1#--config=}" ; shift ;;
+        --root=*) _root="${1#--root=}" ; shift ;;
+        --gcc=*) _gcc="${1#--cc=}" ; shift ;;
+    esac
+
     loadconfig "$@"
 
     while [ $# -gt 0 ] ; do
@@ -10,11 +18,8 @@ main() {
             del|-d)    delpkg $2 ; exit $? ;;
             search|-s) search $2 ; exit $? ;;
             isinst|-i) isinst $2 ; exit $? ;;
-            list|-l)   cat "$boredb" ; exit $? ;;
+            list|-l)   cat "$boredb" ; exit ;;
             count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
-            --*skeleton) shift ; create_skeleton_config "$1" ; exit ;;
-            --bootstrap) BOOTSTRAP=true ; shift ;;
-            --cc=*|--root=*|--config=*) shift ;; # see above
             *help|-h)  usage ;;
             *) if [ "$1" ] ; then
                    addpkg $1
