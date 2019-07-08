@@ -2,10 +2,9 @@
 #
 # http://github.com/mitchweaver/bore
 #
-# package manager for [NAME] Linux
+# a simple, intuitive, new way of thinking
+# about package management
 #
-
-die() { >&2 echo "$@" ; exit 1 ; }
 
 usage() {
 cat << EOF
@@ -23,7 +22,24 @@ EOF
 exit
 }
 
-sortdb() { [ -f "$boredb" ] && sort -o "$boredb" "$boredb" ; }
+die() { >&2 echo "$@" ; exit 1 ; }
+
+# check if dir is empty
+is_empty() {
+    test -e "$1/"* 2>/dev/null
+    case $? in
+        1)   return 0 ;;
+        *)   return 1 ;;
+    esac
+}
+
+# check if is a symlink and its target exists
+test_link() {
+    if [ -L "$1" ] ; then
+        [ -e "$1" ] || return 1
+    fi
+    return 0
+}
 
 clean() {
     [ -d "$work" ] && rm -rf "$work"/*
@@ -111,17 +127,14 @@ configure() {
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
         CXXFLAGS="$CXXFLAGS" ./configure $allowed "$@" > /dev/null
-
- # PREFIX="$opt"/$name prefix="$opt"/$name --prefix="$opt"/$name 
 }
 
 make() {
     ! $mans && local _docs="MANPREFIX=/dev/null"
     $quiet  && local _quiet='-s'
-    command make $makeflags CC="$cc" CFLAGS="$CFLAGS" \
-        LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        -j$jobs prefix="$opt/$name" PREFIX="$opt/$name" \
-        $_docs $_quiet "$@" > /dev/null
+    CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" CXXFLAGS="$CXXFLAGS" \
+        command make $makeflags -j$jobs $_docs $_quiet \
+        CC="$cc" PREFIX="$opt/$name" prefix="$opt/$name" "$@" > /dev/null
 }
 
 # helper to get around all things that GNU does wrong with packaging
@@ -150,8 +163,7 @@ run_build() {
     # run user defined prebuild(), if exists
     if has prebuild ; then
         prebuild || die "$name prebuild() failed"
-    # else, try to apply any patches (convenience)
-    else
+    else # else, try to apply any patches (convenience)
         patch
     fi
     # run user defined build(), if exists
@@ -180,7 +192,7 @@ addpkg() {
     else
         die "Error: can't source $name's pkgfile?"
     fi
-    [ "$(ls $boredb | wc -l)" -gt 0 ] || die "no ports found"
+    [ "$(ls $ports | wc -l)" -gt 0 ] || die "no ports found"
     isinst $name > /dev/null && die "port $name is already installed"
 
     [ -z "$version" ] && version='1.0'
@@ -318,22 +330,6 @@ delpkg() {
     local name="$1"
     grep "$name" "$boredb" > /dev/null 2>&1 || die "$name is not installed"
 
-    # checks if "$1" is a symlink and its target still exists
-    test_link() {
-        if [ -L "$1" ] ; then
-            [ -e "$1" ] || return 1
-        fi
-        return 0
-    }
-    # check if dir is empty
-    is_empty() {
-        test -e "$1/"* 2>/dev/null
-        case $? in
-            1)   return 0 ;;
-            *)   return 1 ;;
-        esac
-    }
-
     # go through /opt/name, deleting files as we go
     # afterwards, remove its symlink in the root
     find "$opt"/$name -type f -o -type l | while read -r file ; do
@@ -356,7 +352,7 @@ delpkg() {
     clean
 
     echo "$name deleted"
-    unset -f test_link is_empty
+    unset -f test_link
 }
 
 search() {
@@ -380,6 +376,8 @@ isinst() {
         return 1
     fi
 }
+
+sortdb() { [ -f "$boredb" ] && sort -o "$boredb" "$boredb" ; }
 
 loadconfig() {
     # Warning: These options are used when bootstrapping a system.
