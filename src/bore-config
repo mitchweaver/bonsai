@@ -1,0 +1,36 @@
+loadconfig() {
+    # Warning: These options are used when bootstrapping a system.
+    #          ... calling them otherwise is not recommended.
+    for arg in "$@" ; do
+        case "$arg" in
+            --root=*) chroot_root="${arg#--root=}" ;;
+            --cc=*)   bootstrap_cc="${arg#--cc=}"
+        esac
+    done
+
+    if [ -z "$chroot_root" ] ; then
+        . /src/bore.rc || die "Error: Could not source /src/bore.rc"
+    else
+        chroot_bore_rc=$(mktemp)
+        cp -f "$chroot_root"/src/bore.rc "$chroot_bore_rc" || 
+            die "Error: could not load $chroot_src/bore.rc"
+
+        sed -i "s|^root=.*|root=$chroot_root|" "$chroot_bore_rc"
+
+        . "$chroot_bore_rc"
+        rm -f "$chroot_bore_rc"
+    fi
+
+    [ -z "$jobs" ] && jobs=1
+    update_db
+    check_vars
+}
+
+check_vars() {
+    [ "$root" ]   || die "loadconfig(): \$root failed to set"
+    [ "$src" ]    || die "loadconfig(): \$src failed to set"
+    [ "$opt" ]    || die "loadconfig(): \$opt failed to set"
+    [ "$bore" ]   || die "loadconfig(): \$bore failed to set"
+    [ "$boredb" ] || die "loadconfig(): \$boredb failed to set"
+    [ "$delim" ]  || die "loadconfig(): \$delim failed to set"
+}

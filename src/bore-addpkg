@@ -1,0 +1,73 @@
+# adds a port
+# params: $pkgname
+addpkg() {
+    name=$1
+    pkgfile="$ports"/$name/pkgfile
+
+    if [ -f "$pkgfile" ] ; then
+        . "$pkgfile"
+    else
+        die "Error: can't source $name's pkgfile?"
+    fi
+    [ "$(ls $ports | wc -l)" -gt 0 ] || die "no ports found"
+    isinst $name > /dev/null && die "port $name is already installed"
+
+    [ -z "$version" ] && version='1.0'
+    pkgid="${name}${delim}${version}"
+    pkgdir="$work"/"$pkgid"
+
+    # download/extract package
+    get "$source"
+    cd "$pkgdir" || die "Error: unable to cd to $pkgdir"
+
+    echo ". building $name..."
+    mkdir -p $opt/$name
+
+    if run_build ; then
+        rm -rf "$pkgdir"
+        link_pkg $name
+        clear_junk $name
+        add_db $name $version
+        echo "$name installed!"
+        clean
+    fi
+}
+
+# create symlinks for a port
+# params: $pkgname
+link_pkg() {
+    local pkgname=$1
+    cd "$src"
+    cd ..
+    echo '. creating symlinks...'
+    for dir in bin sbin share include etc lib libexec ; do
+        # recursively create pkg subdirectories in
+        # equivalent /root subdirectories
+        # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
+        find "$opt"/$pkgname/$dir ! -path "*$dir" \
+            ! -path "*share/*man*" -type d 2> /dev/null | \
+                while read -r subdir ; do
+            mkdir -p "${subdir#$opt/$pkgname/}"
+        done
+        # recursively link all files
+        # example: $pkg/include/asm/*.h -> /include/asm/*.h
+        find "$opt"/$pkgname/$dir ! -path "*share/*man*" \
+            -type f -o -type l 2> /dev/null | \
+                while read -r file ; do
+            file="${file#$opt/$pkgname/}"
+            # important: this is /opt not $opt !
+            ln -sf "/opt/$pkgname/$file" ./$file
+        done
+    done
+    $mans && # only link mans if config boolean is true
+    if [ -d "$opt"/$pkgname/share/man ] ; then
+        for manX in $(seq -f "man%g" -s " " 1 8) ; do
+            find "$opt"/$pkgname/share/man/$manX \
+                ! -path "*/$manX" 2> /dev/null | \
+                    while read -r man ; do
+                man="${man#$opt/$pkgname/}"
+                ln -sf "/opt/$pkgname/share/man/$manX/${man##*/}" "$man"
+            done
+        done
+    fi
+}

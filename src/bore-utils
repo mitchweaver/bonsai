@@ -1,0 +1,56 @@
+msg() { echo "→ $@" ; }
+die() { >&2 msg "$@" ; exit 1 ; }
+warn() { >&2 msg "$@" ; }
+
+usage() {
+cat << EOF
+bore pkg mgr
+
+commands:
+-----------
+add    | -a
+del    | -d
+search | -s
+list   | -l
+isinst | -i
+count  | -c
+EOF
+exit
+}
+
+# checks if a function is defined
+# params: $func_name
+defined() { type $1 | grep 'is.*.function' > /dev/null ; return $? ; }
+
+# check if dir is empty
+# params: dir
+# return: 0 if true
+is_empty() {
+    test -e "$1/"* 2> /dev/null
+    case $? in
+        1)   return 0 ;;
+        *)   return 1 ;;
+    esac
+}
+
+# check if path is a symlink and its target exists
+# params: path
+# return: 0 if true
+test_link() {
+    if [ -L "$1" ] && [ -e "$1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# cleans $opt tree and clears $work
+# params: none
+clean() {
+    [ -d "$work" ] && rm -rf "$work"/*
+    # remove empty dirs in $opt
+    for dir in $(find "$opt" -type d ! -wholename "$opt" 2> /dev/null) ; do
+        rmdir "$dir" 2> /dev/null
+    done
+    update_db
+}

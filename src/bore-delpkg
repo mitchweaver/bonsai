@@ -1,0 +1,26 @@
+delpkg() {
+    local name="$1"
+    grep "$name" "$boredb" > /dev/null 2>&1 || die "$name is not installed"
+
+    # go through /opt/name, deleting files as we go
+    # afterwards, remove its symlink in the root
+    find "$opt"/$name -type f -o -type l | while read -r file ; do
+        rm $file
+        file=${file#$opt/$name}
+        test_link $file || rm -f "$file"
+    done
+    # recurse through dirs in reverse, removing empty dirs as we go
+    # note: the sed command here is to emulate `tac`
+    find "$opt"/$name ! -path "$opt"/$name -type d | sed '1!G;h;$!d' | while read -r dir ; do
+        is_empty "$dir" && rmdir "$dir"
+        dir=${dir#$opt/$name}
+        is_empty "$dir" && rmdir "$dir"
+    done
+    rmdir "$opt"/$name
+
+    del_db $name
+    clean
+
+    echo "$name deleted"
+    unset -f test_link
+}

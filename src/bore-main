@@ -1,0 +1,22 @@
+main() {
+    loadconfig "$@"
+
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            add|-a)    addpkg $2 ; exit $? ;;
+            del|-d)    delpkg $2 ; exit $? ;;
+            search|-s) search $2 ; exit $? ;;
+            isinst|-i) isinst $2 ; exit $? ;;
+            list|-l)   cat "$boredb" ; exit $? ;;
+            count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
+            --cc=*|--root=*) shift ;; # see above
+            *help|-h)  usage ;;
+            *) if [ "$1" ] ; then
+                   addpkg $1
+                   exit $?
+               else
+                   usage
+               fi
+        esac
+    done
+}

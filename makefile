@@ -1,12 +1,27 @@
-# To be called by ./bootstrap
-#
-# You should not be running this manually
-# unless you know what you're doing.
-#
+name=bore
 
-all:
+$(name): FORCE
+.PHONY: FORCE
+FORCE:
+
+all: $(name)
+
+$(name):
+	@echo '#!/bin/sh' > bore
+	@for file in `ls src` ; do \
+		echo "# -*-*- $$file *-*-*-*-*-*-*-" >> $(name) ; \
+		cat src/$$file >> $(name) ; \
+	done
+	@echo 'main "$$@"' >> $(name)
+	@chmod +x $(name)
+
 install:
-	install -Dm755 bore ${PREFIX}/src/bore
-	install -Dm644 bore.rc ${PREFIX}/src/bore.rc
-	if [ -d ${PREFIX}/src/ports ] ; then rm -rf ${PREFIX}/src/ports ; fi
+	install -Dm755 $(name) ${PREFIX}/src/$(name)
+	install -Dm644 $(name).rc ${PREFIX}/src/$(name).rc
+	@if [ -d ${PREFIX}/src/ports ] ; then \
+		rm -rf ${PREFIX}/src/ports ; \
+	fi
 	cp -rf ports ${PREFIX}/src/ports
+
+clean:
+	rm -f $(name)
