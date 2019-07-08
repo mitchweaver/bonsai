@@ -19,8 +19,21 @@ exit
 }
 
 # checks if a function is defined
-# params: $func_name
-defined() { type $1 | grep 'is.*.function' > /dev/null ; return $? ; }
+# params: $func_name(s)
+defined() {
+    for arg ; do
+        type $arg | grep 'is.*.function' || return 1
+    done > /dev/null
+    unset arg
+}
+# checks if a command exists
+# params: $command_name(s)
+has() { 
+    for arg ; do
+        type arg || return 1
+    done > /dev/null
+    unset arg
+}
 
 # check if dir is empty
 # params: dir
@@ -37,9 +50,7 @@ is_empty() {
 # params: path
 # return: 0 if true
 test_link() {
-    if [ -L "$1" ] && [ -e "$1" ]; then
-        return 0
-    else
+    if [ ! -L "$1" ] || [ ! -e "$1" ]; then
         return 1
     fi
 }
@@ -47,9 +58,32 @@ test_link() {
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none
 clean() {
-    [ -d "$work" ] && rm -rf "$work"/*
+    sanity_check && rm -rf "$work"/*
     for dir in $(find "$pkgs" -type d ! -wholename "$pkgs" 2> /dev/null) ; do
         rmdir "$dir" 2> /dev/null
     done
     update_db
+    unset dir
+}
+
+# check variables are still sane before deleting anything
+sanity_check() {
+    [ "$root" ]     || die "\$root is not set"
+    [ "$borehome" ] || die "\$borehome is not set"
+    [ "$boredb" ]   || die "\$boredb is not set"
+    [ "$pkgs" ]     || die "\$pkgs is not set"
+    [ "$ports" ]    || die "\$ports is not set"
+    [ "$sources" ]  || die "\$sources is not set"
+    [ "$work" ]     || die "\$work is not set"
+    [ "$delim" ]    || die "\$delim is not set"
+    [ "$gcc" ]      || warn "\$gcc is not set"
+    [ "$tcc" ]      || warn "\$tcc is not set"
+    [ "$jobs" ]     || jobs=1
+
+    for var in "$root" "$borehome" "$pkgs" "$ports" "$sources" "$work" ; do
+        if [ -z "$var" ] || [ "$var" = / ] ; then
+            die "config is not sane!"
+        fi
+    done
+    unset var
 }

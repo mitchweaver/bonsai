@@ -12,21 +12,7 @@ loadconfig() {
     [ "$_gcc" ] && gcc="$_gcc"
 
     update_db
-    check_vars
-}
-
-check_vars() {
-    [ "$root" ]     || die "loadconfig(): \$root failed to set"
-    [ "$borehome" ] || die "loadconfig(): \$borehome failed to set"
-    [ "$boredb" ]   || die "loadconfig(): \$boredb failed to set"
-    [ "$pkgs" ]     || die "loadconfig(): \$pkgs failed to set"
-    [ "$ports" ]    || die "loadconfig(): \$ports failed to set"
-    [ "$sources" ]  || die "loadconfig(): \$sources failed to set"
-    [ "$work" ]     || die "loadconfig(): \$work failed to set"
-    [ "$delim" ]    || die "loadconfig(): \$delim failed to set"
-    [ "$gcc" ]      || warn "loadconfig(): \$gcc failed to set"
-    [ "$tcc" ]      || warn "loadconfig(): \$tcc failed to set"
-    [ "$jobs" ]     || jobs=1
+    sanity_check
 }
 
 # creates a skeleton config
@@ -39,7 +25,7 @@ create_skeleton_config() {
             die "create_skeleton_config(): Refusing to overwrite $1"
         fi
     else
-        path='.'
+        path="${HOME}/.local/$0/src/$0.rc"
         mkdir -p ${HOME}/.local/$0/src
         msg "creating skeleton config \~/.local/$0/${0}"
     fi

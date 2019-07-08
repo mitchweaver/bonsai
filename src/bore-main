@@ -1,13 +1,27 @@
-# default variables
-BOOTSTRAP=false
+check_deps() {
+    for prog in cat cp find grep ln ls mkdir mv rm rmdir \
+                sort sed tar wc file gcc make ; do
+        has $prog || die "required program $prog is not available"
+    done
+    for prog in gzip bzip2 xz ; do
+        has prog || warn "$prog is not installed. Some ports may not extract."
+    done
+    has git || warn "git is not installed. Some ports may not download."
+    has curl || warn "curl is not installed. Some ports may not download."
+    has patch || warn "patch is not installed. Some ports may not compile."
+    unset prog
+}
 
 main() {
+    check_deps
+
     case "$1" in
         *skeleton) shift ; create_skeleton_config "$1" ; exit ;;
         *bootstrap) BOOTSTRAP=true ; shift ;;
         --config=*) config="${1#--config=}" ; shift ;;
         --root=*) _root="${1#--root=}" ; shift ;;
         --gcc=*) _gcc="${1#--cc=}" ; shift ;;
+        *help|-h)  usage ;;
     esac
 
     loadconfig "$@"
@@ -20,7 +34,6 @@ main() {
             isinst|-i) isinst $2 ; exit $? ;;
             list|-l)   cat "$boredb" ; exit ;;
             count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
-            *help|-h)  usage ;;
             *) if [ "$1" ] ; then
                    addpkg $1
                    exit $?

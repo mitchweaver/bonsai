@@ -1,43 +1,46 @@
 # downloads a given url and extracts to $work
+# params: $url, $pkgname, $version
 get() {
-    [ $# -lt 1 ] && die 'get(): no source given'
-    clean # clean $work, incase bore was interrupted
-    local url="$1"
-    local tmp=$(mktemp -d)
+    [ $# -lt 3 ] && die 'get(): insufficient arguments'
+    _url="$1"
+    _pkgname=$2
+    _version="$3"
+    _pkgdir="$work"/"$_pkgid"
+    _pkgid="${_pkgname}${delim}${_version}"
+    tmp=$(mktemp -d)
 
-    mkdir -p "$pkgdir" "$sources"
+    clean
+    mkdir -p "$_pkgdir" "$sources"
     cd "$sources"
 
-    if [ "$version" = git ] ; then
-        if [ ! -d "$pkgid" ] ; then
-            echo ". cloning $1..."
-            git clone $git_opts "$url" $tmp || die "get(): could not clone $url"
-            mv -f "$tmp"/* "$work"/"$pkgid"
-            $keep_tarballs && cp -rf "$work"/"$pkgid" "$sources"/"$pkgid"
+    if [ "$_version" = git ] ; then
+        if [ ! -d "$_pkgid" ] ; then
+            msg "cloning $_url..."
+            git clone $git_opts "$_url" $tmp || die "get(): could not clone $_url"
+            mv -f "$tmp"/* "$work"/"$_pkgid"
+            $keep_tarballs && cp -rf "$work"/"$_pkgid" "$sources"/"$_pkgid"
         else
-            cp -rf "$sources"/"$pkgid" "$work"
+            cp -rf "$sources"/"$_pkgid" "$work"
         fi
     else # we are downloading with curl
 
-        if [ ! -f "$pkgid" ] ; then
-            echo ". downloading $1..."
-            curl -q -L -C - $curl_opts -o "$pkgid" --url "$url" ||
-                die "get(): could not download $name"
-            cp -f "$pkgid" $tmp
-        else
-            cp -f "$pkgid" $tmp
+        if [ ! -f "$_pkgid" ] ; then
+            msg "downloading $_url..."
+            curl -q -L -C - $curl_opts -o "$_pkgid" --url "$_url" ||
+                die "get(): could not download $_pkgname"
         fi
+        cp -f "$_pkgid" $tmp
 
         case $(file $tmp/*) in
-            *tgz*)   local ext=tgz   ;;
-            *'gzip comp'*)  local ext=gz    ;;
-            *'bzip2 comp'*) local ext=bz2   ;;
-            *'XZ comp'*)    local ext=xz    ;;
-            *) die "get(): could not discern compression type of $name"
+            *tgz*) ext=tgz   ;;
+            *'gzip comp'*)  ext=gz    ;;
+            *'bzip2 comp'*) ext=bz2   ;;
+            *'XZ comp'*)    ext=xz    ;;
+            *) die "get(): could not discern compression type of $_pkgname"
         esac
 
         # decompressors bug out if no extension...
-        mv -f $tmp/* $tmp/${name}.${ext}
+        mv -f $tmp/* $tmp/${_pkgname}.${ext}
 
         case $ext in
             xz)     xz      -d $tmp/* ;;
@@ -45,23 +48,24 @@ get() {
             bz2)    bunzip2 -d $tmp/* ;;
             *) die "get(): unknown compression algorithm"
         esac
-        [ $? -gt 0 ] && die "get(): failed to decompress $name"
+        [ $? -gt 0 ] && die "get(): failed to decompress $_pkgname"
 
         if file $tmp/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
-            mv $tmp/* $tmp/${name}.tar
-            tar -xf $tmp/${name}.tar -C $tmp/ || 
-                die "get(): tar could not extract $pkgid.$ext"       
+            mv $tmp/* $tmp/${_pkgname}.tar
+            tar -xf $tmp/${_pkgname}.tar -C $tmp/ || 
+                die "get(): tar could not extract $_pkgid.$ext"       
         fi
 
-        ! $keep_tarballs && rm -f "$sources"/"$pkgid" 
+        ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
-        mv -f $tmp/*/* "$work"/"$pkgid" ||
+        mv -f $tmp/*/* "$work"/"$_pkgid" ||
             die "get(): failed to move unpacked tarball"
     fi
     rm -rf $tmp
-    # copy all port's files, except its pkgfile
-    for file in $(ls -A "$ports"/"$name"/* | grep -v pkgfile) ; do
-        cp -f "$file" "$pkgdir"
+    # copy all port's files, except its pkgfile -- (ex: patches)
+    for file in $(ls -A "$ports"/"$_pkgname"/* | grep -v pkgfile) ; do
+        cp -f "$file" "$_pkgdir"
     done
+    unset _url _pkgname _version _pkgid _pkgdir ext tmp file
 }

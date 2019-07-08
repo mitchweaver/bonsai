@@ -26,28 +26,27 @@ run_build() {
     fi
 }
 
-# return correct $cc
-getcc() {
-    [ -z "$cc" ] && cc="$gcc"
-    [ "$bootstrap_cc" ] && cc="$bootstrap_cc"
-}
-
+# return $cc if not user specified
+getcc() { [ -z "$cc" ] && cc="$gcc" ; }
 # convenience function
 cc() { $cc "$@" ; }
 
 # macros for convenience when dealing with borked makefiles:
 # add includes/libs coming with pkg to search paths
+# params: none, but assumes being withinside $work/$pkgname
 include_pkg_headers() {
     for dir in $(find . -type d) ; do
         PKG_INCLUDES="$PKG_INCLUDES -I$dir"
     done
     CFLAGS="$CFLAGS $PKG_INCLUDES"
+    unset dir
 }
 link_pkg_libs() {
     for dir in $(find . -type d) ; do
         PKG_LIBS="$PKG_INCLUDES -L$dir"
     done
     LDFLAGS="$PKG_LIBS $LDFLAGS"
+    unset dir
 }
 
 getflags() {
@@ -55,50 +54,49 @@ getflags() {
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
     # As a fix for this, we will find and include every $pkg/lib.
-    if $BOOTSTRAP ; then
-        for pkg in $(ls $root/opt) ; do
-            [ -d $root/opt/$pkg/lib ] &&
-                LDFLAGS="$LDFLAGS -L$root/opt/$pkg/lib"
-            if [ -d $root/opt/$pkg/include ] ; then
-                CFLAGS="$CFLAGS -I$root/opt/$pkg/include"
-                CPPFLAGS="$CPPFLAGS -I$root/opt/$pkg/include"
+    if [ "$BOOTSTRAP" ] ; then
+        for pkg in $(ls "$pkgs") ; do
+            [ -d "$pkgs"/$pkg/lib ] &&
+                LDFLAGS="$LDFLAGS -L"$pkgs"/$pkg/lib"
+            if [ -d "$pkgs"/$pkg/include ] ; then
+                CFLAGS="$CFLAGS -I"$pkgs"/$pkg/include"
             fi
         done
     fi
 
-    # note: flag order DOES matter, edit with caution
     LDFLAGS="$LDFLAGS $ldflags"
     CFLAGS="$CFLAGS $cflags"
     CPPFLAGS="$CPPFLAGS $cppflags"
     CXXFLAGS="$CXXFLAGS $cxxflags"
     PKG_CONFIG="$pkgcfgflags"
+    unset pkg
 }
 
 # convenience function, tries to find all *.patch
-# in pkgfile directory and apply them
+# in $work/$pkgname directory and apply them
 patch() {
     find . -type f -name "*.patch" | while read -r patch ; do
         command patch -p0 < "$patch"
     done
+    unset patch
 }
 
 configure() {
-    ! $docs  && local _docs="--disable-docs \
+    ! $docs  && _docs="--disable-docs \
                              --disable-gtk-docs \
                              --disable-gtk-docs-html"
-    ! $nls   && local _nls='--disable-nls'
-    ! $debug && local _debug='--disable-debug --disable-debugger'
+    ! $nls   && _nls='--disable-nls'
+    ! $debug && _debug='--disable-debug --disable-debugger'
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
-    local allowed=""
-    local tmp_help=$(mktemp)
+    allowed=""
+    tmp_help=$(mktemp)
     ./configure --help > $tmp_help
     for flag in --static --enable-static --enable-static-link \
                 --disable-rpath --disable-option-checking --without-tests \
                 $quiet $debug $_nls $_docs ; do
-        grep -- "$flag" $tmp_help > /dev/null && \
-            allowed="$allowed $flag"
+        grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
     done
     if grep -- --enable-shared $tmp_help > /dev/null ; then
         allowed="$allowed --disable-shared"
@@ -106,15 +104,18 @@ configure() {
     rm -f $tmp_help
 
     CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        CXXFLAGS="$CXXFLAGS" ./configure $allowed "$@" > /dev/null
+        CXXFLAGS="$CXXFLAGS" PREFIX="$pkgs/$pkgname" prefix="$pkgs/$pkgname" \
+        ./configure --prefix="$pkgs/$pkgname" $allowed "$@" > /dev/null
+    unset allowed flag tmp_help _docs _nls _debug
 }
 
 make() {
-    ! $mans && local _docs="MANPREFIX=/dev/null"
-    $quiet  && local _quiet='-s'
+    ! $mans && _docs="MANPREFIX=/dev/null"
+    $quiet  && _quiet='-s'
     CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" CXXFLAGS="$CXXFLAGS" \
         command make $makeflags -j$jobs $_docs $_quiet \
-        CC="$cc" PREFIX="$opt/$name" prefix="$opt/$name" "$@" > /dev/null
+        CC="$cc" PREFIX="$pkgs/$pkgname" prefix="$pkgs/$pkgname" "$@" > /dev/null
+    unset _docs _quiet
 }
 
 # helper to get around all things that GNU does wrong with packaging
@@ -138,11 +139,11 @@ GNU_sucks() {
 # remove junk files
 # params: $pkgname
 clear_junk() {
-    [ -d "$opt"/$1/share/info ] && rm -r "$opt"/$1/share/info
-    if ! $docs && [ -d "$opt"/$1/share/doc ] ; then
-        rm -r "$opt"/$1/share/doc
+    [ -d "$pkgs"/$1/share/info ] && rm -r "$pkgs"/$1/share/info
+    if ! $docs && [ -d "$pkgs"/$1/share/doc ] ; then
+        rm -r "$pkgs"/$1/share/doc
     fi
-    if ! $mans && [ -d "$opt"/$1/share/man ] ; then
-        rm -r "$opt"/$1/share/man
+    if ! $mans && [ -d "$pkgs"/$1/share/man ] ; then
+        rm -r "$pkgs"/$1/share/man
     fi
 }

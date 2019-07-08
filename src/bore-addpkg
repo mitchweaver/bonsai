@@ -1,73 +1,73 @@
 # adds a port
 # params: $pkgname
 addpkg() {
-    name=$1
-    pkgfile="$ports"/$name/pkgfile
+    [ "$(ls $ports | wc -l)" -gt 0 ] || die "addpkg(): no ports found"
 
-    if [ -f "$pkgfile" ] ; then
-        . "$pkgfile"
-    else
-        die "Error: can't source $name's pkgfile?"
-    fi
-    [ "$(ls $ports | wc -l)" -gt 0 ] || die "no ports found"
-    isinst $name > /dev/null && die "port $name is already installed"
+    pkgname=$1
+    pkgfile="$ports"/$pkgname/pkgfile
+    isinst $pkgname > /dev/null && die "port $pkgname is already installed"
 
-    [ -z "$version" ] && version='1.0'
-    pkgid="${name}${delim}${version}"
+    . "$pkgfile" || die "addpkg(): can't source $pkgname's pkgfile?"
+
+    [ -z "$version" ] && version='unknown'
+
+    pkgid="${pkgname}${delim}${version}"
     pkgdir="$work"/"$pkgid"
 
-    # download/extract package
-    get "$source"
-    cd "$pkgdir" || die "Error: unable to cd to $pkgdir"
+    get "$source" $pkgname "$version"
 
-    echo ". building $name..."
-    mkdir -p $opt/$name
+    cd "$pkgdir" || die "addpkg(): unable to cd to $pkgdir"
+
+    msg "building $pkgname..."
+    mkdir -p "$pkgs"/$pkgname
 
     if run_build ; then
-        rm -rf "$pkgdir"
-        link_pkg $name
-        clear_junk $name
-        add_db $name $version
-        echo "$name installed!"
+        sanity_check && rm -rf "$pkgdir"
+        link_pkg $pkgname
+        clear_junk $pkgname
+        add_db $pkgname $version
+        msg "$pkgname installed!"
         clean
     fi
+    unset pkg{name,file,dir,id}
 }
 
 # create symlinks for a port
 # params: $pkgname
 link_pkg() {
-    local pkgname=$1
-    cd "$src"
+    pkgname=$1
+    cd "$borehome"
     cd ..
-    echo '. creating symlinks...'
+    msg 'creating symlinks...'
     for dir in bin sbin share include etc lib libexec ; do
         # recursively create pkg subdirectories in
         # equivalent /root subdirectories
-        # example: $pkg/lib/pkgconfig -> /lib/pkgconfig
-        find "$opt"/$pkgname/$dir ! -path "*$dir" \
-            ! -path "*share/*man*" -type d 2> /dev/null | \
-                while read -r subdir ; do
-            mkdir -p "${subdir#$opt/$pkgname/}"
+        # example: $pkgname/lib/pkgconfig -> /lib/pkgconfig
+        find "$pkgs"/$pkgname/$dir ! -path "*$dir" ! -path "*share/*man*" \
+            -type d 2> /dev/null | while read -r subdir ; do
+            mkdir -p "${subdir#$pkgs/$pkgname/}"
         done
         # recursively link all files
-        # example: $pkg/include/asm/*.h -> /include/asm/*.h
-        find "$opt"/$pkgname/$dir ! -path "*share/*man*" \
-            -type f -o -type l 2> /dev/null | \
-                while read -r file ; do
-            file="${file#$opt/$pkgname/}"
-            # important: this is /opt not $opt !
-            ln -sf "/opt/$pkgname/$file" ./$file
+        # example: $pkgname/include/asm/*.h -> /include/asm/*.h
+        find "$pkgs"/$pkgname/$dir ! -path "*share/*man*" \
+            -type f -o -type l 2> /dev/null | while read -r file ; do
+            file="${file#$pkgs/$pkgname/}"
+
+            # BUG: important: this is /src/pkgs not $pkgs for
+            #      now until I find a pathing fix!
+            ln -sf "/src/pkgs/$pkgname/$file" ./$file
+
         done
     done
     $mans && # only link mans if config boolean is true
-    if [ -d "$opt"/$pkgname/share/man ] ; then
+    if [ -d "$pkgs"/$pkgname/share/man ] ; then
         for manX in $(seq -f "man%g" -s " " 1 8) ; do
-            find "$opt"/$pkgname/share/man/$manX \
-                ! -path "*/$manX" 2> /dev/null | \
-                    while read -r man ; do
-                man="${man#$opt/$pkgname/}"
-                ln -sf "/opt/$pkgname/share/man/$manX/${man##*/}" "$man"
+            find "$pkgs"/$pkgname/share/man/$manX \
+                ! -path "*/$manX" 2> /dev/null | while read -r man ; do
+                man="${man#$pkgs/$pkgname/}"
+                ln -sf "/src/pkgs/$pkgname/share/man/$manX/${man##*/}" "$man"
             done
         done
     fi
+    unset pkgname dir subdir file manX man
 }
