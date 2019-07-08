@@ -9,3 +9,6 @@ search() {
     done
     unset results port
 }
+
+listpkgs() { cat "$boredb" ; }
+countpkgs() { cat "$boredb" | wc -l | sed 's/ //' ; }

@@ -83,11 +83,7 @@ sanity_check() {
     [ "$gcc" ]      || warn "\$gcc is not set"
     [ "$tcc" ]      || warn "\$tcc is not set"
     [ "$jobs" ]     || jobs=1
-    for var in "$root" "$borehome" "$pkgs" "$ports" "$sources" "$work" ; do
-        if [ -z "$var" ] || [ "$var" = / ] ; then
-            die "config is not sane!"
-        fi
-    done
+
     for dir in "$borehome" "$pkgs" "$ports" "$sources" "$work" ; do
         [ ! -d "$dir" ] && mkdir "$dir"
     done
@@ -107,4 +103,38 @@ check_deps() {
     has curl || warn "curl is not installed. Some ports may not download."
     has patch || warn "patch is not installed. Some ports may not compile."
     unset prog
+}
+
+# create top level dirs in $root, if needed
+# params: $root
+create_root_dirs() {
+    cd "$1"
+
+    ifmkd() { [ -d "$2" ] || mkdir -pm $1 "$2" ; }
+    link() {
+        [ -L $2 ] && rm -f $2
+        ln -sf $1 $2
+    }
+
+    for dir in bin boot dev etc home include \
+               lib local mnt proc run root share \
+               sys var dev/pts var/log var/run src/sources ; do
+        ifmkd 0755 $dir
+    done
+
+    for dir in tmp var/tmp dev/shm ; do
+        ifmkd 0775 $dir
+    done
+
+    seq -f "man%g" -s " " 1 8 | while read -r manX ; do
+        ifmkd 0744 share/man/$manX
+    done
+
+    link . usr       # /usr     -> /
+    link bin sbin    # /sbin    -> /bin
+    link tmp var/tmp # /var/tmp -> /tmp
+    link lib libexec # /libexec -> /lib
+    unset -f link ifmkd
+    unset dir manX
+    cd - > /dev/null
 }

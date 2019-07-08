@@ -7,7 +7,8 @@ addpkg() {
     pkgfile="$ports"/$pkgname/pkgfile
     isinst $pkgname > /dev/null && die "port $pkgname is already installed"
 
-    . "$pkgfile" || die "addpkg(): can't source $pkgname's pkgfile?"
+    [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
+    . "$pkgfile"
 
     [ -z "$version" ] && version='unknown'
 
@@ -29,7 +30,7 @@ addpkg() {
         msg "$pkgname installed!"
         clean
     fi
-    unset pkg{name,file,dir,id}
+    unset pkgname pkgfile version pkgid pkgdir
 }
 
 # create symlinks for a port
@@ -37,39 +38,35 @@ addpkg() {
 link_pkg() {
     sanity_check
     pkgname=$1
-    cd "$borehome"
-    cd ..
+    cd "$root"
     msg 'creating symlinks...'
     for dir in bin sbin share include etc lib libexec ; do
         # recursively create pkg subdirectories in
         # equivalent /root subdirectories
-        # example: $pkgname/lib/pkgconfig -> /lib/pkgconfig
+        # example: $pkgname/lib/pkgconfig -> $root/lib/pkgconfig
         find "$pkgs"/$pkgname/$dir ! -path "*$dir" ! -path "*share/*man*" \
-            -type d 2> /dev/null | while read -r subdir ; do
+                -type d 2> /dev/null | while read -r subdir ; do
             mkdir -p "${subdir#$pkgs/$pkgname/}"
         done
         # recursively link all files
-        # example: $pkgname/include/asm/*.h -> /include/asm/*.h
+        # example: $pkgname/include/asm/*.h -> $root/include/asm/*.h
         find "$pkgs"/$pkgname/$dir ! -path "*share/*man*" \
             -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$pkgs/$pkgname/}"
 
-            # BUG: important: this is /src/pkgs not $pkgs for
-            #      now until I find a pathing fix!
-            # ln -sf "/src/pkgs/$pkgname/$file" ./$file
+            # BUG: how to fix this when bootstrapping...
             ln -sf "$pkgs/$pkgname/$file" ./$file
-
         done
     done
     $mans && # only link mans if config boolean is true
     if [ -d "$pkgs"/$pkgname/share/man ] ; then
-        for manX in $(seq -f "man%g" -s " " 1 8) ; do
+        seq -f "man%g" -s " " 1 8 | while read -r manX ; do
             find "$pkgs"/$pkgname/share/man/$manX \
-                ! -path "*/$manX" 2> /dev/null | while read -r man ; do
-                man="${man#$pkgs/$pkgname/}"
-                ln -sf "/src/pkgs/$pkgname/share/man/$manX/${man##*/}" "$man"
+                    ! -path "*/$manX" 2> /dev/null | while read -r man ; do
+                ln -sf "$pkgs/$pkgname/share/man/$manX/${man##*/}" \
+                    "${man#$pkgs/$pkgname/}"
             done
         done
     fi
-    unset pkgname dir subdir file manX man
+    unset dir subdir file manX man
 }

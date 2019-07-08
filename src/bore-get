@@ -10,7 +10,7 @@ get() {
     tmp=$(mktemp -d)
 
     clean
-    mkdir -p "$_pkgdir" "$sources"
+    mkdir -p "$_pkgdir" "$sources" "$work"/"$_pkgid"
     cd "$sources"
 
     if [ "$_version" = git ] ; then
@@ -42,6 +42,7 @@ get() {
         # decompressors bug out if no extension...
         mv -f $tmp/* $tmp/${_pkgname}.${ext}
 
+        msg "extracting $_pkgname"
         case $ext in
             xz)     xz      -d $tmp/* ;;
             gz|tgz) gunzip  -d $tmp/* ;;
@@ -59,13 +60,12 @@ get() {
 
         ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
-        mv -f $tmp/*/* "$work"/"$_pkgid" ||
-            die "get(): failed to move unpacked tarball"
+        mv -f $tmp/*/* "$work"/"$_pkgid" || die "get(): failed to move unpacked tarball"
     fi
-    rm -rf $tmp
     # copy all port's files, except its pkgfile -- (ex: patches)
     for file in $(ls -A "$ports"/"$_pkgname"/* | grep -v pkgfile) ; do
         cp -f "$file" "$_pkgdir"
     done
+    rm -rf $tmp
     unset _url _pkgname _version _pkgid _pkgdir ext tmp file
 }

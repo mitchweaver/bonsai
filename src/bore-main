@@ -1,18 +1,20 @@
-PKG_MGR_NAME=$(basename $0)
+export PKG_MGR_NAME=$(basename $0)
 
 main() {
+    [ $# -eq 0 ] && usage
     check_deps
 
     case "$1" in
         *skeleton) shift ; create_skeleton_config "$1" ; exit ;;
         *bootstrap) BOOTSTRAP=true ; shift ;;
-        --config=*) config="${1#--config=}" ; shift ;;
-        --root=*) _root="${1#--root=}" ; shift ;;
-        --gcc=*) _gcc="${1#--cc=}" ; shift ;;
+        *config=*) config="${1#--config=}" ; shift ;;
+        *root=*) _root="${1#--root=}" ; shift ;;
+        *gcc=*) _gcc="${1#--cc=}" ; shift ;;
         *help|-h)  usage ;;
     esac
 
     loadconfig "$@"
+    create_root_dirs "$root"
 
     while [ $# -gt 0 ] ; do
         case "$1" in
@@ -20,14 +22,9 @@ main() {
             del|-d)    delpkg $2 ; exit $? ;;
             search|-s) search $2 ; exit $? ;;
             isinst|-i) isinst $2 ; exit $? ;;
-            list|-l)   cat "$boredb" ; exit ;;
-            count|-c)  cat "$boredb" | wc -l | sed 's/ //' ; exit ;;
-            *) if [ "$1" ] ; then
-                   addpkg $1
-                   exit $?
-               else
-                   usage
-               fi
+            list|-l)   listpkgs  ; exit    ;;
+            count|-c)  countpkgs ; exit    ;;
+            *) addpkg $1 ; exit $?
         esac
     done
 }

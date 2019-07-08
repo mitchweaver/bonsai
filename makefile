@@ -1,4 +1,5 @@
 name=bore
+PREFIX=${HOME}/.local/$(name)
 
 $(name): FORCE
 .PHONY: FORCE
@@ -17,7 +18,6 @@ $(name):
 
 install:
 	install -Dm755 $(name) ${PREFIX}/src/$(name)
-	install -Dm644 $(name).rc ${PREFIX}/src/$(name).rc
 	@if [ -d ${PREFIX}/src/ports ] ; then \
 		rm -rf ${PREFIX}/src/ports ; \
 	fi
