@@ -6,10 +6,10 @@ main() {
 
     case "$1" in
         *skeleton) shift ; create_skeleton_config "$1" ; exit ;;
-        *bootstrap) BOOTSTRAP=true ; shift ;;
-        *config=*) config="${1#--config=}" ; shift ;;
-        *root=*) _root="${1#--root=}" ; shift ;;
-        *gcc=*) _gcc="${1#--cc=}" ; shift ;;
+#        *bootstrap) BOOTSTRAP=true ; shift ;;
+        --config=*) config="${1#--config=}" ; shift ;;
+        --root=*) _root="${1#--root=}" ; shift ;;
+        --gcc=*) _gcc="${1#--gcc=}" ; shift ;;
         *help|-h)  usage ;;
     esac
 
@@ -26,7 +26,7 @@ main() {
         info)      portinfo $2      ;;
         cat)       portcat $2       ;;
         link)      link_pkg "$2"    ;;
-        relink_all) relink_all      ;;
+        relink_world) shift ; relink_world "$@" ;;
         *) addpkg $1
     esac
     exit $?

@@ -52,15 +52,15 @@ getflags() {
     # will be non-functional. This is because they will be
     # pointing to, for example, "/lib" instead of "$chroot/lib".
     # As a fix for this, we will find and include every $pkg/lib.
-    if [ "$BOOTSTRAP" ] ; then
-        for pkg in $(ls "$pkgs") ; do
-            [ -d "$pkgs"/$pkg/lib ] &&
-                LDFLAGS="$LDFLAGS -L"$pkgs"/$pkg/lib"
-            if [ -d "$pkgs"/$pkg/include ] ; then
-                CFLAGS="$CFLAGS -I"$pkgs"/$pkg/include"
-            fi
-        done
-    fi
+    # if [ "$BOOTSTRAP" ] ; then
+    #     for pkg in $(ls "$pkgs") ; do
+    #         [ -d "$pkgs"/$pkg/lib ] &&
+    #             LDFLAGS="$LDFLAGS -L"$pkgs"/$pkg/lib"
+    #         if [ -d "$pkgs"/$pkg/include ] ; then
+    #             CFLAGS="$CFLAGS -I"$pkgs"/$pkg/include"
+    #         fi
+    #     done
+    # fi
 
     LDFLAGS="$LDFLAGS $ldflags"
     CFLAGS="$CFLAGS $cflags"

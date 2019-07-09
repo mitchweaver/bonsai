@@ -14,6 +14,7 @@ loadconfig() {
 
     update_db
     sanity_check
+    unset _root _gcc _config
 }
 
 # creates a skeleton config
@@ -64,7 +65,7 @@ docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
 quiet=true  # configure/make silently?
 debug=false # compile in debugging tools/information?
-prompt='→' # msg prompt
-delim='-'   # package/version delimiter
+prompt='→'  # msg prompt
+delim='#'   # package/version delimiter
 EOF
 }

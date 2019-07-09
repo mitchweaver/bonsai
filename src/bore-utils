@@ -2,6 +2,7 @@ msg()  { printf "%s\n" "$prompt $@" ; }
 die()  { >&2 msg "Error: $@" ; exit 1 ; }
 warn() { >&2 msg "Warning: $@" ; }
 separator() { printf '%s\n' '-----------' ; }
+newline() { printf '\n' ; }
 
 usage() {
     printf "%s\n\n%s\n" "$PKG_MGR_NAME pkg mgr" \
@@ -48,6 +49,9 @@ is_empty() {
 # posix shell utilities to commonly missing programs
 basename() { printf "%s" "${1##*/}" ; }
 tac() { sed '1!G;h;$!d' "$@" ; }
+
+# converts "bash#4.8" -> "bash"
+pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none
