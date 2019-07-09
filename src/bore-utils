@@ -1,4 +1,7 @@
-msg()  { printf "%s\n" "$prompt $@" ; }
+msg()  {
+    [ $# -eq 0 ] && read input && set -- "$input"
+    printf "%s\n" "$prompt $@"
+}
 die()  { >&2 msg "Error: $@" ; exit 1 ; }
 warn() { >&2 msg "Warning: $@" ; }
 separator() { printf '%s\n' '-----------' ; }
@@ -44,6 +47,14 @@ is_empty() {
         1)   return 0 ;;
         *)   return 1 ;;
     esac
+}
+
+# params: $path
+# return: 0 if path is a symlink and target exists
+test_link() {
+    if [ ! -L "$1" ] || [ ! -e "$1" ]; then
+        return 1
+    fi
 }
 
 # posix shell utilities to commonly missing programs
@@ -116,7 +127,7 @@ create_root_dirs() {
         ifmkd 0755 $dir
     done
 
-    for dir in tmp var/tmp dev/shm ; do
+    for dir in dev/shm tmp var/tmp var/preserve ; do
         ifmkd 0775 $dir
     done
 

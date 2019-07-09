@@ -1,6 +1,7 @@
-source=git://git.suckless.org/sbase
+info="suckless base -- in busybox form"
+source=git://git.suckless.org/${name%%-*}
 version=git
 build() {
-    make sbase-box
-    make sbase-box-install
+    make $name
+    make $name-install
 }

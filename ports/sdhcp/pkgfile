@@ -1,2 +1,3 @@
+info="a suckless IPv4 dhcp client"
 version=git
-source=git://git.2f30.org/sdhcp.git
+source=git://git.2f30.org/$name.git

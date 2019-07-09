@@ -1,0 +1,3 @@
+info='bz2 compression/decompression utility'
+version=1.0.7
+source=https://sourceware.org/pub/$name/$name-$version.tar.gz

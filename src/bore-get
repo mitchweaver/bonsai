@@ -5,19 +5,19 @@ get() {
     _url="$1"
     _pkgname=$2
     _version="$3"
-    _pkgdir="$work"/"$_pkgid"
     _pkgid="${_pkgname}${delim}${_version}"
-    tmp=$(mktemp -d)
+    tmpdir=/tmp/$PKG_MGR_NAME-$$.tmp
+    mkdir -p $tmpdir
 
     clean
-    mkdir -p "$_pkgdir" "$sources" "$work"/"$_pkgid"
+    mkdir -p "$sources" "$work"/"$_pkgid"
     cd "$sources"
 
     if [ "$_version" = git ] ; then
         if [ ! -d "$_pkgid" ] ; then
             msg "cloning $_url..."
-            git clone $git_opts "$_url" $tmp || die "get(): could not clone $_url"
-            mv -f "$tmp"/* "$work"/"$_pkgid"
+            git clone $git_opts "$_url" $tmpdir || die "get(): could not clone $_url"
+            mv -f "$tmpdir"/* "$work"/"$_pkgid"
             $keep_tarballs && cp -rf "$work"/"$_pkgid" "$sources"/"$_pkgid"
         else
             cp -rf "$sources"/"$_pkgid" "$work"
@@ -29,9 +29,9 @@ get() {
             curl -q -L -C - $curl_opts -o "$_pkgid" --url "$_url" ||
                 die "get(): could not download $_pkgname"
         fi
-        cp -f "$_pkgid" $tmp
+        cp -f "$_pkgid" $tmpdir
 
-        case $(file $tmp/*) in
+        case $(file $tmpdir/*) in
             *tgz*) ext=tgz   ;;
             *'gzip comp'*)  ext=gz    ;;
             *'bzip2 comp'*) ext=bz2   ;;
@@ -40,32 +40,35 @@ get() {
         esac
 
         # decompressors bug out if no extension...
-        mv -f $tmp/* $tmp/${_pkgname}.${ext}
+        mv -f $tmpdir/* $tmpdir/${_pkgname}.${ext}
 
-        msg "extracting $_pkgname"
+        msg "extracting $_pkgname"...
         case $ext in
-            xz)     xz      -d $tmp/* ;;
-            gz|tgz) gunzip  -d $tmp/* ;;
-            bz2)    bunzip2 -d $tmp/* ;;
+            xz)     xz      -d $tmpdir/* ;;
+            gz|tgz) gunzip  -d $tmpdir/* ;;
+            bz2)    bunzip2 -d $tmpdir/* ;;
             *) die "get(): unknown compression algorithm"
         esac
         [ $? -gt 0 ] && die "get(): failed to decompress $_pkgname"
 
-        if file $tmp/* | grep 'tar archive' > /dev/null ; then
+        if file $tmpdir/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
-            mv $tmp/* $tmp/${_pkgname}.tar
-            tar -xf $tmp/${_pkgname}.tar -C $tmp/ || 
+            mv $tmpdir/* $tmpdir/${_pkgname}.tar
+            tar -xf $tmpdir/${_pkgname}.tar -C $tmpdir/ || 
                 die "get(): tar could not extract $_pkgid.$ext"       
         fi
 
         ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
-        mv -f $tmp/*/* "$work"/"$_pkgid" || die "get(): failed to move unpacked tarball"
+        mv -f $tmpdir/*/* "$work"/"$_pkgid" || die "get(): failed to move unpacked tarball"
     fi
+
     # copy all port's files, except its pkgfile -- (ex: patches)
-    for file in $(ls -A "$ports"/"$_pkgname"/* | grep -v pkgfile) ; do
-        cp -f "$file" "$_pkgdir"
+    ls -a "$ports"/"$_pkgname"/* | grep -v pkgfile | while read -r file ; do
+        cp -f "$file" "$work"/"$_pkgid"
     done
-    rm -rf $tmp
-    unset _url _pkgname _version _pkgid _pkgdir ext tmp file
+
+    rm -rf $tmpdir
+
+    unset _url _pkgname _version _pkgid ext tmpdir file
 }

@@ -1,0 +1,6 @@
+info='ex-vi the Traditional Vi'
+version=050325
+source=http://prdownloads.sourceforge.net/$name/ex-$version.tar.bz2
+prebuild() {
+    patch
+}

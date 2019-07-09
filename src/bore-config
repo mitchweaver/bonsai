@@ -43,12 +43,12 @@ work="$borehome"/work
 
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
-tcc='tcc -w'
-gcc='gcc -w -s'
+tcc="$root/bin/tcc"
+gcc="$root/bin/gcc"
 
 # flags
 makeflags='-s'
-cflags='-static --static -Os -s -pipe -Wl,--gc-sections'
+cflags='-static --static -Os -w -s -pipe -Wl,--gc-sections'
 ldflags='-static --static -fdata-sections -ffunction-sections'
 cppflags='-static --static'
 cxxflags='-static --static'
@@ -66,6 +66,6 @@ nls=false   # provide native-language-support?
 quiet=true  # configure/make silently?
 debug=false # compile in debugging tools/information?
 prompt='→'  # msg prompt
-delim='#'   # package/version delimiter
+delim=' : '   # package/version delimiter
 EOF
 }

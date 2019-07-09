@@ -1,10 +1,28 @@
 # runs build() method inside a pkgfile
 # params: pkgname
 run_build() {
-    set -e
     getcc
+
+    # if we're using pkg mgr's built in gcc, make sure its valid/existant
+    # if its not -- check to see if we're trying to download one
+    # ... if not, we cannot compile packages -- error out
+    if [ ! -x "$gcc" ] ; then
+        case $pkgname in
+            *gcc*) ;;
+            *tcc*) ;;
+            *) die "No compiler toolchain has yet been installed.
+         Try \`$PKG_MGR_NAME search gcc\` to find one."
+        esac
+    fi
+
     getflags
     GNU_sucks
+
+    # attach default includes/libs
+    # note: These cannot just go in $CFLAGS as CFLAGS 
+    #       could be overwritten in a makefile.
+    gcc="\"$gcc\" -I. -L. -I\"$root\"/include -L\"$root\"/lib $CFLAGS $LDFLAGS"
+    tcc="\"$tcc\" -I. -L. -I\"$root\"/include -L\"$root\"/lib -static -w"
 
     if defined prebuild ; then
         name=$1 prebuild || die "$1 prebuild() failed"
@@ -15,105 +33,115 @@ run_build() {
     if defined build ; then
         name=$1 build || die "$1 build() failed"
     else
-        name=$1 generic_build || die "$1 generic build() failed"
+        name=$1 generic_build || die "$1 generic_build() failed"
     fi
     # run user defined postbuild(), if exists
     if defined postbuild ; then
         name=$1 postbuild || die "$1 postbuild() failed"
     fi
-    set +e
 }
 
 # return $cc if not user specified
 getcc() { [ -z "$cc" ] && cc="$gcc" ; }
+
 # convenience function
 cc() { $cc "$@" ; }
 
-# macros for convenience when dealing with borked makefiles:
-# add includes/libs coming with pkg to search paths
-# params: none, but assumes being withinside $work/$pkgname
-include_pkg_headers() {
-    for dir in $(find . -type d) ; do
-        PKG_INCLUDES="$PKG_INCLUDES -I$dir"
-    done
-    CFLAGS="$CFLAGS $PKG_INCLUDES"
-    unset dir
-}
-link_pkg_libs() {
-    for dir in $(find . -type d) ; do
-        PKG_LIBS="$PKG_INCLUDES -L$dir"
-    done
-    LDFLAGS="$PKG_LIBS $LDFLAGS"
-    unset dir
-}
-
 getflags() {
-    # If we are bootstrapping, all of our created symlinks
-    # will be non-functional. This is because they will be
-    # pointing to, for example, "/lib" instead of "$chroot/lib".
-    # As a fix for this, we will find and include every $pkg/lib.
-    # if [ "$BOOTSTRAP" ] ; then
-    #     for pkg in $(ls "$pkgs") ; do
-    #         [ -d "$pkgs"/$pkg/lib ] &&
-    #             LDFLAGS="$LDFLAGS -L"$pkgs"/$pkg/lib"
-    #         if [ -d "$pkgs"/$pkg/include ] ; then
-    #             CFLAGS="$CFLAGS -I"$pkgs"/$pkg/include"
-    #         fi
-    #     done
-    # fi
-
     LDFLAGS="$LDFLAGS $ldflags"
     CFLAGS="$CFLAGS $cflags"
     CPPFLAGS="$CPPFLAGS $cppflags"
     CXXFLAGS="$CXXFLAGS $cxxflags"
     PKG_CONFIG="$pkgcfgflags"
-    unset pkg
+    PREFIX="$pkgs/$pkgname"
+    DESTDIR=""
+    BINDIR="$PREFIX/bin"
+    INCLUDEDIR="$PREFIX/include"
+    LIBDIR="$PREFIX/lib"
+    LIBEXECDIR="$PREFIX/libexec"
+    MANDIR="$PREFIX/share/man"
+    PRESERVEDIR="$root/var/preserve"
 }
 
 # convenience function, tries to find all *.patch
 # in $work/$pkgname directory and apply them
 patch() {
     find . -type f -name "*.patch" | while read -r patch ; do
-        command patch -p0 < "$patch"
+        command patch -p0 < "$patch" | msg
     done
     unset patch
 }
 
 configure() {
-    ! $docs  && _docs="--disable-docs \
-                             --disable-gtk-docs \
-                             --disable-gtk-docs-html"
-    ! $nls   && _nls='--disable-nls'
-    ! $debug && _debug='--disable-debug --disable-debugger'
+    ! $docs  && conf_docs="--disable-docs \
+                           --disable-gtk-docs \
+                           --disable-gtk-docs-html"
+    ! $nls   && conf_nls='--disable-nls'
+    ! $debug && conf_debug='--disable-debug --disable-debugger'
+    $quiet   && conf_quiet='--silent --quiet'
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
     allowed=""
-    tmp_help=$(mktemp)
+    tmp_help=/tmp/$PKG_MGR_NAME-$$.tmp
     ./configure --help > $tmp_help
+
     for flag in --static --enable-static --enable-static-link \
                 --disable-rpath --disable-option-checking --without-tests \
-                $quiet $debug $_nls $_docs ; do
+                $conf_quiet $conf_debug $conf_nls $conf_docs ; do
         grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
     done
+
     if grep -- --enable-shared $tmp_help > /dev/null ; then
         allowed="$allowed --disable-shared"
     fi
+
     rm -f $tmp_help
 
-    CC="$cc" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" \
-        CXXFLAGS="$CXXFLAGS" PREFIX="$pkgs/$pkgname" prefix="$pkgs/$pkgname" \
-        ./configure --prefix="$pkgs/$pkgname" $allowed "$@" > /dev/null
-    unset allowed flag tmp_help _docs _nls _debug
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$LDFLAGS" \
+    CPPFLAGS="$CPPFLAGS" \
+    CXXFLAGS="$CXXFLAGS" \
+    CC="$cc" \
+    cc="$cc" \
+    DESTDIR="$DESTDIR"
+    PREFIX="$PREFIX" \
+    prefix="$PREFIX" \
+    BINDIR="$BINDIR" \
+    INCLUDEDIR="$INCLUDEDIR" \
+    LIBDIR="$LIBDIR" \
+    LIBEXECDIR="$LIBEXECDIR" \
+    MANDIR="$MANDIR" \
+    PRESERVEDIR="$PRESERVEDIR" \
+        ./configure --prefix="$PREFIX" $allowed "$@" > /dev/null
+
+    return $?
+    # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet
 }
 
 make() {
-    ! $mans && _docs="MANPREFIX=/dev/null"
-    $quiet  && _quiet='-s'
-    CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CPPFLAGS="$CPPFLAGS" CXXFLAGS="$CXXFLAGS" \
-        command make $makeflags -j$jobs $_docs $_quiet \
-        CC="$cc" PREFIX="$pkgs/$pkgname" prefix="$pkgs/$pkgname" "$@" > /dev/null
-    unset _docs _quiet
+    ! $mans && make_docs="MANPREFIX=/dev/null MANDIR=/dev/null"
+    $quiet  && make_quiet='-s'
+
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$LDFLAGS" \
+    CPPFLAGS="$CPPFLAGS" \
+    CXXFLAGS="$CXXFLAGS" \
+        command make $makeflags -j$jobs $make_docs $make_quiet \
+        CC="$cc" \
+        cc="$cc" \
+        DESTDIR="$DESTDIR" \
+        PREFIX="$PREFIX" \
+        prefix="$PREFIX" \
+        BINDIR="$BINDIR" \
+        INCLUDEDIR="$INCLUDEDIR" \
+        LIBDIR="$LIBDIR" \
+        LIBEXECDIR="$LIBEXECDIR" \
+        MANDIR="$MANDIR" \
+        PRESERVEDIR="$PRESERVEDIR" "$@" > /dev/null
+
+    return $?
+    # unset make_quiet make_docs
 }
 
 # run if pkgfile doesn't define a custom build()

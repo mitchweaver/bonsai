@@ -1,0 +1,3 @@
+info="xz compression/decompression utility"
+version=5.2.4
+source=https://tukaani.org/$name/$name-$version.tar.xz

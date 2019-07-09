@@ -8,27 +8,29 @@ addpkg() {
     isinst $pkgname > /dev/null && die "port $pkgname is already installed"
 
     [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
-    . "$pkgfile"
+    name=$pkgname . "$pkgfile"
 
     [ -z "$version" ] && version='unknown'
 
     pkgid="${pkgname}${delim}${version}"
-    pkgdir="$work"/"$pkgid"
 
     get "$source" $pkgname "$version"
 
-    cd "$pkgdir" || die "addpkg(): unable to cd to $pkgdir"
+    cd "$work/$pkgid" || die "addpkg(): unable to cd to $work/$pkgid"
 
     msg "building $pkgname..."
     mkdir -p "$pkgs"/$pkgname
 
-    if run_build $pkgname ; then
-        sanity_check && rm -rf "$pkgdir"
-        link_pkg $pkgname
-        clear_junk $pkgname
-        add_db $pkgname $version
-        msg "$pkgname installed!"
-        clean
-    fi
-    unset pkgname pkgfile version pkgid pkgdir
+    run_build $pkgname || die "$pkgname failed to build"
+
+    sanity_check && rm -rf "$work/$pkgid"
+
+    link_pkg $pkgname || die "$pkgname failed to link"
+
+    clear_junk $pkgname
+    add_db $pkgname $version
+    msg "$pkgname installed!"
+    clean
+
+    unset pkgname pkgfile version pkgid
 }

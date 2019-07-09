@@ -2,7 +2,7 @@
 # params: $pkgname
 isinst() {
     [ "$1" ] || die 'isinst(): no argument given'
-    result=$(grep -i -- "$1" "$boredb")
+    result=$(grep -i -- "$1$delim" "$boredb")
     if [ "$result" ] ; then
         msg "port $result is installed"
     else
