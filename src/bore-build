@@ -1,15 +1,12 @@
 # runs build() method inside a pkgfile
 # params: pkgname
 run_build() {
-    getcc
-
     # if we're using pkg mgr's built in gcc, make sure its valid/existant
     # if its not -- check to see if we're trying to download one
     # ... if not, we cannot compile packages -- error out
     if [ ! -x "$gcc" ] ; then
         case $pkgname in
-            *gcc*) ;;
-            *tcc*) ;;
+            *gcc*|*tcc*) ;;
             *) die "No compiler toolchain has yet been installed.
          Try \`$PKG_MGR_NAME search gcc\` to find one."
         esac
@@ -17,12 +14,6 @@ run_build() {
 
     getflags
     GNU_sucks
-
-    # attach default includes/libs
-    # note: These cannot just go in $CFLAGS as CFLAGS 
-    #       could be overwritten in a makefile.
-    gcc="\"$gcc\" -I. -L. -I\"$root\"/include -L\"$root\"/lib $CFLAGS $LDFLAGS"
-    tcc="\"$tcc\" -I. -L. -I\"$root\"/include -L\"$root\"/lib -static -w"
 
     if defined prebuild ; then
         name=$1 prebuild || die "$1 prebuild() failed"
@@ -41,9 +32,6 @@ run_build() {
     fi
 }
 
-# return $cc if not user specified
-getcc() { [ -z "$cc" ] && cc="$gcc" ; }
-
 # convenience function
 cc() { $cc "$@" ; }
 
@@ -61,6 +49,11 @@ getflags() {
     LIBEXECDIR="$PREFIX/libexec"
     MANDIR="$PREFIX/share/man"
     PRESERVEDIR="$root/var/preserve"
+
+    gcc="$gcc -I$root/include -L$root/lib -B$root/libexec $cflags"
+
+    [ -z "$cc" ] && cc="$gcc"
+    CC="$cc"
 }
 
 # convenience function, tries to find all *.patch
@@ -104,7 +97,7 @@ configure() {
     CXXFLAGS="$CXXFLAGS" \
     CC="$cc" \
     cc="$cc" \
-    DESTDIR="$DESTDIR"
+    DESTDIR="$DESTDIR" \
     PREFIX="$PREFIX" \
     prefix="$PREFIX" \
     BINDIR="$BINDIR" \

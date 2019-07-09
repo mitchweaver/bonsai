@@ -1,0 +1,3 @@
+info='Debian Alquist shell (DASH)'
+version=0.5.10
+source=http://gondor.apana.org.au/~herbert/$name/files/$name-$version.tar.gz

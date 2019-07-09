@@ -143,3 +143,12 @@ create_root_dirs() {
     unset dir manX
     cd - > /dev/null
 }
+
+gccinfo() {
+    getflags
+    printf "%s\n\n" "version: $($gcc -dumpversion)"
+    printf '%s\n\n' "arch: $($gcc -dumpmachine)"
+    printf "%s\n\n" "sysroot: $($gcc -print-sysroot)"
+    $gcc -print-search-dirs
+    $gcc -E -Wp,-v -xc /dev/null
+}
