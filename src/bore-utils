@@ -35,9 +35,10 @@ has() {
 
 # check if dir is empty
 # params: dir
-# return: 0 if true
+# return: 0 if true, 1 if false or not a dir
 is_empty() {
-    test -e "$1/"* 2> /dev/null
+    [ -d "$1" ] || return 1
+    [ -e "$1/"* ] 2> /dev/null
     case $? in
         1)   return 0 ;;
         *)   return 1 ;;
@@ -46,7 +47,7 @@ is_empty() {
 
 # posix shell utilities to commonly missing programs
 basename() { printf "%s" "${1##*/}" ; }
-tac() { printf "%s" "$@" | sed '1!G;h;$!d' ; }
+tac() { sed '1!G;h;$!d' "$@" ; }
 
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none

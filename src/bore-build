@@ -7,22 +7,18 @@ run_build() {
     GNU_sucks
 
     if defined prebuild ; then
-        msg 'prebuild()'
         name=$1 prebuild || die "$1 prebuild() failed"
     else # else, try to apply any patches (convenience)
         patch || die "$1 generic prebuild() failed"
     fi
     # run user defined build(), if exists
     if defined build ; then
-        msg 'build()'
         name=$1 build || die "$1 build() failed"
     else
-        msg 'generic_build()'
         name=$1 generic_build || die "$1 generic build() failed"
     fi
     # run user defined postbuild(), if exists
     if defined postbuild ; then
-        msg 'postbuild()'
         name=$1 postbuild || die "$1 postbuild() failed"
     fi
     set +e

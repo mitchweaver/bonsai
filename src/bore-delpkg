@@ -1,28 +1,35 @@
 delpkg() {
     sanity_check
     pkgname="$1"
-    grep "$pkgname" "$boredb" > /dev/null 2>&1 || \
-        die "$pkgname is not installed"
+    isinst $pkgname > /dev/null || die "$pkgname is not installed"
+
+    cd "$root"
 
     # go through $pkgs/pkgname, deleting files as we go
     # afterwards, remove its symlink in the root
     find "$pkgs"/$pkgname -type f -o -type l | while read -r file ; do
-        rm $file
-        file=${file#$pkgs/$pkgname}
-        test_link $file || rm -f "$file"
+        rm -f $file
+        root_file=${file#$pkgs/$pkgname}
+        test_link "$root/$root_file" || rm -f "$root/$root_file"
     done
     # recurse through dirs in reverse, removing empty dirs as we go
-    find "$pkgs"/$pkgname ! -path "$pkgs"/$pkgname -type d | \
-            tac | while read -r dir ; do
+    # afterwards, remove its equivalent dir in the root, if empty
+    find "$pkgs"/$pkgname -type d | tac | while read -r dir ; do
         is_empty "$dir" && rmdir "$dir"
-        dir=${dir#$pkgs/$pkgname}
-        is_empty "$dir" && rmdir "$dir"
+
+        root_dir=${dir#$pkgs/$pkgname}
+        [ "$root_dir" ] || continue
+        # check that $dir contains at least one slash
+        # (so we don't remove any top level dirs i.e. bin,etc,lib...)
+        if is_empty "$root/$root_dir" && \
+            ! echo "$root_dir" | grep '/' > /dev/null ; then
+            rmdir "$root/$root_dir"
+        fi
     done
-    rmdir "$pkgs"/$pkgname
 
     del_db $pkgname
     clean
 
     msg "$pkgname deleted"
-    unset pkgname file dir
+    unset pkgname file dir root_file root_dir
 }
