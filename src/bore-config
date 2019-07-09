@@ -66,6 +66,12 @@ nls=false   # provide native-language-support?
 quiet=true  # configure/make silently?
 debug=false # compile in debugging tools/information?
 prompt='→'  # msg prompt
-delim=' : '   # package/version delimiter
+
+# package/version delimiter
+# can be any character or series of characters, however:
+# * must be sane (no $, `, / etc)
+# * cannot be '-' due to the character often being in pkg names
+# * commonly used: #@?!*†¤§≡
+delim='#'
 EOF
 }

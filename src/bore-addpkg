@@ -16,9 +16,8 @@ addpkg() {
 
     get "$source" $pkgname "$version"
 
-    cd "$work/$pkgid" || die "addpkg(): unable to cd to $work/$pkgid"
+    cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
 
-    msg "building $pkgname..."
     mkdir -p "$pkgs"/$pkgname
 
     run_build $pkgname || die "$pkgname failed to build"

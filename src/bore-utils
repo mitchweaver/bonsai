@@ -68,7 +68,8 @@ pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 # params: none
 clean() {
     sanity_check && rm -rf "$work"/*
-    for dir in $(find "$pkgs" -type d ! -wholename "$pkgs" 2> /dev/null) ; do
+    find "$pkgs" -type d ! -wholename "$pkgs" 2> /dev/null | \
+            while read -r dir ; do
         rmdir "$dir" 2> /dev/null
     done
     update_db

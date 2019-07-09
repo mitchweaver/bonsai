@@ -7,20 +7,20 @@ get() {
     _version="$3"
     _pkgid="${_pkgname}${delim}${_version}"
     tmpdir=/tmp/$PKG_MGR_NAME-$$.tmp
-    mkdir -p $tmpdir
+    workdir="$work/$pkgname"
 
     clean
-    mkdir -p "$sources" "$work"/"$_pkgid"
+    mkdir -p $tmpdir "$sources" "$work"/"$pkgname"
     cd "$sources"
 
     if [ "$_version" = git ] ; then
         if [ ! -d "$_pkgid" ] ; then
             msg "cloning $_url..."
             git clone $git_opts "$_url" $tmpdir || die "get(): could not clone $_url"
-            mv -f "$tmpdir"/* "$work"/"$_pkgid"
-            $keep_tarballs && cp -rf "$work"/"$_pkgid" "$sources"/"$_pkgid"
+            mv -f "$tmpdir"/* "$workdir"
+            $keep_tarballs && cp -rf "$workdir" "$sources"/"$_pkgid"
         else
-            cp -rf "$sources"/"$_pkgid" "$work"
+            cp -rf "$sources"/"$_pkgid" "$workdir"
         fi
     else # we are downloading with curl
 
@@ -60,15 +60,15 @@ get() {
 
         ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
-        mv -f $tmpdir/*/* "$work"/"$_pkgid" || die "get(): failed to move unpacked tarball"
+        mv -f $tmpdir/*/* "$workdir" || die "get(): failed to move unpacked tarball"
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
     ls -a "$ports"/"$_pkgname"/* | grep -v pkgfile | while read -r file ; do
-        cp -f "$file" "$work"/"$_pkgid"
+        cp -f "$file" "$workdir"
     done
 
     rm -rf $tmpdir
 
-    unset _url _pkgname _version _pkgid ext tmpdir file
+    unset _url _pkgname _version _pkgid ext tmpdir file workdir
 }

@@ -1,0 +1,18 @@
+info='ifconfig suite of utilities'
+version=1.9.4
+source=http://ftp.gnu.org/gnu/inetutils/inetutils-$version.tar.xz
+build() {
+    configure --localstatedir=/var \
+                --sysconfdir=/etc  \
+                --disable-servers  \
+                --disable-clients  \
+                --disable-rsh      \
+                --disable-rcp      \
+                --disable-rexec    \
+                --disable-rlogin   \
+                --disable-logger   \
+                --disable-talk     \
+                --disable-telnet
+    make
+    make install
+}

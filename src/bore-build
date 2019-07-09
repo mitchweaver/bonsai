@@ -20,12 +20,16 @@ run_build() {
     else # else, try to apply any patches (convenience)
         patch || die "$1 generic prebuild() failed"
     fi
+
+    msg "building $pkgname..."
+
     # run user defined build(), if exists
     if defined build ; then
         name=$1 build || die "$1 build() failed"
     else
         name=$1 generic_build || die "$1 generic_build() failed"
     fi
+
     # run user defined postbuild(), if exists
     if defined postbuild ; then
         name=$1 postbuild || die "$1 postbuild() failed"
@@ -50,7 +54,8 @@ getflags() {
     MANDIR="$PREFIX/share/man"
     PRESERVEDIR="$root/var/preserve"
 
-    gcc="$gcc -I$root/include -L$root/lib -B$root/libexec $cflags"
+    gcc="$gcc $cflags"
+    # -I. -L. -I$root/include -L$root/lib -B$root/libexec $cflags"
 
     [ -z "$cc" ] && cc="$gcc"
     CC="$cc"

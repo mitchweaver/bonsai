@@ -25,7 +25,7 @@ link_pkg() {
         # recursively create pkg subdirectories in
         # equivalent $root subdirectories
         # example: $pkgname/lib/pkgconfig -> $root/lib/pkgconfig
-        find "$pkgs"/$pkgname/$dir ! -path "*$dir" ! -path "*share/*man*" \
+        find "$pkgs"/$pkgname/$dir ! -path "*$dir" \
                 -type d 2> /dev/null | while read -r subdir ; do
             mkdir -p "${subdir#$pkgs/$pkgname/}"
         done
@@ -33,7 +33,7 @@ link_pkg() {
         # recursively link all files
         # example: $pkgname/include/asm/*.h -> $root/include/asm/*.h
         find "$pkgs"/$pkgname/$dir ! -path "*share/*man*" \
-            -type f -o -type l 2> /dev/null | while read -r file ; do
+                -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$pkgs/$pkgname/}"
             ln -sf "$_pkgs/$pkgname/$file" $file
         done
