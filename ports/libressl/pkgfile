@@ -1,6 +1,6 @@
 info='fork of OpenSSL, providing Secure Sockets Layer and cryptography utilities'
 version=2.9.2
-source=https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$version.tar.gz
+source=https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/$name-$version.tar.gz
 build() {
     configure --disable-hardening
     make CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"

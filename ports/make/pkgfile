@@ -1,0 +1,3 @@
+info='GNU make build automation tool'
+version=4.2
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz

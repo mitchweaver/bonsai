@@ -17,19 +17,43 @@ main() {
     loadconfig "$@"
     create_root_dirs "$root"
 
-    case "$1" in
-        add|-a)    addpkg $2        ;;
-        del|-d)    delpkg $2        ;;
-        search|-s) search $2        ;;
-        isinst|-i) isinst $2        ;;
-        list|-l)   listpkgs         ;;
-        count|-c)  countpkgs        ;;
-        info)      portinfo $2      ;;
-        cat)       portcat $2       ;;
-        link)      link_pkg "$2"    ;;
-        relink_world) shift ; relink_world "$@" ;;
-        gccinfo) gccinfo ;;
-        *) addpkg $1
-    esac
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            add|-a)
+                shift
+                [ "$1" ] || die "add_pkg(): no pkg given"
+                while [ $# -gt 0 ] ; do
+                    addpkg $1
+                    shift
+                    [ "$1" ] && newline
+                done
+                ;;
+            del|-d)    delpkg $2     ; shift 2 ;;
+            search|-s) search $2     ; exit $? ;;
+            isinst|-i)
+                shift
+                [ "$1" ] || die 'isinst(): no argument given'
+                while [ $# -gt 0 ] ; do
+                    isinst $1
+                    shift
+                done
+                ;;
+            list|-l)   listpkgs      ; exit $? ;;
+            count|-c)  countpkgs     ; exit $? ;;
+            info)      portinfo $2   ; exit $? ;;
+            cat)       portcat $2    ; exit $? ;;
+            relink|link)
+                shift
+                [ "$1" ] || die "link_pkg(): invalid number of arguments"
+                while [ $# -gt 0 ] ; do
+                    link_pkg $1
+                    shift
+                done
+                ;;
+            relink_world) shift ; relink_world "$@" ;;
+            gccinfo) gccinfo ;;
+            *) set -- add "$@" ;;
+        esac
+    done
     exit $?
 }

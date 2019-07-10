@@ -1,0 +1,3 @@
+info='GNU implementation of the traditional UNIX macro processor'
+version=1.4.18
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz

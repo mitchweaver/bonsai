@@ -1,0 +1,8 @@
+info='Fast Lexical Analyzer Generator'
+version=2.6.4
+source=http://sourceforge.net/projects/$name/files/$name-2.6.0.tar.xz/download
+#depends='m4 bison autoconf automake' ?
+postbuild() {
+    cd $root/bin
+    [ ! -e lex ] && ln -sf $name lex
+}

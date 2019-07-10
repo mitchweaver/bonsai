@@ -10,7 +10,7 @@ get() {
     workdir="$work/$pkgname"
 
     clean
-    mkdir -p $tmpdir "$sources" "$work"/"$pkgname"
+    mkdir -p $tmpdir "$sources" "$workdir"
     cd "$sources"
 
     if [ "$_version" = git ] ; then
@@ -20,14 +20,20 @@ get() {
             mv -f "$tmpdir"/* "$workdir"
             $keep_tarballs && cp -rf "$workdir" "$sources"/"$_pkgid"
         else
+            if [ -d "$workdir" ] ; then
+                sanity_check && rm -rf "$workdir"
+            fi
             cp -rf "$sources"/"$_pkgid" "$workdir"
         fi
     else # we are downloading with curl
 
         if [ ! -f "$_pkgid" ] ; then
             msg "downloading $_url..."
-            curl -q -L -C - $curl_opts -o "$_pkgid" --url "$_url" ||
+            # note: curl has problems with many ${delim}s, so as a workaround 
+            #       we perform this temporary file and rename it
+            curl -q -L -C - $curl_opts --url "$_url" -o $pkgname-download ||
                 die "get(): could not download $_pkgname"
+            mv -f $pkgname-download "$_pkgid"
         fi
         cp -f "$_pkgid" $tmpdir
 

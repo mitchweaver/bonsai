@@ -1,0 +1,4 @@
+info='GNU autoconf, a tool for generating configure scripts'
+version=2.69
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
+depends=m4

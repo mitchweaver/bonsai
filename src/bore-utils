@@ -2,8 +2,8 @@ msg()  {
     [ $# -eq 0 ] && read input && set -- "$input"
     printf "%s\n" "$prompt $@"
 }
-die()  { >&2 msg "Error: $@" ; exit 1 ; }
-warn() { >&2 msg "Warning: $@" ; }
+die()  { >&2 msg "error: $@" ; exit 1 ; }
+warn() { >&2 msg "warning: $@" ; }
 separator() { printf '%s\n' '-----------' ; }
 newline() { printf '\n' ; }
 
@@ -67,7 +67,7 @@ pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none
 clean() {
-    sanity_check && rm -rf "$work"/*
+    sanity_check && rm -rf "$work"
     find "$pkgs" -type d ! -wholename "$pkgs" 2> /dev/null | \
             while read -r dir ; do
         rmdir "$dir" 2> /dev/null

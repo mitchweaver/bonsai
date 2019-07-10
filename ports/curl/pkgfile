@@ -1,0 +1,26 @@
+info='command line online file transfer and download tool'
+version=7.65.1
+source=http://curl.haxx.se/download/$name-$version.tar.xz
+depends='libressl zlib'
+build() {
+    configure --disable-shared --enable-static \
+              --without-librtmp --without-cyassl \
+              --without-libpsl --without-winidn \
+              --without-libidn2 --without-gnutls \
+              --without-winssl --without-schannel \
+              --without-darwinssl --without-secure-transport \
+              --without-amissl --disable-ldap \
+              --disable-ldaps --disable-telnet \
+              --disable-file --disable-sspi \
+              --disable-dict --disable-telnet \
+              --disable-ldaps --disable-librtsp \
+              --disable-pop3 --disable-imap \
+              --disable-smtp --disable-gopher \
+              --disable-smb --without-libidn \
+              --with-ssl=$pkgs/libressl \
+              --with-zlib=$pkgs/zlib \
+              --with-ca-bundle=/etc/ssl/cert.pem
+
+    make curl_LDFLAGS=-all-static
+    make curl_LDFLAGS=-all-static install
+}

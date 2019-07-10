@@ -1,0 +1,3 @@
+info='lightweight compression/decompression library'
+version=1.2.11
+source=http://zlib.net/$name-$version.tar.gz
