@@ -1,0 +1,6 @@
+version=2_2_7
+source=http://github.com/libexpat/libexpat/archive/R_$version.tar.gz
+prebuild() {
+    cd expat
+    ./buildconf.sh
+}
