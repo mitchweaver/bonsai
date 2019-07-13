@@ -50,7 +50,11 @@ main() {
                     shift
                 done
                 ;;
-            relink_world) shift ; relink_world "$@" ;;
+            relink_world)
+                shift
+                relink_world "$@"
+                exit $?
+                ;;
             gccinfo) gccinfo ;;
             *) set -- add "$@" ;;
         esac

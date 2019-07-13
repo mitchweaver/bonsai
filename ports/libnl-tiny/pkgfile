@@ -1,6 +1,11 @@
 version=git
 source=http://github.com/sabotage-linux/$name.git
+bulid() {
+    make ALL_LIBS=libnl-tiny.a
+    make ALL_LIBS=libnl-tiny.a install
+}
 postbuild() {
     cd "$pkgs"/$name/lib
-    ln -s $name.a libnl
+    ln -sf $name.a libnl.a
+    ln -sf $name.a libnl-3.a
 }

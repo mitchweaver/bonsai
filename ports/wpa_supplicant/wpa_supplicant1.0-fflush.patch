@@ -1,0 +1,10 @@
+--- src/utils/wpa_debug.c
++++ src/utils/wpa_debug.c
+@@ -149,6 +149,7 @@
+ #endif /* CONFIG_DEBUG_FILE */
+ 		vprintf(fmt, ap);
+ 		printf("\n");
++		fflush(stdout);
+ #ifdef CONFIG_DEBUG_FILE
+ 		}
+ #endif /* CONFIG_DEBUG_FILE */

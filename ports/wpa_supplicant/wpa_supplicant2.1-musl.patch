@@ -1,0 +1,23 @@
+diff -rup wpa_supplicant-2.1-orig/src/drivers/linux_wext.h wpa_supplicant-2.1/src/drivers/linux_wext.h
+--- src/drivers/linux_wext.h	2014-02-07 21:43:20.904533453 +0200
++++ src/drivers/linux_wext.h	2014-02-07 21:44:13.712535425 +0200
+@@ -19,13 +19,14 @@
+ #define _LINUX_SOCKET_H
+ #define _LINUX_IF_H
+ 
++#include <stdint.h>
+ #include <sys/types.h>
+ #include <net/if.h>
+-typedef __uint32_t __u32;
+-typedef __int32_t __s32;
+-typedef __uint16_t __u16;
+-typedef __int16_t __s16;
+-typedef __uint8_t __u8;
++typedef uint32_t __u32;
++typedef int32_t __s32;
++typedef uint16_t __u16;
++typedef int16_t __s16;
++typedef uint8_t __u8;
+ #ifndef __user
+ #define __user
+ #endif /* __user */

@@ -45,8 +45,8 @@ gcc() { $_gcc "$@" ; }
 # tcc() { $_tcc "$@" ; }
 
 getflags() {
+    CFLAGS="-I. -L. -I$root/include -L$root/lib -B$root/libexec $CFLAGS $cflags"
     LDFLAGS="$LDFLAGS $ldflags"
-    CFLAGS="$CFLAGS $cflags"
     CPPFLAGS="$CPPFLAGS $cppflags"
     CXXFLAGS="$CXXFLAGS $cxxflags"
     PKG_CONFIG="$pkgcfgflags"
@@ -59,8 +59,7 @@ getflags() {
     MANDIR="$PREFIX/share/man"
     PRESERVEDIR="$root/var/preserve"
 
-    _gcc="$gcc $cflags"
-    # -I. -L. -I$root/include -L$root/lib -B$root/libexec $cflags"
+    _gcc="$gcc $CFLAGS"
 
     [ -z "$cc" ] && cc="$_gcc"
     CC="$cc"
@@ -69,13 +68,24 @@ getflags() {
 # convenience function, tries to find all *.patch
 # in $work/$pkgname directory and apply them
 patch() {
-    ls | grep "*.patch" | while read -r patch ; do
+    [ "$1" ] && cd "$1"
+    ls | grep ".patch$" | while read -r patch ; do
         command patch -p0 < "$patch" | msg
     done
+    [ "$1" ] && cd - > /dev/null
     unset patch
 }
 
+autogen() { configure --autogen ; }
+
 configure() {
+    if [ "$1" = "--autogen" ] ; then
+        FILE=autogen.sh
+        shift
+    else
+        FILE=configure
+    fi
+
     ! $docs  && conf_docs="--disable-docs \
                            --disable-gtk-docs \
                            --disable-gtk-docs-html"
@@ -83,24 +93,28 @@ configure() {
     ! $debug && conf_debug='--disable-debug --disable-debugger'
     $quiet   && conf_quiet='--silent --quiet'
 
-    # try to enable as many options as possible
-    # if they are allowed in the configure script
-    allowed=""
-    tmp_help=/tmp/$PKG_MGR_NAME-$$.tmp
-    ./configure --help > $tmp_help
+    if [ -f configure ] ; then
+        # try to enable as many options as possible
+        # if they are allowed in the configure script
+        allowed=""
+        tmp_help=/tmp/$PKG_MGR_NAME-$$.tmp
+        ./configure --help > $tmp_help
 
-    for flag in --static --enable-static --enable-static-link \
-                --disable-rpath --disable-option-checking --without-tests \
-                --disable-dependency-tracking \
-                $conf_quiet $conf_debug $conf_nls $conf_docs ; do
-        grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
-    done
+        for flag in --static --enable-static --enable-static-link \
+                    --disable-rpath --disable-option-checking --without-tests \
+                    --disable-dependency-tracking \
+                    $conf_quiet $conf_debug $conf_nls $conf_docs ; do
+            grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
+        done
 
-    if grep -- --enable-shared $tmp_help > /dev/null ; then
-        allowed="$allowed --disable-shared"
+        grep -- --enable-shared $tmp_help > /dev/null &&
+            allowed="$allowed --disable-shared"
+        grep -- --enable-tests $tmp_help > /dev/null &&
+            allowed="$allowed --disable-tests"
+
+
+        rm -f $tmp_help
     fi
-
-    rm -f $tmp_help
 
     CFLAGS="$CFLAGS" \
     LDFLAGS="$LDFLAGS" \
@@ -117,7 +131,7 @@ configure() {
     LIBEXECDIR="$LIBEXECDIR" \
     MANDIR="$MANDIR" \
     PRESERVEDIR="$PRESERVEDIR" \
-        ./configure --prefix="$PREFIX" $allowed "$@" > /dev/null
+        ./$FILE --prefix="$PREFIX" $allowed "$@" > /dev/null
 
     return $?
     # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet
@@ -150,6 +164,7 @@ make() {
 
 # run if pkgfile doesn't define a custom build()
 generic_build() {
+    [ -f autogen.sh ] && autogen
     [ -f configure ] && configure
     make
     make install

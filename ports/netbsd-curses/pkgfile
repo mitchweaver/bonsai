@@ -1,7 +1,0 @@
-info="minimal NetBSD curses library ported to Linux"
-version=0.3.1
-source=http://github.com/sabotage-linux/$name/archive/v$version.tar.gz
-build() {
-    make all-static
-    make all-static install-static
-}

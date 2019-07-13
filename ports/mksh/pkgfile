@@ -2,7 +2,8 @@ info='MirBSD Korn Shell'
 version=R57
 source=http://www.mirbsd.org/MirOS/dist/mir/$name/$name-$version.tgz
 build() {
-    sh Build.sh -r -Q -j > /dev/null
+    LDFLAGS="$LDFLAGS" CFLAGS="$CFLAGS" CC="$cc" \
+        sh Build.sh -r -Q -j > /dev/null
     install -Dm755 mksh "$pkgs"/mksh/bin/mksh
     install -Dm644 mksh.1 "$pkgs"/mksh/share/man/man1/mksh.1
 }
