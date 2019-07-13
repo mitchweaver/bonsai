@@ -1,3 +1,3 @@
-info='readline library by GNU'
+info='readline line editing library by GNU'
 version=8.0
 source=http://ftpmirror.gnu.org/gnu/$name/$name-$version.tar.gz

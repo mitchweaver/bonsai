@@ -1,3 +1,4 @@
+info='standard XML parsing library'
 version=2_2_7
 source=http://github.com/libexpat/libexpat/archive/R_$version.tar.gz
 prebuild() {

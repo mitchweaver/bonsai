@@ -1,0 +1,10 @@
+info='GNU pico editor clone'
+version=4.3
+source=http://nano-editor.org/dist/v4/$name-$version.tar.xz
+build() {
+    configure --enable-utf8 \
+              --disable-libmagic \
+              --disable-wrapping
+    make
+    make install
+}

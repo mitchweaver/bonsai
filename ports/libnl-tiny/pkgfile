@@ -1,3 +1,4 @@
+info='a tiny version of the libnl netlink library'
 version=git
 source=http://github.com/sabotage-linux/$name.git
 bulid() {

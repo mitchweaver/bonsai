@@ -1,3 +1,4 @@
+info='curses library by GNU'
 version=6.1
 source=http://invisible-island.net/datafiles/release/$name.tar.gz
 build() {
