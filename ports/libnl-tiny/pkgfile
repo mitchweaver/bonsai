@@ -1,0 +1,6 @@
+version=git
+source=http://github.com/sabotage-linux/$name.git
+postbuild() {
+    cd "$pkgs"/$name/lib
+    ln -s $name.a libnl
+}

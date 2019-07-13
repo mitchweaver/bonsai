@@ -1,0 +1,22 @@
+--- Makefile    	2019-07-12 23:57:29.396864000 +0000
++++ Makefile_new	2019-07-13 00:03:53.858115125 +0000
+@@ -10,7 +10,7 @@
+ CFLAGS?=-O2
+ INCLUDES=-Iinclude
+ 
+-SHAREDLIB=libnl-tiny.so
++# SHAREDLIB=libnl-tiny.so
+ STATICLIB=libnl-tiny.a
+ PCFILE=libnl-tiny.pc
+ ALL_LIBS=$(SHAREDLIB) $(STATICLIB)
+@@ -38,8 +38,8 @@
+ 	$(CC) $(CPPFLAGS) -c -o $@ $(INCLUDES) $(CFLAGS) $(PICFLAGS) $<
+ 
+ 
+-$(SHAREDLIB): $(OBJS)
+-	$(CC) -shared -o $@ $^ $(LDFLAGS)
++# $(SHAREDLIB): $(OBJS)
++	# $(CC) -shared -o $@ $^ $(LDFLAGS)
+ 
+ $(STATICLIB): $(OBJS)
+ 	rm -f $@
