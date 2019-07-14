@@ -10,7 +10,7 @@ enter_chroot() {
     cp -f /etc/resolv.conf "$root"/etc/resolv.conf
     _TERM="$TERM"
     _PS1="$PS1"
-    export TERM=linux PS1="(chroot) % "
+    export TERM=vt100 PS1="(chroot) % "
 
     mount_drives
     sudo chroot "$root" "$chroot_shell"

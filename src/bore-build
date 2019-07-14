@@ -16,7 +16,7 @@ run_build() {
     GNU_sucks
 
     if defined prebuild ; then
-        name=$1 prebuild || die "$1 prebuild() failed"
+        pkg="$pkgs"/$1 name=$1 prebuild || die "$1 prebuild() failed"
     else # else, try to apply any patches (convenience)
         patch || die "$1 generic prebuild() failed"
     fi
@@ -25,14 +25,14 @@ run_build() {
 
     # run user defined build(), if exists
     if defined build ; then
-        name=$1 build || die "$1 build() failed"
+        pkg="$pkgs"/$1 name=$1 build || die "$1 build() failed"
     else
-        name=$1 generic_build || die "$1 generic_build() failed"
+        pkg="$pkgs"/$1 name=$1 generic_build || die "$1 generic_build() failed"
     fi
 
     # run user defined postbuild(), if exists
     if defined postbuild ; then
-        name=$1 postbuild || die "$1 postbuild() failed"
+        pkg="$pkgs"/$1 name=$1 postbuild || die "$1 postbuild() failed"
     fi
 
     # unset in case we are adding multiple packages
@@ -102,7 +102,7 @@ configure() {
 
         for flag in --static --enable-static --enable-static-link \
                     --disable-rpath --disable-option-checking --without-tests \
-                    --disable-dependency-tracking \
+                    --disable-dependency-tracking --without-ada \
                     $conf_quiet $conf_debug $conf_nls $conf_docs ; do
             grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
         done
@@ -111,6 +111,10 @@ configure() {
             allowed="$allowed --disable-shared"
         grep -- --enable-tests $tmp_help > /dev/null &&
             allowed="$allowed --disable-tests"
+        grep -- --with-debug $tmp_help > /dev/null &&
+            allowed="$allowed --without-debug"
+        grep -- --with-tests $tmp_help > /dev/null &&
+            allowed="$allowed --without-tests"
 
 
         rm -f $tmp_help
@@ -131,8 +135,9 @@ configure() {
     LIBEXECDIR="$LIBEXECDIR" \
     MANDIR="$MANDIR" \
     PRESERVEDIR="$PRESERVEDIR" \
-        ./$FILE $allowed "$@" > /dev/null
-# --prefix="$PREFIX" 
+        ./$FILE $allowed "$@" > /dev/null 
+    # --prefix="$PREFIX" 
+    # NOTE: some autogen won't allow '--prefix=', fix later
 
     return $?
     # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet

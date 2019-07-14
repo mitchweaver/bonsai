@@ -116,31 +116,26 @@ check_deps() {
 create_root_dirs() {
     cd "$1"
 
-    ifmkd() { [ -d "$2" ] || mkdir -pm $1 "$2" ; }
     link() {
         [ -L $2 ] && rm -f $2
         ln -sf $1 $2
     }
 
-    for dir in bin boot dev etc home include \
-               lib local mnt proc run root share \
-               sys var dev/pts var/log var/run src/sources ; do
-        ifmkd 0755 $dir
-    done
+    mkdir -pm 0755 bin boot dev etc home include \
+                   lib local mnt proc run root share \
+                   sys var dev/pts var/log var/run src/sources
 
-    for dir in dev/shm tmp var/tmp var/preserve ; do
-        ifmkd 0775 $dir
-    done
+    mkdir -pm 0775 dev/shm tmp var/tmp var/preserve
 
     seq -f "man%g" -s " " 1 8 | while read -r manX ; do
-        ifmkd 0744 share/man/$manX
+        mkdir -pm 0744 share/man/$manX
     done
 
     link . usr       # /usr     -> /
     link bin sbin    # /sbin    -> /bin
     link tmp var/tmp # /var/tmp -> /tmp
     link lib libexec # /libexec -> /lib
-    unset -f link ifmkd
+    unset -f link
     unset dir manX
     cd - > /dev/null
 }
