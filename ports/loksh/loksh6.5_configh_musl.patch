@@ -1,0 +1,19 @@
+--- config.h    	2019-04-24 18:52:00.000000000 +0000
++++ config.h_new	2019-07-14 04:12:14.121472527 +0000
+@@ -25,4 +25,16 @@
+ # error "Define either EMACS or VI."
+ #endif
+ 
++#ifndef timespecsub
++#define timespecsub(tsp, usp, vsp)                                      \
++        do {                                                            \
++                (vsp)->tv_sec = (tsp)->tv_sec - (usp)->tv_sec;          \
++                (vsp)->tv_nsec = (tsp)->tv_nsec - (usp)->tv_nsec;       \
++                if ((vsp)->tv_nsec < 0) {                               \
++                        (vsp)->tv_sec--;                                \
++                        (vsp)->tv_nsec += 1000000000L;                  \
++                }                                                       \
++        } while (0)
++#endif
++
+ #endif /* CONFIG_H */

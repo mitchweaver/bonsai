@@ -1,0 +1,13 @@
+--- history.c	    2019-07-14 03:40:41.605058502 +0000
++++ history.c_new	2019-07-14 03:40:33.108437000 +0000
+@@ -29,6 +29,10 @@
+ 
+ #include "sh.h"
+ 
++#ifndef __GLIBC__
++#define SMALL
++#endif
++
+ static void	history_write(void);
+ static FILE	*history_open(void);
+ static void	history_load(Source *);
