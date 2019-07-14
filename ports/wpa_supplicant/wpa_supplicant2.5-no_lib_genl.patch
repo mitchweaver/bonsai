@@ -1,0 +1,28 @@
+index c4f5f97..c1bfff1 100644
+--- src/drivers/drivers.mak
++++ src/drivers/drivers.mak_new
+@@ -63,7 +63,9 @@ else
+   endif
+ 
+   ifdef CONFIG_LIBNL20
+-    DRV_LIBS += -lnl-genl
++    ifndef CONFIG_LIBNL_TINY
++      DRV_LIBS += -lnl-genl
++    endif
+     DRV_CFLAGS += -DCONFIG_LIBNL20
+   endif
+ endif
+index 0a05a24..0444e52 100644
+--- src/drivers/drivers.mk
++++ src/drivers/drivers.mk_new
+@@ -51,7 +51,9 @@ else
+   endif
+ 
+   ifdef CONFIG_LIBNL20
+-    DRV_LIBS += -lnl-genl
++    ifndef CONFIG_LIBNL_TINY
++      DRV_LIBS += -lnl-genl
++    endif
+     DRV_CFLAGS += -DCONFIG_LIBNL20
+   endif
+ endif

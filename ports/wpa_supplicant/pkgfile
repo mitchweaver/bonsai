@@ -2,25 +2,22 @@ info='command line wireless network client'
 version=2.5
 source=http://w1.fi/releases/$name-$version.tar.gz
 depends="libressl libnl-tiny dbus zlib"
-
 prebuild() {
     patch
     cd wpa_supplicant
-cat > .config << EOF
-CONFIG_LIBNL_TINY=y
-CONFIG_EAP_PEAP=y
-CONFIG_EAP_MSCHAPV2=y
-CONFIG_EAP_TLS=y
-CONFIG_LIBNL20=y
-CONFIG_CTRL_IFACE_DBUS_NEW=y
+    cp -f defconfig .config
+cat >> .config << EOF
 CONFIG_LIBNL1_COMPAT=y
-CONFIG_TLS=openssl
+CONFIG_LIBNL20=y
+CONFIG_LIBNL_TINY=y
+
+CONFIG_DRIVER_nl80211=y
+CONFIG_DRIVER_WEXT=n
+CONFIG_WPS=n
+
 CONFIG_TLSV11=y
 CONFIG_TLSV12=y
-CONFIG_WPS=n
-CFLAGS+="$CFLAGS -D_GNU_SOURCE"
-LDFLAGs+="$LDFLAGS"
-CC="$CC"
+
+CFLAGS+="-D_GNU_SOURCE"
 EOF
 }
-#CONFIG_READLINE=y

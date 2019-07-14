@@ -1,5 +1,5 @@
---- Makefile    	2019-07-12 23:57:29.396864000 +0000
-+++ Makefile_new	2019-07-13 00:03:53.858115125 +0000
+--- libnl-tiny#git/Makefile	2019-07-12 23:57:29.396864000 +0000
++++ Makefile	2019-07-14 01:39:23.611153446 +0000
 @@ -10,7 +10,7 @@
  CFLAGS?=-O2
  INCLUDES=-Iinclude
@@ -9,6 +9,15 @@
  STATICLIB=libnl-tiny.a
  PCFILE=libnl-tiny.pc
  ALL_LIBS=$(SHAREDLIB) $(STATICLIB)
+@@ -28,7 +28,7 @@
+ all: $(ALL_LIBS) $(PCFILE)
+ 
+ install: $(ALL_LIBS:%=$(DESTDIR)$(libdir)/%) \
+-         $(ALL_INCLUDES:include/%=$(DESTDIR)$(includedir)/libnl-tiny/%) \
++         $(ALL_INCLUDES:include/%=$(DESTDIR)$(includedir)/%) \
+          $(PCFILE:%=$(DESTDIR)$(libdir)/pkgconfig/%)
+ 
+ clean:
 @@ -38,8 +38,8 @@
  	$(CC) $(CPPFLAGS) -c -o $@ $(INCLUDES) $(CFLAGS) $(PICFLAGS) $<
  
@@ -20,3 +29,12 @@
  
  $(STATICLIB): $(OBJS)
  	rm -f $@
+@@ -50,7 +50,7 @@
+ 	sed s,@prefix@,$(prefix),g $< > $@
+ 
+ 
+-$(DESTDIR)$(includedir)/libnl-tiny/%: include/%
++$(DESTDIR)$(includedir)/%: include/%
+ 	$(INSTALL) -D -m 644 $< $@
+ 
+ $(DESTDIR)$(libdir)/%: %

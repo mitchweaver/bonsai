@@ -1,0 +1,11 @@
+--- src/crypto/tls_openssl.c    	2015-09-27 19:02:05.000000000 +0000
++++ src/crypto/tls_openssl.c_new	2019-07-14 01:10:41.400483462 +0000
+@@ -2247,7 +2247,7 @@
+ 			/* Try to continue anyway */
+ 		}
+ 		sk_X509_free(certs);
+-#ifndef OPENSSL_IS_BORINGSSL
++#ifndef LIBRESSL_VERSION_NUMBER
+ 		res = SSL_build_cert_chain(ssl,
+ 					   SSL_BUILD_CHAIN_FLAG_CHECK |
+ 					   SSL_BUILD_CHAIN_FLAG_IGNORE_ERROR);

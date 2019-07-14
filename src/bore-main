@@ -56,6 +56,7 @@ main() {
                 exit $?
                 ;;
             gccinfo) gccinfo ;;
+            chroot) enter_chroot ; exit $? ;;
             *) set -- add "$@" ;;
         esac
     done

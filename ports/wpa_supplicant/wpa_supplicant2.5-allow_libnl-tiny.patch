@@ -1,0 +1,15 @@
+index c0c2c33..4a98f05 100644
+--- src/drivers/drivers.mak
++++ src/drivers/drivers.mak_new
+@@ -44,7 +44,11 @@ NEED_AP_MLME=y
+ NEED_NETLINK=y
+ NEED_LINUX_IOCTL=y
+ NEED_RFKILL=y
++ifdef CONFIG_LIBNL_TINY
++DRV_LIBS += -lnl-tiny
++else
+ DRV_LIBS += -lnl
++endif
+ 
+ ifdef CONFIG_LIBNL20
+ DRV_LIBS += -lnl-genl

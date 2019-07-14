@@ -1,2 +1,8 @@
-patches courtesy of the Sabotage and rlsd projects
+some patches courtesy of the Sabotage and rlsd projects
 Thanks!
+
+no-lib-genl patch taken from:
+http://w1.fi/cgit/hostap/commit/?id=87faf1f22cbae40491278257ce575bfc22e84f4e
+
+allow_lib-nl-tiny patch taken from:
+http://w1.fi/cgit/hostap/commit/?id=6e1468839c17855a026013cf7bf80ef2f6f972e6

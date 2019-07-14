@@ -156,7 +156,8 @@ make() {
         LIBDIR="$LIBDIR" \
         LIBEXECDIR="$LIBEXECDIR" \
         MANDIR="$MANDIR" \
-        PRESERVEDIR="$PRESERVEDIR" "$@" > /dev/null
+        PRESERVEDIR="$PRESERVEDIR" "$@"
+        # > /dev/null
 
     return $?
     # unset make_quiet make_docs
