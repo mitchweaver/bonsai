@@ -131,7 +131,8 @@ configure() {
     LIBEXECDIR="$LIBEXECDIR" \
     MANDIR="$MANDIR" \
     PRESERVEDIR="$PRESERVEDIR" \
-        ./$FILE --prefix="$PREFIX" $allowed "$@" > /dev/null
+        ./$FILE $allowed "$@" > /dev/null
+# --prefix="$PREFIX" 
 
     return $?
     # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet

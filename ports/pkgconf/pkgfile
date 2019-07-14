@@ -1,0 +1,7 @@
+info='a lightweight drop-in replacement for pkg-config'
+version=1.6.3
+source=http://github.com/$name/$name/archive/$name-$version.tar.gz
+postbuild() {
+    cd "$pkgs"/$name/bin
+    ln -sf pkgconf pkg-config
+}
