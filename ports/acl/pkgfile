@@ -1,0 +1,4 @@
+info='Access Control Lists library'
+version=2.2.53
+source=http://download-mirror.savannah.gnu.org/releases/$name/$name-$version.tar.gz
+depends=attr
