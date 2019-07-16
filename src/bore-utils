@@ -127,7 +127,7 @@ create_root_dirs() {
 
     mkdir -pm 0775 dev/shm tmp var/tmp var/preserve
 
-    seq -f "man%g" -s " " 1 8 | while read -r manX ; do
+    for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
         mkdir -pm 0744 share/man/$manX
     done
 

@@ -3,6 +3,6 @@ version=git
 source=http://github.com/mitchweaver/bore
 build() {
     make
-    cp -rf ports "$root"/src/
-    cp -f bore "$root"/src/bore
+    make install
+#    make PREFIX="$root" install
 }
