@@ -1,0 +1,8 @@
+info='tool to read/write tar and other archives'
+version=2.12
+source=https://mirrors.kernel.org/gnu/$name/$name-$version.tar.gz
+build() {
+    CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE" configure
+    make
+    make install
+}

@@ -4,5 +4,5 @@ source=http://github.com/mitchweaver/bore
 build() {
     make
     make install
-#    make PREFIX="$root" install
+    make PREFIX="$root" install
 }

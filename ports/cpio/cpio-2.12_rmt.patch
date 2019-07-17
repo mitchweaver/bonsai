@@ -1,0 +1,10 @@
+--- rmt/rmt.c	    2019-07-17 02:42:15.568498407 +0000
++++ rmt/rmt.c.new	2019-07-17 02:42:37.201714543 +0000
+@@ -16,6 +16,7 @@
+ 
+ #include "system.h"
+ #include "system-ioctl.h"
++#include <stdarg.h>
+ #include <configmake.h>
+ #include <argp.h>
+ #include <argp-version-etc.h>

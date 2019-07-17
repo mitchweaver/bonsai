@@ -24,10 +24,8 @@ $(name):
 
 install:
 	install -Dm755 $(name) ${PREFIX}/src/$(name)
-	@if [ -d ${PREFIX}/src/ports ] ; then \
-		rm -rf ${PREFIX}/src/ports ; \
-	fi
-	cp -rf ports ${PREFIX}/src/ports
+	mkdir -p ${PREFIX}/src
+	cp -rf ports ${PREFIX}/src
 
 clean:
 	rm -f $(name)
