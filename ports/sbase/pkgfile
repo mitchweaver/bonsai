@@ -1,0 +1,7 @@
+info="suckless base"
+source=git://git.suckless.org/${name%%-*}
+version=git
+build() {
+    make sbase-box
+    make sbase-box-install
+}

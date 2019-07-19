@@ -1,7 +1,0 @@
-info="suckless base -- in busybox form"
-source=git://git.suckless.org/${name%%-*}
-version=git
-build() {
-    make $name
-    make $name-install
-}

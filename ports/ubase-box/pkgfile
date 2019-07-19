@@ -1,7 +1,0 @@
-info="suckless unportable base -- in busybox form"
-version=git
-source=git://git.suckless.org/${name%%-*}
-build() {
-    make $name CFLAGS="$CFLAGS -D_GNU_SOURCE"
-    make $name-install
-}

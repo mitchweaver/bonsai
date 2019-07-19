@@ -1,0 +1,26 @@
+info='tiny openssh server and client'
+version=2019.78
+source=http://matt.ucc.asn.au/$name/releases/$name-$version.tar.bz2
+build() {
+    configure --enable-static \
+              --disable-lastlog \
+              --disable-pututline \
+              --disable-pututxline \
+              --disable-syslog \
+              --disable-utmp \
+              --disable-utmpx \
+              --disable-wtmp \
+              --disable-wtmpx
+    make SCPPROGRESS=1 MULTI=1 \
+         PROGRAMS="dropbear scp dbclient dropbearkey dropbearconvert"
+    make SCPPROGRESS=1 MULTI=1 \
+         PROGRAMS="dropbear scp dbclient dropbearkey dropbearconvert" \
+         install
+}
+postbuild() {
+    cd "$pkg"/bin
+    ln -s dropbearmutli dropbear
+    ln -s dropbearmutli dbclient
+    ln -s dropbear sshd
+    ln -s dbclient ssh
+}

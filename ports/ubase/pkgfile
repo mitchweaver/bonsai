@@ -1,0 +1,7 @@
+info="suckless unportable base"
+version=git
+source=git://git.suckless.org/${name%%-*}
+build() {
+    make ubase-box CFLAGS="$CFLAGS -D_GNU_SOURCE"
+    make ubase-box-install
+}
