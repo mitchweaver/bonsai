@@ -19,8 +19,8 @@ build() {
 }
 postbuild() {
     cd "$pkg"/bin
-    ln -s dropbearmutli dropbear
-    ln -s dropbearmutli dbclient
+    ln -s dropbearmulti dropbear
+    ln -s dropbearmulti dbclient
     ln -s dropbear sshd
     ln -s dbclient ssh
 }
