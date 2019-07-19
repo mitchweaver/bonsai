@@ -1,6 +1,7 @@
 info='tiny openssh server and client'
 version=2019.78
 source=http://matt.ucc.asn.au/$name/releases/$name-$version.tar.bz2
+depends=awk
 build() {
     configure --enable-static \
               --disable-lastlog \
@@ -19,8 +20,7 @@ build() {
 }
 postbuild() {
     cd "$pkg"/bin
-    ln -s dropbearmulti dropbear
-    ln -s dropbearmulti dbclient
     ln -s dropbear sshd
     ln -s dbclient ssh
+    ln -s dropbearkey ssh-keygen
 }

@@ -7,10 +7,13 @@ addpkg() {
     pkgfile="$ports"/$pkgname/pkgfile
     isinst $pkgname > /dev/null && die "port $pkgname is already installed"
 
+    # make sure these are unset before sourcing pkgfile
+    unset depends deps version source
+
     [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
     name=$pkgname . "$pkgfile"
 
-    for dep in $depends ; do
+    for dep in $depends $deps ; do
         isinst $dep > /dev/null || die "addpkg(): port $pkgname depends on pkg \"$dep\""
     done
 

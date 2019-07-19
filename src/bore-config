@@ -9,7 +9,18 @@ loadconfig() {
     fi
     . "$borerc" || die "loadconfig(): could not source config"
 
-    [ "$_root" ] && root="$_root"
+    if [ "$_root" ] ; then
+        root="$_root"
+    else
+        root=${HOME}/.local/bore
+    fi
+    borehome="$root"/src
+    boredb="$borehome"/bore.db
+    pkgs="$borehome"/pkgs
+    ports="$borehome"/ports
+    sources="$borehome"/sources
+    work="$borehome"/work
+
     [ "$_gcc" ] && gcc="$_gcc"
 
     update_db
@@ -32,14 +43,8 @@ create_skeleton_config() {
         echo "copying default config to ~/.local/$PKG_MGR_NAME/$PKG_MGR_NAME.rc"
     fi
 cat > "$path"/$PKG_MGR_NAME.rc << "EOF"
-# bore variables
+# bore root
 root=${HOME}/.local/bore
-borehome="$root"/src
-boredb="$borehome"/bore.db
-pkgs="$borehome"/pkgs
-ports="$borehome"/ports
-sources="$borehome"/sources
-work="$borehome"/work
 
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
