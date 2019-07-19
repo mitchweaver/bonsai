@@ -51,7 +51,7 @@ main() {
                     shift
                 done
                 ;;
-            relink_world)
+            --relink-world)
                 shift
                 relink_world "$@"
                 exit $?

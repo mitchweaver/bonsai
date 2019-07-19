@@ -24,7 +24,6 @@ $(name):
 
 install:
 	install -Dm755 $(name) ${PREFIX}/src/$(name)
-	mkdir -p ${PREFIX}/src
 	cp -rf ports ${PREFIX}/src
 
 clean:

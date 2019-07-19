@@ -6,3 +6,7 @@ build() {
     make install
     make PREFIX="$root" install
 }
+postbuild() {
+    cd "$root"/bin
+    ln -s /src/bore
+}
