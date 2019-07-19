@@ -65,6 +65,7 @@ unchroot() {
         already_chrooted && warn "was unable to automatically unmount chroot!"
     fi
     export TERM="$_TERM" PS1="$_PS1"
+    sudo chown -R "$USER" "$root"
     msg 'Exited chroot!'
 }
 

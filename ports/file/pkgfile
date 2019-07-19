@@ -7,3 +7,8 @@ build() {
     make
     make install
 }
+postbuild() {
+    # file refuses to read its config through symlinks
+    # for now this is a workaround
+    echo 'export MAGIC=/src/pkgs/file/share/misc/magic.mgc' >> "$root"/etc/profile
+}
