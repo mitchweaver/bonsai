@@ -1,0 +1,78 @@
+info='Perl programming language'
+version=5.30.0
+source=http://www.cpan.org/src/5.0/$name-$version.tar.xz
+deps='zlib bzip2'
+prebuild() {
+    patch
+
+    # musl does not have a separate libnsl
+    # remove it as a dep from the configure script
+    # see: https://github.com/openwrt/packages/pull/1393/files
+    sed 's/ nsl //g' Configure > Configure.tmp
+    mv -f Configure.tmp Configure
+
+	# use system zlib/bzip2, do not bundle
+	rm -rf cpan/Compress-Raw-Zlib/zlib-src
+	rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
+	sed '/\(bzip2\|zlib\)-src/d' MANIFEST > MANIFEST.tmp
+    mv -f MANIFEST.tmp MANIFEST
+	export BUILD_ZLIB=0
+	export BUILD_BZIP2=0
+	export BZIP2_LIB="$root"/lib
+	export BZIP2_INCLUDE="$root"/inculde
+
+    # perl's builtin poll.h is occasionally broken
+    # if this occurs, use system's poll.h
+    # see: https://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
+    # sed 's|include <poll.h>|include <sys/poll.h>|' dist/IO/poll.h > dist/IO/poll.h.tmp
+    # mv -f dist/IO/poll.h.tmp dist/IO/poll.h
+}
+build() {
+    sh Configure -des \
+		-Dcf_by="$PKG_MGR_NAME" \
+        -Dcc="$CC" \
+        -Accflags="-D_GNU_SOURCE -D_BSD_SOURCE $CFLAGS" \
+        -Aldflags="$LDFLAGS" \
+        -Dprefix="$pkg" \
+        -Dvendorprefix="$pkg" \
+        -Dprivlib="$pkg"/lib/perl5/core_perl \
+        -Darchlib="$pkg"/lib/perl5/core_perl \
+        -Dsitelib="$pkg"/lib/perl5/site_perl \
+        -Dsitearch="$pkg"/lib/perl5/site_perl \
+        -Dvendorlib="$pkg"/lib/perl5/vendor_perl \
+        -Dvendorarch="$pkg"/lib/perl5/vendor_perl \
+        -Dscriptdir="$pkg"/bin \
+        -Dsitescript="$pkg"/bin \
+        -Dvendorscript="$pkg"/bin \
+        -Dman1dir="$pkg"/share/man/man1perl \
+        -Dman3dir="$pkg"/share/man/man3perl \
+        -Dman1ext=1 \
+        -Dman3ext=3 \
+        -Darchname=linux \
+        -Dinc_version_list=none \
+        -Uonlyextensions='' \
+        -Uusedl
+    make
+    make install
+}
+postbuild() {
+    msg 'cleaning up'
+
+    # perl creates two copies of its binary
+    # pointless, just make one a symlink
+    ln -sf perl$version perl
+
+    # perl mans are 20MB(???) in size
+    # not ideal to remove them, but it seems excessive
+    rm -rf "$pkg"/share/man
+
+    # more junk
+    type xargs 2> /dev/null &&
+    find "$pkg" \
+        -name 'TODO*' -or \
+        -name 'Change*' -or \
+        -name 'README*' -or \
+        -name '*.bs' -or \
+        -name '.packlist' -or \
+        -name 'perllocal.pod' | xargs rm
+}
