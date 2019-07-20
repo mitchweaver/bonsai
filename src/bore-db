@@ -40,3 +40,4 @@ del_db() {
     mv -f "$boredb".tmp "$boredb"
     update_db
 }
+# vi:syntax=sh

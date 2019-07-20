@@ -74,3 +74,4 @@ already_chrooted() {
     [ "$(ls -A "$root"/dev/pts 2> /dev/null)" ] || return 1
     msg "The chroot has already been mounted!"
 }
+# vi:syntax=sh

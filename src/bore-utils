@@ -144,3 +144,4 @@ gccinfo() {
     LIBRARY_PATH="$LIBRARY_PATH" $gcc -print-search-dirs
     LIBRARY_PATH="$LIBRARY_PATH" $gcc -E -Wp,-v -xc /dev/null
 }
+# vi:syntax=sh

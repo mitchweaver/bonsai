@@ -39,3 +39,4 @@ addpkg() {
 
     unset pkgname pkgfile version pkgid
 }
+# vi:syntax=sh

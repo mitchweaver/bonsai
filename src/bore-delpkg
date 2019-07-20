@@ -33,3 +33,4 @@ delpkg() {
     msg "$pkgname deleted"
     unset pkgname file dir root_file root_dir
 }
+# vi:syntax=sh

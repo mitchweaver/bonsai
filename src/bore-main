@@ -71,3 +71,4 @@ main() {
     done
     exit $?
 }
+# vi:syntax=sh

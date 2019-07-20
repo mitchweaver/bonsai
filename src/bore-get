@@ -79,3 +79,4 @@ get() {
 
     unset _url _pkgname _version _pkgid ext tmpdir file workdir
 }
+# vi:syntax=sh

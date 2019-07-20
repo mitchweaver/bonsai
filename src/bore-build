@@ -209,3 +209,4 @@ clear_junk() {
         rm -r "$pkgs"/$1/share/man
     fi
 }
+# vi:syntax=sh

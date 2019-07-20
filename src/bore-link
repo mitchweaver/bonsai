@@ -92,3 +92,4 @@ relink_world() {
 
     unset relink_pkgs
 }
+# vi:syntax=sh

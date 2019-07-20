@@ -42,3 +42,4 @@ portcat() {
     [ -f "$pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
     cat "$pkgfile"
 }
+# vi:syntax=sh

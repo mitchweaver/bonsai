@@ -79,3 +79,4 @@ prompt='→'  # msg prompt
 delim='#'
 EOF
 }
+# vi:syntax=sh
