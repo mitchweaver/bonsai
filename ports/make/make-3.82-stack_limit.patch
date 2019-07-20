@@ -1,0 +1,15 @@
+--- gnumake.h
++++ gnumake.h_new
+@@ -342,9 +342,10 @@
+ #if defined(HAVE_SYS_RESOURCE_H) && defined(HAVE_GETRLIMIT) && defined(HAVE_SETRLIMIT)
+ # define SET_STACK_SIZE
+ #endif
+-#ifdef SET_STACK_SIZE
++#undef SET_STACK_SIZE
++#if 0
+ # include <sys/resource.h>
+-struct rlimit stack_limit;
++extern struct rlimit stack_limit;
+ #endif
+ 
+ struct floc

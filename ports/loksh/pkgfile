@@ -1,4 +1,9 @@
 info="Linux port of OpenBSD's oksh"
 version=6.5
 source=http://github.com/dimkr/$name/archive/$version.tar.gz
-depends=readline
+depends='readline ncurses'
+build() {
+    make NCURSES_LDFLAGS="-lncursesw -ltinfow" \
+         NCURSES_CFLAGS="-D_GNU_SOURCE"
+    make install
+}

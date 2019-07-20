@@ -1,3 +1,4 @@
 info='GNU automake, a tool for generating Makefiles'
 version=1.16
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
+deps='perl autoconf m4'

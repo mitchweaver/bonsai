@@ -1,0 +1,12 @@
+info='ViM Vi-Improved text editor'
+version=8.1.1685
+source=http://github.com/$name/$name/archive/v$version.tar.gz
+depends='ncurses acl'
+build() {
+    configure LIBS='-lncursesw -ltinfow' \
+                --disable-gui \
+                --without-x \
+                --disable-gpm
+    make
+    make install
+}

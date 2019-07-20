@@ -11,15 +11,15 @@ prebuild() {
     sed 's/ nsl //g' Configure > Configure.tmp
     mv -f Configure.tmp Configure
 
-	# use system zlib/bzip2, do not bundle
-	rm -rf cpan/Compress-Raw-Zlib/zlib-src
-	rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
-	sed '/\(bzip2\|zlib\)-src/d' MANIFEST > MANIFEST.tmp
+    # use system zlib/bzip2, do not bundle
+    rm -rf cpan/Compress-Raw-Zlib/zlib-src
+    rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
+    sed '/\(bzip2\|zlib\)-src/d' MANIFEST > MANIFEST.tmp
     mv -f MANIFEST.tmp MANIFEST
-	export BUILD_ZLIB=0
-	export BUILD_BZIP2=0
-	export BZIP2_LIB="$root"/lib
-	export BZIP2_INCLUDE="$root"/inculde
+    export BUILD_ZLIB=0
+    export BUILD_BZIP2=0
+    export BZIP2_LIB="$root"/lib
+    export BZIP2_INCLUDE="$root"/inculde
 
     # perl's builtin poll.h is occasionally broken
     # if this occurs, use system's poll.h
@@ -29,7 +29,7 @@ prebuild() {
 }
 build() {
     sh Configure -des \
-		-Dcf_by="$PKG_MGR_NAME" \
+        -Dcf_by="$PKG_MGR_NAME" \
         -Dcc="$CC" \
         -Accflags="-D_GNU_SOURCE -D_BSD_SOURCE $CFLAGS" \
         -Aldflags="$LDFLAGS" \

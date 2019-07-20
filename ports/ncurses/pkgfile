@@ -2,6 +2,7 @@ info='curses library by GNU'
 version=6.1
 source=http://invisible-island.net/datafiles/release/$name.tar.gz
 build() {
+    CFLAGS="$CFLAGS -D_GNU_SOURCE" \
     configure --without-shared \
               --without-cxx-binding \
               --with-normal \
@@ -21,6 +22,5 @@ build() {
 postbuild() {
     echo 'export TERMINFO=/share/terminfo' >> "$root"/etc/profile
 }
-
 #--disable-home-terminfo \
 #--with-hashed-db \

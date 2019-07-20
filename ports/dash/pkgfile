@@ -1,3 +1,11 @@
 info='Debian Alquist shell (DASH)'
 version=0.5.10
 source=http://gondor.apana.org.au/~herbert/$name/files/$name-$version.tar.gz
+build() {
+    # for whatever bizarre reason dash
+    # reads some flags from the CC variable
+    # we could patch... or just let them do their thing
+    configure CC="$CC $CFLAGS $CPPFLAGS"
+    make CC="$CC $CFLAGS $CPPFLAGS"
+    make CC="$CC $CFLAGS $CPPFLAGS" install
+}

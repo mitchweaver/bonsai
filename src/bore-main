@@ -22,14 +22,22 @@ main() {
         case "$1" in
             add|-a)
                 shift
-                [ "$1" ] || die "add_pkg(): no pkg given"
+                [ "$1" ] || die "addpkg(): no pkg given"
                 while [ $# -gt 0 ] ; do
                     addpkg $1
                     shift
                     [ "$1" ] && newline
                 done
                 ;;
-            del|-d)    delpkg $2     ; shift 2 ;;
+            del|-d)
+                shift
+                [ "$1" ] || die "delpkg(): no pkg given"
+                while [ $# -gt 0 ] ; do
+                    delpkg $1
+                    shift
+                    [ "$1" ] && newline
+                done
+                ;;
             search|-s) search $2     ; exit $? ;;
             isinst|-i)
                 shift
@@ -56,7 +64,7 @@ main() {
                 relink_world "$@"
                 exit $?
                 ;;
-            gccinfo) gccinfo ;;
+            gccinfo) gccinfo ; exit $? ;;
             chroot) enter_chroot ; exit $? ;;
             *) set -- add "$@" ;;
         esac

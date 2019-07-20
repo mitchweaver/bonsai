@@ -25,7 +25,7 @@ exit
 defined() {
     for arg ; do
         type $arg | grep 'is.*.function' || return 1
-    done > /dev/null
+    done > /dev/null 2>&1
     unset arg
 }
 # checks if a command exists
@@ -33,7 +33,7 @@ defined() {
 has() { 
     for arg ; do
         type $arg || return 1
-    done > /dev/null
+    done > /dev/null 2>&1
     unset arg
 }
 
@@ -88,12 +88,8 @@ sanity_check() {
     [ "$delim" ]    || die "\$delim is not set"
     [ "$gcc" ]      || warn "\$gcc is not set"
     [ "$tcc" ]      || warn "\$tcc is not set"
-    [ "$jobs" ]     || jobs=1
-
-    for dir in "$borehome" "$pkgs" "$ports" "$sources" "$work" ; do
-        [ ! -d "$dir" ] && mkdir "$dir"
-    done
-    unset var dir
+    jobs="${jobs:=1}"
+    mkdir -p "$borehome" "$pkgs" "$ports" "$sources" "$work"
 }
 
 # check if all dependencies are met on startup
@@ -145,6 +141,6 @@ gccinfo() {
     printf "%s\n\n" "version: $($gcc -dumpversion)"
     printf '%s\n\n' "arch: $($gcc -dumpmachine)"
     printf "%s\n\n" "sysroot: $($gcc -print-sysroot)"
-    $gcc -print-search-dirs
-    $gcc -E -Wp,-v -xc /dev/null
+    LIBRARY_PATH="$LIBRARY_PATH" $gcc -print-search-dirs
+    LIBRARY_PATH="$LIBRARY_PATH" $gcc -E -Wp,-v -xc /dev/null
 }

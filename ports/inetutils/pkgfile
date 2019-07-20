@@ -1,7 +1,6 @@
 info='ifconfig suite of utilities'
 version=1.9.4
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
-depends=readline
 build() {
     configure --localstatedir=/var \
                 --sysconfdir=/etc  \

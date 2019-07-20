@@ -1,7 +1,7 @@
 info='tiny openssh server and client'
 version=2019.78
 source=http://matt.ucc.asn.au/$name/releases/$name-$version.tar.bz2
-depends=awk
+depends="awk zlib"
 build() {
     configure --enable-static \
               --disable-lastlog \

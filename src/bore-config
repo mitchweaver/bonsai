@@ -11,9 +11,8 @@ loadconfig() {
 
     if [ "$_root" ] ; then
         root="$_root"
-    else
-        root=${HOME}/.local/bore
     fi
+    root=${root:=${HOME}/.local/bore}
     borehome="$root"/src
     boredb="$borehome"/bore.db
     pkgs="$borehome"/pkgs
@@ -52,7 +51,7 @@ tcc="$root/bin/tcc"
 gcc="$root/bin/gcc"
 
 # flags
-makeflags='-s'
+makeflags=''
 cflags='-static --static -Os -w -s -pipe -Wl,--gc-sections'
 ldflags='-static --static -fdata-sections -ffunction-sections'
 cppflags='-static --static'
@@ -68,7 +67,7 @@ keep_tarballs=true
 mans=true   # install man pages?
 docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
-quiet=true  # configure/make silently?
+quiet=false # configure/make silently without warnings?
 debug=false # compile in debugging tools/information?
 prompt='→'  # msg prompt
 

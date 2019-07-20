@@ -67,6 +67,7 @@ get() {
         ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
         mv -f $tmpdir/*/* "$workdir" || die "get(): failed to move unpacked tarball"
+        mv -f $tmpdir/*/.* "$workdir" 2> /dev/null
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
