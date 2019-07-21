@@ -1,6 +1,7 @@
 info='The one-true-awk'
 version=20180827
 source=http://github.com/onetrueawk/awk/archive/$version.tar.gz
+deps=bison
 build() {
     make CFLAGS="$CFLAGS"
     install -Dm0755 a.out "$pkg"/bin/one-true-awk
