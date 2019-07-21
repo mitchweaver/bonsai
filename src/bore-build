@@ -42,14 +42,13 @@ run_build() {
 # convenience functions
 cc() { $cc "$@" ; }
 gcc() { $gcc "$@" ; }
-# tcc() { $_tcc "$@" ; }
 
 getflags() {
-    CFLAGS="-I. -L. -I$root/include -L$root/lib -B$root/libexec $CFLAGS $cflags"
-    LDFLAGS="-L. $LDFLAGS $ldflags"
-    CPPFLAGS="-I. -I$root/include $CPPFLAGS $cppflags"
-    CXXFLAGS="-I. $CXXFLAGS $cxxflags"
-    PKG_CONFIG="$pkgcfgflags"
+    CFLAGS="$CFLAGS -I. -L. -I$root/include -L$root/lib -B$root/libexec $cflags"
+    LDFLAGS="$LDFLAGS -L. $ldflags"
+    CPPFLAGS="$CPPFLAGS -I. -I$root/include $cppflags"
+    CXXFLAGS="$CXXFLAGS -I. $cxxflags"
+    PKG_CONFIG="$PKG_CONFIG $pkgcfgflags"
     PREFIX="$pkgs/$pkgname"
     DESTDIR=''
     BINDIR="$PREFIX/bin"
@@ -136,7 +135,6 @@ configure() {
         ./$FILE $([ $FILE = configure ] && echo --prefix="$PREFIX") \
         $allowed "$@"
         # > /dev/null 
-    # NOTE: some autogen won't allow '--prefix=', fix later
 
     return $?
     # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet
