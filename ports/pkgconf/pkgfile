@@ -3,7 +3,8 @@ version=1.6.3
 source=http://distfiles.dereferenced.org/$name/$name-$version.tar.xz
 build() {
     configure --with-system-libdir="$root"/lib:/lib \
-              --with-system-includedir="$root"/include:/include
+              --with-system-includedir="$root"/include:/include \
+              --with-pkg-config-dir="$root"/lib/pkgconfig:/lib/pkgconfig
     make
     make install
 }
