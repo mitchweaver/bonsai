@@ -1,8 +1,3 @@
 info='standard XML parsing library'
-version=2_2_7
-source=http://github.com/libexpat/libexpat/archive/R_$version.tar.gz
-deps=autoreconf
-prebuild() {
-    cd expat
-    ./buildconf.sh
-}
+version=2.2.7
+source=https://github.com/$name/$name/releases/download/R_2_2_7/expat-$version.tar.xz
