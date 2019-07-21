@@ -25,7 +25,7 @@ addpkg() {
     cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
 
     mkdir -p "$pkgs"/$pkgname
-    trap "rmdir "$pkgs"/$pkgname" ERR SIGINT SIGKILL SIGTERM
+    trap "rmdir \"$pkgs\"/$pkgname" INT KILL TERM
 
     run_build $pkgname || die "$pkgname failed to build"
 
@@ -38,7 +38,7 @@ addpkg() {
     msg "$pkgname installed!"
     clean
 
-    trap - ERR SIGINT SIGKILL SIGTERM
+    trap - INT KILL TERM
     unset pkgname pkgfile version pkgid
 }
 # vi:syntax=sh
