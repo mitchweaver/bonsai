@@ -5,7 +5,8 @@ depends="libressl libnl-tiny dbus zlib"
 prebuild() {
     patch
     cd wpa_supplicant
-    cp -f defconfig .config
+
+cp -f defconfig .config
 cat >> .config << EOF
 CONFIG_LIBNL1_COMPAT=y
 CONFIG_LIBNL20=y
@@ -18,6 +19,34 @@ CONFIG_WPS=n
 CONFIG_TLSV11=y
 CONFIG_TLSV12=y
 
-CFLAGS+="-D_GNU_SOURCE"
+CFLAGS+="-D_GNU_SOURCE -I$root/include"
+LDFLAGS+="-L$root/lib"
 EOF
+}
+build() {
+    make
+}
+postbuild() {
+    # wpa_supplicant's "make install" sucks.
+    # to get around its nonsense just do things manually
+    
+    install -Dm0755 wpa_cli        "$pkg"/bin/wpa_cli
+    install -Dm0755 wpa_passphrase "$pkg"/bin/wpa_passphrase
+    install -Dm0755 wpa_supplicant "$pkg"/bin/wpa_supplicant
+
+    if $mans ; then
+        install -Dm0644 doc/docbook/wpa_background.8 "$pkg"/share/man/man8/wpa_background.8
+        install -Dm0644 doc/docbook/wpa_passphrase.8 "$pkg"/share/man/man8/wpa_passphrase.8
+        install -Dm0644 doc/docbook/wpa_supplicant.8 "$pkg"/share/man/man8/wpa_supplicant.8
+        install -Dm0644 doc/docbook/wpa_cli.8        "$pkg"/share/man/man8/wpa_cli.8
+        install -Dm0644 doc/docbook/wpa_supplicant.conf.5 "$pkg"/share/man/man5/wpa_supplicant.conf.5
+    fi
+
+    # note: this system.d is a dbus-internal, not actually systemd
+    #       do not remove this or your dbus will not work.
+    install -Dm0644 dbus/fi.w1.wpa_supplicant1.service "$pkg"/share/dbus-1/system-services/fi.w1.wpa_supplicant1.service
+    install -Dm0644 dbus/dbus-wpa_supplicant.conf "$pkg"/etc/dbus-1/system.d/wpa_supplicant.conf/dbus-wpa_supplicant.conf
+
+    :> "$pkg"/etc/wpa_supplicant.conf
+    chmod 0600 "$pkg"/etc/wpa_supplicant.conf
 }
