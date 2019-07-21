@@ -118,6 +118,7 @@ These are lightweight/embedded technologies incorporated into bore as to be more
 * [Morpheus Linux](https://morpheus.2f30.org/)
 * [Stali Linux](http://sta.li)
 * [oasis](https://github.com/michaelforney/oasis)
+* [KISS Linux](https://getkiss.org/)
 * [CRUX Linux](http://crux.nu)
 * [OpenBSD](http://openbsd.org)
 
