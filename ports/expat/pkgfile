@@ -1,0 +1,3 @@
+info='standard XML parsing library'
+version=2.2.7
+source=https://github.com/libexpat/libexpat/releases/download/R_2_2_7/$name-$version.tar.xz
