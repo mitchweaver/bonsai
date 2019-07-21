@@ -52,8 +52,8 @@ gcc="$root/bin/gcc"
 
 # flags
 makeflags=''
-cflags='-static --static -Os -w -s -pipe -Wl,--gc-sections'
-ldflags='-static --static -fdata-sections -ffunction-sections'
+cflags='-static --static -Os -s -pipe -Wl,--gc-sections -march=native -Wall '
+ldflags='-static --static -s -fdata-sections -ffunction-sections'
 cppflags='-static --static'
 cxxflags='-static --static'
 pkgcfgflags='pkg-config --static'
