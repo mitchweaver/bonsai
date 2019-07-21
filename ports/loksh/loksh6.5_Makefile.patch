@@ -1,10 +1,9 @@
---- Makefile    	2019-04-24 18:52:00.000000000 +0000
-+++ Makefile_new	2019-07-05 21:10:03.859293600 +0000
+--- Makefile    	2019-04-24 13:52:00.000000000 -0500
++++ Makefile_new	2019-07-21 04:36:49.671684323 -0500
 @@ -1,11 +1,10 @@
  CC ?= cc
 -CFLAGS ?= -O2
--override CFLAGS += -isystem . -D_GNU_SOURCE -DEMACS -DVI -std=gnu99 -Wall -Wno-format-security -Wno-pointer-sign
-+override CFLAGS += -isystem . -D_GNU_SOURCE -DEMACS -DVI -std=gnu99 -Wall -Wno-format-security -Wno-pointer-sign
+ override CFLAGS += -isystem . -D_GNU_SOURCE -DEMACS -DVI -std=gnu99 -Wall -Wno-format-security -Wno-pointer-sign
  LDFLAGS ?=
  DESTDIR ?= /
  PREFIX ?= /usr
@@ -34,11 +33,16 @@
  install: all
 -	install -v -D -m 755 ksh $(DESTDIR)/$(BIN_DIR)/$(BIN_NAME)
 -	install -v -D -m 644 ksh.1 $(DESTDIR)/$(MAN_DIR)/man1/$(BIN_NAME).1
-+	install -v -D -m 755 $(BIN_NAME) $(DESTDIR)/$(BIN_DIR)/$(BIN_NAME)
-+	install -v -D -m 644 ksh.1 $(DESTDIR)/$(MAN_DIR)/man1/ksh.1
- 	install -v -m 644 sh.1 $(DESTDIR)/$(MAN_DIR)/man1/sh.1
- 	install -v -D -m 644 README $(DESTDIR)/$(DOC_DIR)/README
- 	install -v -m 644 README.upstream $(DESTDIR)/$(DOC_DIR)/README.upstream
- 	install -v -m 644 CONTRIBUTORS $(DESTDIR)/$(DOC_DIR)/CONTRIBUTORS
+-	install -v -m 644 sh.1 $(DESTDIR)/$(MAN_DIR)/man1/sh.1
+-	install -v -D -m 644 README $(DESTDIR)/$(DOC_DIR)/README
+-	install -v -m 644 README.upstream $(DESTDIR)/$(DOC_DIR)/README.upstream
+-	install -v -m 644 CONTRIBUTORS $(DESTDIR)/$(DOC_DIR)/CONTRIBUTORS
 -	install -v -m 644 PROJECTS $(DESTDIR)/$(DOC_DIR)/PROJETCS
- 	install -v -m 644 LEGAL $(DESTDIR)/$(DOC_DIR)/LEGAL
+-	install -v -m 644 LEGAL $(DESTDIR)/$(DOC_DIR)/LEGAL
++	install -Dm0755 $(BIN_NAME) $(DESTDIR)/$(BIN_DIR)/$(BIN_NAME)
++	install -Dm0644 ksh.1 $(DESTDIR)/$(MAN_DIR)/man1/ksh.1
++	install -Dm0644 sh.1 $(DESTDIR)/$(MAN_DIR)/man1/sh.1
++	install -Dm0644  README $(DESTDIR)/$(DOC_DIR)/README
++	install -Dm0644 README.upstream $(DESTDIR)/$(DOC_DIR)/README.upstream
++	install -Dm0644 CONTRIBUTORS $(DESTDIR)/$(DOC_DIR)/CONTRIBUTORS
++	install -Dm0644 LEGAL $(DESTDIR)/$(DOC_DIR)/LEGAL
