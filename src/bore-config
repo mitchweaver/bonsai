@@ -56,7 +56,7 @@ cflags="-I. -I$root/include -static --static -s -Os -pipe -Wl,--gc-sections -mar
 ldflags="-L. -L$root/lib -static --static -s -fdata-sections -ffunction-sections"
 cppflags='-static --static'
 cxxflags='-static --static'
-pkgcfgflags='pkg-config --static'
+pkgcfgflags='--static'
 
 # downloads
 curl_opts='-# --ssl'
