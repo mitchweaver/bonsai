@@ -28,6 +28,8 @@ prebuild() {
     # mv -f dist/IO/poll.h.tmp dist/IO/poll.h
 }
 build() {
+    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH" \
+    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH" \
     sh Configure -des \
         -Dcf_by="$PKG_MGR_NAME" \
         -Dcc="$CC" \
@@ -52,7 +54,13 @@ build() {
         -Dinc_version_list=none \
         -Uonlyextensions='' \
         -Uusedl
+
+    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH" \
+    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH" \
     make
+
+    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH" \
+    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH" \
     make install
 }
 postbuild() {
