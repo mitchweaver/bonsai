@@ -25,7 +25,11 @@ setup simply by copying the relevant statically-linked binaries.
 GNU GLibc is massively bloated and a poor choice for static linking.  
 [Musl-libc](http://musl-libc.org) is a fresh lightweight alternative 
 that was [designed from the ground up](https://www.musl-libc.org/intro.html) 
-to be used with static linking. Applications statically-linked
+to be used with static linking. 
+
+Just take a look at this simple [hello world](http://0x0.st/zpbd.png) comparison.
+
+Applications statically-linked
 with musl carefully avoid pulling in large amounts of code or 
 data that the application will not use and have no runtime 
 dependencies. Many programs need patching to compile
