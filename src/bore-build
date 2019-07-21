@@ -45,8 +45,6 @@ gcc() { $gcc "$@" ; }
 # tcc() { $_tcc "$@" ; }
 
 getflags() {
-    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH"
-    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH"
     CFLAGS="-I. -L. -I$root/include -L$root/lib -B$root/libexec $CFLAGS $cflags"
     LDFLAGS="-L. $LDFLAGS $ldflags"
     CPPFLAGS="-I. -I$root/include $CPPFLAGS $cppflags"
@@ -174,8 +172,12 @@ make() {
 
 # run if pkgfile doesn't define a custom build()
 generic_build() {
-    [ -f autogen.sh ] && autogen
-    [ -f configure ] && configure
+    if [ -f configure ] ; then
+        configure
+    elif [ -f autogen.sh ] ; then
+        autogen
+        configure
+    fi
     make
     make install
 }
