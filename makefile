@@ -32,15 +32,16 @@ clean:
 uninstall:
 	@echo "Unsafe. Please do this manually."
 
+ignores = -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174 -e 2086
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"
-	shellcheck -s sh -S error -x -a $(name)
+	shellcheck -s sh -S error -x -a $(name) $(ignores)
 	@echo "------ WARNINGS -------------"
-	shellcheck -s sh -S warning -x -a $(name) -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174
+	shellcheck -s sh -S warning -x -a $(name) $(ignores)
 	@echo "-------- INFO ---------------"
-	shellcheck -s sh -S info -x -a $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174
+	shellcheck -s sh -S info -x -a $(name) $(ignores)
 	@echo "-------- STYLE ---------------"
-	shellcheck -s sh -S style -x -a $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174
+	shellcheck -s sh -S style -x -a $(name) $(ignores)
 	@echo "------------------------------"
 	@echo "All passed!"

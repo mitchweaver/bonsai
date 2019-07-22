@@ -80,12 +80,12 @@ configure() {
         FILE=configure
     fi
 
-    ! $docs  && conf_docs="--disable-docs \
+    ! $docs  && _docs="--disable-docs \
                            --disable-gtk-docs \
                            --disable-gtk-docs-html"
-    ! $nls   && conf_nls='--disable-nls'
-    ! $debug && conf_debug='--disable-debug --disable-debugger'
-    $quiet   && conf_quiet='--silent --quiet'
+    ! $nls   && _nls='--disable-nls'
+    ! $debug && _debug='--disable-debug --disable-debugger'
+    $quiet   && _quiet='--silent --quiet'
 
     if [ -f configure ] ; then
         # try to enable as many options as possible
@@ -97,7 +97,7 @@ configure() {
         for flag in --static --enable-static --enable-static-link \
                     --disable-rpath --disable-option-checking --without-tests \
                     --disable-dependency-tracking --without-ada --without-shared \
-                    $conf_quiet $conf_debug $conf_nls $conf_docs ; do
+                    $_quiet $_debug $_nls $_docs ; do
             grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
         done
 
@@ -133,19 +133,21 @@ configure() {
     PRESERVEDIR="$PRESERVEDIR" \
         ./$FILE $__prefix $allowed "$@"
 
-    return $?
-    # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet __prefix
+    set $?
+    unset allowed flag tmp_help _docs _nls \
+          _debug _quiet __prefix FILE
+    return $1
 }
 
 make() {
-    ! $mans && make_docs="MANPREFIX=/dev/null MANDIR=/dev/null"
-    $quiet  && make_quiet='-s'
+    ! $mans && _docs="MANPREFIX=/dev/null MANDIR=/dev/null"
+    $quiet  && _quiet='-s'
 
     CFLAGS="$CFLAGS" \
     LDFLAGS="$LDFLAGS" \
     CPPFLAGS="$CPPFLAGS" \
     CXXFLAGS="$CXXFLAGS" \
-        command make $makeflags -j$jobs $make_docs $make_quiet \
+        command make $makeflags -j$jobs $_docs $_quiet \
         CC="$CC" \
         cc="$CC" \
         LIBRARY_PATH="$LIBRARY_PATH" \
@@ -159,10 +161,10 @@ make() {
         LIBEXECDIR="$LIBEXECDIR" \
         MANDIR="$MANDIR" \
         PRESERVEDIR="$PRESERVEDIR" "$@"
-        # > /dev/null
 
-    return $?
-    # unset make_quiet make_docs
+    set $?
+    unset _quiet _docs
+    return $1
 }
 
 # run if pkgfile doesn't define a custom build()

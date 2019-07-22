@@ -11,9 +11,6 @@ addpkg() {
         return 1
     fi
 
-    # make sure these are unset before sourcing pkgfile
-    unset depends deps version source
-
     [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
     name=$pkgname . "$pkgfile"
 
@@ -21,7 +18,7 @@ addpkg() {
         isinst $dep > /dev/null || die "addpkg(): port $pkgname depends on pkg \"$dep\""
     done
 
-    [ -z "$version" ] && version='unknown'
+    [ "$version" ] || version='unknown'
     pkgid="${pkgname}${delim}${version}"
 
     if [ "$source" ] && [ "$source" != none ] ; then
@@ -45,6 +42,6 @@ addpkg() {
     clean
 
     trap - INT TERM
-    unset pkgname pkgfile version pkgid
+    unset pkgname pkgfile pkgid version depends deps
 }
 # vi:syntax=sh
