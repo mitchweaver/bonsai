@@ -35,12 +35,12 @@ uninstall:
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"
-	shellcheck -s sh -S error $(name)
+	shellcheck -s sh -S error -x -a $(name)
 	@echo "------ WARNINGS -------------"
-	shellcheck -s sh -S warning $(name) -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155
+	shellcheck -s sh -S warning -x -a $(name) -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174
 	@echo "-------- INFO ---------------"
-	shellcheck -s sh -S info $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155
+	shellcheck -s sh -S info -x -a $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174
 	@echo "-------- STYLE ---------------"
-	shellcheck -s sh -S style $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155
+	shellcheck -s sh -S style -x -a $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174
 	@echo "------------------------------"
 	@echo "All passed!"
