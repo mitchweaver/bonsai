@@ -16,7 +16,7 @@ link_pkg() {
 
     [ -d "$pkgs"/$pkgname ] || die "link_pkg(): $pkgname is not in \$pkgs dir"
 
-    cd "$root"
+    cd "$root" || die "link_pkg(): unable to cd to $root"
     msg 'creating symlinks...'
 
     for dir in bin sbin share include etc lib libexec ; do
@@ -82,10 +82,8 @@ relink_world() {
     newline
 
     listpkgs | while read -r pkgid ; do
-        link_pkg $(pkgid2pkg "$pkgid") "$relink_pkgs"
-    done
-
-    [ $? -eq 0 ] || die "relink_world(): linking failed"
+        link_pkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
+    done || die "relink_world(): linking failed"
 
     newline
     msg 'done!'

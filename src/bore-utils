@@ -1,5 +1,5 @@
 msg()  {
-    [ $# -eq 0 ] && read input && set -- "$input"
+    [ $# -eq 0 ] && read -r input && set -- "$input"
     printf "%s\n" "$prompt $*"
 }
 die()  { >&2 msg "error: $*" ; exit 1 ; }
@@ -57,9 +57,7 @@ test_link() {
     fi
 }
 
-# posix shell utilities to commonly missing programs
 basename() { printf "%s" "${1##*/}" ; }
-tac() { sed '1!G;h;$!d' "$@" ; }
 
 # converts "bash#4.8" -> "bash"
 pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
@@ -109,7 +107,7 @@ check_deps() {
 # create top level dirs in $root, if needed
 # params: $root
 create_root_dirs() {
-    cd "$1"
+    cd "$1" || die "create_root_dirs(): could not cd to $1"
 
     link() {
         [ -L $2 ] && rm -f $2
@@ -118,10 +116,12 @@ create_root_dirs() {
 
     mkdir -pm 0755 bin boot dev etc home include \
                    lib local mnt proc run root share \
-                   sys var dev/pts var/log var/run src/sources
+                   src sys var dev/pts dev/pts var/log \
+                   var/run src/sources
 
-    mkdir -pm 0775 dev/shm tmp var/tmp var/preserve
+    mkdir -pm 0775 tmp dev/shm var/tmp var/preserve
 
+    mkdir -pm 0744 share/man
     for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
         mkdir -pm 0744 share/man/$manX
     done
@@ -132,7 +132,7 @@ create_root_dirs() {
     link lib libexec # /libexec -> /lib
     unset -f link
     unset dir manX
-    cd - > /dev/null
+    cd - > /dev/null || die "create_root_dirs(): could not return from cd"
 }
 
 gccinfo() {

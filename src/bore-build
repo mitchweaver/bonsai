@@ -1,4 +1,4 @@
-# runs build() method inside a pkgfile
+# runs build() method inside a pkgfile! -name readme 
 # params: pkgname
 run_build() {
     # if we're using pkg mgr's built in gcc, make sure its valid/existant
@@ -64,11 +64,9 @@ getflags() {
 # convenience function, tries to find all *.patch
 # in $work/$pkgname directory and apply them
 patch() {
-    [ "$1" ] && cd "$1"
-    ls | grep ".patch$" | while read -r patch ; do
+    find . -name "*.patch" | while read -r patch ; do
         command patch -p0 < "$patch" | msg
     done
-    [ "$1" ] && cd - > /dev/null
     unset patch
 }
 
@@ -113,6 +111,7 @@ configure() {
             allowed="$allowed --without-tests"
 
         rm -f $tmp_help
+        __prefix="--prefix=$PREFIX"
     fi
 
     LIBRARY_PATH="$LIBRARY_PATH" \
@@ -132,12 +131,10 @@ configure() {
     LIBEXECDIR="$LIBEXECDIR" \
     MANDIR="$MANDIR" \
     PRESERVEDIR="$PRESERVEDIR" \
-        ./$FILE $([ $FILE = configure ] && echo --prefix="$PREFIX") \
-        $allowed "$@"
-        # > /dev/null 
+        ./$FILE $__prefix $allowed "$@"
 
     return $?
-    # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet
+    # unset allowed flag tmp_help conf_docs conf_nls conf_debug conf_quiet __prefix
 }
 
 make() {
@@ -195,7 +192,7 @@ GNU_sucks() {
     # causing the makefile to abort unless $ENV variables are set. Absurd.
     # Should a makefile not work correctly with our coreutils, 
     # it will be patched on a per-port basis.
-    export GREP=$(which grep) SED=$(which sed) AWK=$(which awk)
+    export GREP=$(command -v grep) SED=$(command -v sed) AWK=$(command -v awk)
 }
 
 # remove junk files

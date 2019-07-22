@@ -11,7 +11,7 @@ get() {
 
     clean
     mkdir -p $tmpdir "$sources" "$workdir"
-    cd "$sources"
+    cd "$sources" || die "get(): could not cd to $sources"
 
     if [ "$_version" = git ] ; then
         if [ ! -d "$_pkgid" ] ; then
@@ -54,8 +54,7 @@ get() {
             gz|tgz) gunzip  -d $tmpdir/* ;;
             bz2)    bunzip2 -d $tmpdir/* ;;
             *) die "get(): unknown compression algorithm"
-        esac
-        [ $? -gt 0 ] && die "get(): failed to decompress $_pkgname"
+        esac || die "get(): failed to decompress $_pkgname"
 
         if file $tmpdir/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
@@ -71,7 +70,7 @@ get() {
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
-    ls -a "$ports"/"$_pkgname"/* | grep -v pkgfile | while read -r file ; do
+    find "$ports"/"$_pkgname"/* ! -name pkgfile | while read -r file ; do
         cp -f "$file" "$workdir"
     done
 

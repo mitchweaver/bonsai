@@ -3,7 +3,7 @@ delpkg() {
     pkgname="$1"
     isinst $pkgname > /dev/null || die "$pkgname is not installed"
 
-    cd "$root"
+    cd "$root" || die "delpkg(): unable to cd to $root"
 
     # go through $pkgs/pkgname, deleting files as we go
     # afterwards, remove its symlink in the root
@@ -14,7 +14,8 @@ delpkg() {
     done
     # recurse through dirs in reverse, removing empty dirs as we go
     # afterwards, remove its equivalent dir in the root, if empty
-    find "$pkgs"/$pkgname -type d | tac | while read -r dir ; do
+    # note: the sed command here is to emulte 'tac' which is not portable
+    find "$pkgs"/$pkgname -type d | sed '1!G;h;$!d' | while read -r dir ; do
         is_empty "$dir" && rmdir "$dir"
 
         root_dir=${dir#$pkgs/$pkgname}
