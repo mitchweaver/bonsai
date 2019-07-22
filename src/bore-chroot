@@ -1,5 +1,4 @@
 enter_chroot() {
-    #[ $(id -u) -eq 0 ] || die "chroot requires root."
     if already_chrooted > /dev/null ; then
         unmount_drives
         already_chrooted &&
@@ -11,6 +10,12 @@ enter_chroot() {
     _TERM="$TERM"
     _PS1="$PS1"
     export TERM=vt100 PS1="(chroot) % "
+
+    # change whatever user had $root equal to
+    # to root=/ in their bore.rc
+    old_config_root="$(head -n 1 "$borerc")"
+    sed 's|root=.*|root=/|' "$borerc" > "$borerc".tmp
+    mv -f "$borerc".tmp "$borerc"
 
     mount_drives
     sudo chroot "$root" "$chroot_shell"
@@ -65,7 +70,13 @@ unchroot() {
         already_chrooted && warn "was unable to automatically unmount chroot!"
     fi
     export TERM="$_TERM" PS1="$_PS1"
-    sudo chown -R "$USER" "$root"
+
+    # restore the users config
+    sed "s|root=.*|$old_config_root|" "$borerc" > "$borerc".tmp
+    mv -f "$borerc".tmp "$borerc"
+
+    sudo chown -R "$USER" "${root:?}"
+
     msg 'Exited chroot!'
 }
 
