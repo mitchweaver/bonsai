@@ -32,7 +32,15 @@ clean:
 uninstall:
 	@echo "Unsafe. Please do this manually."
 
-ignores = -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2086
+ignores = -e 1090 -e 2154
+# ----- ShellCheck Explanations --------
+# SC1090: "at run-time file sourcing" ie '. $pkgfile'
+#         We use this to import each package's variables.
+#         This is not an error
+# SC2154: "var referenced but not assigned"
+# 		  All of the config variables are set
+# 		  at run time when the config is sourced.
+# 		  This is not an error.
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"
