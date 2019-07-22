@@ -5,6 +5,7 @@ delpkg() {
 
     cd "$root" || die "delpkg(): unable to cd to $root"
 
+    if [ -d "$pkgs"/$pkgname ] ; then
     # go through $pkgs/pkgname, deleting files as we go
     # afterwards, remove its symlink in the root
     find "$pkgs"/$pkgname -type f -o -type l | while read -r file ; do
@@ -27,6 +28,7 @@ delpkg() {
             rmdir "$root/$root_dir"
         fi
     done
+    fi
 
     del_db $pkgname
     clean
