@@ -2,6 +2,10 @@ export PKG_MGR_NAME=$(basename "$0")
 export LC_ALL=C
 export LANG=C
 
+# unset any env variables that could interfere
+unset CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+      LIBRARY_PATH C_INCLUDE_PATH PKG_CONFIG
+
 main() {
     [ $# -eq 0 ] && usage
     check_deps
