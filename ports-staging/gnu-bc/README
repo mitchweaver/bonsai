@@ -1,0 +1,5 @@
+this is now in ports-staging as we are now using
+posix-bc: https://github.com/gavinhoward/bc
+
+leaving here incase anybody just *absolutely needs*
+the GNU extensions
