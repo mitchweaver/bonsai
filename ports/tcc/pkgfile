@@ -1,0 +1,3 @@
+info='Tiny C Compiler'
+version=0.9.27
+source=http://download.savannah.gnu.org/releases/tinycc/$name-$version.tar.bz2
