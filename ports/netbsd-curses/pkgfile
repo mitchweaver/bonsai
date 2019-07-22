@@ -11,7 +11,11 @@ build() {
     $mans && make install-manpages
 }
 postbuild() {
+    # symlink '-ltinfo' for compatibility
+    cd "$pkg"/lib
+    ln -s libterminfo.a libtinfo.a
+
     # bin/clear collides with clear from other packages
-    # such as ubase-box
+    # (specifically ubase-box)
     mv "$pkg"/bin/clear "$pkg"/bin/netbsd-curses-clear
 }

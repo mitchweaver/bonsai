@@ -1,0 +1,19 @@
+--- Makefile	    2018-01-18 14:02:20.000000000 -0600
++++ Makefile_new	2019-07-21 19:30:51.231083048 -0500
+@@ -31,6 +31,7 @@
+ 
+ # Linux defaults:
+ CFLAGS=-ggdb -pedantic -Wall -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
++USER_CFLAGS=
+ #CFLAGS=-O4 -Wall  -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+ #LDFLAGS=-s
+ 
+@@ -101,7 +102,7 @@
+ 	$(CC) $(LDFLAGS) -o $(TREE_DEST) $(OBJS)
+ 
+ $(OBJS): %.o:	%.c tree.h
+-	$(CC) $(CFLAGS) -c -o $@ $<
++	$(CC) $(CFLAGS) $(USER_CFLAGS) -c -o $@ $<
+ 
+ clean:
+ 	if [ -x $(TREE_DEST) ]; then rm $(TREE_DEST); fi
