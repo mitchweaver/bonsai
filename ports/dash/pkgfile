@@ -9,3 +9,7 @@ build() {
     make CC="$CC $CFLAGS $CPPFLAGS"
     make CC="$CC $CFLAGS $CPPFLAGS" install
 }
+postbuild() {
+    cd "$pkg"/bin
+    ln -s dash sh
+}
