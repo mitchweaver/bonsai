@@ -6,7 +6,7 @@ run_build() {
     # ... if not, we cannot compile packages -- error out
     if [ ! -x "$gcc" ] ; then
         case $pkgname in
-            *gcc*|bore) ;;
+            *gcc*|core-system|bore) ;;
             *) die "No compiler toolchain has yet been installed.
          Try \`$PKG_MGR_NAME search gcc\` to find one."
         esac
@@ -64,7 +64,7 @@ getflags() {
 # convenience function, tries to find all *.patch
 # in $work/$pkgname directory and apply them
 patch() {
-    find . -name "*.patch" | while read -r patch ; do
+    find . ! -name . -prune -name "*.patch" | while read -r patch ; do
         command patch -p0 < "$patch" | msg
     done
     unset patch
