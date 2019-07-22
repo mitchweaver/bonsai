@@ -63,6 +63,8 @@ link_pkg() {
 #
 # * If param is provided, relink the world using the given $pkgs location
 #   See comment heading of link_pkg() for details.
+#   Alternatively, if using the standard /src/pkgs location you
+#   can specify --chroot as an alias for --pkgs=/src/pkgs
 relink_world() {
 
     case $# in
@@ -72,7 +74,15 @@ relink_world() {
             msg 'relinking world...'
             ;;
         1)
-            relink_pkgs="${1#--pkgs=}"
+            # helper for the standard location
+            [ "$1" = --chroot ] && set -- '--pkgs=/src/pkgs'
+
+            # check if $1 contains '--pkgs='
+            if [ "${1#*--pkgs=}" != "$1" ] ; then
+                relink_pkgs="${1#--pkgs=}"
+            else
+                die 'bad argument given to --relink-world'
+            fi
             msg "relinking world with \$pkgs=$relink_pkgs ..."
             ;;
         *)

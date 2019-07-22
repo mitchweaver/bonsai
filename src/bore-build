@@ -6,7 +6,7 @@ run_build() {
     # ... if not, we cannot compile packages -- error out
     if [ ! -x "$gcc" ] ; then
         case $pkgname in
-            *gcc*|core-system|bore) ;;
+            core-system|*gcc*|bore) ;;
             *) die "No compiler toolchain has yet been installed.
          Try \`$PKG_MGR_NAME search gcc\` to find one."
         esac

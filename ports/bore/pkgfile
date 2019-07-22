@@ -8,5 +8,5 @@ build() {
 }
 postbuild() {
     cd "$root"/bin
-    ln -s /src/bore
+    ln -sf /src/bore
 }
