@@ -1,48 +1,57 @@
 # adds a port
-# params: $pkgname
+# params: $name
 addpkg() {
     is_empty "$ports" && die "addpkg(): no ports found"
 
-    pkgname=$1
-    pkgfile="$ports"/$pkgname/pkgfile
+    pkg="$pkgs"/"$1"
+    name="$1"
+    export pkg name
 
-    if isinst "$pkgname" > /dev/null ; then
-        msg "port $pkgname is already installed"
+    pkgfile="$ports/$name/pkgfile"
+
+    if isinst "$name" > /dev/null ; then
+        msg "port $name is already installed"
         return 1
     fi
 
-    [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
-    name=$pkgname . "$pkgfile"
+    [ -f "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
+    . "$pkgfile"
 
-    for dep in $depends $deps ; do
-        isinst "$dep" > /dev/null || die "addpkg(): port $pkgname depends on pkg \"$dep\""
-    done
+#    for dep in $depends $deps ; do
+#        isinst "$dep" > /dev/null || die "addpkg(): port $name depends on pkg \"$dep\""
+#    done
 
     [ "$version" ] || version='unknown'
     pkgid="${pkgname}${delim}${version}"
 
     if [ "$source" ] && [ "$source" != none ] ; then
-        get "$source" "$pkgname" "$version"
-        cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
-        mkdir -p "$pkgs/$pkgname"
-        trap 'rmdir $pkgs/$pkgname' INT TERM
+        get "$source" "$version"
+        cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
+        mkdir -p "$pkgs/$name"
+        trap 'rmdir $pkgs/$name' INT TERM
     fi
 
-    run_build "$pkgname" || die "$pkgname failed to build"
+    run_build "$name" || die "$name failed to build"
 
-    if [ -d "$pkgs"/"$pkgname" ] ; then
-        link_pkg "$pkgname" || die "$pkgname failed to link"
-        clear_junk "$pkgname"
+    if [ -d "$pkgs"/"$name" ] ; then
+        link_pkg "$name" || die "$name failed to link"
+        clear_junk "$name"
     fi
 
-    add_db "$pkgname" "$version"
-    msg "$pkgname installed!"
+    add_db "$name" "$version"
+    msg "$name installed!"
 
     sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
     clean
 
     trap - INT TERM
     unset pkgname pkgfile pkgid version depends deps
+}
+# returns all dependencies of a given packages
+# in the order in which they need be installed
+# param: $name
+get_depends() {
+    . "$name"
 }
 # vi:syntax=sh
 # shellcheck shell=sh

@@ -1,25 +1,21 @@
 # runs build() method inside a pkgfile! -name readme 
-# params: pkgname
+# params: $name
 run_build() {
     # if we're using pkg mgr's built in gcc, make sure its valid/existant
     # if its not -- check to see if we're trying to download one
     # ... if not, we cannot compile packages -- error out
     if [ ! -x "$gcc" ] ; then
-        case $pkgname in
+        case $name in
             core-system|*gcc*|bore) ;;
             *) die "No compiler toolchain has yet been installed.
          Try \`$PKG_MGR_NAME search gcc\` to find one."
         esac
     fi
     
-    pkg="$pkgs"/"$1"
-    name="$1"
-    export pkg name
-
     getflags
     GNU_sucks
 
-    msg "building $pkgname..."
+    msg "building $name..."
 
     if defined prebuild ; then
         prebuild || die "$1 prebuild() failed"
@@ -55,7 +51,7 @@ getflags() {
     CPPFLAGS="$CPPFLAGS -I. -I$root/include $cppflags"
     CXXFLAGS="$CXXFLAGS -I. $cxxflags"
     PKG_CONFIG="$PKG_CONFIG $pkgcfgflags"
-    PREFIX="$pkgs/$pkgname"
+    PREFIX="$pkgs/$name"
     prefix="$PREFIX"
     DESTDIR=''
     BINDIR="$PREFIX/bin"
@@ -72,7 +68,7 @@ getflags() {
 }
 
 # convenience function, tries to find all *.patch
-# in $work/$pkgname directory and apply them
+# in $work/$name directory and apply them
 patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
         command patch -p0 < "$patch" | msg
@@ -170,7 +166,7 @@ generic_build() {
 }
 
 # remove junk files
-# params: $pkgname
+# params: $name
 clear_junk() {
     [ -d "$pkgs/$1/share/info" ] && rm -r "$pkgs/$1/share/info"
     if ! $docs && [ -d "$pkgs/$1/share/doc" ] ; then

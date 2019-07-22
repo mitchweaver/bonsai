@@ -1,13 +1,12 @@
 # downloads a given url and extracts to $work
-# params: $url, $pkgname, $version
+# params: $url, $version
 get() {
-    [ $# -lt 3 ] && die 'get(): insufficient arguments'
+    [ $# -lt 2 ] && die 'get(): insufficient arguments'
     _url="$1"
-    _pkgname=$2
-    _version="$3"
-    _pkgid="${_pkgname}${delim}${_version}"
+    _version="$2"
+    _pkgid="${name}${delim}${_version}"
     tmpdir=/tmp/$PKG_MGR_NAME-$$.tmp
-    workdir="$work/$pkgname"
+    workdir="$work/$name"
 
     clean
     mkdir -p "$tmpdir" "$sources" "$workdir"
@@ -35,7 +34,7 @@ get() {
             # note: curl has problems with many ${delim}s, so as a workaround 
             #       we perform this temporary file and rename it
             curl -q -L -C - -# --url "$_url" -o "$pkgname"-download ||
-                die "get(): could not download $_pkgname"
+                die "get(): could not download $name"
             mv -f "$pkgname"-download "$_pkgid"
         fi
         cp -f "$_pkgid" "$tmpdir"
@@ -45,24 +44,24 @@ get() {
             *'gzip comp'*)  ext=gz    ;;
             *'bzip2 comp'*) ext=bz2   ;;
             *'XZ comp'*)    ext=xz    ;;
-            *) die "get(): could not discern compression type of $_pkgname"
+            *) die "get(): could not discern compression type of $name"
         esac
 
         # decompressors bug out if no extension...
-        mv -f "$tmpdir"/* "$tmpdir/${_pkgname}.${ext}"
+        mv -f "$tmpdir"/* "$tmpdir/${name}.${ext}"
 
-        msg "extracting $_pkgname"...
+        msg "extracting $name"...
         case $ext in
             xz)     xz      -d "$tmpdir"/* ;;
             gz|tgz) gunzip  -d "$tmpdir"/* ;;
             bz2)    bunzip2 -d "$tmpdir"/* ;;
             *) die "get(): unknown compression algorithm"
-        esac || die "get(): failed to decompress $_pkgname"
+        esac || die "get(): failed to decompress $name"
 
         if file "$tmpdir"/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
-            mv "$tmpdir"/* "$tmpdir/${_pkgname}".tar
-            tar -xf "$tmpdir/${_pkgname}.tar" -C "$tmpdir"/ || 
+            mv "$tmpdir"/* "$tmpdir/${name}".tar
+            tar -xf "$tmpdir/${name}.tar" -C "$tmpdir"/ || 
                 die "get(): tar could not extract $_pkgid.$ext"       
         fi
 
@@ -73,13 +72,13 @@ get() {
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
-    find "$ports/$_pkgname"/* ! -name pkgfile | while read -r file ; do
+    find "$ports/$name"/* ! -name pkgfile | while read -r file ; do
         cp -f "$file" "$workdir"
     done
 
     rm -rf "${tmpdir:?}"
 
-    unset _url _pkgname _version _pkgid ext tmpdir file workdir
+    unset _url _version _pkgid ext tmpdir file workdir
 }
 # vi:syntax=sh
 # shellcheck shell=sh
