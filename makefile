@@ -31,3 +31,16 @@ clean:
 
 uninstall:
 	@echo "Unsafe. Please do this manually."
+
+test: $(name)
+	@clear
+	@echo "------- ERRORS --------------"
+	shellcheck -s sh -S error $(name)
+	@echo "------ WARNINGS -------------"
+	shellcheck -s sh -S warning $(name) -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155
+	@echo "-------- INFO ---------------"
+	shellcheck -s sh -S info $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155
+	@echo "-------- STYLE ---------------"
+	shellcheck -s sh -S style $(name) -e 2086 -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155
+	@echo "------------------------------"
+	@echo "All passed!"
