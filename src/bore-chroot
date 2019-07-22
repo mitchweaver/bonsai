@@ -18,7 +18,7 @@ enter_chroot() {
     mv -f "$borerc".tmp "$borerc"
 
     mount_drives
-    sudo chroot "$root" "$chroot_shell"
+    sudo chroot "$root" "$chroot_shell" -l -i
     unchroot
 }
 
@@ -77,12 +77,12 @@ unchroot() {
 
     sudo chown -R "$USER" "${root:?}"
 
-    msg 'Exited chroot!'
+    msg 'exited chroot!'
 }
 
 # check if drives have already been mounted
 already_chrooted() {
     [ "$(ls -A "$root"/dev/pts 2> /dev/null)" ] || return 1
-    msg "The chroot has already been mounted!"
+    msg "the chroot has already been mounted!"
 }
 # vi:syntax=sh
