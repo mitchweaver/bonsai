@@ -11,28 +11,32 @@ run_build() {
          Try \`$PKG_MGR_NAME search gcc\` to find one."
         esac
     fi
+    
+    pkg="$pkgs"/"$1"
+    name="$1"
+    export pkg name
 
     getflags
     GNU_sucks
 
+    msg "building $pkgname..."
+
     if defined prebuild ; then
-        pkg="$pkgs"/$1 name=$1 prebuild || die "$1 prebuild() failed"
+        prebuild || die "$1 prebuild() failed"
     else # else, try to apply any patches (convenience)
         patch || die "$1 generic prebuild() failed"
     fi
 
-    msg "building $pkgname..."
-
     # run user defined build(), if exists
     if defined build ; then
-        pkg="$pkgs"/$1 name=$1 build || die "$1 build() failed"
+        build || die "$1 build() failed"
     else
-        pkg="$pkgs"/$1 name=$1 generic_build || die "$1 generic_build() failed"
+        generic_build || die "$1 generic_build() failed"
     fi
 
     # run user defined postbuild(), if exists
     if defined postbuild ; then
-        pkg="$pkgs"/$1 name=$1 postbuild || die "$1 postbuild() failed"
+        postbuild || die "$1 postbuild() failed"
     fi
 
     # unset in case we are adding multiple packages
@@ -44,12 +48,15 @@ cc() { $cc "$@" ; }
 gcc() { $gcc "$@" ; }
 
 getflags() {
+#    LIBRARY_PATH="$LIBRARY_PATH" \
+#    C_INCLUDE_PATH="$C_INCLUDE_PATH" \
     CFLAGS="$CFLAGS -I. -L. -I$root/include -L$root/lib -B$root/libexec $cflags"
     LDFLAGS="$LDFLAGS -L. $ldflags"
     CPPFLAGS="$CPPFLAGS -I. -I$root/include $cppflags"
     CXXFLAGS="$CXXFLAGS -I. $cxxflags"
     PKG_CONFIG="$PKG_CONFIG $pkgcfgflags"
     PREFIX="$pkgs/$pkgname"
+    prefix="$PREFIX"
     DESTDIR=''
     BINDIR="$PREFIX/bin"
     INCLUDEDIR="$PREFIX/include"
@@ -59,6 +66,9 @@ getflags() {
     PRESERVEDIR="$root/var/preserve"
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
+    export CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PKG_CONFIG PREFIX \
+           prefix DESTDIR BINDIR INCLUDEDIR LIBDIR LIBEXECDIR \
+           MANDIR PRESERVEDIR cc CC
 }
 
 # convenience function, tries to find all *.patch
@@ -92,66 +102,46 @@ configure() {
         # if they are allowed in the configure script
         allowed=""
         tmp_help=/tmp/$PKG_MGR_NAME-$$.tmp
-        ./configure --help > $tmp_help
+        ./configure --help > "$tmp_help"
 
         for flag in --static --enable-static --enable-static-link \
                     --disable-rpath --disable-option-checking --without-tests \
                     --disable-dependency-tracking --without-ada --without-shared \
                     $_quiet $_debug $_nls $_docs ; do
-            grep -- "$flag" $tmp_help > /dev/null && allowed="$allowed $flag"
+            grep -- "$flag" "$tmp_help" > /dev/null && allowed="$allowed $flag"
         done
 
-        grep -- --enable-shared $tmp_help > /dev/null &&
+        grep -- --enable-shared "$tmp_help" > /dev/null &&
             allowed="$allowed --disable-shared"
-        grep -- --enable-tests $tmp_help > /dev/null &&
+        grep -- --enable-tests "$tmp_help" > /dev/null &&
             allowed="$allowed --disable-tests"
-        grep -- --with-debug $tmp_help > /dev/null &&
+        grep -- --with-debug "$tmp_help" > /dev/null &&
             allowed="$allowed --without-debug"
-        grep -- --with-tests $tmp_help > /dev/null &&
+        grep -- --with-tests "$tmp_help" > /dev/null &&
             allowed="$allowed --without-tests"
 
-        rm -f $tmp_help
+        rm -f "$tmp_help"
         __prefix="--prefix=$PREFIX"
     fi
 
-    LIBRARY_PATH="$LIBRARY_PATH" \
-    C_INCLUDE_PATH="$C_INCLUDE_PATH" \
-    CFLAGS="$CFLAGS" \
-    LDFLAGS="$LDFLAGS" \
-    CPPFLAGS="$CPPFLAGS" \
-    CXXFLAGS="$CXXFLAGS" \
-    CC="$cc" \
-    cc="$cc" \
-    DESTDIR="$DESTDIR" \
-    PREFIX="$PREFIX" \
-    prefix="$PREFIX" \
-    BINDIR="$BINDIR" \
-    INCLUDEDIR="$INCLUDEDIR" \
-    LIBDIR="$LIBDIR" \
-    LIBEXECDIR="$LIBEXECDIR" \
-    MANDIR="$MANDIR" \
-    PRESERVEDIR="$PRESERVEDIR" \
-        ./$FILE $__prefix $allowed "$@"
+    set -- "$__prefix" "$allowed" "$@"
+    ./$FILE "$*"
 
     set $?
     unset allowed flag tmp_help _docs _nls \
           _debug _quiet __prefix FILE
-    return $1
+    return "$1"
 }
 
 make() {
     ! $mans && _docs="MANPREFIX=/dev/null MANDIR=/dev/null"
     $quiet  && _quiet='-s'
 
-    CFLAGS="$CFLAGS" \
-    LDFLAGS="$LDFLAGS" \
-    CPPFLAGS="$CPPFLAGS" \
-    CXXFLAGS="$CXXFLAGS" \
-        command make $makeflags -j$jobs $_docs $_quiet \
+    # note: multiple '=-j1' here are nops as strings cannot be empty
+    #       or else make interprets them as files for some reason
+    command make "${makeflags:=-j1}" -j"${jobs:=1}" "${_docs:=-j1}" "${_quiet:=-j1}" \
         CC="$CC" \
         cc="$CC" \
-        LIBRARY_PATH="$LIBRARY_PATH" \
-        C_INCLUDE_PATH="$C_INCLUDE_PATH" \
         DESTDIR="$DESTDIR" \
         PREFIX="$PREFIX" \
         prefix="$PREFIX" \
@@ -164,7 +154,7 @@ make() {
 
     set $?
     unset _quiet _docs
-    return $1
+    return "$1"
 }
 
 # run if pkgfile doesn't define a custom build()
@@ -179,33 +169,16 @@ generic_build() {
     make install
 }
 
-# helper to get around all things that GNU does wrong with packaging
-GNU_sucks() {
-    # GNU programs have the most insane dependency tracking I have ever seen.
-    # To check for dependencies, they often simply try to run the program
-    # and if it has a -gt 0 exit code, the dependency must not be in $PATH.
-    #
-    # This breaks all kinds of things, namely if we are running under `set -e`
-    # As a workaround, just manually track depedencies -- clear the file.
-    [ -f build-aux/missing ] && :> build-aux/missing
-
-    # Some GNU makefiles test certain program flags to see if they
-    # are GNU coreutils programs. Some of our minimal programs fail this,
-    # causing the makefile to abort unless $ENV variables are set. Absurd.
-    # Should a makefile not work correctly with our coreutils, 
-    # it will be patched on a per-port basis.
-    export GREP=$(command -v grep) SED=$(command -v sed) AWK=$(command -v awk)
-}
-
 # remove junk files
 # params: $pkgname
 clear_junk() {
-    [ -d "$pkgs"/$1/share/info ] && rm -r "$pkgs"/$1/share/info
-    if ! $docs && [ -d "$pkgs"/$1/share/doc ] ; then
-        rm -r "$pkgs"/$1/share/doc
+    [ -d "$pkgs/$1/share/info" ] && rm -r "$pkgs/$1/share/info"
+    if ! $docs && [ -d "$pkgs/$1/share/doc" ] ; then
+        rm -r "$pkgs/$1/share/doc"
     fi
-    if ! $mans && [ -d "$pkgs"/$1/share/man ] ; then
-        rm -r "$pkgs"/$1/share/man
+    if ! $mans && [ -d "$pkgs/$1/share/man" ] ; then
+        rm -r "$pkgs/$1/share/man"
     fi
 }
 # vi:syntax=sh
+# shellcheck shell=sh

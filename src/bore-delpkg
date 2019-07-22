@@ -1,25 +1,25 @@
 delpkg() {
     sanity_check
     pkgname="$1"
-    isinst $pkgname > /dev/null || die "$pkgname is not installed"
+    isinst "$pkgname" > /dev/null || die "$pkgname is not installed"
 
     cd "$root" || die "delpkg(): unable to cd to $root"
 
-    if [ -d "$pkgs"/$pkgname ] ; then
+    if [ -d "$pkgs/$pkgname" ] ; then
     # go through $pkgs/pkgname, deleting files as we go
     # afterwards, remove its symlink in the root
-    find "$pkgs"/$pkgname -type f -o -type l | while read -r file ; do
-        rm -f $file
-        root_file=${file#$pkgs/$pkgname}
+    find "$pkgs/$pkgname" -type f -o -type l | while read -r file ; do
+        rm -f "$file"
+        root_file="${file#$pkgs/$pkgname}"
         test_link "$root/$root_file" || rm -f "$root/$root_file"
     done
     # recurse through dirs in reverse, removing empty dirs as we go
     # afterwards, remove its equivalent dir in the root, if empty
     # note: the sed command here is to emulte 'tac' which is not portable
-    find "$pkgs"/$pkgname -type d | sed '1!G;h;$!d' | while read -r dir ; do
+    find "$pkgs/$pkgname" -type d | sed '1!G;h;$!d' | while read -r dir ; do
         is_empty "$dir" && rmdir "$dir"
 
-        root_dir=${dir#$pkgs/$pkgname}
+        root_dir="${dir#$pkgs/$pkgname}"
         [ "$root_dir" ] || continue
         # check that $dir contains at least one slash
         # (so we don't remove any top level dirs i.e. bin,etc,lib...)
@@ -30,10 +30,11 @@ delpkg() {
     done
     fi
 
-    del_db $pkgname
+    del_db "$pkgname"
     clean
 
     msg "$pkgname deleted"
     unset pkgname file dir root_file root_dir
 }
 # vi:syntax=sh
+# shellcheck shell=sh

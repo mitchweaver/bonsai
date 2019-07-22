@@ -5,7 +5,7 @@ search() {
     [ "$results" ] || die "port $1 not found"
     for port in $results ; do
         port=${port##*/}
-        echo ${port%.*}
+        echo "${port%.*}"
     done
     unset results port
 }
@@ -43,3 +43,4 @@ portcat() {
     cat "$pkgfile"
 }
 # vi:syntax=sh
+# shellcheck shell=sh

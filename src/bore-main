@@ -1,6 +1,7 @@
-export PKG_MGR_NAME=$(basename "$0")
-export LC_ALL=C
-export LANG=C
+PKG_MGR_NAME=$(basename "$0")
+LC_ALL=C
+LANG=C
+export PKG_MGR_NAME LC_ALL LANG
 
 # unset any env variables that could interfere
 unset CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
@@ -27,7 +28,7 @@ main() {
                 shift
                 [ "$1" ] || die "addpkg(): no pkg given"
                 while [ $# -gt 0 ] ; do
-                    addpkg $1
+                    addpkg "$1"
                     shift
                     [ "$1" ] && newline
                 done
@@ -36,29 +37,29 @@ main() {
                 shift
                 [ "$1" ] || die "delpkg(): no pkg given"
                 while [ $# -gt 0 ] ; do
-                    delpkg $1
+                    delpkg "$1"
                     shift
                     [ "$1" ] && newline
                 done
                 ;;
-            search|-s) search $2     ; exit $? ;;
+            search|-s) search "$2"   ; exit $? ;;
             isinst|-i)
                 shift
                 [ "$1" ] || die 'isinst(): no argument given'
                 while [ $# -gt 0 ] ; do
-                    isinst $1
+                    isinst "$1"
                     shift
                 done
                 ;;
             list|-l)   listpkgs      ; exit $? ;;
             count|-c)  countpkgs     ; exit $? ;;
-            info)      portinfo $2   ; exit $? ;;
-            cat)       portcat $2    ; exit $? ;;
+            info)      portinfo "$2" ; exit $? ;;
+            cat)       portcat "$2"  ; exit $? ;;
             relink|link)
                 shift
                 [ "$1" ] || die "link_pkg(): invalid number of arguments"
                 while [ $# -gt 0 ] ; do
-                    link_pkg $1
+                    link_pkg "$1"
                     shift
                 done
                 ;;
@@ -75,3 +76,4 @@ main() {
     exit $?
 }
 # vi:syntax=sh
+# shellcheck shell=sh

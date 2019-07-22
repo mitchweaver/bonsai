@@ -22,7 +22,7 @@ exit
 # params: $func_name(s)
 defined() {
     for arg ; do
-        type $arg | grep 'is.*.function' || return 1
+        type "$arg" | grep 'is.*.function' || return 1
     done > /dev/null 2>&1
     unset arg
 }
@@ -30,7 +30,7 @@ defined() {
 # params: $command_name(s)
 has() { 
     for arg ; do
-        type $arg || return 1
+        type "$arg" || return 1
     done > /dev/null 2>&1
     unset arg
 }
@@ -89,10 +89,6 @@ sanity_check() {
 
 # check if all dependencies are met on startup
 check_deps() {
-    for prog in cat cp find grep ln ls mkdir mv rm rmdir \
-                sort sed tar wc file gcc make ; do
-        has $prog || die "required program $prog is not available"
-    done
     for prog in gzip bzip2 xz ; do
         has $prog || warn "$prog is not installed. Some ports may not extract."
     done
@@ -111,3 +107,4 @@ gccinfo() {
     LIBRARY_PATH="$LIBRARY_PATH" $gcc -E -Wp,-v -xc /dev/null
 }
 # vi:syntax=sh
+# shellcheck shell=sh

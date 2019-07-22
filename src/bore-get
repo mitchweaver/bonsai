@@ -10,13 +10,15 @@ get() {
     workdir="$work/$pkgname"
 
     clean
-    mkdir -p $tmpdir "$sources" "$workdir"
+    mkdir -p "$tmpdir" "$sources" "$workdir"
     cd "$sources" || die "get(): could not cd to $sources"
 
     if [ "$_version" = git ] ; then
+
         if [ ! -d "$_pkgid" ] ; then
             msg "cloning $_url..."
-            git clone $git_opts "$_url" $tmpdir || die "get(): could not clone $_url"
+            git clone -q --progress --depth 1 "$_url" "$tmpdir" || \
+                die "get(): could not clone $_url"
             mv -f "$tmpdir"/* "$workdir"
             $keep_tarballs && cp -rf "$workdir" "$sources"/"$_pkgid"
         else
@@ -25,19 +27,20 @@ get() {
             fi
             cp -rf "$sources"/"$_pkgid" "$workdir"
         fi
+
     else # we are downloading with curl
 
         if [ ! -f "$_pkgid" ] ; then
             msg "downloading $_url..."
             # note: curl has problems with many ${delim}s, so as a workaround 
             #       we perform this temporary file and rename it
-            curl -q -L -C - $curl_opts --url "$_url" -o $pkgname-download ||
+            curl -q -L -C - -# --url "$_url" -o "$pkgname"-download ||
                 die "get(): could not download $_pkgname"
-            mv -f $pkgname-download "$_pkgid"
+            mv -f "$pkgname"-download "$_pkgid"
         fi
-        cp -f "$_pkgid" $tmpdir
+        cp -f "$_pkgid" "$tmpdir"
 
-        case $(file $tmpdir/*) in
+        case $(file "$tmpdir"/*) in
             *tgz*) ext=tgz   ;;
             *'gzip comp'*)  ext=gz    ;;
             *'bzip2 comp'*) ext=bz2   ;;
@@ -46,36 +49,37 @@ get() {
         esac
 
         # decompressors bug out if no extension...
-        mv -f $tmpdir/* $tmpdir/${_pkgname}.${ext}
+        mv -f "$tmpdir"/* "$tmpdir/${_pkgname}.${ext}"
 
         msg "extracting $_pkgname"...
         case $ext in
-            xz)     xz      -d $tmpdir/* ;;
-            gz|tgz) gunzip  -d $tmpdir/* ;;
-            bz2)    bunzip2 -d $tmpdir/* ;;
+            xz)     xz      -d "$tmpdir"/* ;;
+            gz|tgz) gunzip  -d "$tmpdir"/* ;;
+            bz2)    bunzip2 -d "$tmpdir"/* ;;
             *) die "get(): unknown compression algorithm"
         esac || die "get(): failed to decompress $_pkgname"
 
-        if file $tmpdir/* | grep 'tar archive' > /dev/null ; then
+        if file "$tmpdir"/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
-            mv $tmpdir/* $tmpdir/${_pkgname}.tar
-            tar -xf $tmpdir/${_pkgname}.tar -C $tmpdir/ || 
+            mv "$tmpdir"/* "$tmpdir/${_pkgname}".tar
+            tar -xf "$tmpdir/${_pkgname}.tar" -C "$tmpdir"/ || 
                 die "get(): tar could not extract $_pkgid.$ext"       
         fi
 
         ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
-        mv -f $tmpdir/*/* "$workdir" || die "get(): failed to move unpacked tarball"
-        mv -f $tmpdir/*/.* "$workdir" 2> /dev/null
+        mv -f "$tmpdir"/*/* "$workdir" || die "get(): failed to move unpacked tarball"
+        mv -f "$tmpdir"/*/.* "$workdir" 2> /dev/null
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
-    find "$ports"/"$_pkgname"/* ! -name pkgfile | while read -r file ; do
+    find "$ports/$_pkgname"/* ! -name pkgfile | while read -r file ; do
         cp -f "$file" "$workdir"
     done
 
-    rm -rf $tmpdir
+    rm -rf "${tmpdir:?}"
 
     unset _url _pkgname _version _pkgid ext tmpdir file workdir
 }
 # vi:syntax=sh
+# shellcheck shell=sh

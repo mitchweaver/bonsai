@@ -14,35 +14,35 @@ link_pkg() {
         *) die "link_pkg(): invalid number of arguments"
     esac
 
-    [ -d "$pkgs"/$pkgname ] || return
+    [ -d "$pkgs/$pkgname" ] || return
 
     cd "$root" || die "link_pkg(): unable to cd to $root"
     msg 'creating symlinks...'
 
     for dir in bin sbin share include etc lib libexec ; do
-        [ -d "$pkgs"/$pkgname/$dir ] || continue
+        [ -d "$pkgs/$pkgname/$dir" ] || continue
 
         # recursively create pkg subdirectories in
         # equivalent $root subdirectories
         # example: $pkgname/lib/pkgconfig -> $root/lib/pkgconfig
-        find "$pkgs"/$pkgname/$dir ! -path "*$dir" \
+        find "$pkgs/$pkgname/$dir" ! -path "*$dir" \
                 -type d 2> /dev/null | while read -r subdir ; do
             mkdir -p "${subdir#$pkgs/$pkgname/}"
         done
 
         # recursively link all files
         # example: $pkgname/include/asm/*.h -> $root/include/asm/*.h
-        find "$pkgs"/$pkgname/$dir ! -path "*share/*man*" \
+        find "$pkgs/$pkgname/$dir" ! -path "*share/*man*" \
                 -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$pkgs/$pkgname/}"
-            ln -sf "$_pkgs/$pkgname/$file" $file
+            ln -sf "$_pkgs/$pkgname/$file" "$file"
         done
     done
 
     $mans && # only link mans if config boolean is true
-    if [ -d "$pkgs"/$pkgname/share/man ] ; then
+    if [ -d "$pkgs/$pkgname/share/man" ] ; then
         seq -f "man%g" -s " " 1 8 | while read -r manX ; do
-            find "$pkgs"/$pkgname/share/man/$manX \
+            find "$pkgs/$pkgname/share/man/$manX" \
                     ! -path "*/$manX" 2> /dev/null | while read -r man ; do
                 ln -sf "$_pkgs/$pkgname/share/man/$manX/${man##*/}" \
                     "${man#$pkgs/$pkgname/}"
@@ -89,15 +89,16 @@ relink_world() {
             die "relink_all(): invalid number of arguments"
     esac
 
-    newline
+    printf '\n'
 
     listpkgs | while read -r pkgid ; do
         link_pkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
     done || die "relink_world(): linking failed"
 
-    newline
+    printf '\n'
     msg 'done!'
 
     unset relink_pkgs
 }
 # vi:syntax=sh
+# shellcheck shell=sh

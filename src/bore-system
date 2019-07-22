@@ -6,10 +6,10 @@ create_root_dirs() {
     # mkdir -pm only sets the permissions
     # for the LAST dir in the path
     create() {
-        perm=$1
+        perm="$1"
         shift
         for dir in "$@" ; do
-            [ -d $dir ] || mkdir -m $perm $dir
+            [ -d $dir ] || mkdir -m "$perm" "$dir"
         done
     }
 
@@ -27,8 +27,8 @@ create_root_dirs() {
     done
 
     link() {
-        [ -L $2 ] && rm -f $2
-        ln -sf $1 $2
+        [ -L "$2" ] && rm -f "$2"
+        ln -sf "$1" "$2"
     }
 
     link . usr       # /usr     -> /
@@ -41,3 +41,4 @@ create_root_dirs() {
     cd - > /dev/null || die "create_root_dirs(): could not return from cd"
 }
 # vi:syntax=sh
+# shellcheck shell=sh

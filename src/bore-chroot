@@ -86,3 +86,4 @@ already_chrooted() {
     msg "the chroot has already been mounted!"
 }
 # vi:syntax=sh
+# shellcheck shell=sh

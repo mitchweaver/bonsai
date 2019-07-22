@@ -29,7 +29,7 @@ update_db() {
 # add entry to database
 # params: $pkgname $pkgversion
 add_db() {
-    echo ${1}${delim}"${2}" >> "$boredb"
+    echo "${1}${delim}${2}" >> "$boredb"
     update_db
 }
 
@@ -41,3 +41,4 @@ del_db() {
     update_db
 }
 # vi:syntax=sh
+# shellcheck shell=sh

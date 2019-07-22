@@ -6,7 +6,7 @@ addpkg() {
     pkgname=$1
     pkgfile="$ports"/$pkgname/pkgfile
 
-    if isinst $pkgname > /dev/null ; then
+    if isinst "$pkgname" > /dev/null ; then
         msg "port $pkgname is already installed"
         return 1
     fi
@@ -15,27 +15,27 @@ addpkg() {
     name=$pkgname . "$pkgfile"
 
     for dep in $depends $deps ; do
-        isinst $dep > /dev/null || die "addpkg(): port $pkgname depends on pkg \"$dep\""
+        isinst "$dep" > /dev/null || die "addpkg(): port $pkgname depends on pkg \"$dep\""
     done
 
     [ "$version" ] || version='unknown'
     pkgid="${pkgname}${delim}${version}"
 
     if [ "$source" ] && [ "$source" != none ] ; then
-        get "$source" $pkgname "$version"
+        get "$source" "$pkgname" "$version"
         cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
-        mkdir -p "$pkgs"/$pkgname
+        mkdir -p "$pkgs/$pkgname"
         trap 'rmdir $pkgs/$pkgname' INT TERM
     fi
 
-    run_build $pkgname || die "$pkgname failed to build"
+    run_build "$pkgname" || die "$pkgname failed to build"
 
-    if [ -d "$pkgs"/$pkgname ] ; then
-        link_pkg $pkgname || die "$pkgname failed to link"
-        clear_junk $pkgname
+    if [ -d "$pkgs"/"$pkgname" ] ; then
+        link_pkg "$pkgname" || die "$pkgname failed to link"
+        clear_junk "$pkgname"
     fi
 
-    add_db $pkgname $version
+    add_db "$pkgname" "$version"
     msg "$pkgname installed!"
 
     sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
@@ -45,3 +45,4 @@ addpkg() {
     unset pkgname pkgfile pkgid version depends deps
 }
 # vi:syntax=sh
+# shellcheck shell=sh

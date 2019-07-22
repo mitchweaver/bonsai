@@ -1,7 +1,7 @@
 loadconfig() {
     if [ "$config" ] ; then
         borerc="$config"
-    elif [ -f /src/$PKG_MGR_NAME.rc ] ; then
+    elif [ -f /src/"$PKG_MGR_NAME".rc ] ; then
         borerc="/src/$PKG_MGR_NAME.rc"
     else 
         borerc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
@@ -41,7 +41,7 @@ create_skeleton_config() {
         mkdir -p "$path"
         echo "copying default config to ~/.local/$PKG_MGR_NAME/$PKG_MGR_NAME.rc"
     fi
-cat > "$path"/$PKG_MGR_NAME.rc << "EOF"
+cat > "$path/$PKG_MGR_NAME".rc << "EOF"
 # bore root
 root=${HOME}/.local/bore
 
@@ -57,12 +57,8 @@ cppflags='-static --static'
 cxxflags='-static --static'
 pkgcfgflags='--static'
 
-# downloads
-curl_opts='-# --ssl'
-git_opts='-q --progress --depth 1'
-keep_tarballs=true
-
 # options
+keep_tarballs=true
 mans=true   # install man pages?
 docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
@@ -79,3 +75,4 @@ delim='#'
 EOF
 }
 # vi:syntax=sh
+# shellcheck shell=sh
