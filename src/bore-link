@@ -14,7 +14,7 @@ link_pkg() {
         *) die "link_pkg(): invalid number of arguments"
     esac
 
-    [ -d "$pkgs"/$pkgname ] || die "link_pkg(): $pkgname is not in \$pkgs dir"
+    [ -d "$pkgs"/$pkgname ] || return
 
     cd "$root" || die "link_pkg(): unable to cd to $root"
     msg 'creating symlinks...'
