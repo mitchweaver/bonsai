@@ -1,4 +1,4 @@
-export PKG_MGR_NAME=$(basename $0)
+export PKG_MGR_NAME=$(basename "$0")
 export LC_ALL=C
 export LANG=C
 
@@ -8,7 +8,6 @@ main() {
 
     case "$1" in
         *skeleton) shift ; create_skeleton_config "$1" ; exit ;;
-#        *bootstrap) BOOTSTRAP=true ; shift ;;
         --config=*) config="${1#--config=}" ; shift ;;
         --root=*) _root="${1#--root=}" ; shift ;;
         --gcc=*) _gcc="${1#--gcc=}" ; shift ;;

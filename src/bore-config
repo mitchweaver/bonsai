@@ -47,7 +47,6 @@ root=${HOME}/.local/bore
 
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
-tcc="$root/bin/tcc"
 gcc="$root/bin/gcc"
 
 # flags

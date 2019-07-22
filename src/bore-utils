@@ -1,9 +1,9 @@
 msg()  {
     [ $# -eq 0 ] && read input && set -- "$input"
-    printf "%s\n" "$prompt $@"
+    printf "%s\n" "$prompt $*"
 }
-die()  { >&2 msg "error: $@" ; exit 1 ; }
-warn() { >&2 msg "warning: $@" ; }
+die()  { >&2 msg "error: $*" ; exit 1 ; }
+warn() { >&2 msg "warning: $*" ; }
 separator() { printf '%s\n' '-----------' ; }
 newline() { printf '\n' ; }
 
@@ -41,12 +41,12 @@ has() {
 # params: dir
 # return: 0 if true, 1 if false or not a dir
 is_empty() {
-    [ -d "$1" ] || return 1
-    [ -e "$1/"* ] 2> /dev/null
-    case $? in
-        1)   return 0 ;;
-        *)   return 1 ;;
-    esac
+    if rmdir "$1" 2> /dev/null ; then
+        mkdir "$1"
+        return
+    else
+        return 1
+    fi
 }
 
 # params: $path
@@ -87,7 +87,6 @@ sanity_check() {
     [ "$work" ]     || die "\$work is not set"
     [ "$delim" ]    || die "\$delim is not set"
     [ "$gcc" ]      || warn "\$gcc is not set"
-    [ "$tcc" ]      || warn "\$tcc is not set"
     jobs="${jobs:=1}"
     mkdir -p "$borehome" "$pkgs" "$ports" "$sources" "$work"
 }

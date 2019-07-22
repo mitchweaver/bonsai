@@ -1,7 +1,7 @@
 # adds a port
 # params: $pkgname
 addpkg() {
-    [ "$(ls $ports | wc -l)" -gt 0 ] || die "addpkg(): no ports found"
+    is_empty "$ports" && die "addpkg(): no ports found"
 
     pkgname=$1
     pkgfile="$ports"/$pkgname/pkgfile
@@ -29,7 +29,7 @@ addpkg() {
     cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
 
     mkdir -p "$pkgs"/$pkgname
-    trap "rmdir \"$pkgs\"/$pkgname" INT KILL TERM
+    trap "rmdir $pkgs/$pkgname" INT TERM
 
     run_build $pkgname || die "$pkgname failed to build"
 
@@ -42,7 +42,7 @@ addpkg() {
     msg "$pkgname installed!"
     clean
 
-    trap - INT KILL TERM
+    trap - INT TERM
     unset pkgname pkgfile version pkgid
 }
 # vi:syntax=sh
