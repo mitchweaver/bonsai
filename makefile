@@ -32,7 +32,7 @@ clean:
 uninstall:
 	@echo "Unsafe. Please do this manually."
 
-ignores = -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2174 -e 2086
+ignores = -e 1090 -e 2154 -e 2120 -e 2098 -e 2097 -e 2155 -e 2086
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"

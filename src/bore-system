@@ -1,0 +1,43 @@
+# create top level dirs in given $root, if needed
+# params: $root
+create_root_dirs() {
+    cd "$1" || die "create_root_dirs(): could not cd to $1"
+
+    # mkdir -pm only sets the permissions
+    # for the LAST dir in the path
+    create() {
+        perm=$1
+        shift
+        for dir in "$@" ; do
+            [ -d $dir ] || mkdir -m $perm $dir
+        done
+    }
+
+    create 0755 bin boot dev etc home include \
+                lib local mnt proc run root share \
+                src sys var \
+                dev/pts dev/pts var/log \
+                var/run src/sources
+
+    create 0775 tmp dev/shm var/tmp var/preserve
+
+    create 0744 share/man
+    for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
+        create 0744 share/man/$manX
+    done
+
+    link() {
+        [ -L $2 ] && rm -f $2
+        ln -sf $1 $2
+    }
+
+    link . usr       # /usr     -> /
+    link bin sbin    # /sbin    -> /bin
+    link tmp var/tmp # /var/tmp -> /tmp
+    link lib libexec # /libexec -> /lib
+
+    unset -f link
+    unset dir manX perm
+    cd - > /dev/null || die "create_root_dirs(): could not return from cd"
+}
+# vi:syntax=sh
