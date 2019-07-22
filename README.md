@@ -129,7 +129,7 @@ from these wonderful projects.
 **Also**:
 
 * Rich Felker's work on [musl-crossmake](https://github.com/richfelker/musl-cross-make) for ease of musl toolchain compilation
-* The folks at [musl.cc](musl.cc) for providiing statically-compiled toolchain binaries
+* The folks at [musl.cc](musl.cc) for providing statically-compiled toolchain binaries
 * [suckless](http://suckless.org) and [cat-v](cat-v.org) projects for being a breath of fresh air in a world of insanity
 ---
 
