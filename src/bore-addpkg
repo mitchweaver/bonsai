@@ -5,7 +5,11 @@ addpkg() {
 
     pkgname=$1
     pkgfile="$ports"/$pkgname/pkgfile
-    isinst $pkgname > /dev/null && die "port $pkgname is already installed"
+
+    if isinst $pkgname > /dev/null ; then
+        msg "port $pkgname is already installed"
+        return 1
+    fi
 
     # make sure these are unset before sourcing pkgfile
     unset depends deps version source
