@@ -24,22 +24,24 @@ addpkg() {
     [ -z "$version" ] && version='unknown'
     pkgid="${pkgname}${delim}${version}"
 
-    get "$source" $pkgname "$version"
-
-    cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
-
-    mkdir -p "$pkgs"/$pkgname
-    trap 'rmdir $pkgs/$pkgname' INT TERM
+    if [ "$source" ] && [ "$source" != none ] ; then
+        get "$source" $pkgname "$version"
+        cd "$work/$pkgname" || die "addpkg(): unable to cd to $work/$pkgid"
+        mkdir -p "$pkgs"/$pkgname
+        trap 'rmdir $pkgs/$pkgname' INT TERM
+    fi
 
     run_build $pkgname || die "$pkgname failed to build"
 
-    sanity_check && rm -rf "${work:?}/$pkgid"
+    if [ -d "$pkgs"/$pkgname ] ; then
+        link_pkg $pkgname || die "$pkgname failed to link"
+        clear_junk $pkgname
+    fi
 
-    link_pkg $pkgname || die "$pkgname failed to link"
-
-    clear_junk $pkgname
     add_db $pkgname $version
     msg "$pkgname installed!"
+
+    sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
     clean
 
     trap - INT TERM
