@@ -4,6 +4,10 @@ source=http://ftpmirror.gnu.org/gnu/$name/$name-$version.tar.gz
 deps=readline
 build() {
     configure --with-readline
+
+    # do not regen docs (would require texinfo as dep)
+    touch doc/*.info doc/*.1 doc/Makefile
+
     make
     make install
 }
