@@ -1,0 +1,13 @@
+info='GNU pico editor clone'
+version=4.3
+source=http://nano-editor.org/dist/v4/$name-$version.tar.xz
+deps=netbsd-curses
+build() {
+    # note: --enable-tiny removes many features
+    #       a regular user of nano might want
+    configure LIBS='-lncursesw -lterminfo' \
+              --enable-utf8 \
+              --enable-tiny
+    make
+    make install
+}

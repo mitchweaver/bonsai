@@ -1,0 +1,15 @@
+info='an interactive process viewer for Unix systems'
+version=2.2.0
+source=https://hisham.hm/$name/releases/$version/$name-$version.tar.gz
+deps='netbsd-curses python'
+build() {
+    configure LIBS='-lncursesw -lterminfo'
+    make
+    make install
+}
+postbuild() {
+    rm -rf "$pkg"/include \
+           "$pkg"/lib \
+           "$pkg"/share/applications \
+           "$pkg"/share/pixmaps
+}

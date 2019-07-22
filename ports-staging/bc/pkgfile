@@ -1,0 +1,9 @@
+info="GNU bc -- arbitrary precision calculator"
+version=1.07.1
+source=http://ftpmirror.gnu.org/gnu/$name/$name-$version.tar.gz
+deps=readline
+build() {
+    configure --with-readline
+    make
+    make install
+}
