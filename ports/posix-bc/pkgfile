@@ -1,0 +1,16 @@
+info='POSIX bc calculator implementation with GNU extensions and dc'
+version=2.1.1
+source=https://github.com/gavinhoward/bc/archive/$version.tar.gz
+build() {
+    ! $mans && M='-M'
+
+    CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+    CPPFLAGS="$CPPFLAGS" PREFIX="$PREFIX" \
+    ./configure.sh -G -H -N $M
+    make
+    make install
+}
+postbuild() {
+    cd "$pkg"/bin
+    ln -sf bc dc
+}
