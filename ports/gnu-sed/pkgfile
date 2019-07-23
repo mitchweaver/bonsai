@@ -2,5 +2,6 @@ info='GNU sed - Streams Editor'
 version=4.7
 source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.xz
 postbuild() {
-    warn "Installed as 'sed'. This has overwritten any pre-existing sed."
+    warn "Installing as 'sed'. This will overwrite any pre-existing sed."
+    link $name
 }
