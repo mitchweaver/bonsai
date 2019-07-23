@@ -84,6 +84,25 @@ clean() {
     unset dir
 }
 
+# if we're using pkg mgr's built in gcc, make sure its valid/existant
+# if its not -- check to see if we're trying to download one
+# ... if not, we cannot compile packages -- error out
+validate_gcc() {
+    if [ ! -x "$gcc" ] ; then
+        case $name in
+            core-system|*gcc*|bore) ;;
+            *) 
+            if [ -e "$gcc" ] ; then
+                die "No compiler toolchain has yet been installed.
+         Try \`$PKG_MGR_NAME search gcc\` to find one."
+            else
+                die "World appears to still be linked as a chroot.
+         Use --relink-world to relink externally."
+            fi
+        esac
+    fi
+}
+
 # check variables are still sane before operations
 sanity_check() {
     [ -d "$root"     ] || die "\$root is not a directory"
