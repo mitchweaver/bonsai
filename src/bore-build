@@ -1,17 +1,6 @@
 # runs build() method inside a pkgfile! -name readme 
 # params: $name
-run_build() {
-    # if we're using pkg mgr's built in gcc, make sure its valid/existant
-    # if its not -- check to see if we're trying to download one
-    # ... if not, we cannot compile packages -- error out
-    if [ ! -x "$gcc" ] ; then
-        case $name in
-            core-system|*gcc*|bore) ;;
-            *) die "No compiler toolchain has yet been installed.
-         Try \`$PKG_MGR_NAME search gcc\` to find one."
-        esac
-    fi
-    
+run_build() { 
     getflags
     GNU_sucks
 
@@ -44,13 +33,13 @@ cc() { $cc "$@" ; }
 gcc() { $gcc "$@" ; }
 
 getflags() {
-#    LIBRARY_PATH="$LIBRARY_PATH" \
-#    C_INCLUDE_PATH="$C_INCLUDE_PATH" \
-    CFLAGS="$CFLAGS -I. -L. -I$root/include -L$root/lib -B$root/libexec $cflags"
-    LDFLAGS="$LDFLAGS -L. $ldflags"
-    CPPFLAGS="$CPPFLAGS -I. -I$root/include $cppflags"
-    CXXFLAGS="$CXXFLAGS -I. $cxxflags"
-    PKG_CONFIG="$PKG_CONFIG $pkgcfgflags"
+    . "$root"/etc/profile
+    LIBRARY_PATH=".:$root/lib:$root/libexec"
+    CPATH=".:$root/include"
+    CFLAGS="$CFLAGS $cflags"
+    LDFLAGS="$LDFLAGS $ldflags"
+    CPPFLAGS="$CPPFLAGS $cppflags"
+    CXXFLAGS="$CXXFLAGS $cxxflags"
     PREFIX="$pkgs/$name"
     prefix="$PREFIX"
     DESTDIR=''
@@ -62,9 +51,10 @@ getflags() {
     PRESERVEDIR="$root/var/preserve"
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
-    export CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PKG_CONFIG PREFIX \
-           prefix DESTDIR BINDIR INCLUDEDIR LIBDIR LIBEXECDIR \
-           MANDIR PRESERVEDIR cc CC
+    export LIBRARY_PATH CPATH \
+           CFLAGS LDFLAGS CPPFLAGS CXXFLAGS CC cc \
+           PREFIX prefix DESTDIR BINDIR INCLUDEDIR \
+           LIBDIR LIBEXECDIR MANDIR PRESERVEDIR
 }
 
 # convenience function, tries to find all *.patch
