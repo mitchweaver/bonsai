@@ -54,14 +54,8 @@ root=${HOME}/.local/bore
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
 gcc="$root/bin/gcc"
 
-# flags
-makeflags=''
-cflags="-static --static -s -Os -pipe -Wl,--gc-sections -march=native -w"
-ldflags="-static --static -s -fdata-sections -ffunction-sections"
-cppflags='-static --static'
-cxxflags='-static --static'
-
 # options
+makeflags=''
 keep_tarballs=true
 mans=true   # install man pages?
 docs=false  # install extra documentation?
@@ -76,6 +70,13 @@ prompt='→'  # msg prompt
 # * cannot be '-' due to the character often being in pkg names
 # * commonly used: #@?!*†¤§≡
 delim='#'
+
+# flags
+# warning: do not change these unless you seriously know what you're doing.
+cflags="-static --static -no-pie -s -Os -pipe -march=native -ffast-math -Wl,--gc-sections -w"
+ldflags="-static --static -s -fdata-sections -ffunction-sections"
+cppflags='-static --static'
+cxxflags='-static --static'
 EOF
 }
 # vi:syntax=sh
