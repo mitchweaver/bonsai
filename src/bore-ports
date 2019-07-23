@@ -1,7 +1,10 @@
 # search ports for given $pkgname
 search() {
-    [ "$1" ] || die 'search(): no argument given'
-    results="$(find "$ports" ! -path "$ports" -name "*${1}*" | sort)"
+    if [ "$1" ] ; then
+        find "$ports" ! -path "$ports" -type d
+        return
+    fi
+    results="$(find "$ports" ! -path "$ports" -type d -name "*${1}*" | sort)"
     [ "$results" ] || die "port $1 not found"
     for port in $results ; do
         port=${port##*/}
@@ -9,6 +12,41 @@ search() {
     done
     unset results port
 }
+
+# gets dependencies of a given port 
+# and stores them in $pkgdeps 
+# in the order needed to be installed
+# param: $name
+pkgdeps() {
+    dep_recurse() {
+        unset deps
+        . "$ports/$1/pkgfile"
+
+        if [ "$deps" ] ; then
+            pkgdeps=" $deps $pkgdeps "
+            for dep in $deps ; do
+                dep_recurse "$dep"
+            done
+        fi
+    }
+    dep_recurse "$1"
+
+    # remove any duplicates
+    for dep in $pkgdeps ; do
+        case "$pkgdeps" in
+            *" $dep "*) ;; # dependency is already in list
+            *) pkgdeps=" $pkgdeps $dep "
+        esac
+    done
+
+    # trim leading/trailing whitespace
+    pkgdeps="$(trim "$pkgdeps")"
+    export pkgdeps
+
+    unset -f dep_recurse
+    unset dep
+}
+
 
 # print info about a given $pkgname
 portinfo() {
@@ -42,5 +80,6 @@ portcat() {
     [ -f "$pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
     cat "$pkgfile"
 }
+
 # vi:syntax=sh
 # shellcheck shell=sh

@@ -27,7 +27,7 @@ get_chroot_shell() {
         if [ -L "$root"/bin/$shell ] ; then
             chroot_shell=$(readlink "$root"/bin/$shell)
             [ "$chroot_shell" != /src/pkgs/$shell/bin/$shell ] &&
-                die "You might want to relink_world before chrooting in..."
+                die "You might want to --relink-world before chrooting in..."
             return 0
         fi
     done

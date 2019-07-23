@@ -3,55 +3,122 @@
 addpkg() {
     is_empty "$ports" && die "addpkg(): no ports found"
 
-    pkg="$pkgs"/"$1"
-    name="$1"
-    export pkg name
+    isinst "$1" > /dev/null &&
+        die "port $1 is already installed"
 
-    pkgfile="$ports/$name/pkgfile"
+    # check if gcc is functional
+    validate_gcc
 
-    if isinst "$name" > /dev/null ; then
-        msg "port $name is already installed"
-        return 1
-    fi
+    # params: $name
+    load_pkgfile() {
+        pkg="$pkgs"/"$1"
+        name="$1"
+        pkgfile="$ports/$name/pkgfile"
+        export pkg name pkgfile
 
-    [ -f "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
-    . "$pkgfile"
+        [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
+        . "$pkgfile"
+    }
 
-#    for dep in $depends $deps ; do
-#        isinst "$dep" > /dev/null || die "addpkg(): port $name depends on pkg \"$dep\""
-#    done
+    # unsets vars as not to persist from pkg to pkg
+    unload_pkgfile() {
+        unset pkgname pkgfile pkgid version depends deps
+        unset -f prebuild build postbuild
+    }
 
-    [ "$version" ] || version='unknown'
-    pkgid="${pkgname}${delim}${version}"
+    # prompts user y/n to install packages
+    # returns 1 on 'n' or bad input
+    prompt_user() {
+        # prompt user before continuing
+        warn "these packages will be installed:"
+        # note: $dep_needed is padded by spaces
+        printf "\n  %s\n\n" "$main_package$deps_needed"
+        if [ -z "$NO_PROMPT" ] ; then
+            msg_no_nl "continue? (y/n): "
+            read -r ans
+            case "$ans" in
+                y|"") ;; # "" is equivalent to user pressing enter
+                *) return 1
+            esac
+            unset ans
+        fi
+    }
 
-    if [ "$source" ] && [ "$source" != none ] ; then
-        get "$source" "$version"
-        cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
-        mkdir -p "$pkgs/$name"
-        trap 'rmdir $pkgs/$name' INT TERM
-    fi
+    # adds the given $name
+    add() {
+        unload_pkgfile
+        load_pkgfile "$1"
 
-    run_build "$name" || die "$name failed to build"
+        if isinst "$name" > /dev/null ; then
+            msg "port $name is already installed"
+            unload_pkgfile
+            return 1
+        fi
 
-    if [ -d "$pkgs"/"$name" ] ; then
-        link_pkg "$name" || die "$name failed to link"
-        clear_junk "$name"
-    fi
+        [ "$version" ] || version='unknown'
+        pkgid="${pkgname}${delim}${version}"
 
-    add_db "$name" "$version"
-    msg "$name installed!"
+        case "$source" in
+            # if meta package, will not have a source
+            # do not try to download
+            ""|none) ;;
+            *)
+                get "$source" "$version"
+                cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
+                mkdir -p "$pkgs/$name"
+                trap 'rmdir $pkgs/$name' INT TERM
+        esac
 
-    sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
-    clean
+        run_build "$name" || die "$name failed to build"
 
-    trap - INT TERM
-    unset pkgname pkgfile pkgid version depends deps
-}
-# returns all dependencies of a given packages
-# in the order in which they need be installed
-# param: $name
-get_depends() {
-    . "$name"
+        if [ -d "$pkgs/$name" ] ; then
+            link_pkg "$name" || die "$name failed to link"
+            clear_junk "$name"
+        fi
+
+        add_db "$name" "$version"
+        msg "$name installed!"
+
+        sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
+        clean
+        trap - INT TERM
+        unload_pkgfile
+    }
+
+    # grab initial package variables
+    load_pkgfile "$1"
+
+    # the package we will install
+    main_package="$name"
+
+    # search for dependencies of the initial package
+    # the value is stored in $pkgdeps
+    pkgdeps "$name"
+
+    # add any deps to $deps_needed
+    case "$pkgdeps" in
+        # if deps is unset or empty string, there are no deps
+        "") ;;
+        "* *") ;;
+        *) 
+            for dep in $pkgdeps ; do
+                isinst "$dep" > /dev/null || 
+                    deps_needed="$deps_needed $dep"
+            done
+    esac
+
+    # prompt before continuing
+    prompt_user || return 1
+
+    # add deps
+    for port in $deps_needed ; do
+        add "$port"
+    done || die "failed to install deps required by $main_package"
+
+    # add package
+    add "$main_package"
+
+    unset -f load_pkgfile unload_pkgfile prompt_user add
 }
 # vi:syntax=sh
 # shellcheck shell=sh
