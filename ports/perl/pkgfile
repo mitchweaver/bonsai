@@ -16,10 +16,11 @@ prebuild() {
     rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
     sed '/\(bzip2\|zlib\)-src/d' MANIFEST > MANIFEST.tmp
     mv -f MANIFEST.tmp MANIFEST
-    export BUILD_ZLIB=0
-    export BUILD_BZIP2=0
-    export BZIP2_LIB="$root"/lib
-    export BZIP2_INCLUDE="$root"/inculde
+    BUILD_ZLIB=0
+    BUILD_BZIP2=0
+    BZIP2_LIB="$root"/lib
+    BZIP2_INCLUDE="$root"/inculde
+    export BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
 
     # perl's builtin poll.h is occasionally broken
     # if this occurs, use system's poll.h
@@ -28,8 +29,6 @@ prebuild() {
     # mv -f dist/IO/poll.h.tmp dist/IO/poll.h
 }
 build() {
-    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH" \
-    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH" \
     sh Configure -des \
         -Dcf_by="$PKG_MGR_NAME" \
         -Dcc="$CC" \
@@ -55,12 +54,7 @@ build() {
         -Uonlyextensions='' \
         -Uusedl
 
-    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH" \
-    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH" \
     make
-
-    LIBRARY_PATH="$root/lib:$root/libexec:$LIBRARY_PATH" \
-    C_INCLUDE_PATH="$root/include:$C_INCLUDE_PATH" \
     make install
 }
 postbuild() {
