@@ -1,3 +1,3 @@
 info='a mostly mdev-compatible suckless device node manager'
-version=git
-source=git://git.2f30.org/smdev.git
+version=8d07540c417e3a31942028318197c89b640278d5
+source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz

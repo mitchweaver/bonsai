@@ -1,6 +1,6 @@
 info="suckless init, based on Rich Felker's minimal init"
-version=git
-source=http://git.suckless.org/$name
+version=28c44b6b94a870f2942c37f9cfbae8b770595712
+source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 prebuild() {
     cp -f config.def.h config.h
 

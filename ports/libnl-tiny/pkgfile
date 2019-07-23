@@ -1,6 +1,6 @@
 info='a tiny version of the libnl netlink library'
-version=git
-source=http://github.com/sabotage-linux/$name.git
+version=4225e93bec5304abee3386213213718367e54a93
+source=http://github.com/sabotage-linux/$name/archive/$version.tar.gz
 build() {
     make ALL_LIBS=libnl-tiny.a
     make ALL_LIBS=libnl-tiny.a install

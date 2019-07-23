@@ -1,3 +1,3 @@
 info="a suckless IPv4 dhcp client"
-version=git
-source=git://git.2f30.org/$name.git
+version=5f9956c8706215f8b8887c0beb77ed7d1810ec7a
+source=http://github.com/michaelforney/$name/archive/$version.tar.gz

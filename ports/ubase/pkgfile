@@ -1,6 +1,6 @@
 info="suckless unportable base"
-version=git
-source=git://git.suckless.org/${name%%-*}
+version=3c88778c6c85d97fb63c41c05304519e0484b07c
+source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 build() {
     make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box
     make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
