@@ -2,6 +2,18 @@ info='tiny openssh server and client'
 version=2019.78
 source=http://matt.ucc.asn.au/$name/releases/$name-$version.tar.bz2
 deps="one-true-awk zlib"
+prebuild() {
+    # sbase does not have '-v' flag
+    sed 's|mkdir -pv|mkdir -p|' configure > configure.tmp
+    mv -f configure.tmp configure
+    chmod +x configure
+
+    # fix def->ifdef regex for sbase sed
+    # Goal: Wrap all "#define X Y" with a #ifndef X...#endif"
+    printf "%s\n%s" "#!/bin/sh" \
+        "sed 's/^\( *#define \([^ ][^ ]*\) .*\)/#ifndef \2\ \n \1\ \n #endif/'" \
+        > ifndef_wrapper.sh
+}
 build() {
     configure --enable-static \
               --disable-lastlog \
@@ -20,7 +32,7 @@ build() {
 }
 postbuild() {
     cd "$pkg"/bin
-    ln -s dropbear sshd
-    ln -s dbclient ssh
-    ln -s dropbearkey ssh-keygen
+    ln -sf dropbear sshd
+    ln -sf dbclient ssh
+    ln -sf dropbearkey ssh-keygen
 }
