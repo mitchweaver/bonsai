@@ -1,4 +1,4 @@
 info="Linux port of OpenBSD's oksh"
 version=6.5
 source=http://github.com/dimkr/$name/archive/$version.tar.gz
-deps='readline netbsd-curses'
+deps='libedit netbsd-curses'

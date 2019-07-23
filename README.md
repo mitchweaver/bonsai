@@ -101,7 +101,7 @@ These are lightweight/embedded technologies incorporated into bore as to be more
 
 **C Library**: [musl-libc](https://www.musl-libc.org/)  
 **Compiler**: [tcc](https://bellard.org/tcc) *(where possible)*  
-**Libraries**: [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [LibreSSL](https://www.libressl.org/)  
+**Libraries**: [LibreSSL](https://www.libressl.org/) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
 **Init System**: [sinit](https://core.suckless.org/sinit)  
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [9base](http://tools.suckless.org/9base)  
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash) [loksh](https://github.com/dimkr/loksh)  
