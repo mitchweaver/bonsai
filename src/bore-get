@@ -12,6 +12,12 @@ get() {
     mkdir -p "$tmpdir" "$sources" "$workdir"
     cd "$sources" || die "get(): could not cd to $sources"
 
+    # NOTE: Downloading via git comes highly unrecommended.
+    #       This makes packages depend on git, which is
+    #       a rather large dependency for otherwise small programs.
+    #       Instead, download a tarball from a commit hash using this format:
+    #       version=<SHA_HASH>
+    #       source=http://github.com/<GITHUB_USER>/$name/archive/$version.tar.gz
     if [ "$_version" = git ] ; then
 
         if [ ! -d "$_pkgid" ] ; then
