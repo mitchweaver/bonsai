@@ -75,56 +75,60 @@ configure() {
         shift
     else
         FILE=configure
+        set -- -C --prefix="$PREFIX" "$@"
     fi
 
-    $docs  || _docs="--disable-docs --disable-gtk-docs --disable-gtk-docs-html"
-    $nls   || _nls='--disable-nls'
-    $debug || _debug='--disable-debug --disable-debugger'
-    $quiet && _quiet='--silent --quiet'
+    ${docs:=false}  || _docs="--disable-docs --disable-gtk-docs --disable-gtk-docs-html --docdir=/dev/null"
+    ${nls:=false}   || _nls=--disable-nls
+    ${tests:=false} || _tests=--without-tests
+    ${debug:=false} || _debug='--disable-debug --disable-debugger'
+    ${quiet:=false} && _quiet='--silent --quiet'
 
-    if [ -s configure ] ; then
+    if [ $FILE = configure ] ; then
         # try to enable as many options as possible
         # if they are allowed in the configure script
-        allowed=""
-        addflag() { allowed="$allowed $1" ; }
-        checkaddflag() {
-            grep -- "$1" "$tmp_help" > /dev/null && 
-                addflag "$2"
+        _tmp_help="$root"/src/work/$name.confhelp
+        _tmp_flags="$root"/src/work/$name.confflags
+        ./$FILE --help > $_tmp_help
+        :> $_tmp_flags
+
+        # params: flag_to_check flag_to_add
+        addflag() {
+            grep -- "$1" $_tmp_help > /dev/null && 
+                printf "%s\n" "$2" >> $_tmp_flags
         }
 
-        tmp_help=/tmp/$PKG_MGR_NAME-$$.tmp
-        ./configure --help > "$tmp_help"
-
-        for flag in --static --enable-static --enable-static-link \
-                    --disable-rpath --disable-option-checking --without-tests \
+        for flag in --static --enable-static --enable-static-link --disable-shared \
+                    --disable-rpath --disable-option-checking  --enable-fast-install \
                     --disable-dependency-tracking --without-ada --without-shared \
-                    $_quiet $_debug $_nls $_docs ; do
-            checkaddflag "$flag" "$flag"
+                    --disable-libtool-lock \
+                    $_quiet $_debug $_nls $_docs $_tests ; do
+            addflag $flag $flag &
         done
 
-        checkaddflag --enable-shared --disable-shared
-        checkaddflag --enable-tests  --disable-tests
-        checkaddflag --with-debug    --without-debug
-        checkaddflag --with-tests    --without-tests
-
-        rm -f "$tmp_help"
-        __prefix="--prefix=$PREFIX"
-        unset -f addflag checkaddflag
+        addflag --with-gnu-ld --without-gnu-ld &
+        addflag --enable-shared --disable-shared &
+        addflag --enable-tests  --disable-tests &
+        addflag --with-shared   --without-shared &
+        $debug || addflag --with-debug    --without-debug &
+        $tests || addflag --with-tests --without-tests &
+        $tests && addflag --enable-extratests --enable-extratests &
+        wait
     fi
 
-    set -- "$__prefix" "$allowed" "$@"
-    ./$FILE "$*"
+    ./$FILE $(cat $_tmp_flags) "$@"
 
     set $?
-    unset allowed flag tmp_help _docs _nls _debug _quiet __prefix FILE
-    return "$1"
+    unset -f addflag
+    unset flag _tmp_help _docs _nls _debug _quiet _tests FILE tmp
+    return $1
 }
 
 make() {
-    $mans   || _docs="MANPREFIX=/dev/null MANDIR=/dev/null"
+    $mans   || _mans='MANDIR=/dev/null'
     $quiet  && _quiet='-s'
 
-    command make "${makeflags:=-j1}" -j"${jobs:=1}" "${_docs:=-j1}" "${_quiet:=-j1}" \
+    command make $makeflags -j${jobs:=1} $_mans $_quiet \
         CC="$CC" \
         cc="$CC" \
         DESTDIR="$DESTDIR" \
@@ -139,7 +143,7 @@ make() {
 
     set $?
     unset _quiet _docs
-    return "$1"
+    return $1
 }
 
 # run if pkgfile doesn't define a custom build()
