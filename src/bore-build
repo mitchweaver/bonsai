@@ -30,11 +30,11 @@ run_build() {
 }
 
 # convenience functions
-cc()  { $cc "$@"  ; }
-gcc() { $gcc "$@" ; }
+cc()  { $cc  -static -Os -s "$@" ; }
+gcc() { $gcc -static -Os -s "$@" ; }
 
 getflags() {
-    . "$root"/etc/profile
+    . "$root"/etc/profile 2>/dev/null ||:
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
     CFLAGS="$CFLAGS $cflags"
@@ -77,12 +77,10 @@ configure() {
         FILE=configure
     fi
 
-    ! $docs  && _docs="--disable-docs \
-                           --disable-gtk-docs \
-                           --disable-gtk-docs-html"
-    ! $nls   && _nls='--disable-nls'
-    ! $debug && _debug='--disable-debug --disable-debugger'
-    $quiet   && _quiet='--silent --quiet'
+    $docs  || _docs="--disable-docs --disable-gtk-docs --disable-gtk-docs-html"
+    $nls   || _nls='--disable-nls'
+    $debug || _debug='--disable-debug --disable-debugger'
+    $quiet && _quiet='--silent --quiet'
 
     if [ -s configure ] ; then
         # try to enable as many options as possible
@@ -123,11 +121,9 @@ configure() {
 }
 
 make() {
-    ! $mans && _docs="MANPREFIX=/dev/null MANDIR=/dev/null"
+    $mans   || _docs="MANPREFIX=/dev/null MANDIR=/dev/null"
     $quiet  && _quiet='-s'
 
-    # note: multiple '=-j1' here are nops as strings cannot be empty
-    #       or else make interprets them as files for some reason
     command make "${makeflags:=-j1}" -j"${jobs:=1}" "${_docs:=-j1}" "${_quiet:=-j1}" \
         CC="$CC" \
         cc="$CC" \
@@ -148,9 +144,9 @@ make() {
 
 # run if pkgfile doesn't define a custom build()
 generic_build() {
-    if [ -f configure ] ; then
+    if [ -s configure ] ; then
         configure
-    elif [ -f autogen.sh ] ; then
+    elif [ -s autogen.sh ] ; then
         autogen
         configure
     fi
@@ -158,16 +154,11 @@ generic_build() {
     make install
 }
 
-# remove junk files
-# params: $name
+# remove junk files from $pkgs/$1
 clear_junk() {
-    [ -d "$pkgs/$1/share/info" ] && rm -r "$pkgs/$1/share/info"
-    if ! $docs && [ -d "$pkgs/$1/share/doc" ] ; then
-        rm -r "$pkgs/$1/share/doc"
-    fi
-    if ! $mans && [ -d "$pkgs/$1/share/man" ] ; then
-        rm -r "$pkgs/$1/share/man"
-    fi
+    rm -r "$pkgs/$1/share/info" 2>/dev/null ||:
+    $docs || rm -r "$pkgs/$1/share/doc" 2>/dev/null ||:
+    $mans || rm -r "$pkgs/$1/share/man" 2>/dev/null ||:
 }
 # vi:syntax=sh
 # shellcheck shell=sh
