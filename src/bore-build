@@ -94,7 +94,7 @@ configure() {
 
         # params: flag_to_check flag_to_add
         addflag() {
-            grep -- "$1" $_tmp_help > /dev/null && 
+            grep -F -- "$1" $_tmp_help > /dev/null && 
                 printf "%s\n" "$2" >> $_tmp_flags
         }
 
