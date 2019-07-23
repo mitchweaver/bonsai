@@ -1,7 +1,7 @@
 info='command line wireless network client'
 version=2.5
 source=http://w1.fi/releases/$name-$version.tar.gz
-depends="libressl libnl-tiny dbus zlib"
+deps="libressl libnl-tiny dbus zlib"
 prebuild() {
     patch
     cd wpa_supplicant

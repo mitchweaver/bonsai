@@ -1,7 +1,7 @@
 info="GNU Bourne Again Shell"
 version=5.0
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
-depends=readline
+deps=readline
 build() {
     configure --without-bash-malloc
     make

@@ -1,7 +1,7 @@
 info='command line online file transfer and download tool'
 version=7.65.1
 source=http://curl.haxx.se/download/$name-$version.tar.xz
-depends='libressl zlib'
+deps='libressl zlib'
 build() {
     configure --disable-shared --enable-static \
               --without-librtmp --without-cyassl \

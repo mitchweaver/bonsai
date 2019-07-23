@@ -1,6 +1,6 @@
 version=1.13.12
 source=https://$name.freedesktop.org/releases/$name/$name-$version.tar.xz
-depends='expat pkgconf'
+deps='expat pkgconf'
 build() {
     configure --with-init-scripts=none \
               --with-dbus-user=messagebus \

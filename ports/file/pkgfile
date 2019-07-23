@@ -1,7 +1,7 @@
 info='standard file type identification utility'
 version=5.37
 source=ftp://ftp.astron.com/pub/$name/$name-$version.tar.gz
-depends=zlib
+deps=zlib
 build() {
     configure --disable-libseccomp
     make
