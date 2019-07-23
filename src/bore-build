@@ -113,6 +113,10 @@ configure() {
         $debug || addflag --with-debug    --without-debug &
         $tests || addflag --with-tests --without-tests &
         $tests && addflag --enable-extratests --enable-extratests &
+
+        for flag in $@ ; do
+            printf "%s\n" $flag >> $_tmp_flags
+        done &
         wait
     fi
 
