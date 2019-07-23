@@ -33,9 +33,9 @@ get() {
             msg "downloading $_url..."
             # note: curl has problems with many ${delim}s, so as a workaround 
             #       we perform this temporary file and rename it
-            curl -q -L -C - -# --url "$_url" -o "$pkgname"-download ||
+            curl -q -L -C - -# --url "$_url" -o "$name"-download ||
                 die "get(): could not download $name"
-            mv -f "$pkgname"-download "$_pkgid"
+            mv -f "$name"-download "$_pkgid"
         fi
         cp -f "$_pkgid" "$tmpdir"
 
@@ -67,8 +67,12 @@ get() {
 
         ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
 
-        mv -f "$tmpdir"/*/* "$workdir" || die "get(): failed to move unpacked tarball"
-        mv -f "$tmpdir"/*/.* "$workdir" 2> /dev/null
+        {
+            mv -f "$tmpdir"/*/* "$workdir"
+            find "$tmpdir" -name ".*" ! -name . | while read -r file ; do
+                mv -f "$file" "$workdir"
+            done
+        } || die "get(): failed to move unpacked tarball"
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
