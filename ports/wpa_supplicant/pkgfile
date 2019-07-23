@@ -1,31 +1,32 @@
-info='command line wireless network client'
+info='IEEE 802.1X/WPA wireless network client'
 version=2.5
 source=http://w1.fi/releases/$name-$version.tar.gz
-deps="libressl libnl-tiny dbus zlib"
+deps="libressl libnl-tiny zlib"
 prebuild() {
-    patch
-    cd wpa_supplicant
+patch
+cd wpa_supplicant
 
 cp -f defconfig .config
 cat >> .config << EOF
+# allow compilation under libnl-tiny
 CONFIG_LIBNL1_COMPAT=y
 CONFIG_LIBNL20=y
 CONFIG_LIBNL_TINY=y
 
-CONFIG_DRIVER_nl80211=y
-CONFIG_DRIVER_WEXT=n
-CONFIG_WPS=n
-
+# support both newer tls versions
 CONFIG_TLSV11=y
 CONFIG_TLSV12=y
 
-CFLAGS+="-D_GNU_SOURCE -I$root/include"
-LDFLAGS+="-L$root/lib"
+CFLAGS+="-D_GNU_SOURCE"
 EOF
+
+# only use nl80211, do not use legacy wext driver
+sed 's|CONFIG_DRIVER_WEXT=y|#CONFIG_DRIVER_WEXT=y|' .config > .config.tmp
+mv -f .config.tmp .config
 }
-build() {
-    make
-}
+
+build() { make ; }
+
 postbuild() {
     # wpa_supplicant's "make install" sucks.
     # to get around its nonsense just do things manually
@@ -42,11 +43,13 @@ postbuild() {
         install -Dm0644 doc/docbook/wpa_supplicant.conf.5 "$pkg"/share/man/man5/wpa_supplicant.conf.5
     fi
 
-    # note: this system.d is a dbus-internal, not actually systemd
-    #       do not remove this or your dbus will not work.
-    install -Dm0644 dbus/fi.w1.wpa_supplicant1.service "$pkg"/share/dbus-1/system-services/fi.w1.wpa_supplicant1.service
-    install -Dm0644 dbus/dbus-wpa_supplicant.conf "$pkg"/etc/dbus-1/system.d/wpa_supplicant.conf/dbus-wpa_supplicant.conf
-
+    mkdir "$pkg"/etc
     :> "$pkg"/etc/wpa_supplicant.conf
     chmod 0600 "$pkg"/etc/wpa_supplicant.conf
+
+    # ----- IF USING DBUS: -----------------------------------
+    # note: this system.d is a dbus-internal, not actually systemd
+    #       do not remove this or your dbus will not work.
+    # install -Dm0644 dbus/fi.w1.wpa_supplicant1.service "$pkg"/share/dbus-1/system-services/fi.w1.wpa_supplicant1.service
+    # install -Dm0644 dbus/dbus-wpa_supplicant.conf "$pkg"/etc/dbus-1/system.d/wpa_supplicant.conf/dbus-wpa_supplicant.conf
 }
