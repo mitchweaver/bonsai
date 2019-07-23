@@ -1,9 +1,9 @@
 info="GNU Bourne Again Shell"
 version=5.0
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
-deps=readline
+deps=libedit
 build() {
-    configure --without-bash-malloc
-    make
+    LIBS='-lreadline -lcurses' configure --without-bash-malloc >/dev/null
+    make -s > /dev/null
     make install
 }
