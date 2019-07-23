@@ -61,6 +61,14 @@ test_link() {
 
 basename() { printf "%s" "${1##*/}" ; }
 
+# remove leading/trailing whitespace
+trim() {
+    trim="${1#${1%%[! ]*}}"
+    trim="${trim%${_##*[! ]}}"
+    printf '%s\n' "$trim"
+    unset trim
+}
+
 # converts "bash#4.8" -> "bash"
 pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 
