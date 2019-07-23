@@ -26,14 +26,7 @@ main() {
 
     while [ $# -gt 0 ] ; do
         case "$1" in
-            add|-a)
-                shift
-                [ "$1" ] || die "addpkg(): no pkg given"
-                while [ $# -gt 0 ] ; do
-                    addpkg "$1"
-                    shift
-                done
-                ;;
+            add|-a) shift ; addpkg "$@" ; exit $?  ;;
             del|-d)
                 shift
                 [ "$1" ] || die "delpkg(): no pkg given"
