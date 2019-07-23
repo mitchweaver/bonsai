@@ -62,6 +62,7 @@ docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
 quiet=false # configure/make silently without warnings?
 debug=false # compile in debugging tools/information?
+tests=false # compile included tests?
 prompt='→'  # msg prompt
 
 # package/version delimiter
