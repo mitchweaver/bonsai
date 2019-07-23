@@ -1,3 +1,4 @@
+info='gobj message bus system'
 version=1.13.12
 source=https://$name.freedesktop.org/releases/$name/$name-$version.tar.xz
 deps='expat pkgconf'
