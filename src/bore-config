@@ -12,13 +12,18 @@ loadconfig() {
     if [ "$_root" ] ; then
         root="$_root"
     fi
-    root=${root:=${HOME}/.local/bore}
-    borehome="$root"/src
-    boredb="$borehome"/bore.db
-    pkgs="$borehome"/pkgs
-    ports="$borehome"/ports
-    sources="$borehome"/sources
-    work="$borehome"/work
+    
+   
+    # set default variables if not in config file
+    # and make necessary directories
+    mkdir -p "${root:="${HOME}/.local/bore"}" \
+             "${borehome:="$root/src"}" \
+             "${pkgs:="$borehome/pkgs"}" \
+             "${ports:="$borehome/ports"}" \
+             "${sources:="$borehome/sources"}" \
+             "${work:="$borehome/work"}"
+
+    : "${boredb:="$borehome/bore.db"}"
 
     [ "$_gcc" ] && gcc="$_gcc"
 
@@ -51,11 +56,10 @@ gcc="$root/bin/gcc"
 
 # flags
 makeflags=''
-cflags="-I. -I$root/include -static --static -s -Os -pipe -Wl,--gc-sections -march=native -w"
-ldflags="-L. -L$root/lib -static --static -s -fdata-sections -ffunction-sections"
+cflags="-static --static -s -Os -pipe -Wl,--gc-sections -march=native -w"
+ldflags="-static --static -s -fdata-sections -ffunction-sections"
 cppflags='-static --static'
 cxxflags='-static --static'
-pkgcfgflags='--static'
 
 # options
 keep_tarballs=true
