@@ -2,13 +2,19 @@ info='a lightweight drop-in replacement for pkg-config'
 version=1.6.3
 source=http://distfiles.dereferenced.org/$name/$name-$version.tar.xz
 build() {
-    configure --with-system-libdir="$root"/lib:/lib \
-              --with-system-includedir="$root"/include:/include \
-              --with-pkg-config-dir="$root"/lib/pkgconfig:/lib/pkgconfig
+   # Instead of using these, prefer to use $PKG_CONFIG_PATH
+   # environment variable for more flexibility
+   # --with-system-libdir="$root/lib:/lib" \
+   # --with-system-includedir="$root/include:/include" \
+   # --with-pkg-config-dir="$root/lib/pkgconfig:/lib/pkgconfig"
+   
+    configure
     make
     make install
 }
 postbuild() {
     cd "$pkgs"/$name/bin
     ln -sf pkgconf pkg-config
+    echo "export PKG_CONFIG_PATH=\"/lib/pkgconfig:$root/lib/pkgconfig\"" \
+        >> "$root"/etc/profile
 }
