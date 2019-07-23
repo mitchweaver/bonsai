@@ -1,11 +1,12 @@
 # runs build() method inside a pkgfile! -name readme 
 # params: $name
 run_build() { 
+    msg "building $name..."
+
     getflags
     GNU_sucks
 
-    msg "building $name..."
-
+    # run user defined prebuild(), if exists
     if defined prebuild ; then
         prebuild || die "$1 prebuild() failed"
     else # else, try to apply any patches (convenience)
@@ -29,7 +30,7 @@ run_build() {
 }
 
 # convenience functions
-cc() { $cc "$@" ; }
+cc()  { $cc "$@"  ; }
 gcc() { $gcc "$@" ; }
 
 getflags() {
@@ -83,10 +84,16 @@ configure() {
     ! $debug && _debug='--disable-debug --disable-debugger'
     $quiet   && _quiet='--silent --quiet'
 
-    if [ -f configure ] ; then
+    if [ -s configure ] ; then
         # try to enable as many options as possible
         # if they are allowed in the configure script
         allowed=""
+        addflag() { allowed="$allowed $1" ; }
+        checkaddflag() {
+            grep -- "$1" "$tmp_help" > /dev/null && 
+                addflag "$2"
+        }
+
         tmp_help=/tmp/$PKG_MGR_NAME-$$.tmp
         ./configure --help > "$tmp_help"
 
@@ -94,28 +101,24 @@ configure() {
                     --disable-rpath --disable-option-checking --without-tests \
                     --disable-dependency-tracking --without-ada --without-shared \
                     $_quiet $_debug $_nls $_docs ; do
-            grep -- "$flag" "$tmp_help" > /dev/null && allowed="$allowed $flag"
+            checkaddflag "$flag" "$flag"
         done
 
-        grep -- --enable-shared "$tmp_help" > /dev/null &&
-            allowed="$allowed --disable-shared"
-        grep -- --enable-tests "$tmp_help" > /dev/null &&
-            allowed="$allowed --disable-tests"
-        grep -- --with-debug "$tmp_help" > /dev/null &&
-            allowed="$allowed --without-debug"
-        grep -- --with-tests "$tmp_help" > /dev/null &&
-            allowed="$allowed --without-tests"
+        checkaddflag --enable-shared --disable-shared
+        checkaddflag --enable-tests  --disable-tests
+        checkaddflag --with-debug    --without-debug
+        checkaddflag --with-tests    --without-tests
 
         rm -f "$tmp_help"
         __prefix="--prefix=$PREFIX"
+        unset -f addflag checkaddflag
     fi
 
     set -- "$__prefix" "$allowed" "$@"
     ./$FILE "$*"
 
     set $?
-    unset allowed flag tmp_help _docs _nls \
-          _debug _quiet __prefix FILE
+    unset allowed flag tmp_help _docs _nls _debug _quiet __prefix FILE
     return "$1"
 }
 
