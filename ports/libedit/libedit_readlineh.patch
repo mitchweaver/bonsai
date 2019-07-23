@@ -1,0 +1,26 @@
+// patch taken courtesy of the Sabotage Linux project
+// see: http://github.com/sabotage-linux/sabotage/blob/master/KEEP/libedit_readlineh.patch
+--- src/editline/readline.h
++++ src/editline/readline.h_new
+@@ -75,9 +75,7 @@
+ 
+ #ifndef CTRL
+ #include <sys/ioctl.h>
+-#if !defined(__sun) && !defined(__hpux) && !defined(_AIX)
+-#include <sys/ttydefaults.h>
+-#endif
++/* sys/ttydefaults.h commented out in musl version */
+ #ifndef CTRL
+ #define CTRL(c)		((c) & 037)
+ #endif
+@@ -105,6 +103,10 @@
+ extern int		 rl_point, rl_end;
+ extern int		 history_base, history_length;
+ extern int		 max_input_history;
++/* compatibility fix: max_input_history was renamed to 
++   history_max_entries in readline 4.2, this is required
++   to build gdb 7.6 against libedit */
++#define history_max_entries max_input_history
+ extern char		*rl_basic_word_break_characters;
+ extern char		*rl_completer_word_break_characters;
+ extern char		*rl_completer_quote_characters;

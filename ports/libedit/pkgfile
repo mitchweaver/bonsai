@@ -1,0 +1,22 @@
+info="port of NetBSD's libedit library"
+version=3.1
+source=https://thrysoee.dk/editline/$name-20190324-$version.tar.gz
+depends=netbsd-curses
+build() {
+    CFLAGS="$CFLAGS -D_BSD_SOURCE" configure --enable-widec
+    make
+    make install
+}
+postbuild() {
+    # create symlinks to be a drop-in replacement for readline
+    cd "$pkg"/lib
+    ln -sf libedit.a libreadline.a
+    ln -sf libedit.so libreadline.so
+    cd "$pkg"/include
+    mkdir readline
+    ln -sf ../editline/readline.h readline/readline.h
+
+    # create empty header files compatibility
+    :> readline/history.h
+    :> readline/tilde.h
+}
