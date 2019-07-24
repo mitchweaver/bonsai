@@ -21,7 +21,9 @@ addpkg() {
 
         [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
         . "$pkgfile"
-        export version source
+        : "${version:=unknown}"
+        pkgid="${name}${delim}${version}"
+        export version source pkgid
     }
 
     # unsets vars as not to persist from pkg to pkg
@@ -59,9 +61,6 @@ addpkg() {
             return 1
         fi
 
-        [ "$version" ] || version='unknown'
-        pkgid="${pkgname}${delim}${version}"
-
         case "$source" in
             # if meta package, will not have a source
             # do not try to download
@@ -90,6 +89,9 @@ addpkg() {
     }
 
     for pkg in "$@" ; do
+        # clear any work from previous build
+        rm -rf "${work:?}"
+
         # grab initial package variables
         load_pkgfile "$pkg"
 
