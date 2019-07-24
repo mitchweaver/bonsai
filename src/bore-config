@@ -74,7 +74,8 @@ delim='#'
 
 # flags
 # warning: do not change these unless you seriously know what you're doing.
-cflags="-static --static -no-pie -s -Os -pipe -march=native -ffast-math -Wl,--gc-sections -w"
+cflags="-static --static -s -w -Os -no-pie -pipe -march=native -ffast-math"
+cflags="$cflags -Wl,--gc-sections -fstack-protector-strong"
 ldflags="-static --static -s -fdata-sections -ffunction-sections"
 cppflags='-static --static'
 cxxflags='-static --static'
