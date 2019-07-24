@@ -8,7 +8,7 @@ get() {
         ext=""
     else
         ext=".${source##*.}"
-        grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar${ext}"
+        grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar$ext"
     fi
 
     # NOTE: Downloading via git comes highly unrecommended.
@@ -24,8 +24,11 @@ get() {
     # downloads given url to $sources
     dlcurl() {
         msg "downloading $source..."
-        curl -q -L -C - -# --url "$source" -o "$dldir/${pkgid}${ext}"
-        ${keep_tarballs:=true} && cp -f "$dldir/${pkgid}${ext}" "$sources"/
+        # curl bugs out with certain delimiters,
+        # as a fix have curl output to a temporary file, then rename
+        curl -q -L -C - -# --url "$source" -o "$dldir/curl-$name-dl$ext"
+        mv "$dldir/curl-$name-dl$ext" "$dldir/$pkgid$ext"
+        ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
     }
 
     # extracts given archive/file to $workdir
@@ -51,11 +54,11 @@ get() {
     }
 
     # download tarball only if not in $sources
-    if [ ! -e "$sources/${pkgid}${ext}" ] ; then
+    if [ ! -e "$sources/$pkgid$ext" ] ; then
         dlcurl "$source" || die "get(): could not download $name"
-        extract "$dldir/${pkgid}${ext}"
+        extract "$dldir/$pkgid$ext"
     else
-        extract "$sources/${pkgid}${ext}"
+        extract "$sources/$pkgid$ext"
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
