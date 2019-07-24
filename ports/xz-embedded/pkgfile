@@ -1,0 +1,12 @@
+info='tiny xz decompressor utility'
+version=20130513
+source=https://tukaani.org/xz/$name-$version.tar.gz
+build() {
+    cd userspace
+    make
+    install -Dm0755 xzminidec "$pkg"/bin/xzminidec
+}
+postbuild() {
+    cd "$pkg"/bin
+    ln -sf xzminidec xz-embedded
+}
