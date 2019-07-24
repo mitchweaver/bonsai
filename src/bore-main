@@ -1,12 +1,38 @@
-PKG_MGR_NAME=$(basename "$0")
-LC_ALL=C
-LANG=C
-export PKG_MGR_NAME LC_ALL LANG
+initglobals() {
+    # unset any env variables that could interfere
+    unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+        LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
+        OBJC_INCLUDE_PATH PKG_CONFIG
 
-# unset any env variables that could interfere
-unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-      LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
-      OBJC_INCLUDE_PATH PKG_CONFIG
+    PKG_MGR_NAME=$(basename "$0")
+    PATH="$PATH:$root/bin"
+    LC_ALL=C
+    LANG=C
+    export PATH PKG_MGR_NAME LC_ALL LANG
+
+    # if not inside the chroot,
+    # prefer to use chroot's tools, (if they exist), over the host system's
+    if [ "$root" != / ] ; then
+        check() {
+            test -x "$root"/bin/$1
+            return $?
+        }
+        check grep  && GREP="$root"/bin/grep   && export GREP
+        check sed   && SED="$root"/bin/sed     && export SED
+        check awk   && AWK="$root"/bin/awk     && export AWK
+        check mkdir && MKDIR="$root"/bin/mkdir && export MKDIR
+        check echo  && ECHO="$root"/bin/echo   && export ECHO
+        check find  && FIND="$root"/bin/find   && export FIN
+        check mv    && MV="$root"/bin/mv       && export MV
+        check rm    && RM="$root"/bin/rm       && export RM
+        check tar   && TAR="$root"/bin/tar     && export TAR
+        check seq   && SEQ="$root"/bin/seq     && export SEQ
+        check sort  && SORT="$root"/bin/sort   && export SOR
+        check xargs && XARGS="$root"/bin/xargs && export XAR
+        check make  && MAKE="$root"/bin/make   && export MAKE
+        unset -f check
+    fi
+}
 
 main() {
     [ $# -eq 0 ] && usage
@@ -22,6 +48,7 @@ main() {
     esac
 
     loadconfig "$@"
+    initglobals
     create_root_dirs "$root"
 
     while [ $# -gt 0 ] ; do
