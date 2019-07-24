@@ -14,7 +14,7 @@ linkpkg() {
         *) die "linkpkg(): invalid number of arguments"
     esac
 
-    [ -d "$pkgs/$pkgname" ] || 
+    ismetapkg "$1" || [ -d "$pkgs/$pkgname" ] || 
         die "linkpkg(): port '$pkgname' does not seem to be installed"
 
     cd "$root" || die "linkpkg(): unable to cd to $root"

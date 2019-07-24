@@ -9,9 +9,6 @@ addpkg() {
             die "port $pkg is already installed"
     done
 
-    # check if gcc is functional
-    validate_gcc $1
-
     # params: $name
     load_pkgfile() {
         pkg="$pkgs"/"$1"
@@ -52,6 +49,8 @@ addpkg() {
 
     # adds the given $name
     add() {
+        ismetapkg "$name" || validate_gcc $1
+
         # clear any work from previous build
         rm -rf "${work:?}" 2>/dev/null ||:
 

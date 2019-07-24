@@ -83,13 +83,19 @@ clean() {
     unset dir
 }
 
+# returns if given $name is a metapkg
+ismetapkg() {
+    grep '^metapkg=true$' "$ports/$1/pkgfile" > /dev/null
+    return $?
+}
+
 # if we're using pkg mgr's built in gcc, make sure its valid/existant
 # if its not -- check to see if we're trying to download one
 # ... if not, we cannot compile packages -- error out
 validate_gcc() {
     if [ ! -x "$gcc" ] ; then
         case $1 in
-            core-system|*gcc*|bore) ;;
+            *gcc*|bore) ;;
             *) 
             if [ -e "$gcc" ] ; then
                 die "No compiler toolchain has yet been installed.
