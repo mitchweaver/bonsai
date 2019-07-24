@@ -3,5 +3,5 @@ version=0.7
 source=http://github.com/michaelforney/$name/releases/download/$version/$name-$version.tar.gz
 postbuild() {
     cd "$pkg"/bin
-    ln -s samu ninja
+    ln -sf samu ninja
 }
