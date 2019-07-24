@@ -124,7 +124,7 @@ sanity_check() {
 
 # check if all dependencies are met on startup
 check_deps() {
-    for prog in gzip bzip2 xz ; do
+    for prog in gzip bzip2 xz-embedded ; do
         has $prog || warn "$prog is not installed. Some ports may not extract."
     done
     has curl || warn "curl is not installed. Some ports may not download."

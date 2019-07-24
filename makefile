@@ -42,9 +42,9 @@ ignores = -e 1090 -e 2154 -e SC2068 -e SC2046 -e SC2086
 # SC2068: for i in $@ ; do : ; done --- loop array splitting
 #         This is always done intentionally.
 # SC2046 + 2086: Word splitting
-# 		  This one is the hardest to ignore, but it is the
-# 		  one most carefully managed. When words are split,
-# 		  they are done intentionally.
+# 		  This one is the hardest to ignore,
+# 		  but it is the one most carefully managed.
+# 		  When words are split, they are done so intentionally.
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"

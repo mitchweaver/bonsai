@@ -1,6 +1,10 @@
 info="musl-libc gcc toolchain for x86_64 (statically compiled)"
 version=9.1.0
+
+# note: for now, we are only targeting x86_64
+#       more archetectures are planned to be tested in the future
 source="$(curl -s -q -L http://musl.cc | grep x86_64.*.musl-native | head -n 1)"
+
 build() {
     cp -rf ./* "$pkgs/$name"
     cp -rf ./.* "$pkgs/$name" 2> /dev/null ||:

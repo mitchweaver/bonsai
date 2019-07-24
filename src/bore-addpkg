@@ -26,7 +26,7 @@ addpkg() {
 
     # unsets vars as not to persist from pkg to pkg
     unload_pkgfile() {
-        unset pkgname pkgfile pkgid version depends deps
+        unset pkgname pkgfile pkgid version source depends deps
         unset -f prebuild build postbuild
     }
 
@@ -92,7 +92,7 @@ addpkg() {
     }
     
     # the packages asked to install
-    main_packages="$@"
+    main_packages="$*"
     # clear array, we will use it to build the list
     set --
 
@@ -109,10 +109,10 @@ addpkg() {
             "") ;;
             "* *") ;;
             *) for dep in $pkgdeps ; do
-                   isinst "$dep" > /dev/null || set -- "$@ $dep"
+                   isinst "$dep" > /dev/null || set -- "$* $dep"
                done
         esac
-        set -- "$@ $mainpkg"
+        set -- "$* $mainpkg"
         unload_pkgfile
     done
 
