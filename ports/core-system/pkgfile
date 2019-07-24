@@ -1,4 +1,3 @@
 info="the $PKG_MGR_NAME base system"
 deps='bore gcc xz-embedded gzip bzip2 sbase ubase 9base dash make patch curl'
 metapkg=true
-build() { : ; }
