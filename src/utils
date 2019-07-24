@@ -122,16 +122,6 @@ sanity_check() {
     mkdir -p "$borehome" "$pkgs" "$ports" "$sources" "$work"
 }
 
-# check if all dependencies are met on startup
-check_deps() {
-    for prog in gzip bzip2 xz-embedded ; do
-        has $prog || warn "$prog is not installed. Some ports may not extract."
-    done
-    has curl || warn "curl is not installed. Some ports may not download."
-    has patch || warn "patch is not installed. Some ports may not compile."
-    unset prog
-}
-
 gccinfo() {
     getflags
     printf "%s\n\n" "version: $($gcc -dumpversion)"

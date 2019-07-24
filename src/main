@@ -38,7 +38,6 @@ initglobals() {
 
 main() {
     [ $# -eq 0 ] && usage
-    [ $1 = chroot ] || check_deps
 
     case "$1" in
         *skeleton|skel) shift ; create_skeleton_config "$1" ; exit ;;
@@ -52,6 +51,7 @@ main() {
     loadconfig "$@"
     initglobals
     create_root_dirs "$root"
+    setup_profile
 
     while [ $# -gt 0 ] ; do
         case "$1" in

@@ -46,7 +46,11 @@ get() {
             .tar.*|.tgz)
                 decompress "$1" | tar -C "$dldir" -xf -
                 # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
-                mv -f "$dldir"/*/* "$workdir"/ 2> /dev/null ||:
+                mv "$dldir"/*/*  "$workdir"
+                # copy any hidden files
+                find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
+                    mv "$file" "$workdir"
+                done
                 ;;
             # if not a tarball, simply write to $workdir
             *) decompress "$1" > "$workdir/${1%%$ext}"
@@ -62,7 +66,7 @@ get() {
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
-    find "$ports/$name"/* ! -name pkgfile | while read -r file ; do
+    find "$ports/$name" ! -name pkgfile | while read -r file ; do
         cp -f "$file" "$workdir"
     done
     unset workdir dldir ext file

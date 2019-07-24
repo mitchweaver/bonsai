@@ -9,7 +9,7 @@ create_root_dirs() {
         perm="$1"
         shift
         for dir in "$@" ; do
-            [ -d $dir ] || mkdir -m "$perm" "$dir"
+            mkdir -m "$perm" "$dir" 2>/dev/null ||:
         done
     }
 
@@ -38,7 +38,17 @@ create_root_dirs() {
 
     unset -f link
     unset dir manX perm
-    cd - > /dev/null || die "create_root_dirs(): could not return from cd"
+    cd - >/dev/null || die "create_root_dirs(): could not return from cd"
+}
+setup_profile() {
+    add() {
+        grep "^$1$" "$root"/etc/profile >/dev/null 2>&1 ||
+            echo "$1" >> "$root"/etc/profile
+    }
+    add 'export PATH="/bin:/local/bin:${HOME}/bin:${HOME}/.local/bin"'
+#    add 'export POSIXLY_CORRECT=1'
+#    add 'umask 022'
+    unset -f add
 }
 # vi:syntax=sh
 # shellcheck shell=sh

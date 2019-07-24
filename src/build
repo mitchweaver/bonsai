@@ -34,7 +34,8 @@ cc()  { $cc  -static -Os -s "$@" ; }
 gcc() { $gcc -static -Os -s "$@" ; }
 
 getflags() {
-    [ -f "$root"/etc/profile ] && . "$root"/etc/profile
+#    causing issues, for now remove
+#    [ -f "$root"/etc/profile ] && . "$root"/etc/profile
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
     CFLAGS="$CFLAGS $cflags"
