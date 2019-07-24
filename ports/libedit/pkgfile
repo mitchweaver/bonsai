@@ -1,7 +1,7 @@
 info="port of NetBSD's libedit library"
 version=3.1
 source=https://thrysoee.dk/editline/$name-20190324-$version.tar.gz
-depends=netbsd-curses
+deps=netbsd-curses
 build() {
     CFLAGS="$CFLAGS -D_BSD_SOURCE" configure --enable-widec
     make
