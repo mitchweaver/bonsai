@@ -1,16 +1,15 @@
-# downloads a given url and extracts to $work/$pkg
-# params: $url, $version
-# assumes: $name in ENV
+# downloads url and extracts to $work/$pkg
+# assumes: $name $version $source $pkgid $pkgfile in environment
 get() {
-    _url="$source"
-    _version="$version"
-    _pkgid="${name}${delim}${_version}"
-    tmpdir=/tmp/$PKG_MGR_NAME-$$.tmp
     workdir="$work/$name"
-
-    clean
-    mkdir -p "$tmpdir" "$sources" "$workdir"
-    cd "$sources" || die "get(): could not cd to $sources"
+    dldir="$work/dl"
+    mkdir -p "$workdir" "$dldir"
+    if [ "$version" = git ] ; then 
+        ext=""
+    else
+        ext=".${source##*.}"
+        grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar${ext}"
+    fi
 
     # NOTE: Downloading via git comes highly unrecommended.
     #       This makes packages depend on git, which is
@@ -18,77 +17,53 @@ get() {
     #       Instead, download a tarball from a commit hash using this format:
     #       version=<SHA_HASH>
     #       source=http://github.com/<GITHUB_USER>/$name/archive/$version.tar.gz
-    if [ "$_version" = git ] ; then
+    dlgit() {
+        : # todo
+    }
 
-        if [ ! -d "$_pkgid" ] ; then
-            msg "cloning $_url..."
-            git clone -q --progress --depth 1 "$_url" "$tmpdir" || \
-                die "get(): could not clone $_url"
-            mv -f "$tmpdir"/* "$workdir"
-            $keep_tarballs && cp -rf "$workdir" "$sources"/"$_pkgid"
-        else
-            if [ -d "$workdir" ] ; then
-                sanity_check && rm -rf "$workdir"
-            fi
-            cp -rf "$sources"/"$_pkgid" "$workdir"
-        fi
+    # downloads given url to $sources
+    dlcurl() {
+        msg "downloading $source..."
+        curl -q -L -C - -# --url "$source" -o "$dldir/${pkgid}${ext}"
+        ${keep_tarballs:=true} && cp -f "$dldir/${pkgid}${ext}" "$sources"/
+    }
 
-    else # we are downloading with curl
-
-        if [ ! -f "$_pkgid" ] ; then
-            msg "downloading $_url..."
-            # note: curl has problems with many ${delim}s, so as a workaround 
-            #       we perform this temporary file and rename it
-            curl -q -L -C - -# --url "$_url" -o "$name"-download ||
-                die "get(): could not download $name"
-            mv -f "$name"-download "$_pkgid"
-        fi
-        cp -f "$_pkgid" "$tmpdir"
-
-        case $(file -L "$tmpdir"/*) in
-            *tgz*) ext=tgz   ;;
-            *'gzip comp'*)  ext=gz    ;;
-            *'bzip2 comp'*) ext=bz2   ;;
-            *'XZ comp'*)    ext=xz    ;;
-            *) die "get(): could not discern compression type of $name"
-        esac
-
-        # decompressors bug out if no extension...
-        mv -f "$tmpdir"/* "$tmpdir/${name}.${ext}"
-
+    # extracts given archive/file to $workdir
+    extract() {
         msg "extracting $name"...
-        case $ext in
-            xz)     xz      -d "$tmpdir"/* ;;
-            gz|tgz) gunzip  -d "$tmpdir"/* ;;
-            bz2)    bunzip2 -d "$tmpdir"/* ;;
-            *) die "get(): unknown compression algorithm"
-        esac || die "get(): failed to decompress $name"
+        decompress() {
+            case "${ext##*.}" in
+                xz)     xz      -dc "$1" ;;
+                gz|tgz) gunzip  -dc "$1" ;;
+                bz2)    bunzip2 -dc "$1" ;;
+                zip)    unzip   -p  "$1" ;;
+            esac || die "get(): failed to decompress $1"
+        }
+        case "$ext" in
+            .tar.*|.tgz)
+                decompress "$1" | tar -C "$dldir" -xf -
+                # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
+                mv -f "$dldir"/*/* "$workdir"/ 2> /dev/null ||:
+                ;;
+            # if not a tarball, simply write to $workdir
+            *) decompress "$1" > "$workdir/${1%%$ext}"
+        esac || die "get(): failed to extract $1"
+    }
 
-        if file -L "$tmpdir"/* | grep 'tar archive' > /dev/null ; then
-            ext=tar.${ext}
-            mv "$tmpdir"/* "$tmpdir/${name}".tar
-            tar -xf "$tmpdir/${name}.tar" -C "$tmpdir"/ || 
-                die "get(): tar could not extract $_pkgid.$ext"       
-        fi
-
-        ! $keep_tarballs && rm -f "$sources"/"$_pkgid" 
-
-        {
-            mv -f "$tmpdir"/*/* "$workdir"
-            find "$tmpdir" -name ".*" ! -name . | while read -r file ; do
-                mv -f "$file" "$workdir"
-            done
-        } || die "get(): failed to move unpacked tarball"
+    # download tarball only if not in $sources
+    if [ ! -e "$sources/${pkgid}${ext}" ] ; then
+        dlcurl "$source" || die "get(): could not download $name"
+        extract "$dldir/${pkgid}${ext}"
+    else
+        extract "$sources/${pkgid}${ext}"
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
     find "$ports/$name"/* ! -name pkgfile | while read -r file ; do
         cp -f "$file" "$workdir"
     done
-
-    rm -rf "${tmpdir:?}"
-
-    unset _url _version _pkgid ext tmpdir file workdir
+    unset workdir dldir ext file
+    unset -f dlgit dlcurl extract decompress
 }
 # vi:syntax=sh
 # shellcheck shell=sh
