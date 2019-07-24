@@ -1,0 +1,5 @@
+This 9base is patched to only provide the tools that sbase and ubase lack.
+
+For example, it will include `awk`, but it will not include `sed`.
+
+Installing this is part of the core system. You shouldn't need to install manually.

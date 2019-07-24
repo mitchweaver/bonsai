@@ -1,11 +1,6 @@
-# At the time of writing, a musl-compatible release
-# has not been issued. Instead of a ton of patches, it's
-# easier here to simply clone the most recent snapshot via git.
-version=git
-source=http://git.suckless.org/9base
+version=09e95a2d6f8dbafc6601147b2f5f150355813be6
+source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 build() {
-    # not sure why 9base bugs out with our custom make function
-    # for now, just go without it with `command` 
-    command make CC="$cc" LDFLAGS=-static PREFIX="$PREFIX"
+    make
     make install
 }

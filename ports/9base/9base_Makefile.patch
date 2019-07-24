@@ -1,36 +1,38 @@
---- Makefile    	2019-07-07 19:46:27.516439190 +0000
-+++ Makefile_new	2019-07-07 19:44:48.240310000 +0000
+--- Makefile    	2019-07-24 17:01:08.864080155 -0500
++++ Makefile_new	2019-07-24 17:14:18.470780056 -0500
 @@ -2,63 +2,65 @@
  
  include config.mk
  
--SUBDIRS  = lib9\
--	yacc\
--	ascii\
--	awk\
++# note: here we comment out all tools already
++# 		included between 9base and ubase
+ SUBDIRS  = lib9\
+ 	yacc\
+ 	ascii\
+ 	awk\
 -	basename\
--	bc\
--	cal\
+ 	bc\
+ 	cal\
 -	cat\
 -	cleanname\
 -	cmp\
 -	date\
--	dc\
+ 	dc\
 -	du\
 -	dd\
--	diff\
+ 	diff\
 -	echo\
 -	ed\
--	factor\
+ 	factor\
 -	fortune\
--	fmt\
+ 	fmt\
 -	freq\
 -	getflags\
 -	grep\
 -	hoc\
 -	join\
 -	listen1\
--	look\
+ 	look\
 -	ls\
 -	md5sum\
 -	mk\
@@ -61,65 +63,52 @@
 -	unutf\
 -	urlencode\
 -	wc
-+SUBDIRS  = lib9 \
-+	yacc \
-+	ascii \
-+	awk \
-+	bc \
-+	dc \
-+	dd \
-+	diff \
-+	factor \
-+	fmt \
-+	look \
-+	mk \
-+	troff \
-+	uniq
-+
-+	# rc \
-+	# listen1\
-+	# grep
-+	# hoc\
-+	# basename\
-+	# cal\
-+	# cat\
-+	# cleanname\
-+	# cmp\
-+	# date\
-+	# dc\
-+	# du\
-+	# echo\
-+	# ed\
-+	# fortune\
-+	# freq\
-+	# getflags\
-+	# join\
-+	# ls\
-+	# md5sum\
-+	# mkdir\
-+	# mtime\
-+	# pbd\
-+	# primes\
-+	# read\
-+	# rm\
-+	# sam\
-+	# sha1sum\
-+	# sed\
-+	# seq\
-+	# sleep\
-+	# sort\
-+	# split\
-+	# ssam\
-+	# strings\
-+	# tail\
-+	# tee\
-+	# test\
-+	# touch\
-+	# tr\
-+	# unicode\
-+	# unutf\
-+	# urlencode\
-+	# wc
++	mk
++#	basename\
++#	cat\
++#	cleanname\
++#	cmp\
++#	date\
++#	dd\
++#	du\
++#	echo\
++#	ed\
++#	fortune\
++#	freq\
++#	getflags\
++#	grep\
++#	hoc\
++#	join\
++#	listen1\
++#	ls\
++#	md5sum\
++#	mkdir\
++#	mtime\
++#	pbd\
++#	primes\
++#	rc\
++#	read\
++#	rm\
++#	sam\
++#	sha1sum\
++#	sed\
++#	seq\
++#	sleep\
++#	sort\
++#	split\
++#	ssam\
++#	strings\
++#	tail\
++#	tee\
++#	test\
++#	touch\
++#	tr\
++#	troff\
++#	unicode\
++#	uniq\
++#	unutf\
++#	urlencode\
++#	wc
  
  all:
  	@echo 9base build options:
