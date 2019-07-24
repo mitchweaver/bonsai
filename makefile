@@ -32,15 +32,19 @@ clean:
 uninstall:
 	@echo "Unsafe. Please do this manually."
 
-ignores = -e 1090 -e 2154
+ignores = -e 1090 -e 2154 -e SC2068 -e SC2046 -e SC2086
 # ----- ShellCheck Explanations --------
 # SC1090: "at run-time file sourcing" ie '. $pkgfile'
 #         We use this to import each package's variables.
-#         This is not an error
 # SC2154: "var referenced but not assigned"
 # 		  All of the config variables are set
 # 		  at run time when the config is sourced.
-# 		  This is not an error.
+# SC2068: for i in $@ ; do : ; done --- loop array splitting
+#         This is always done intentionally.
+# SC2046 + 2086: Word splitting
+# 		  This one is the hardest to ignore, but it is the
+# 		  one most carefully managed. When words are split,
+# 		  they are done intentionally.
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"
