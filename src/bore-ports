@@ -18,6 +18,7 @@ search() {
 # in the order needed to be installed
 # param: $name
 pkgdeps() {
+    arg=$1
     dep_recurse() {
         unset deps
         if [ -f "$ports/$1/pkgfile" ] ; then
@@ -27,28 +28,25 @@ pkgdeps() {
         fi
 
         if [ "$deps" ] ; then
-            pkgdeps=" $deps $pkgdeps "
+            for dep in $deps ; do
+                case "$to_check" in
+                    *" $dep "*) ;; # dependency is already in list
+                    *) to_check=" $deps $pkgdep "
+                esac
+            done
+
             for dep in $deps ; do
                 dep_recurse "$dep"
             done
         fi
+        [ $1 != $arg ] && pkgdeps="$pkgdeps $1"
     }
-    dep_recurse "$1"
+    dep_recurse "$arg"
 
-    # remove any duplicates
-    for dep in $pkgdeps ; do
-        case "$pkgdeps" in
-            *" $dep "*) ;; # dependency is already in list
-            *) pkgdeps=" $pkgdeps $dep "
-        esac
-    done
-
-    # trim leading/trailing whitespace
-    pkgdeps="$(trim "$pkgdeps")"
     export pkgdeps
 
     unset -f dep_recurse
-    unset dep
+    unset dep deps arg
 }
 
 

@@ -38,7 +38,7 @@ addpkg() {
         # prompt user before continuing
         warn "these packages will be installed:"
         # note: $dep_needed is padded by spaces
-        printf "\n  %s\n\n" "$main_packages$deps_needed"
+        printf "\n  %s\n\n" "$1"
         if [ -z "$NO_PROMPT" ] ; then
             msg_no_nl "continue? (y/n): "
             read -r ans
@@ -52,10 +52,13 @@ addpkg() {
 
     # adds the given $name
     add() {
+        # clear any work from previous build
+        rm -rf "${work:?}" 2>/dev/null ||:
+
         unload_pkgfile
         load_pkgfile "$1"
 
-        if isinst "$name" > /dev/null ; then
+        if isinst "$name" >/dev/null ; then
             msg "port $name is already installed"
             unload_pkgfile
             return 1
@@ -87,48 +90,40 @@ addpkg() {
         trap - INT TERM
         unload_pkgfile
     }
+    
+    # the packages asked to install
+    main_packages="$@"
+    # clear array, we will use it to build the list
+    set --
 
-    for pkg in "$@" ; do
-        # clear any work from previous build
-        rm -rf "${work:?}"
-
+    for mainpkg in $main_packages ; do
         # grab initial package variables
-        load_pkgfile "$pkg"
+        load_pkgfile "$mainpkg"
 
-        # the packages we will install
-        main_packages="$main_packages $name"
+        # search for dependencies, the value is stored in $pkgdeps
+        pkgdeps "$mainpkg"
 
-        # search for dependencies of the initial package
-        # the value is stored in $pkgdeps
-        pkgdeps "$name"
-
-        # add any deps to $deps_needed
+        # add deps to list, before the main package
         case "$pkgdeps" in
             # if deps is unset or empty string, there are no deps
             "") ;;
             "* *") ;;
-            *) 
-                for dep in $pkgdeps ; do
-                    isinst "$dep" > /dev/null || 
-                        deps_needed="$deps_needed $dep"
-                done
+            *) for dep in $pkgdeps ; do
+                   isinst "$dep" > /dev/null || set -- "$@ $dep"
+               done
         esac
+        set -- "$@ $mainpkg"
         unload_pkgfile
     done
 
     # prompt before continuing
-    prompt_user || return 1
+    prompt_user "$*" || return 1
 
-    # add deps
-    for port in $deps_needed ; do
-        add "$port"
-    done || die "failed to install deps required by $main_packages"
-
-    # add package
-    for pkg in $main_packages ; do
+    for pkg in $@ ; do
         add "$pkg"
-    done
+    done || die "failed to install $port"
 
+    unset main_packages pkg dep
     unset -f load_pkgfile unload_pkgfile prompt_user add
 }
 # vi:syntax=sh
