@@ -60,9 +60,9 @@ main() {
                 ;;
             relink|link)
                 shift
-                [ "$1" ] || die "link_pkg(): invalid number of arguments"
+                [ "$1" ] || die "linkpkg(): invalid number of arguments"
                 while [ $# -gt 0 ] ; do
-                    link_pkg "$1"
+                    linkpkg "$1"
                     shift
                 done
                 ;;

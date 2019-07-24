@@ -5,18 +5,19 @@
 # * If it is provided, symlink targets using this value.
 #   This is useful for bootstrapping, as after chrooting in
 #   if you had not done this all of your symlinks would be broken.
-link_pkg() {
-    pkgname="$1"
+linkpkg() {
+    pkgname="$1" 
 
     case $# in
         1) _pkgs="$pkgs" ;;
         2) _pkgs="$2" ;;
-        *) die "link_pkg(): invalid number of arguments"
+        *) die "linkpkg(): invalid number of arguments"
     esac
 
-    [ -d "$pkgs/$pkgname" ] || return
+    [ -d "$pkgs/$pkgname" ] || 
+        die "linkpkg(): port '$pkgname' does not seem to be installed"
 
-    cd "$root" || die "link_pkg(): unable to cd to $root"
+    cd "$root" || die "linkpkg(): unable to cd to $root"
     msg 'creating symlinks...'
 
     for dir in bin sbin share include etc lib libexec ; do
@@ -62,7 +63,7 @@ link_pkg() {
 # * If param is not provided, simply relink all using the config's $pkgs
 #
 # * If param is provided, relink the world using the given $pkgs location
-#   See comment heading of link_pkg() for details.
+#   See comment heading of linkpkg() for details.
 #   Alternatively, if using the standard /src/pkgs location you
 #   can specify --chroot as an alias for --pkgs=/src/pkgs
 relink_world() {
@@ -83,7 +84,7 @@ relink_world() {
             else
                 die 'bad argument given to --relink-world'
             fi
-            msg "relinking world with \$pkgs=$relink_pkgs ..."
+            msg "relinking world with \$pkgs=$relink_pkgs..."
             ;;
         *)
             die "relink_all(): invalid number of arguments"
@@ -92,7 +93,7 @@ relink_world() {
     printf '\n'
 
     listpkgs | while read -r pkgid ; do
-        link_pkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
+        linkpkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
     done || die "relink_world(): linking failed"
 
     printf '\n'

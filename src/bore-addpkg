@@ -10,7 +10,7 @@ addpkg() {
     done
 
     # check if gcc is functional
-    validate_gcc
+    validate_gcc $1
 
     # params: $name
     load_pkgfile() {
@@ -75,7 +75,7 @@ addpkg() {
         run_build "$name" || die "$name failed to build"
 
         if [ -d "$pkgs/$name" ] ; then
-            link_pkg "$name" || die "$name failed to link"
+            linkpkg "$name" || die "$name failed to link"
             clear_junk "$name"
         fi
 

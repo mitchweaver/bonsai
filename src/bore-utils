@@ -88,7 +88,7 @@ clean() {
 # ... if not, we cannot compile packages -- error out
 validate_gcc() {
     if [ ! -x "$gcc" ] ; then
-        case $name in
+        case $1 in
             core-system|*gcc*|bore) ;;
             *) 
             if [ -e "$gcc" ] ; then
