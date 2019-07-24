@@ -11,13 +11,14 @@ addpkg() {
 
     # params: $name
     load_pkgfile() {
-        pkg="$pkgs"/"$1"
         name="$1"
+        pkg="$pkgs"/"$name"
         pkgfile="$ports/$name/pkgfile"
         export pkg name pkgfile
 
         [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
         . "$pkgfile"
+        ismetapkg "$name" && version=metapkg
         : "${version:=unknown}"
         pkgid="${name}${delim}${version}"
         export version source pkgid
