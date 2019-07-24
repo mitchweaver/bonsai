@@ -1,9 +1,9 @@
-# downloads a given url and extracts to $work
+# downloads a given url and extracts to $work/$pkg
 # params: $url, $version
+# assumes: $name in ENV
 get() {
-    [ $# -lt 2 ] && die 'get(): insufficient arguments'
-    _url="$1"
-    _version="$2"
+    _url="$source"
+    _version="$version"
     _pkgid="${name}${delim}${_version}"
     tmpdir=/tmp/$PKG_MGR_NAME-$$.tmp
     workdir="$work/$name"
@@ -45,7 +45,7 @@ get() {
         fi
         cp -f "$_pkgid" "$tmpdir"
 
-        case $(file "$tmpdir"/*) in
+        case $(file -L "$tmpdir"/*) in
             *tgz*) ext=tgz   ;;
             *'gzip comp'*)  ext=gz    ;;
             *'bzip2 comp'*) ext=bz2   ;;
@@ -64,7 +64,7 @@ get() {
             *) die "get(): unknown compression algorithm"
         esac || die "get(): failed to decompress $name"
 
-        if file "$tmpdir"/* | grep 'tar archive' > /dev/null ; then
+        if file -L "$tmpdir"/* | grep 'tar archive' > /dev/null ; then
             ext=tar.${ext}
             mv "$tmpdir"/* "$tmpdir/${name}".tar
             tar -xf "$tmpdir/${name}.tar" -C "$tmpdir"/ || 

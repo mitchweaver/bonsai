@@ -21,6 +21,7 @@ addpkg() {
 
         [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
         . "$pkgfile"
+        export version source
     }
 
     # unsets vars as not to persist from pkg to pkg
@@ -66,7 +67,7 @@ addpkg() {
             # do not try to download
             ""|none) ;;
             *)
-                get "$source" "$version"
+                get
                 cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
                 mkdir -p "$pkgs/$name"
                 trap 'rmdir $pkgs/$name' INT TERM
