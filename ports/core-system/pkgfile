@@ -1,18 +1,4 @@
 info="the $PKG_MGR_NAME base system"
 source=none
-build() {
-    #bore
-    for pkg in gcc-musl-x86_64 \
-               sbase ubase dash \
-               curl gzip bzip2 xz-embedded \
-               make patch one-true-awk ; do
-        isinst $pkg || NEEDED="$NEEDED $pkg"
-    done
-
-    if [ "$NEEDED" ] ; then
-        bore -y $NEEDED
-        return $?
-    else
-        msg " -- all packages from $name are installed!"
-    fi
-}
+deps='gcc-musl-x86_64 sbase ubase one-true-awk dash make patch xz-embedded gzip bzip2 curl'
+build() { : ; }
