@@ -107,6 +107,7 @@ These are lightweight/embedded technologies incorporated into bore as to be more
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash) [loksh](https://github.com/dimkr/loksh)  
 **Build Automation**: [mk](https://9fans.github.io/plan9port/unix) [samurai](https://github.com/michaelforney/samurai) [pkgconf](http://pkgconf.org/)  
 **Networking**: [sdhcp](http://core.suckless.org/sdhcp) [dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html)  
+**Compression**: [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
 **Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk) [posix-bc](http://github.com/gavinhoward/bc)
 
