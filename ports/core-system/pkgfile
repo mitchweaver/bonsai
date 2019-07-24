@@ -1,0 +1,19 @@
+info="the $PKG_MGR_NAME base system"
+version=1.0
+source=none
+build() {
+    #bore
+    for pkg in gcc-musl-x86_64 \
+               sbase ubase dash \
+               curl gzip bzip2 xz \
+               make patch one-true-awk ; do
+        isinst $pkg || NEEDED="$NEEDED $pkg"
+    done
+
+    if [ "$NEEDED" ] ; then
+        bore -y $NEEDED
+        return $?
+    else
+        msg " -- all packages from $name are installed!"
+    fi
+}
