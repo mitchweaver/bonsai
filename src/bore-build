@@ -34,7 +34,7 @@ cc()  { $cc  -static -Os -s "$@" ; }
 gcc() { $gcc -static -Os -s "$@" ; }
 
 getflags() {
-    . "$root"/etc/profile 2>/dev/null ||:
+    [ -f "$root"/etc/profile ] && . "$root"/etc/profile
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
     CFLAGS="$CFLAGS $cflags"
