@@ -74,10 +74,10 @@ pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none
 clean() {
-    sanity_check && rm -rf "$work"
-    find "$pkgs" -type d ! -wholename "$pkgs" 2> /dev/null | \
+    rm -rf "${work:?}"
+    find "$pkgs" -type d ! -path "$pkgs" 2> /dev/null | \
             while read -r dir ; do
-        rmdir "$dir" 2> /dev/null
+        rmdir "$dir" 2> /dev/null ||:
     done
     update_db
     unset dir
