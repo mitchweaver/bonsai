@@ -64,7 +64,7 @@ basename() { printf "%s" "${1##*/}" ; }
 # remove leading/trailing whitespace
 trim() {
     set -- "${1#${1%%[! ]*}}"
-    set -- "${trim%${_##*[! ]}}"
+    set -- "${1%${_##*[! ]}}"
     printf '%s\n' "$1"
 }
 
