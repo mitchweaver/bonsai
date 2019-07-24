@@ -13,8 +13,11 @@ GNU_sucks() {
     # causing the makefile to abort unless $ENV variables are set. Absurd.
     # Should a makefile not work correctly with our coreutils, 
     # it will be patched on a per-port basis.
-    GREP=$(command -v grep) ; SED=$(command -v sed) ; AWK=$(command -v awk)
-    export GREP SED AWK
+    GREP="$root"/bin/grep   ; SED="$root"/bin/sed   ; AWK="$root"/bin/awk
+    MKDIR="$root"/bin/mkdir ; ECHO="$root"/bin/echo ; FIND="$root"/bin/find 
+    MV="$root"/bin/mv       ; RM="$root"/bin/rm     ; TAR="$root"/bin/tar
+    SEQ="$root"/bin/seq     ; SORT="$root"/bin/sort ; XARGS="$root"/bin/xargs
+    export GREP SED AWK MKDIR ECHO FIND MV RM TAR SEQ SORT XARGS
 }
 # vi:syntax=sh
 # shellcheck shell=sh
