@@ -38,7 +38,7 @@ initglobals() {
 
 main() {
     [ $# -eq 0 ] && usage
-    check_deps
+    [ $1 = chroot ] || check_deps
 
     case "$1" in
         *skeleton|skel) shift ; create_skeleton_config "$1" ; exit ;;
