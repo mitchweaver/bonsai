@@ -20,7 +20,11 @@ search() {
 pkgdeps() {
     dep_recurse() {
         unset deps
-        . "$ports/$1/pkgfile"
+        if [ -f "$ports/$1/pkgfile" ] ; then
+            . "$ports/$1/pkgfile"
+        else
+            die "pkgdeps(): could not source $1's pkgfile"
+        fi
 
         if [ "$deps" ] ; then
             pkgdeps=" $deps $pkgdeps "

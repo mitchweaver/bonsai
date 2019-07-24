@@ -75,7 +75,6 @@ configure() {
         shift
     else
         FILE=configure
-        set -- -C --prefix="$PREFIX" "$@"
     fi
 
     ${docs:=false}  || _docs="--disable-docs --disable-gtk-docs --disable-gtk-docs-html --docdir=/dev/null"
@@ -101,11 +100,11 @@ configure() {
         for flag in --static --enable-static --enable-static-link --disable-shared \
                     --disable-rpath --disable-option-checking  --enable-fast-install \
                     --disable-dependency-tracking --without-ada --without-shared \
-                    --disable-libtool-lock \
-                    $_quiet $_debug $_nls $_docs $_tests ; do
+                    --disable-libtool-lock $_quiet $_debug $_nls $_docs $_tests -C ; do
             addflag $flag $flag &
         done
 
+        addflag --prefix= --prefix="$PREFIX" &
         addflag --with-gnu-ld --without-gnu-ld &
         addflag --enable-shared --disable-shared &
         addflag --enable-tests  --disable-tests &
