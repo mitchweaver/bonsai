@@ -78,7 +78,7 @@ cflags="-static --static -s -w -Os -no-pie -pipe -march=native -ffast-math"
 cflags="$cflags -Wl,--gc-sections -fstack-protector-strong"
 ldflags="-static --static -s -fdata-sections -ffunction-sections"
 cppflags='-static --static'
-cxxflags='-static --static'
+cxxflags="$cflags"
 EOF
 }
 # vi:syntax=sh
