@@ -4,7 +4,7 @@ run_build() {
     msg "building $name..."
 
     getflags
-    GNU_sucks
+    sucks
 
     # run user defined prebuild(), if exists
     if defined prebuild ; then

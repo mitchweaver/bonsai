@@ -1,5 +1,5 @@
-# helper to get around all things that GNU does wrong with packaging
-GNU_sucks() {
+# helper to get around all things wrong with packaging
+sucks() {
     # GNU programs have the most insane dependency tracking I have ever seen.
     # To check for dependencies, they often simply try to run the program
     # and if it has a -gt 0 exit code, the dependency must not be in $PATH.
@@ -7,6 +7,14 @@ GNU_sucks() {
     # This breaks all kinds of things, namely if we are running under `set -e`
     # As a workaround, just manually track depedencies -- clear the file.
     [ -f build-aux/missing ] && :> build-aux/missing
+
+    # Configure scripts often try to run programs with certain flags
+    # to see if they support different things.
+    # They often don't even use those flags in the end...
+    # Usually to avoid these checks all you need to is have their name
+    # in the environment in all caps like so:
+    : ${GREP:=grep} ${SED:=sed} ${AWK:=awk} ${TAR:=tar} ${FIND:=find}
+    export GREP SED AWK TAR FIND
 }
 # vi:syntax=sh
 # shellcheck shell=sh
