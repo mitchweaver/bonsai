@@ -1,4 +1,4 @@
-name=bore
+name=distro
 PREFIX=${HOME}/.local/$(name)
 
 $(name): FORCE
@@ -9,17 +9,15 @@ all: $(name)
 
 $(name):
 	@echo '[*] collating sources into executable...'
-	echo '#!/bin/sh' > bore
-	ls src | while read -r file ; do \
-		cat src/$$file >> $(name) ; \
+	find src -type f | while read -r file ; do \
+		cat $$file >> $(name) ; \
 	done
 	echo 'main "$$@"' >> $(name)
-	@echo '[*] removing comments from executable...'
-	sed 's:^\s*#.*$$::g' $(name) > $(name).tmp
-	mv -f $(name).tmp $(name)
-	@echo '[*] removing blank lines from executable...'
-	sed '/^$$/d' $(name) > $(name).tmp
-	mv -f $(name).tmp $(name)
+	@echo '[*] removing comments and blank lines from executable...'
+	sed -e 's:^\s*#.*$$::g' -e '/^$$/d' $(name) > $(name).tmp
+	echo '#!/bin/sh' > $(name)
+	cat $(name).tmp >> $(name)
+	rm $(name).tmp
 	chmod +x $(name)
 
 install:

@@ -1,9 +1,9 @@
-# bore
+# distro
 A truly minimal system that is *dumb easy* to setup, configure, and maintain.
 
 A new way of thinking about software management.
 
-<sub>***note***: name is still TBD</sub>
+<sub>***note***: name is still TBD! `distro` is a placeholder name</sub>
 
 # Core Philosophy
 
@@ -53,13 +53,13 @@ If it doesn't work with the system, patch it until it does.
 
 6. **Sane File System Hierarchy**
 
-Similar to [GoboLinux](https://gobolinux.org/), bore uses a custom directory scheme:
+Similar to [GoboLinux](https://gobolinux.org/), distro uses a custom directory scheme:
 
 `/include`  
 `/lib`  
 `/share`  
-`/local` <sub>(applications not installed via bore)</sub>  
-`/src` <sub>(bore home)</sub>  
+`/local` <sub>(applications not installed via distro)</sub>  
+`/src` <sub>(distro home)</sub>  
 `/usr ` <sub>symlinked →   `/`</sub>  
 `/sbin` <sub>symlinked → `/bin`</sub>  
 
@@ -74,8 +74,8 @@ A tree of `/src` looks like this:
     ├── /pkgs      ←  packages
     ├── /ports     ←  pkgfiles
     ├── /sources   ←  tarballs
-    ├── bore.rc    ←  config file
-    └── bore.db    ←  database file
+    ├── distro.rc    ←  config file
+    └── distro.db    ←  database file
 ```
 
 Inside each package, will be its own prefix with given `/bin`, `/lib`, etc
@@ -97,7 +97,7 @@ removing data is as simple as removing the given `$pkgdir`.
 
 ## Technologies
 
-These are lightweight/embedded technologies incorporated into bore as to be more "suckless" alternatives to conventional GNU/Linux software.
+These are lightweight/embedded technologies incorporated into distro as to be more "suckless" alternatives to conventional GNU/Linux software.
 
 **C Library**: [musl-libc](https://www.musl-libc.org/)  
 **Compiler**: [tcc](https://bellard.org/tcc) *(where possible)*  

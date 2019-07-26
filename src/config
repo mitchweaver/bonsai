@@ -1,13 +1,13 @@
 loadconfig() {
     if [ "$config" ] ; then
-        borerc="$config"
+        distrorc="$config"
     elif [ -f /src/"$PKG_MGR_NAME".rc ] ; then
-        borerc="/src/$PKG_MGR_NAME.rc"
+        distrorc="/src/$PKG_MGR_NAME.rc"
     else 
-        borerc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
-        [ ! -f "$borerc" ] && create_skeleton_config
+        distrorc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
+        [ ! -f "$distrorc" ] && create_skeleton_config
     fi
-    . "$borerc" || die "loadconfig(): could not source config"
+    . "$distrorc" || die "loadconfig(): could not source config"
 
     if [ "$_root" ] ; then
         root="$_root"
@@ -16,14 +16,14 @@ loadconfig() {
    
     # set default variables if not in config file
     # and make necessary directories
-    mkdir -p "${root:="${HOME}/.local/bore"}" \
-             "${borehome:="$root/src"}" \
-             "${pkgs:="$borehome/pkgs"}" \
-             "${ports:="$borehome/ports"}" \
-             "${sources:="$borehome/sources"}" \
-             "${work:="$borehome/work"}"
+    mkdir -p "${root:="${HOME}/.local/distro"}" \
+             "${distrohome:="$root/src"}" \
+             "${pkgs:="$distrohome/pkgs"}" \
+             "${ports:="$distrohome/ports"}" \
+             "${sources:="$distrohome/sources"}" \
+             "${work:="$distrohome/work"}"
 
-    : "${boredb:="$borehome/bore.db"}"
+    : "${distrodb:="$distrohome/distro.db"}"
 
     [ "$_gcc" ] && gcc="$_gcc"
 
@@ -47,8 +47,8 @@ create_skeleton_config() {
         echo "copying default config to ~/.local/$PKG_MGR_NAME/$PKG_MGR_NAME.rc"
     fi
 cat > "$path/$PKG_MGR_NAME".rc << "EOF"
-# bore root
-root=${HOME}/.local/bore
+# distro root
+root=${HOME}/.local/distro
 
 # compiling
 jobs=$(grep -c 'cpu cores' /proc/cpuinfo)

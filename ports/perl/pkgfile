@@ -25,10 +25,11 @@ prebuild() {
     # perl's builtin poll.h is occasionally broken
     # if this occurs, use system's poll.h
     # see: https://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
-    # sed 's|include <poll.h>|include <sys/poll.h>|' dist/IO/poll.h > dist/IO/poll.h.tmp
-    # mv -f dist/IO/poll.h.tmp dist/IO/poll.h
+    sed 's|include <poll.h>|include <sys/poll.h>|' dist/IO/poll.h > dist/IO/poll.h.tmp
+    mv -f dist/IO/poll.h.tmp dist/IO/poll.h
 }
 build() {
+    C_INCLUDE_PATH="$root/include" \
     sh Configure -des \
         -Dcf_by="$PKG_MGR_NAME" \
         -Dcc="$CC" \
@@ -54,7 +55,7 @@ build() {
         -Uonlyextensions='' \
         -Uusedl
 
-    make
+    C_INCLUDE_PATH="$root/include" make
     make install
 }
 postbuild() {

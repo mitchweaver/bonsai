@@ -1,6 +1,6 @@
-bore
-bore.db
-bore.rc
+distro
+distro.db
+distro.rc
 work
 work/*
 sources
@@ -15,6 +15,12 @@ a.out
 *dump*
 *bkup*
 *.bk
+tmp
+tmp.txt
+note
+notes
+note.txt
+notes.txt
 
 ports-broken
 PORTS_BROKEN.txt
