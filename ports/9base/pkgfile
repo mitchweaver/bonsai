@@ -1,6 +1,0 @@
-version=09e95a2d6f8dbafc6601147b2f5f150355813be6
-source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
-build() {
-    make
-    make install
-}
