@@ -68,12 +68,14 @@ addpkg() {
             # if meta package, will not have a source
             # do not try to download
             ""|none) ;;
-            *)
-                get
-                cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
-                mkdir -p "$pkgs/$name"
-                trap 'rmdir $pkgs/$name' INT TERM
+            *) get
         esac
+
+        if ! ismetapkg "$name" ; then
+            cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
+            mkdir -p "$pkgs/$name"
+            trap 'rmdir $pkgs/$name' INT TERM
+        fi
 
         run_build "$name" || die "$name failed to build"
 
