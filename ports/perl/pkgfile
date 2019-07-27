@@ -21,15 +21,12 @@ prebuild() {
     BZIP2_LIB="$root"/lib
     BZIP2_INCLUDE="$root"/inculde
     export BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
-
-    # perl's builtin poll.h is occasionally broken
-    # if this occurs, use system's poll.h
-    # see: https://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
-    sed 's|include <poll.h>|include <sys/poll.h>|' dist/IO/poll.h > dist/IO/poll.h.tmp
-    mv -f dist/IO/poll.h.tmp dist/IO/poll.h
 }
 build() {
-    C_INCLUDE_PATH="$root/include" \
+    # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
+    # its own poll.h over <sys/poll.h> -- (overwrite ".:$root/include")
+    # see: https://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
+    CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
     sh Configure -des \
         -Dcf_by="$PKG_MGR_NAME" \
         -Dcc="$CC" \
@@ -55,7 +52,8 @@ build() {
         -Uonlyextensions='' \
         -Uusedl
 
-    C_INCLUDE_PATH="$root/include" make
+    CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
+    make
     make install
 }
 postbuild() {
@@ -70,12 +68,7 @@ postbuild() {
     rm -rf "$pkg"/share/man
 
     # more junk
-    type xargs 2> /dev/null &&
-    find "$pkg" \
-        -name 'TODO*' -or \
-        -name 'Change*' -or \
-        -name 'README*' -or \
-        -name '*.bs' -or \
-        -name '.packlist' -or \
-        -name 'perllocal.pod' | xargs rm
+    for junk in 'TODO*' 'Change*' 'README*' '*.bs' '.packlist' 'perllocal.pod' ; do
+        find "$pkg" -type f -name "$junk" | xargs rm
+    done
 }
