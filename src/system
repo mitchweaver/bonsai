@@ -1,7 +1,6 @@
 # create top level dirs in given $root, if needed
-# params: $root
 create_root_dirs() {
-    cd "$1" || die "create_root_dirs(): could not cd to $1"
+    cd "$root" || die "create_root_dirs(): could not cd to $1"
 
     # mkdir -pm only sets the permissions
     # for the LAST dir in the path
@@ -45,7 +44,7 @@ setup_profile() {
         grep "^$1$" "$root"/etc/profile >/dev/null 2>&1 ||
             echo "$1" >> "$root"/etc/profile
     }
-    add 'export PATH="/bin:/local/bin:${HOME}/bin:${HOME}/.local/bin"'
+    add 'export PATH="/bin:/src:/local/bin:${HOME}/bin:${HOME}/.local/bin"'
 #    add 'export POSIXLY_CORRECT=1'
 #    add 'umask 022'
     unset -f add
