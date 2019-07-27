@@ -3,7 +3,7 @@ A truly minimal system that is *dumb easy* to setup, configure, and maintain.
 
 A new way of thinking about software management.
 
-<sub>***note***: name is still TBD! `distro` is a placeholder name</sub>
+** **note**: name is still TBD! `distro` is a placeholder name
 
 # Core Philosophy
 
@@ -12,7 +12,7 @@ A new way of thinking about software management.
 1. **Static Linking**
  
 All programs should be statically linked.  
-No .dll hell, no searching through the filesystem.  
+No [.dll hell](https://en.wikipedia.org/wiki/DLL_Hell), no searching through the filesystem.  
 Minimize moving parts. Simpler is better.
 
 2. **Sandboxing**
@@ -46,12 +46,7 @@ No matter how great, a system is bottlenecked by its ability to be understood.
 * Some ports can be written with *just one line*!
 * Extensive documentation, with unclear or missing manuals considered a bug
 
-5. **Lightweight**
-
-If there is an option to use a lighter alternative to a given standard, use it.  
-If it doesn't work with the system, patch it until it does.
-
-6. **Sane File System Hierarchy**
+5. **Sane File System Hierarchy**
 
 Similar to [GoboLinux](https://gobolinux.org/), distro uses a custom directory scheme:
 
@@ -78,24 +73,30 @@ A tree of `/src` looks like this:
     └── distro.db    ←  database file
 ```
 
-Inside each package, will be its own prefix with given `/bin`, `/lib`, etc
+Inside each package is its own prefix with given `/bin`, `/lib`, etc
 
-A side effect of this, is each `$pkgdir` is its own chroot filesystem that can
-be used at anytime. In the future, this process will be automated
-and toggled at will.
+As a side effect of this, each `$pkgdir` is its own chroot filesystem that can
+be used at will. In the future, this process is planned to be automated.
 
-To the outside root, symlinks are created from the package for 
-seamless integration into the system. These are then tracked and removed once
-the program is uninstalled.
+Symlinks are created from the package to the outsde root for seamless 
+integration and standards compatibilty.
+
+<sub>**Example:**</sub>
+
+```bash
+% readlink /bin/perl
+/src/pkgs/perl/bin/perl
+% readlink /share/man/man1/gcc.1
+/src/pkgs/gcc/share/man1/gcc.1
+```
 
 With only symlinks, no actual data lives in 
-`/bin`, `/lib`, `/include`, and `/share` root directories.
+`/bin`, `/lib`, `/include`, or `/share` on the root.
 
-This allows for *all* of the systems data to be held within `/src/pkgs`, thus
-removing data is as simple as removing the given `$pkgdir`.
+Thus removing data is as simple as removing a given `$pkgdir` from `/src/pkgs`.  
+The symlinks are then tracked and removed once the program is uninstalled.
 
-
-## Technologies
+6. **Lightweight**
 
 These are lightweight/embedded technologies incorporated into distro as to be more "suckless" alternatives to conventional GNU/Linux software.
 
@@ -103,17 +104,15 @@ These are lightweight/embedded technologies incorporated into distro as to be mo
 **Compiler**: [tcc](https://bellard.org/tcc) *(where possible)*  
 **Libraries**: [LibreSSL](https://www.libressl.org/) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
 **Init System**: [sinit](https://core.suckless.org/sinit)  
-**Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [9base](http://tools.suckless.org/9base)  
-**Shell**: [dash](http://gondor.apana.org.au/~herbert/dash) [loksh](https://github.com/dimkr/loksh)  
-**Build Automation**: [mk](https://9fans.github.io/plan9port/unix) [samurai](https://github.com/michaelforney/samurai) [pkgconf](http://pkgconf.org/)  
+**Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)  
+**Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
+**Build Automation**: [pkgconf](http://pkgconf.org/) [mk](https://9fans.github.io/plan9port/unix) [samurai](https://github.com/michaelforney/samurai)  
 **Networking**: [sdhcp](http://core.suckless.org/sdhcp) [dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html)  
 **Compression**: [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
-**Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk) [posix-bc](http://github.com/gavinhoward/bc)
 
 
-### Special thanks to
-----------------------------
+## Special thanks to
 
 * [Alpine Linux](https://alpinelinux.org/)
 * [Sabotage Linux](https://github.com/sabotage-linux/sabotage)
@@ -132,7 +131,8 @@ from these wonderful projects.
 * Rich Felker's work on [musl-crossmake](https://github.com/richfelker/musl-cross-make) for ease of musl toolchain compilation
 * The folks at [musl.cc](musl.cc) for providing statically-compiled toolchain binaries
 * [suckless](http://suckless.org) and [cat-v](cat-v.org) projects for being a breath of fresh air in a world of insanity
----
+
+----
 
 ### Achtung!
 This is heavily still a WIP.  
@@ -141,8 +141,18 @@ Do not use in production.
 
 ----
 
-### Contact
+### Support
 
-**irc**: `TBA`  
-**email**: `TBA`  
-**git issue**: *if you must...*
+Star it! 🌟
+
+It helps get it higher in GitHub's search results and motivates 
+me to continue development.
+
+If you would like to contribute, pull requests are __*always*__ encouraged!  
+
+### Community 
+
+**irc**: `moving hosts - TBA`  
+**discord server** *(irc mirror)*: http://discord.gg/qcjRGZv  
+**email**: `moving hosts - TBA`  
+**mailing list**: `moving hosts - TBA`
