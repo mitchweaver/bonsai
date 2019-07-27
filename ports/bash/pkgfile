@@ -3,7 +3,7 @@ version=5.0
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
 deps=libedit
 build() {
-    LIBS='-lreadline -lcurses' configure --without-bash-malloc >/dev/null
-    make -s > /dev/null
+    LIBS='-lreadline -lcurses' configure --without-bash-malloc
+    make
     make install
 }
