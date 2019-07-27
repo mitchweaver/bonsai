@@ -50,7 +50,7 @@ main() {
 
     loadconfig "$@"
     initglobals
-    create_root_dirs "$root"
+    create_root_dirs
     setup_profile
 
     while [ $# -gt 0 ] ; do

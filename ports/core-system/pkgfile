@@ -1,3 +1,3 @@
 info="the $PKG_MGR_NAME base system"
-deps='gcc xz-embedded gzip bzip2 sbase ubase one-true-awk dash make patch curl'
+deps='gcc xz-embedded gzip bzip2 sbase ubase hbase dash make patch curl'
 metapkg=true
