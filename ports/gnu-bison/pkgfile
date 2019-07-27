@@ -1,4 +1,4 @@
 info='GNU version of yacc'
 version=3.4
-source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
-deps=m4
+source=http://ftp.gnu.org/gnu/bison/bison-$version.tar.xz
+deps=gnu-m4
