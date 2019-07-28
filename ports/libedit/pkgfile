@@ -3,9 +3,10 @@ version=3.1
 source=https://thrysoee.dk/editline/$name-20190324-$version.tar.gz
 deps=netbsd-curses
 build() {
-    CFLAGS="$CFLAGS -D_BSD_SOURCE" configure --enable-widec
-    make
-    make install
+    CFLAGS="$CFLAGS -D_BSD_SOURCE" 
+        bonsai_configure --enable-widec
+    bonsai_make
+    bonsai_make install
 }
 postbuild() {
     # create symlinks to be a drop-in replacement for readline

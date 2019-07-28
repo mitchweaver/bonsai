@@ -5,9 +5,9 @@ deps=netbsd-curses
 build() {
     # note: --enable-tiny removes many features
     #       a regular user of nano might want
-    configure LIBS='-lncursesw -lterminfo' \
-              --enable-utf8 \
-              --enable-tiny
-    make
-    make install
+    bonsai_configure LIBS='-lncursesw -lterminfo' \
+        --enable-utf8 \
+        --enable-tiny
+    bonsai_make
+    bonsai_make install
 }

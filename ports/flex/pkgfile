@@ -2,11 +2,12 @@ info='Fast Lexical Analyzer Generator'
 version=2.6.4
 source=http://sourceforge.net/projects/$name/files/$name-2.6.0.tar.xz/download
 build() {
-    configure
-    CFLAGS="-D_GNU_SOURCE $CFLAGS" make
-    make install
+    bonsai_configure
+    CFLAGS="-D_GNU_SOURCE $CFLAGS" \
+        bonsai_make
+    bonsai_make install
 }
 postbuild() {
-    cd $root/bin
-    [ ! -e lex ] && ln -sf $name lex
+    [ ! -e "$root"/bin/lex ] && 
+        ln -sf $name "$root"/bin/lex
 }

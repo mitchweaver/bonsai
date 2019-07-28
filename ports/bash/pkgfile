@@ -3,7 +3,8 @@ version=5.0
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
 deps=libedit
 build() {
-    LIBS='-lreadline -lcurses' configure --without-bash-malloc
-    make
-    make install
+    LIBS='-lreadline -lcurses' \
+        bonsai_configure --without-bash-malloc
+    bonsai_make
+    bonsai_make install
 }

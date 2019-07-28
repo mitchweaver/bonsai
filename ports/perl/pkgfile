@@ -3,7 +3,7 @@ version=5.30.0
 source=http://www.cpan.org/src/5.0/$name-$version.tar.xz
 deps='zlib bzip2'
 prebuild() {
-    patch
+    bonsai_patch
 
     # musl does not have a separate libnsl
     # remove it as a dep from the configure script
@@ -53,8 +53,8 @@ build() {
         -Uusedl
 
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
-    make
-    make install
+        bonsai_make
+    bonsai_make install
 }
 postbuild() {
     msg 'cleaning up'

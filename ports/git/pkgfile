@@ -32,8 +32,8 @@ build() {
     #
     # for some Rich Felker humor on the change:
     # https://public-inbox.org/git/20161004150848.GA7949@brightrain.aerifal.cx
-    make CFLAGS="-Icompat/regex $CFLAGS" \
-         CPPFLAGS="-Icompat/regex $CPPFLAGS" install
+    bonsai_make CFLAGS="-Icompat/regex $CFLAGS" \
+                CPPFLAGS="-Icompat/regex $CPPFLAGS" install
 }
 postbuild() {
     rm -f "$pkg"/lib/perl5/core_perl/perllocal.pod

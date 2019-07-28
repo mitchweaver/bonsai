@@ -3,7 +3,7 @@ version=7.65.1
 source=http://curl.haxx.se/download/$name-$version.tar.xz
 deps='libressl zlib'
 build() {
-    configure --without-librtmp --without-cyassl \
+    bonsai_configure --without-librtmp --without-cyassl \
               --without-libpsl --without-winidn \
               --without-libidn2 --without-gnutls \
               --without-winssl --without-schannel \
@@ -19,6 +19,6 @@ build() {
               --with-ssl=$pkgs/libressl \
               --with-zlib=$pkgs/zlib \
               --with-ca-bundle=/etc/ssl/cert.pem
-    make curl_LDFLAGS=-all-static
-    make curl_LDFLAGS=-all-static install
+    bonsai_make curl_LDFLAGS=-all-static
+    bonsai_make curl_LDFLAGS=-all-static install
 }

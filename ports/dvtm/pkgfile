@@ -3,6 +3,6 @@ version=0.15
 source=https://github.com/martanne/$name/archive/v$version.tar.gz
 deps=netbsd-curses
 build() {
-    make LIBS='-lncursesw -lterminfo'
-    make install
+    bonsai_make LIBS='-lncursesw -lterminfo'
+    bonsai_make install
 }

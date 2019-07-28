@@ -3,7 +3,7 @@ version=2.5
 source=http://w1.fi/releases/$name-$version.tar.gz
 deps="libressl libnl-tiny zlib"
 prebuild() {
-patch
+bonsai_patch
 cd wpa_supplicant
 
 cp -f defconfig .config
@@ -25,7 +25,7 @@ sed 's|CONFIG_DRIVER_WEXT=y|#CONFIG_DRIVER_WEXT=y|' .config > .config.tmp
 mv -f .config.tmp .config
 }
 
-build() { make ; }
+build() { bonsai_make ; }
 
 postbuild() {
     # wpa_supplicant's "make install" sucks.

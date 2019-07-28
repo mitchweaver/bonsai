@@ -3,7 +3,7 @@ version=20130513
 source=https://tukaani.org/xz/$name-$version.tar.gz
 build() {
     cd userspace
-    make
+    bonsai_make
     install -Dm0755 xzminidec "$pkg"/bin/xzminidec
 }
 postbuild() {

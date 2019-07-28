@@ -8,9 +8,9 @@ build() {
    # --with-system-includedir="$root/include:/include" \
    # --with-pkg-config-dir="$root/lib/pkgconfig:/lib/pkgconfig"
    
-    configure
-    make
-    make install
+    bonsai_configure
+    bonsai_make
+    bonsai_make install
 }
 postbuild() {
     cd "$pkgs"/$name/bin

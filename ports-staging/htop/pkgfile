@@ -3,9 +3,9 @@ version=2.2.0
 source=https://hisham.hm/$name/releases/$version/$name-$version.tar.gz
 deps='netbsd-curses python'
 build() {
-    configure LIBS='-lncursesw -lterminfo'
-    make
-    make install
+    bonsai_configure LIBS='-lncursesw -lterminfo'
+    bonsai_make
+    bonsai_make install
 }
 postbuild() {
     rm -rf "$pkg"/include \

@@ -2,13 +2,14 @@ info="minimal NetBSD curses library ported to Linux"
 version=0.3.1
 source=http://github.com/sabotage-linux/$name/archive/v$version.tar.gz
 build() {
-    make all-static
-    make install-static
+    bonsai_make all-static
+    bonsai_make install-static
 
-    make terminfo/terminfo.cdb
+    bonsai_make terminfo/terminfo.cdb
     install -Dm0655 terminfo/terminfo.cdb "$pkg"/share/terminfo.cdb
 
-    $mans && make install-manpages
+    $mans && 
+        bonsai_make install-manpages
 }
 postbuild() {
     # symlink '-ltinfo' for compatibility

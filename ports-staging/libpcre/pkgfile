@@ -2,8 +2,7 @@ info='Perl Compatible Regular Expressions library'
 version=8.43
 source=http://ftp.pcre.org/pub/pcre/pcre-$version.tar.gz
 build() {
-    configure --enable-utf8 \
-              --enable-unicode-properties
-    make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
-    make install
+    bonsai_configure --enable-utf8 --enable-unicode-properties
+    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+    bonsai_make install
 }

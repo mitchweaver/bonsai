@@ -2,6 +2,6 @@ info='display trees of directories'
 version=1.8.0
 source=http://mama.indstate.edu/users/ice/$name/src/$name-$version.tgz
 build() {
-    make USER_CFLAGS="$CFLAGS"
-    make USER_CFLAGS="$CFLAGS" install
+    bonsai_make USER_CFLAGS="$CFLAGS"
+    bonsai_make USER_CFLAGS="$CFLAGS" install
 }

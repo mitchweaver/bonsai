@@ -3,10 +3,10 @@ version=8.1.1685
 source=http://github.com/$name/$name/archive/v$version.tar.gz
 deps='netbsd-curses acl'
 build() {
-    configure LIBS='-lncursesw -ltinfow' \
-                --disable-gui \
-                --without-x \
-                --disable-gpm
-    make
-    make install
+    bonsai_configure LIBS='-lncursesw -ltinfow' \
+        --disable-gui \
+        --without-x \
+        --disable-gpm
+    bonsai_make
+    bonsai_make install
 }

@@ -2,6 +2,6 @@ info="suckless unportable base"
 version=3c88778c6c85d97fb63c41c05304519e0484b07c
 source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 build() {
-    make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box
-    make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
+    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box
+    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
 }

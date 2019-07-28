@@ -2,7 +2,8 @@ info='Debian Alquist shell (DASH)'
 version=0.5.10
 source=http://gondor.apana.org.au/~herbert/$name/files/$name-$version.tar.gz
 prebuild() {
-# dash mkbuiltins script depends on "nl"
+# dash mkbuiltins script depends on "nl", 
+# which is not included with musl-libc
 cat > nl.c << EOF
 #include <stdio.h>
 int main() {
@@ -10,15 +11,16 @@ int main() {
     while(fgets(b, sizeof b, stdin)) { printf("%zu %s", i, b); i++; }
 }
 EOF
-cc nl.c -o nl
+bonsai_cc nl.c -o nl
 export PATH="$PWD:$PATH"
 }
 build() {
-    CC="$CC $CFLAGS" configure
-    make
-    make install
+    CC="$CC $CFLAGS" \
+        bonsai_configure
+    bonsai_make
+    bonsai_make install
 }
 postbuild() {
-    cd "$pkg"/bin
-    ln -s dash sh
+    rm nl
+    ln -s dash "$pkg"/bin/sh
 }
