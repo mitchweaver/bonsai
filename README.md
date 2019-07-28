@@ -38,11 +38,12 @@ under musl-libc, however this *almost always* makes their code better.
 
 No matter how great, a system is bottlenecked by its ability to be understood.
 
+* Entirely written in clean, [shellchecked](http://github.com/koalaman/shellcheck), POSIX sh
 * Sane and optimal default flags for both performance and security
 * A modular automated build system with parts that can overriden simply be defining the given function in the pkgfile
 * Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
 * Automatic detection of required flags, configs, patches, and workarounds
-* Some ports can be written with *just one line*!
+* Ports can be written with *[just one line](http://pastebin.com/raw/zjpEfq4K)*!
 * Extensive documentation, with unclear or missing manuals considered a bug
 
 5. **Sane File System Hierarchy**
