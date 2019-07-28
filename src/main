@@ -5,7 +5,8 @@ initglobals() {
     # unset any env variables that could interfere
     unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
         LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
-        OBJC_INCLUDE_PATH PKG_CONFIG
+        OBJC_INCLUDE_PATH PKG_CONFIG PKG_CONFIG_PATH INCLUDE  \
+        LD_LIBRARY_PATH
 
     PATH="$root/bin:$PATH"
     LC_ALL=C
