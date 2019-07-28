@@ -1,5 +1,5 @@
 info='ViM Vi-Improved text editor'
-version=8.1.1685
+version=8.1.1770
 source=http://github.com/$name/$name/archive/v$version.tar.gz
 deps='netbsd-curses acl'
 build() {
