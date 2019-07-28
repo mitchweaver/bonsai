@@ -49,7 +49,7 @@ This will create dirs, permissions, etc -- and install the base system.
 ./bonsai --relink-world --pkgs=/src/pkgs
 ```
 
-This relinks all the symlinks to `root=/` instead of `root=~/.local/bonsai`.
+This relinks all the symlinks to `root=/src/pkgs` instead of `root=~/.local/bonsai/src/pkgs`.
 
 It is necessary as if you had not, when you chroot in all the symlinks will be broken
 as they do not point to files on the correct root.
