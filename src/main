@@ -44,6 +44,7 @@ main() {
         --config=*) config="${1#--config=}" ; shift ;;
         --root=*) _root="${1#--root=}" ; shift ;;
         --gcc=*) _gcc="${1#--gcc=}" ; shift ;;
+        --debug) set -x ; shift ;;
         -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
         *help|-h)  usage ;;
     esac
