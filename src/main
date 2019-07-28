@@ -15,10 +15,10 @@ initglobals() {
 }
 
 main() {
-    [ $# -eq 0 ] && usage
+    [ "$1" ] || usage
 
     case "$1" in
-        *skeleton|skel) shift ; create_skeleton_config "$1" ; exit ;;
+        *skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
         --config=*) config="${1#--config=}" ; shift ;;
         --root=*) _root="${1#--root=}" ; shift ;;
         --gcc=*) _gcc="${1#--gcc=}" ; shift ;;
@@ -38,21 +38,21 @@ main() {
             del|-d)
                 shift
                 [ "$1" ] || die "delpkg(): no pkg given"
-                while [ $# -gt 0 ] ; do
+                while [ "$1" ] ; do
                     delpkg "$1"
                     shift
                 done
                 ;;
-            search|-s) search "$2"   ; exit $? ;;
             isinst|-i)
                 shift
                 [ "$1" ] || die 'isinst(): no argument given'
-                while [ $# -gt 0 ] ; do
+                while [ "$1" ] ; do
                     isinst "$1"
                     shift
                 done
                 ;;
             list|-l)   listpkgs      ; exit $? ;;
+            search|-s) search "$2"   ; exit $? ;;
             count|-c)  countpkgs     ; exit $? ;;
             info)      portinfo "$2" ; exit $? ;;
             cat)       portcat "$2"  ; exit $? ;;
@@ -69,7 +69,7 @@ main() {
             relink|link)
                 shift
                 [ "$1" ] || die "linkpkg(): invalid number of arguments"
-                while [ $# -gt 0 ] ; do
+                while [ "$1" ] ; do
                     linkpkg "$1"
                     shift
                 done
