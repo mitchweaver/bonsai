@@ -7,7 +7,6 @@ build() {
    # --with-system-libdir="$root/lib:/lib" \
    # --with-system-includedir="$root/include:/include" \
    # --with-pkg-config-dir="$root/lib/pkgconfig:/lib/pkgconfig"
-   
     bonsai_configure
     bonsai_make
     bonsai_make install
@@ -15,6 +14,8 @@ build() {
 postbuild() {
     cd "$pkgs"/$name/bin
     ln -sf pkgconf pkg-config
-    echo "export PKG_CONFIG_PATH=\"/lib/pkgconfig:$root/lib/pkgconfig\"" \
+    PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
+    export PKG_CONFIG_PATH
+    echo "export PKG_CONFIG_PATH=\"$root/lib/pkgconfig:/lib/pkgconfig\"" \
         >> "$root"/etc/profile
 }

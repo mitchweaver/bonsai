@@ -5,13 +5,13 @@ initglobals() {
     # unset any env variables that could interfere
     unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
         LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
-        OBJC_INCLUDE_PATH PKG_CONFIG PKG_CONFIG_PATH INCLUDE  \
-        LD_LIBRARY_PATH
-
+        OBJC_INCLUDE_PATH PKG_CONFIG INCLUDE LD_LIBRARY_PATH
+    
+    PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
     PATH="$root/bin:$PATH"
     LC_ALL=C
     LANG=C
-    export PATH LC_ALL LANG
+    export PATH PKG_CONFIG_PATH LC_ALL LANG
 
 #    # if not inside the chroot,
 #    # prefer to use chroot's tools, (if they exist), over the host system's
