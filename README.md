@@ -1,7 +1,8 @@
 # bonsai
-A truly minimal system that is *dumb easy* to setup, configure, and maintain.
 
-A new way of thinking about software management.
+<img align="right" src="res/bonsai.png">
+
+A truly minimal system that is easy to setup, configure, and maintain.
 
 # Core Philosophy
 
@@ -15,7 +16,7 @@ Minimize moving parts. Simpler is better.
 
 2. **Sandboxing**
 
-Chroot sandboxes should be ***dropdead simple*** to 
+Chroot sandboxes should be *dead simple* to 
 setup simply by copying the relevant statically-linked binaries.  
 
 3. **A Better C Library**
@@ -39,7 +40,7 @@ No matter how great, a system is bottlenecked by its ability to be understood.
 
 * Sane and optimal default flags for both performance and security
 * A modular automated build system with parts that can overriden simply be defining the given function in the pkgfile
-* Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()` functions
+* Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
 * Automatic detection of required flags, configs, patches, and workarounds
 * Some ports can be written with *just one line*!
 * Extensive documentation, with unclear or missing manuals considered a bug
@@ -64,9 +65,9 @@ A tree of `/src` looks like this:
 
 ```
 /src
-    ├── /pkgs      ←  packages
-    ├── /ports     ←  pkgfiles
-    ├── /sources   ←  tarballs
+    ├── /pkgs        ←  packages
+    ├── /ports       ←  pkgfiles
+    ├── /sources     ←  tarballs
     ├── bonsai.rc    ←  config file
     └── bonsai.db    ←  database file
 ```
@@ -109,7 +110,6 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 **Compression**: [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
 
-
 ## Special thanks to
 
 * [Alpine Linux](https://alpinelinux.org/)
@@ -144,7 +144,7 @@ Do not use in production.
 Star it! 🌟
 
 It helps get it higher in GitHub's search results and motivates 
-me to continue development.
+us to continue development.
 
 If you would like to contribute, pull requests are __*always*__ encouraged!  
 
