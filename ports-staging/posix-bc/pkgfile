@@ -7,8 +7,8 @@ build() {
     CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
     CPPFLAGS="$CPPFLAGS" PREFIX="$PREFIX" \
     ./configure.sh -G -H -N $M
-    make
-    make install
+    bonsai_make
+    bonsai_make install
 }
 postbuild() {
     cd "$pkg"/bin

@@ -2,7 +2,9 @@ info='GNU make build automation tool'
 version=4.2.1
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
 build() {
-    CFLAGS="-D_GNU_SOURCE $CFLAGS" configure
-    CFLAGS="-D_GNU_SOURCE $CFLAGS" make
-    make install
+    CFLAGS="-D_GNU_SOURCE $CFLAGS" 
+        bonsai_configure
+    CFLAGS="-D_GNU_SOURCE $CFLAGS" 
+        bonsai_make
+    bonsai_make install
 }

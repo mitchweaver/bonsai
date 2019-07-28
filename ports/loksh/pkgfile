@@ -3,6 +3,6 @@ version=6.5
 source=http://github.com/dimkr/$name/archive/$version.tar.gz
 deps=libedit
 build() {
-    make NCURSES_LDFLAGS='-lncursesw -ltinfo'
-    make install
+    bonsai_make NCURSES_LDFLAGS='-lncursesw -ltinfo'
+    bonsai_make install
 }

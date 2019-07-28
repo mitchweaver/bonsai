@@ -3,7 +3,7 @@ version=5.37
 source=ftp://ftp.astron.com/pub/$name/$name-$version.tar.gz
 deps=zlib
 build() {
-    configure --disable-libseccomp
-    make
-    make install
+    bonsai_configure --disable-libseccomp
+    bonsai_make
+    bonsai_make install
 }

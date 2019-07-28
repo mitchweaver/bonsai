@@ -15,24 +15,23 @@ prebuild() {
         > ifndef_wrapper.sh
 }
 build() {
-    configure --enable-static \
-              --disable-lastlog \
-              --disable-pututline \
-              --disable-pututxline \
-              --disable-syslog \
-              --disable-utmp \
-              --disable-utmpx \
-              --disable-wtmp \
-              --disable-wtmpx
-    make SCPPROGRESS=1 MULTI=1 \
+    bonsai_configure --enable-static \
+        --disable-lastlog \
+        --disable-pututline \
+        --disable-pututxline \
+        --disable-syslog \
+        --disable-utmp \
+        --disable-utmpx \
+        --disable-wtmp \
+        --disable-wtmpx
+    bonsai_make SCPPROGRESS=1 MULTI=1 \
          PROGRAMS="dropbear scp dbclient dropbearkey dropbearconvert"
-    make SCPPROGRESS=1 MULTI=1 \
+    bonsai_make SCPPROGRESS=1 MULTI=1 \
          PROGRAMS="dropbear scp dbclient dropbearkey dropbearconvert" \
          install
 }
 postbuild() {
-    cd "$pkg"/bin
-    ln -sf dropbear sshd
-    ln -sf dbclient ssh
-    ln -sf dropbearkey ssh-keygen
+    ln -sf dropbear "$pkg"/bin/sshd
+    ln -sf dbclient "$pkg"/bin/ssh
+    ln -sf dropbearkey "$pkg"/bin/ssh-keygen
 }

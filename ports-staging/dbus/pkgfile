@@ -3,12 +3,12 @@ version=1.13.12
 source=https://$name.freedesktop.org/releases/$name/$name-$version.tar.xz
 deps='expat pkgconf'
 build() {
-    configure --with-init-scripts=none \
-              --with-dbus-user=messagebus \
-              --with-system-pid-file=/var/run/$name/$name.pid \
-              --without-x \
-              --disable-x11-autolaunch \
-              --disable-apparmor
-    make
-    make install
+    bonsai_configure --with-init-scripts=none \
+        --with-dbus-user=messagebus \
+        --with-system-pid-file=/var/run/$name/$name.pid \
+        --without-x \
+        --disable-x11-autolaunch \
+        --disable-apparmor
+    bonsai_make
+    bonsai_make install
 }

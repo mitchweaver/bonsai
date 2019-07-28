@@ -2,7 +2,8 @@ info='GNU tool to read/write tar and other archives'
 version=2.12
 source=https://mirrors.kernel.org/gnu/cpio/cpio-$version.tar.gz
 build() {
-    CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE" configure
-    make
-    make install
+    CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE" 
+        bonsai_make configure
+    bonsai_make
+    bonsai_make install
 }

@@ -2,7 +2,7 @@ info='GNU db -- database routines that use extensible hashing'
 version=1.9.1
 source=http://mirrors.kernel.org/gnu/$name/$name-$version.tar.gz
 build() {
-    configure --enable-libgdbm-compat
-    make
-    make install
+    bonsai_configure --enable-libgdbm-compat
+    bonsai_make
+    bonsai_make install
 }

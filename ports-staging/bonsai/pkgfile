@@ -16,9 +16,9 @@ prebuild() {
 }
 # ------------------------------------ #
 build() {
-    make
-    make install
-    make PREFIX="$root" install
+    bonsai_make
+    bonsai_make install
+    bonsai_make PREFIX="$root" install
 }
 postbuild() {
     cd "$root"/bin

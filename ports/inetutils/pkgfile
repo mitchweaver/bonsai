@@ -2,7 +2,7 @@ info='ifconfig suite of utilities'
 version=1.9.4
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
 build() {
-    configure --localstatedir=/var \
+    bonsai_configure --localstatedir=/var \
                 --sysconfdir=/etc  \
                 --disable-servers  \
                 --disable-rsh      \
@@ -12,6 +12,6 @@ build() {
                 --disable-logger   \
                 --disable-talk     \
                 --disable-telnet
-    make
-    make install
+    bonsai_make
+    bonsai_make install
 }
