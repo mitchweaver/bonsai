@@ -12,29 +12,6 @@ initglobals() {
     LC_ALL=C
     LANG=C
     export PATH PKG_CONFIG_PATH LC_ALL LANG
-
-#    # if not inside the chroot,
-#    # prefer to use chroot's tools, (if they exist), over the host system's
-#    if [ "$root" != / ] ; then
-#        check() {
-#            test -x "$root"/bin/$1
-#            return $?
-#        }
-#        check grep  && GREP="$root"/bin/grep   && export GREP
-#        check sed   && SED="$root"/bin/sed     && export SED
-#        check awk   && AWK="$root"/bin/awk     && export AWK
-#        check mkdir && MKDIR="$root"/bin/mkdir && export MKDIR
-#        check echo  && ECHO="$root"/bin/echo   && export ECHO
-#        check find  && FIND="$root"/bin/find   && export FIND
-#        check mv    && MV="$root"/bin/mv       && export MV
-#        check rm    && RM="$root"/bin/rm       && export RM
-#        check tar   && TAR="$root"/bin/tar     && export TAR
-#        check seq   && SEQ="$root"/bin/seq     && export SEQ
-#        check sort  && SORT="$root"/bin/sort   && export SORT
-#        check xargs && XARGS="$root"/bin/xargs && export XARGS
-#        check make  && MAKE="$root"/bin/make   && export MAKE
-#        unset -f check
-#    fi
 }
 
 main() {
