@@ -1,12 +1,12 @@
 # create symlinks for a port
-# params: $pkgname [$pkgs]
+# params: $name [$pkgs]
 # * If $pkgs is not provided, use the config's
 #
 # * If it is provided, symlink targets using this value.
 #   This is useful for bootstrapping, as after chrooting in
 #   if you had not done this all of your symlinks would be broken.
 linkpkg() {
-    pkgname="$1" 
+    name="$1" 
 
     case $# in
         1) _pkgs="$pkgs" ;;
@@ -14,39 +14,39 @@ linkpkg() {
         *) die "linkpkg(): invalid number of arguments"
     esac
 
-    ismetapkg "$1" || [ -d "$pkgs/$pkgname" ] || 
-        die "linkpkg(): port '$pkgname' does not seem to be installed"
+    ismetapkg "$1" || [ -d "$pkgs"/$name ] || 
+        die "linkpkg(): $name doesn't appear to be in $pkgs"
 
     cd "$root" || die "linkpkg(): unable to cd to $root"
-    msg 'creating symlinks...'
+    msg "creating symlinks for $name..."
 
     for dir in bin sbin share include etc lib libexec ; do
-        [ -d "$pkgs/$pkgname/$dir" ] || continue
+        [ -d "$pkgs/$name/$dir" ] || continue
 
         # recursively create pkg subdirectories in
         # equivalent $root subdirectories
-        # example: $pkgname/lib/pkgconfig -> $root/lib/pkgconfig
-        find "$pkgs/$pkgname/$dir" ! -path "*$dir" \
+        # example: $name/lib/pkgconfig -> $root/lib/pkgconfig
+        find "$pkgs/$name/$dir" ! -path "*$dir" \
                 -type d 2> /dev/null | while read -r subdir ; do
-            mkdir -p "${subdir#$pkgs/$pkgname/}"
+            mkdir -p "${subdir#$pkgs/$name/}"
         done
 
         # recursively link all files
-        # example: $pkgname/include/asm/*.h -> $root/include/asm/*.h
-        find "$pkgs/$pkgname/$dir" ! -path "*share/*man*" \
+        # example: $name/include/asm/*.h -> $root/include/asm/*.h
+        find "$pkgs/$name/$dir" ! -path "*share/*man*" \
                 -type f -o -type l 2> /dev/null | while read -r file ; do
-            file="${file#$pkgs/$pkgname/}"
-            ln -sf "$_pkgs/$pkgname/$file" "$file"
+            file="${file#$pkgs/$name/}"
+            ln -sf "$_pkgs/$name/$file" "$file"
         done
     done
 
     $mans && # only link mans if config boolean is true
-    if [ -d "$pkgs/$pkgname/share/man" ] ; then
+    if [ -d "$pkgs/$name/share/man" ] ; then
         seq -f "man%g" -s " " 1 8 | while read -r manX ; do
-            find "$pkgs/$pkgname/share/man/$manX" \
+            find "$pkgs/$name/share/man/$manX" \
                     ! -path "*/$manX" 2> /dev/null | while read -r man ; do
-                ln -sf "$_pkgs/$pkgname/share/man/$manX/${man##*/}" \
-                    "${man#$pkgs/$pkgname/}"
+                ln -sf "$_pkgs/$name/share/man/$manX/${man##*/}" \
+                    "${man#$pkgs/$name/}"
             done
         done
     fi
