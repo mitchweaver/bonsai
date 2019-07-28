@@ -148,7 +148,7 @@ It helps get it higher in GitHub's search results and motivates
 us to continue development.
 
 If you would like to contribute, pull requests are __*always*__ encouraged!  
-See the [Wiki](http://github.com/mitchweaver/bonsai/wiki) for contributing guidelines.
+You can see our contributing guidelines [here](CONTRIBUTING.md).
 
 ### Community 
 
