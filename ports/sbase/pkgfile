@@ -5,8 +5,3 @@ build() {
     make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box
     make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
 }
-postbuild() {
-    # not sure why this is misnamed
-    cd "$pkg"/bin
-    mv xinstall install
-}
