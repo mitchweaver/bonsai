@@ -1,0 +1,4 @@
+info='A command-line system information tool written in bash 3.2+'
+version=247512baf5ff3942d40e4603bc910c46851673a3
+source=http://github.com/dylanaraps/$name/archive/$version.tar.gz
+deps=bash
