@@ -51,7 +51,7 @@ main() {
     loadconfig "$@"
     initglobals
     create_root_dirs
-    setup_profile
+    setup_etc
 
     while [ $# -gt 0 ] ; do
         case "$1" in

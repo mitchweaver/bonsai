@@ -39,15 +39,27 @@ create_root_dirs() {
     unset dir manX perm
     cd - >/dev/null || die "create_root_dirs(): could not return from cd"
 }
-setup_profile() {
-    add() {
-        grep "^$1$" "$root"/etc/profile >/dev/null 2>&1 ||
-            echo "$1" >> "$root"/etc/profile
-    }
-    add 'export PATH="/bin:/src:/local/bin:${HOME}/bin:${HOME}/.local/bin"'
-#    add 'export POSIXLY_CORRECT=1'
-#    add 'umask 022'
-    unset -f add
+setup_etc() {
+if [ ! -f "$root"/etc/profile ] ; then
+cat > "$root"/etc/profile << EOF
+umask 022
+export PATH="/bin:/src:/local/bin:${HOME}/bin:${HOME}/.local/bin"
+export POSIXLY_CORRECT=1
+export PS1="% "
+EOF
+fi
+if [ ! -f "$root"/etc/os-release ] ; then
+cat > "$root"/etc/os-release << EOF
+NAME="bonsai"
+ID="bonsai"
+DISTRIB_ID="bonsai"
+PRETTY_NAME="bonsai"
+VERSION="(beta)"
+VERSION_CODENAME="beta"
+###VERSION_ID=1.0
+ANSI_COLOR="0;32"
+EOF
+fi
 }
 # vi:syntax=sh
 # shellcheck shell=sh
