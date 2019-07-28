@@ -1,0 +1,39 @@
+# <img width="40" height="40" src="res/bonsai_square.png"> FAQ
+
+### 01. Why am I seeing paths in compiler messages prefixed with `//`?
+
+This is because throughout `bonsai` we use a `"$root"` variable so
+it can function seamlessly either inside or outside of a chroot.  
+
+When outside the chroot, `"$root"` is how it is set in your `bonsai.rc`.  
+<sub>**Example:**</sub>  
+`root="~/.local/bonsai"`
+
+However when inside the chroot, `"$root"` gets equated to `/`, so now paths listed
+as `"$root"/some/path` become `//some/path`.
+
+But have no worries! Multiple leading slashes are [collapsed down](http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap03.html#tag_03_266) as per POSIX standards.
+
+### 02. My favorite GNU program isn't installed!
+
+Yes. We do not use GNU `coreutils` or `util-linux`.  
+Instead our userland consists of `sbase`, `ubase`, and `hbase`.
+
+If something is missing, it's probably a package -- usually prefixed with `gnu-`.
+
+If a port isn't available, you're welcome to [port it yourself](http://github.com/mitchweaver/bonsai/wiki/Porting-Guidelines).
+
+### 03. Why not use `busybox`?
+
+Busybox is a suite of minimal, unfortunately [GPL](http://busybox.net/license.html),
+programs with the same goals as our `sbase`, `ubase`, and `hbase`.
+
+While it is a good collection, our userland is *much smaller*.
+
+If you would like to use busybox instead however, you can.
+
+Perhaps in the future we will add a `core-system-busybox` alternative to `core-system`.
+
+### Something else? Come ask us!
+
+See the **#community** section in the README.md
