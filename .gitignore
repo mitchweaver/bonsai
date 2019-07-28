@@ -1,6 +1,6 @@
-distro
-distro.db
-distro.rc
+bonsai
+bonsai.db
+bonsai.rc
 work
 work/*
 sources
