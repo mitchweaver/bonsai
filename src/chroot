@@ -4,7 +4,7 @@ enter_chroot() {
         already_chrooted &&
             die "chroot was already mounted and unable to automatically unmount"
     fi
-    get_chroot_shell || die "can't find a working shell?"
+    get_chroot_shell
 
     cp -f /etc/resolv.conf "$root"/etc/resolv.conf
     _TERM="$TERM"
@@ -22,16 +22,22 @@ enter_chroot() {
     unchroot
 }
 
+# try to find a posix compatible shell who's symlink
+# is correctly pointing to the correct root, (after chrooting)
+# params: none
+# sets: $chroot_shell
 get_chroot_shell() {
-    for shell in loksh mksh bash zsh dash sh ; do
-        if [ -L "$root"/bin/$shell ] ; then
-            chroot_shell=$(readlink "$root"/bin/$shell)
-            [ "$chroot_shell" != /src/pkgs/$shell/bin/$shell ] &&
+    for shell in loksh mksh bash dash sh ; do
+        if [ -h "$root"/bin/$shell ] ; then
+            chroot_shell="$(readlink "$root"/bin/$shell)"
+            if [ "$chroot_shell" != /src/pkgs/$shell/bin/$shell ] ; then
+                warn "$root/bin/$shell exists but it is pointing to $targ"
                 die "You might want to --relink-world before chrooting in..."
-            return 0
+            fi
+            return
         fi
     done
-    return 1
+    die "can't find a working shell?"
 }
 
 mount_drives() {
