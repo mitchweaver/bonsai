@@ -10,7 +10,7 @@ A new way of thinking about software management.
 1. **Static Linking**
  
 All programs should be statically linked.  
-No [.dll hell](https://en.wikipedia.org/wiki/DLL_Hell), no searching through the filesystem.  
+No [dependency hell](http://en.wikipedia.org/wiki/Dependency_hell), no searching through the filesystem.  
 Minimize moving parts. Simpler is better.
 
 2. **Sandboxing**
