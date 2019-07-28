@@ -1,4 +1,4 @@
-# search ports for given $pkgname
+# search ports for given $name
 search() {
     if [ "$1" ] ; then
         find "$ports" ! -path "$ports" -type d
@@ -50,14 +50,14 @@ pkgdeps() {
 }
 
 
-# print info about a given $pkgname
+# print info about a given $name
 portinfo() {
     [ $# -gt 1 ] && die "info(): too many arguments"
     [ $# -eq 0 ] && die "info(): no argument provided"
-    pkgname=$1
-    pkgfile="$ports"/$pkgname/pkgfile
+    name=$1
+    pkgfile="$ports"/$name/pkgfile
 
-    [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
+    [ -f "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
     . "$pkgfile"
 
     [ "$depends" ] || depends=none
@@ -65,16 +65,16 @@ portinfo() {
     [ "$info" ]    || info='?'
 
 cat << EOF
-name:    $pkgname
+name:    $name
 info:    $info
 version: $version
 source:  $source
 depends: $depends
 EOF
-    unset pkgname pkgfile name info version source depends 
+    unset name pkgfile name info version source depends 
 }
 
-# print out the contents of a given $pkgname's pkgfile
+# print out the contents of a given $name's pkgfile
 portcat() {
     [ $# -gt 1 ] && die "pkgcat(): too many arguments"
     [ $# -eq 0 ] && die "pkgcat(): no argument provided"
