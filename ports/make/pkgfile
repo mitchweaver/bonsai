@@ -1,10 +1,9 @@
 info='GNU make build automation tool'
 version=4.2.1
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
-deps=libgmp
 build() {
     CFLAGS="-D_GNU_SOURCE $CFLAGS" 
-        bonsai_configure
+        bonsai_configure --without-guile
     CFLAGS="-D_GNU_SOURCE $CFLAGS" 
         bonsai_make
     bonsai_make install
