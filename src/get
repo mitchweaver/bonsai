@@ -1,4 +1,5 @@
 # downloads url and extracts to $work/$pkg
+# params: none
 # assumes: $name $version $source $pkgid $pkgfile in environment
 get() {
     workdir="$work/$name"
