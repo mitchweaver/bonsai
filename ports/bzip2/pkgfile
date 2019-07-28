@@ -1,5 +1,5 @@
 info='bz2 compression/decompression utility'
-version=1.0.7
+version=1.0.8
 source=http://sourceware.org/pub/$name/$name-$version.tar.gz
 build() {
     bonsai_make CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64"
