@@ -1,16 +1,12 @@
 # search ports for given $name
 search() {
-    if [ "$1" ] ; then
-        find "$ports" ! -path "$ports" -type d
-        return
-    fi
-    results="$(find "$ports" ! -path "$ports" -type d -name "*${1}*" | sort)"
-    [ "$results" ] || die "port $1 not found"
-    for port in $results ; do
-        port=${port##*/}
-        echo "${port%.*}"
+    set -- $(find "$ports" ! -path "$ports" -type d -name "*$1*")
+    [ "$1" ] || die "port $1 not found"
+    for path in $@ ; do
+        path="${path##*/}"
+        echo "${path%.*}"
     done
-    unset results port
+    unset results path
 }
 
 # gets dependencies of a given port 
