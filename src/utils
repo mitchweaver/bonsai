@@ -95,7 +95,7 @@ ismetapkg() {
 validate_gcc() {
     if [ ! -x "$gcc" ] ; then
         case $1 in
-            *gcc*|distro) ;;
+            *gcc*|core-system) ;;
             *) 
             if [ -e "$gcc" ] ; then
                 die "No compiler toolchain has yet been installed.
@@ -111,15 +111,15 @@ validate_gcc() {
 # check variables are still sane before operations
 sanity_check() {
     [ -d "$root"     ] || die "\$root is not a directory"
-    [ -d "$distrohome" ] || die "\$distrohome is not a directory"
+    [ -d "$bonsaihome" ] || die "\$bonsaihome is not a directory"
     [ -d "$pkgs"     ] || die "\$pkgs is not a directory"
     [ -d "$ports"    ] || die "\$ports is not a directory"
     [ -d "$sources"  ] || die "\$sources is not a directory"
-    [ -r "$distrodb" ] || die "\$distrodb is not readable"
+    [ -r "$bonsaidb" ] || die "\$bonsaidb is not readable"
     [ "$delim"       ] || die "\$delim is not set"
     [ "$gcc"         ] || warn "\$gcc is not set"
     jobs="${jobs:=1}"
-    mkdir -p "$distrohome" "$pkgs" "$ports" "$sources" "$work"
+    mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
 }
 
 gccinfo() {

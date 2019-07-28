@@ -12,10 +12,10 @@ enter_chroot() {
     export TERM=vt100 PS1="(chroot) % "
 
     # change whatever user had $root equal to
-    # to root=/ in their distrorc
-    old_config_root="$(head -n 1 "$distrorc")"
-    sed 's|root=.*|root=/|' "$distrorc" > "$distrorc".tmp
-    mv -f "$distrorc".tmp "$distrorc"
+    # to root=/ in their bonsairc
+    old_config_root="$(head -n 1 "$bonsairc")"
+    sed 's|root=.*|root=/|' "$bonsairc" > "$bonsairc".tmp
+    mv -f "$bonsairc".tmp "$bonsairc"
 
     mount_drives
     sudo chroot "$root" "$chroot_shell" -l -i
@@ -72,8 +72,8 @@ unchroot() {
     export TERM="$_TERM" PS1="$_PS1"
 
     # restore the users config
-    sed "s|root=.*|$old_config_root|" "$distrorc" > "$distrorc".tmp
-    mv -f "$distrorc".tmp "$distrorc"
+    sed "s|root=.*|$old_config_root|" "$bonsairc" > "$bonsairc".tmp
+    mv -f "$bonsairc".tmp "$bonsairc"
 
     sudo chown -R "$USER" "${root:?}"
 

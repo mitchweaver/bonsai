@@ -2,7 +2,7 @@
 # params: $pkgname
 isinst() {
     [ "$1" ] || die 'isinst(): no argument given'
-    result=$(grep -i -x -- "$1$delim.*" "$distrodb")
+    result=$(grep -i -x -- "$1$delim.*" "$bonsaidb")
     if [ "$result" ] ; then
         msg "port $result is installed"
     else
@@ -12,32 +12,32 @@ isinst() {
 }
 
 # list packages currently installed
-listpkgs() { cat "$distrodb" ; }
+listpkgs() { cat "$bonsaidb" ; }
 # count packages installed
 countpkgs() { listpkgs | wc -l | sed 's/ //' ; }
 
-sort_db() { [ -f "$distrodb" ] && sort -o "$distrodb" "$distrodb" ; }
+sort_db() { [ -f "$bonsaidb" ] && sort -o "$bonsaidb" "$bonsaidb" ; }
 
 update_db() {
-    if [ -f "$distrodb" ] ; then
+    if [ -f "$bonsaidb" ] ; then
         sort_db
     else
-        :> "$distrodb"
+        :> "$bonsaidb"
     fi
 }
 
 # add entry to database
 # params: $pkgname $pkgversion
 add_db() {
-    echo "${1}${delim}${2}" >> "$distrodb"
+    echo "${1}${delim}${2}" >> "$bonsaidb"
     update_db
 }
 
 # remove entry from database
 # param: $pkgname
 del_db() {
-    sed -e "s/${1}${delim}.*//" -e '/^$/d' "$distrodb" > "$distrodb".tmp
-    mv -f "$distrodb".tmp "$distrodb"
+    sed -e "s/${1}${delim}.*//" -e '/^$/d' "$bonsaidb" > "$bonsaidb".tmp
+    mv -f "$bonsaidb".tmp "$bonsaidb"
     update_db
 }
 # vi:syntax=sh

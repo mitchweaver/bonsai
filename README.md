@@ -1,9 +1,7 @@
-# distro
+# bonsai
 A truly minimal system that is *dumb easy* to setup, configure, and maintain.
 
 A new way of thinking about software management.
-
-** **note**: name is still TBD! `distro` is a placeholder name
 
 # Core Philosophy
 
@@ -48,13 +46,13 @@ No matter how great, a system is bottlenecked by its ability to be understood.
 
 5. **Sane File System Hierarchy**
 
-Similar to [GoboLinux](https://gobolinux.org/), distro uses a custom directory scheme:
+Similar to [GoboLinux](https://gobolinux.org/), bonsai uses a custom directory scheme:
 
 `/include`  
 `/lib`  
 `/share`  
-`/local` <sub>(applications not installed via distro)</sub>  
-`/src` <sub>(distro home)</sub>  
+`/local` <sub>(applications not installed via bonsai)</sub>  
+`/src` <sub>(bonsai home)</sub>  
 `/usr ` <sub>symlinked →   `/`</sub>  
 `/sbin` <sub>symlinked → `/bin`</sub>  
 
@@ -69,8 +67,8 @@ A tree of `/src` looks like this:
     ├── /pkgs      ←  packages
     ├── /ports     ←  pkgfiles
     ├── /sources   ←  tarballs
-    ├── distro.rc    ←  config file
-    └── distro.db    ←  database file
+    ├── bonsai.rc    ←  config file
+    └── bonsai.db    ←  database file
 ```
 
 Inside each package is its own prefix with given `/bin`, `/lib`, etc
@@ -98,7 +96,7 @@ The symlinks are then tracked and removed once the program is uninstalled.
 
 6. **Lightweight**
 
-These are lightweight/embedded technologies incorporated into distro as to be more "suckless" alternatives to conventional GNU/Linux software.
+These are lightweight/embedded technologies incorporated into bonsai as to be more "suckless" alternatives to conventional GNU/Linux software.
 
 **C Library**: [musl-libc](https://www.musl-libc.org/)  
 **Compiler**: [tcc](https://bellard.org/tcc) *(where possible)*  

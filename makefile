@@ -1,4 +1,4 @@
-name=distro
+name=bonsai
 PREFIX=${HOME}/.local/$(name)
 
 $(name): FORCE

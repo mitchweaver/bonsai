@@ -1,0 +1,815 @@
+#!/bin/sh
+isinst() {
+    [ "$1" ] || die 'isinst(): no argument given'
+    result=$(grep -i -x -- "$1$delim.*" "$bonsaidb")
+    if [ "$result" ] ; then
+        msg "port $result is installed"
+    else
+        msg "port $1 is not installed"
+        return 1
+    fi
+}
+listpkgs() { cat "$bonsaidb" ; }
+countpkgs() { listpkgs | wc -l | sed 's/ //' ; }
+sort_db() { [ -f "$bonsaidb" ] && sort -o "$bonsaidb" "$bonsaidb" ; }
+update_db() {
+    if [ -f "$bonsaidb" ] ; then
+        sort_db
+    else
+        :> "$bonsaidb"
+    fi
+}
+add_db() {
+    echo "${1}${delim}${2}" >> "$bonsaidb"
+    update_db
+}
+del_db() {
+    sed -e "s/${1}${delim}.*//" -e '/^$/d' "$bonsaidb" > "$bonsaidb".tmp
+    mv -f "$bonsaidb".tmp "$bonsaidb"
+    update_db
+}
+create_root_dirs() {
+    cd "$root" || die "create_root_dirs(): could not cd to $1"
+    create() {
+        perm="$1"
+        shift
+        for dir in "$@" ; do
+            mkdir -m "$perm" "$dir" 2>/dev/null ||:
+        done
+    }
+    create 0755 bin boot dev etc home include \
+                lib local mnt proc run root share \
+                src sys var \
+                dev/pts dev/pts var/log \
+                var/run src/sources
+    create 0775 tmp dev/shm var/tmp var/preserve
+    create 0744 share/man
+    for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
+        create 0744 share/man/$manX
+    done
+    link() {
+        [ -L "$2" ] && rm -f "$2"
+        ln -sf "$1" "$2"
+    }
+    link . usr       # /usr     -> /
+    link bin sbin    # /sbin    -> /bin
+    link tmp var/tmp # /var/tmp -> /tmp
+    link lib libexec # /libexec -> /lib
+    unset -f link
+    unset dir manX perm
+    cd - >/dev/null || die "create_root_dirs(): could not return from cd"
+}
+setup_profile() {
+    add() {
+        grep "^$1$" "$root"/etc/profile >/dev/null 2>&1 ||
+            echo "$1" >> "$root"/etc/profile
+    }
+    add 'export PATH="/bin:/src:/local/bin:${HOME}/bin:${HOME}/.local/bin"'
+    unset -f add
+}
+linkpkg() {
+    pkgname="$1" 
+    case $# in
+        1) _pkgs="$pkgs" ;;
+        2) _pkgs="$2" ;;
+        *) die "linkpkg(): invalid number of arguments"
+    esac
+    ismetapkg "$1" || [ -d "$pkgs/$pkgname" ] || 
+        die "linkpkg(): port '$pkgname' does not seem to be installed"
+    cd "$root" || die "linkpkg(): unable to cd to $root"
+    msg 'creating symlinks...'
+    for dir in bin sbin share include etc lib libexec ; do
+        [ -d "$pkgs/$pkgname/$dir" ] || continue
+        find "$pkgs/$pkgname/$dir" ! -path "*$dir" \
+                -type d 2> /dev/null | while read -r subdir ; do
+            mkdir -p "${subdir#$pkgs/$pkgname/}"
+        done
+        find "$pkgs/$pkgname/$dir" ! -path "*share/*man*" \
+                -type f -o -type l 2> /dev/null | while read -r file ; do
+            file="${file#$pkgs/$pkgname/}"
+            ln -sf "$_pkgs/$pkgname/$file" "$file"
+        done
+    done
+    $mans && # only link mans if config boolean is true
+    if [ -d "$pkgs/$pkgname/share/man" ] ; then
+        seq -f "man%g" -s " " 1 8 | while read -r manX ; do
+            find "$pkgs/$pkgname/share/man/$manX" \
+                    ! -path "*/$manX" 2> /dev/null | while read -r man ; do
+                ln -sf "$_pkgs/$pkgname/share/man/$manX/${man##*/}" \
+                    "${man#$pkgs/$pkgname/}"
+            done
+        done
+    fi
+    unset dir subdir file manX man _pkgs
+}
+relink_world() {
+    case $# in
+        0)
+            sanity_check
+            relink_pkgs="$pkgs"
+            msg 'relinking world...'
+            ;;
+        1)
+            [ "$1" = --chroot ] && set -- '--pkgs=/src/pkgs'
+            if [ "${1#*--pkgs=}" != "$1" ] ; then
+                relink_pkgs="${1#--pkgs=}"
+            else
+                die 'bad argument given to --relink-world'
+            fi
+            msg "relinking world with \$pkgs=$relink_pkgs..."
+            ;;
+        *)
+            die "relink_all(): invalid number of arguments"
+    esac
+    printf '\n'
+    listpkgs | while read -r pkgid ; do
+        linkpkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
+    done || die "relink_world(): linking failed"
+    printf '\n'
+    msg 'done!'
+    unset relink_pkgs
+}
+addpkg() {
+    [ "$1" ] || die "addpkg(): no pkg given"
+    is_empty "$ports" && die "addpkg(): no ports found"
+    for pkg in "$@" ; do
+        isinst "$pkg" > /dev/null &&
+            die "port $pkg is already installed"
+    done
+    load_pkgfile() {
+        name="$1"
+        pkg="$pkgs"/"$name"
+        pkgfile="$ports/$name/pkgfile"
+        export pkg name pkgfile
+        [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
+        . "$pkgfile"
+        ismetapkg "$name" && version=metapkg
+        : "${version:=unknown}"
+        pkgid="${name}${delim}${version}"
+        export version source pkgid
+    }
+    unload_pkgfile() {
+        unset pkgname pkgfile pkgid version source depends deps
+        unset -f prebuild build postbuild
+    }
+    prompt_user() {
+        warn "these packages will be installed:"
+        printf "\n  %s\n\n" "$1"
+        if [ -z "$NO_PROMPT" ] ; then
+            msg_no_nl "continue? (y/n): "
+            read -r ans
+            case "$ans" in
+                y|"") ;; # "" is equivalent to user pressing enter
+                *) return 1
+            esac
+            unset ans
+        fi
+    }
+    add() {
+        ismetapkg "$name" || validate_gcc $1
+        rm -rf "${work:?}" 2>/dev/null ||:
+        unload_pkgfile
+        load_pkgfile "$1"
+        if isinst "$name" >/dev/null ; then
+            msg "port $name is already installed"
+            unload_pkgfile
+            return 1
+        fi
+        case "$source" in
+            ""|none) ;;
+            *) get
+        esac
+        if ! ismetapkg "$name" ; then
+            cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
+            mkdir -p "$pkgs/$name"
+            trap 'rmdir $pkgs/$name' INT TERM
+        fi
+        run_build "$name" || die "$name failed to build"
+        if [ -d "$pkgs/$name" ] ; then
+            linkpkg "$name" || die "$name failed to link"
+            clear_junk "$name"
+        fi
+        add_db "$name" "$version"
+        msg "$name installed!"
+        sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
+        clean
+        trap - INT TERM
+        unload_pkgfile
+    }
+    
+    main_packages="$*"
+    set --
+    for mainpkg in $main_packages ; do
+        load_pkgfile "$mainpkg"
+        pkgdeps "$mainpkg"
+        case "$pkgdeps" in
+            "") ;;
+            "* *") ;;
+            *) for dep in $pkgdeps ; do
+                   isinst "$dep" > /dev/null || set -- "$* $dep"
+               done
+        esac
+        set -- "$* $mainpkg"
+        unload_pkgfile
+    done
+    prompt_user "$*" || return 1
+    for pkg in $@ ; do
+        add "$pkg"
+    done || die "failed to install $port"
+    unset main_packages pkg dep
+    unset -f load_pkgfile unload_pkgfile prompt_user add
+}
+run_build() { 
+    msg "building $name..."
+    getflags
+    sucks
+    if defined prebuild ; then
+        prebuild || die "$1 prebuild() failed"
+    elif ! ismetapkg $name ; then
+        patch || die "$1 generic prebuild() failed"
+    fi
+    if defined build ; then
+        build || die "$1 build() failed"
+    elif ! ismetapkg $name ; then
+        generic_build || die "$1 generic_build() failed"
+    fi
+    if defined postbuild ; then
+        postbuild || die "$1 postbuild() failed"
+    fi
+    unset -f prebuild build postbuild
+}
+cc()  { $cc  -static -Os -s "$@" ; }
+gcc() { $gcc -static -Os -s "$@" ; }
+getflags() {
+    LIBRARY_PATH=".:$root/lib:$root/libexec"
+    CPATH=".:$root/include"
+    CFLAGS="$CFLAGS $cflags"
+    LDFLAGS="$LDFLAGS $ldflags"
+    CPPFLAGS="$CPPFLAGS $cppflags"
+    CXXFLAGS="$CXXFLAGS $cxxflags"
+    PREFIX="$pkgs/$name"
+    prefix="$PREFIX"
+    DESTDIR=''
+    BINDIR="$PREFIX/bin"
+    INCLUDEDIR="$PREFIX/include"
+    LIBDIR="$PREFIX/lib"
+    LIBEXECDIR="$PREFIX/libexec"
+    MANDIR="$PREFIX/share/man"
+    PRESERVEDIR="$root/var/preserve"
+    cc="${cc:=$gcc}"
+    CC="${cc:=$cc}"
+    export LIBRARY_PATH CPATH \
+           CFLAGS LDFLAGS CPPFLAGS CXXFLAGS CC cc \
+           PREFIX prefix DESTDIR BINDIR INCLUDEDIR \
+           LIBDIR LIBEXECDIR MANDIR PRESERVEDIR
+}
+patch() {
+    find . ! -name . -prune -name "*.patch" | while read -r patch ; do
+        command patch -p0 < "$patch" | msg
+    done
+    unset patch
+}
+autogen() { configure --autogen ; }
+configure() {
+    if [ "$1" = "--autogen" ] ; then
+        FILE=autogen.sh
+        shift
+    else
+        FILE=configure
+    fi
+    ${docs:=false}  || _docs="--disable-docs --disable-gtk-docs --disable-gtk-docs-html --docdir=/dev/null"
+    ${nls:=false}   || _nls=--disable-nls
+    ${tests:=false} || _tests=--without-tests
+    ${debug:=false} || _debug='--disable-debug --disable-debugger'
+    ${quiet:=false} && _quiet='--silent --quiet'
+    if [ $FILE = configure ] ; then
+        _tmp_help="$root"/src/work/$name.confhelp
+        _tmp_flags="$root"/src/work/$name.confflags
+        ./$FILE --help > $_tmp_help
+        :> $_tmp_flags
+        addflag() {
+            grep -F -- "$1" $_tmp_help > /dev/null && 
+                printf "%s\n" "$2" >> $_tmp_flags
+        }
+        for flag in --static --enable-static --enable-static-link --disable-shared \
+                    --disable-rpath --disable-option-checking  --enable-fast-install \
+                    --disable-dependency-tracking --without-ada --without-shared \
+                    --disable-libtool-lock $_quiet $_debug $_nls $_docs $_tests -C ; do
+            addflag $flag $flag &
+        done
+        addflag --prefix= --prefix="$PREFIX" &
+        addflag --with-gnu-ld --without-gnu-ld &
+        addflag --enable-shared --disable-shared &
+        addflag --enable-tests  --disable-tests &
+        addflag --with-shared   --without-shared &
+        $debug || addflag --with-debug    --without-debug &
+        $tests || addflag --with-tests --without-tests &
+        $tests && addflag --enable-extratests --enable-extratests &
+        for flag in $@ ; do
+            printf "%s\n" $flag >> $_tmp_flags
+        done &
+        wait
+    fi
+    ./$FILE $(cat $_tmp_flags) "$@"
+    set $?
+    unset -f addflag
+    unset flag _tmp_help _docs _nls _debug _quiet _tests FILE tmp
+    return $1
+}
+make() {
+    $mans   || _mans='MANDIR=/dev/null'
+    $quiet  && _quiet='-s'
+    command make $makeflags -j${jobs:=1} $_mans $_quiet \
+        CC="$CC" \
+        cc="$CC" \
+        DESTDIR="$DESTDIR" \
+        PREFIX="$PREFIX" \
+        prefix="$PREFIX" \
+        BINDIR="$BINDIR" \
+        INCLUDEDIR="$INCLUDEDIR" \
+        LIBDIR="$LIBDIR" \
+        LIBEXECDIR="$LIBEXECDIR" \
+        MANDIR="$MANDIR" \
+        PRESERVEDIR="$PRESERVEDIR" "$@"
+    set $?
+    unset _quiet _docs
+    return $1
+}
+generic_build() {
+    if [ -s configure ] ; then
+        configure
+    elif [ -s autogen.sh ] ; then
+        autogen
+        configure
+    fi
+    make
+    make install
+}
+clear_junk() {
+    rm -r "$pkgs/$1/share/info" 2>/dev/null ||:
+    $docs || rm -r "$pkgs/$1/share/doc" 2>/dev/null ||:
+    $mans || rm -r "$pkgs/$1/share/man" 2>/dev/null ||:
+}
+loadconfig() {
+    if [ "$config" ] ; then
+        bonsairc="$config"
+    elif [ -f /src/"$PKG_MGR_NAME".rc ] ; then
+        bonsairc="/src/$PKG_MGR_NAME.rc"
+    else 
+        bonsairc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
+        [ ! -f "$bonsairc" ] && create_skeleton_config
+    fi
+    . "$bonsairc" || die "loadconfig(): could not source config"
+    if [ "$_root" ] ; then
+        root="$_root"
+    fi
+    
+   
+    mkdir -p "${root:="${HOME}/.local/bonsai"}" \
+             "${bonsaihome:="$root/src"}" \
+             "${pkgs:="$bonsaihome/pkgs"}" \
+             "${ports:="$bonsaihome/ports"}" \
+             "${sources:="$bonsaihome/sources"}" \
+             "${work:="$bonsaihome/work"}"
+    : "${bonsaidb:="$bonsaihome/bonsai.db"}"
+    [ "$_gcc" ] && gcc="$_gcc"
+    update_db
+    sanity_check
+    unset _root _gcc _config
+}
+create_skeleton_config() {
+    if [ "$1" ] ; then
+        if [ ! -e "$1" ] ; then
+            path="$1"
+        else
+            die "create_skeleton_config(): Refusing to overwrite $1"
+        fi
+    else
+        path="${HOME}/.local/$PKG_MGR_NAME/src"
+        mkdir -p "$path"
+        echo "copying default config to ~/.local/$PKG_MGR_NAME/$PKG_MGR_NAME.rc"
+    fi
+cat > "$path/$PKG_MGR_NAME".rc << "EOF"
+root=${HOME}/.local/bonsai
+jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
+gcc="$root/bin/gcc"
+makeflags=''
+keep_tarballs=true
+mans=true   # install man pages?
+docs=false  # install extra documentation?
+nls=false   # provide native-language-support?
+quiet=false # configure/make silently without warnings?
+debug=false # compile in debugging tools/information?
+tests=false # compile included tests?
+prompt='→'  # msg prompt
+delim='#'
+cflags="-static --static -s -w -Os -no-pie -pipe -march=native -ffast-math"
+cflags="$cflags -Wl,--gc-sections -fstack-protector-strong"
+ldflags="-static --static -s -fdata-sections -ffunction-sections"
+cppflags='-static --static'
+cxxflags="$cflags"
+EOF
+}
+delpkg() {
+    sanity_check
+    pkgname="$1"
+    isinst "$pkgname" > /dev/null || die "$pkgname is not installed"
+    cd "$root" || die "delpkg(): unable to cd to $root"
+    if [ -d "$pkgs/$pkgname" ] ; then
+    find "$pkgs/$pkgname" -type f -o -type l | while read -r file ; do
+        rm -f "$file"
+        root_file="${file#$pkgs/$pkgname}"
+        test_link "$root/$root_file" || rm -f "$root/$root_file"
+    done
+    find "$pkgs/$pkgname" -type d | sed '1!G;h;$!d' | while read -r dir ; do
+        is_empty "$dir" && rmdir "$dir"
+        root_dir="${dir#$pkgs/$pkgname}"
+        [ "$root_dir" ] || continue
+        if is_empty "$root/$root_dir" && \
+            ! echo "$root_dir" | grep '/' > /dev/null ; then
+            rmdir "$root/$root_dir"
+        fi
+    done
+    fi
+    del_db "$pkgname"
+    clean
+    msg "$pkgname deleted"
+    unset pkgname file dir root_file root_dir
+}
+enter_chroot() {
+    if already_chrooted > /dev/null ; then
+        unmount_drives
+        already_chrooted &&
+            die "chroot was already mounted and unable to automatically unmount"
+    fi
+    get_chroot_shell || die "can't find a working shell?"
+    cp -f /etc/resolv.conf "$root"/etc/resolv.conf
+    _TERM="$TERM"
+    _PS1="$PS1"
+    export TERM=vt100 PS1="(chroot) % "
+    old_config_root="$(head -n 1 "$bonsairc")"
+    sed 's|root=.*|root=/|' "$bonsairc" > "$bonsairc".tmp
+    mv -f "$bonsairc".tmp "$bonsairc"
+    mount_drives
+    sudo chroot "$root" "$chroot_shell" -l -i
+    unchroot
+}
+get_chroot_shell() {
+    for shell in loksh mksh bash zsh dash sh ; do
+        if [ -L "$root"/bin/$shell ] ; then
+            chroot_shell=$(readlink "$root"/bin/$shell)
+            [ "$chroot_shell" != /src/pkgs/$shell/bin/$shell ] &&
+                die "You might want to --relink-world before chrooting in..."
+            return 0
+        fi
+    done
+    return 1
+}
+mount_drives() {
+    sudo mount -R -t devtmpfs /dev "$root"/dev || die 'Could not mount.'
+    sudo mount -R -t devpts /dev/pts "$root"/dev/pts
+    sudo mount -R -t proc /proc "$root"/proc
+    sudo mount -R -t sysfs /sys "$root"/sys
+}
+unmount_drives() {
+    tryumount() {
+        path="$1"
+        if ! sudo umount "$path" 2> /dev/null ; then
+            msg "umount ${path} failed... trying to umount -f"
+            sleep 1
+            if ! sudo umount -f "$path" 2> /dev/null ; then
+                msg "umount -f ${path} failed... trying to umount -l"
+                sleep 1
+                if ! sudo umount -l "$path" 2> /dev/null ; then
+                    warn "WARNING: could  not umount -l ${path}!"
+                fi
+            fi
+        fi
+    }
+    tryumount "$root"/dev/pts
+    tryumount "$root"/dev
+    tryumount "$root"/proc
+    tryumount "$root"/sys
+    unset -f tryumount
+}
+unchroot() {
+    unmount_drives
+    if already_chrooted ; then
+        unmount_drives
+        already_chrooted && warn "was unable to automatically unmount chroot!"
+    fi
+    export TERM="$_TERM" PS1="$_PS1"
+    sed "s|root=.*|$old_config_root|" "$bonsairc" > "$bonsairc".tmp
+    mv -f "$bonsairc".tmp "$bonsairc"
+    sudo chown -R "$USER" "${root:?}"
+    msg 'exited chroot!'
+}
+already_chrooted() {
+    [ "$(ls -A "$root"/dev/pts 2> /dev/null)" ] || return 1
+    msg "the chroot has already been mounted!"
+}
+PKG_MGR_NAME=$(basename "$0")
+export PKG_MGR_NAME
+initglobals() {
+    unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+        LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
+        OBJC_INCLUDE_PATH PKG_CONFIG
+    PATH="$root/bin:$PATH"
+    LC_ALL=C
+    LANG=C
+    export PATH LC_ALL LANG
+}
+main() {
+    [ $# -eq 0 ] && usage
+    case "$1" in
+        *skeleton|skel) shift ; create_skeleton_config "$1" ; exit ;;
+        --config=*) config="${1#--config=}" ; shift ;;
+        --root=*) _root="${1#--root=}" ; shift ;;
+        --gcc=*) _gcc="${1#--gcc=}" ; shift ;;
+        -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
+        *help|-h)  usage ;;
+    esac
+    loadconfig "$@"
+    initglobals
+    create_root_dirs
+    setup_profile
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            add|-a) shift ; addpkg "$@" ; exit $?  ;;
+            del|-d)
+                shift
+                [ "$1" ] || die "delpkg(): no pkg given"
+                while [ $# -gt 0 ] ; do
+                    delpkg "$1"
+                    shift
+                done
+                ;;
+            search|-s) search "$2"   ; exit $? ;;
+            isinst|-i)
+                shift
+                [ "$1" ] || die 'isinst(): no argument given'
+                while [ $# -gt 0 ] ; do
+                    isinst "$1"
+                    shift
+                done
+                ;;
+            list|-l)   listpkgs      ; exit $? ;;
+            count|-c)  countpkgs     ; exit $? ;;
+            info)      portinfo "$2" ; exit $? ;;
+            cat)       portcat "$2"  ; exit $? ;;
+            deps)
+                pkgdeps "$2"
+                if [ "$pkgdeps" ] ; then
+                    msg "$pkgdeps"
+                    exit
+                else
+                    msg "port $2 has no dependencies"
+                    exit 1
+                fi
+                ;;
+            relink|link)
+                shift
+                [ "$1" ] || die "linkpkg(): invalid number of arguments"
+                while [ $# -gt 0 ] ; do
+                    linkpkg "$1"
+                    shift
+                done
+                ;;
+            --relink-world)
+                shift
+                relink_world "$@"
+                exit $?
+                ;;
+            gccinfo) gccinfo ; exit $? ;;
+            chroot) enter_chroot ; exit $? ;;
+            *) set -- add "$@" ;;
+        esac
+    done
+    exit $?
+}
+get() {
+    workdir="$work/$name"
+    dldir="$work/dl"
+    mkdir -p "$workdir" "$dldir"
+    if [ "$version" = git ] ; then 
+        ext=""
+    else
+        ext=".${source##*.}"
+        grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar$ext"
+    fi
+    dlgit() {
+        : # todo
+    }
+    dlcurl() {
+        msg "downloading $source..."
+        curl -q -L -C - -# --url "$source" -o "$dldir/curl-$name-dl$ext"
+        mv "$dldir/curl-$name-dl$ext" "$dldir/$pkgid$ext"
+        ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
+    }
+    extract() {
+        msg "extracting $name"...
+        decompress() {
+            case "${ext##*.}" in
+                xz)     xz-embedded < "$1" ;;
+                gz|tgz) gunzip  -dc "$1"   ;;
+                bz2)    bunzip2 -dc "$1"   ;;
+                zip)    unzip -p "$1"      ;;
+            esac || die "get(): failed to decompress $1"
+        }
+        case "$ext" in
+            .tar.*|.tgz)
+                decompress "$1" | tar -C "$dldir" -xf -
+                mv "$dldir"/*/*  "$workdir"
+                find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
+                    mv "$file" "$workdir"
+                done
+                ;;
+            *) decompress "$1" > "$workdir/${1%%$ext}"
+        esac || die "get(): failed to extract $1"
+    }
+    if [ ! -e "$sources/$pkgid$ext" ] ; then
+        dlcurl "$source" || die "get(): could not download $name"
+        extract "$dldir/$pkgid$ext"
+    else
+        extract "$sources/$pkgid$ext"
+    fi
+    find "$ports/$name" ! -name pkgfile ! -name $name | while read -r file ; do
+        cp -f "$file" "$workdir"
+    done
+    unset workdir dldir ext file
+    unset -f dlgit dlcurl extract decompress
+}
+search() {
+    if [ "$1" ] ; then
+        find "$ports" ! -path "$ports" -type d
+        return
+    fi
+    results="$(find "$ports" ! -path "$ports" -type d -name "*${1}*" | sort)"
+    [ "$results" ] || die "port $1 not found"
+    for port in $results ; do
+        port=${port##*/}
+        echo "${port%.*}"
+    done
+    unset results port
+}
+pkgdeps() {
+    arg=$1
+    dep_recurse() {
+        unset deps
+        if [ -f "$ports/$1/pkgfile" ] ; then
+            . "$ports/$1/pkgfile"
+        else
+            die "pkgdeps(): could not source $1's pkgfile"
+        fi
+        if [ "$deps" ] ; then
+            for dep in $deps ; do
+                case "$to_check" in
+                    *" $dep "*) ;; # dependency is already in list
+                    *) to_check=" $deps $pkgdep "
+                esac
+            done
+            for dep in $deps ; do
+                dep_recurse "$dep"
+            done
+        fi
+        [ $1 != $arg ] && pkgdeps="$pkgdeps $1"
+    }
+    dep_recurse "$arg"
+    export pkgdeps
+    unset -f dep_recurse
+    unset dep deps arg
+}
+portinfo() {
+    [ $# -gt 1 ] && die "info(): too many arguments"
+    [ $# -eq 0 ] && die "info(): no argument provided"
+    pkgname=$1
+    pkgfile="$ports"/$pkgname/pkgfile
+    [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
+    . "$pkgfile"
+    [ "$depends" ] || depends=none
+    [ "$version" ] || version=unknown
+    [ "$info" ]    || info='?'
+cat << EOF
+name:    $pkgname
+info:    $info
+version: $version
+source:  $source
+depends: $depends
+EOF
+    unset pkgname pkgfile name info version source depends 
+}
+portcat() {
+    [ $# -gt 1 ] && die "pkgcat(): too many arguments"
+    [ $# -eq 0 ] && die "pkgcat(): no argument provided"
+    pkgfile="$ports"/$1/pkgfile
+    [ -f "$pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
+    cat "$pkgfile"
+}
+msg()  {
+    [ $# -eq 0 ] && read -r input && set -- "$input"
+    printf "%s\n" "$prompt $*"
+}
+msg_no_nl()  {
+    [ $# -eq 0 ] && read -r input && set -- "$input"
+    printf "%s" "$prompt $*"
+}
+die()  { >&2 msg "error: $*" ; exit 1 ; }
+warn() { >&2 msg "warning: $*" ; }
+usage() {
+    printf "%s\n\n%s\n" "$PKG_MGR_NAME pkg mgr" \
+"commands:
+-----------
+add    | -a
+del    | -d
+search | -s
+list   | -l
+isinst | -i
+count  | -c"
+exit
+}
+defined() {
+    for arg ; do
+        type "$arg" | grep 'is.*.function' || return 1
+    done > /dev/null 2>&1
+    unset arg
+}
+has() { 
+    for arg ; do
+        type "$arg" || return 1
+    done > /dev/null 2>&1
+    unset arg
+}
+is_empty() {
+    if rmdir "$1" 2> /dev/null ; then
+        mkdir "$1"
+        return
+    else
+        return 1
+    fi
+}
+test_link() {
+    if [ ! -L "$1" ] || [ ! -e "$1" ]; then
+        return 1
+    fi
+}
+basename() { printf "%s" "${1##*/}" ; }
+trim() {
+    set -- "${1#${1%%[! ]*}}"
+    set -- "${1%${_##*[! ]}}"
+    printf '%s\n' "$1"
+}
+pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
+clean() {
+    rm -rf "${work:?}"
+    find "$pkgs" -type d ! -path "$pkgs" 2> /dev/null | \
+            while read -r dir ; do
+        rmdir "$dir" 2> /dev/null ||:
+    done
+    update_db
+    unset dir
+}
+ismetapkg() {
+    grep '^metapkg=true$' "$ports/$1/pkgfile" > /dev/null
+    return $?
+}
+validate_gcc() {
+    if [ ! -x "$gcc" ] ; then
+        case $1 in
+            *gcc*|core-system) ;;
+            *) 
+            if [ -e "$gcc" ] ; then
+                die "No compiler toolchain has yet been installed.
+         Try \`$PKG_MGR_NAME search gcc\` to find one."
+            else
+                die "World appears to still be linked as a chroot.
+         Use --relink-world to relink externally."
+            fi
+        esac
+    fi
+}
+sanity_check() {
+    [ -d "$root"     ] || die "\$root is not a directory"
+    [ -d "$bonsaihome" ] || die "\$bonsaihome is not a directory"
+    [ -d "$pkgs"     ] || die "\$pkgs is not a directory"
+    [ -d "$ports"    ] || die "\$ports is not a directory"
+    [ -d "$sources"  ] || die "\$sources is not a directory"
+    [ -r "$bonsaidb" ] || die "\$bonsaidb is not readable"
+    [ "$delim"       ] || die "\$delim is not set"
+    [ "$gcc"         ] || warn "\$gcc is not set"
+    jobs="${jobs:=1}"
+    mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
+}
+gccinfo() {
+    getflags
+    printf "%s\n\n" "version: $($gcc -dumpversion)"
+    printf '%s\n\n' "arch: $($gcc -dumpmachine)"
+    printf "%s\n\n" "sysroot: $($gcc -print-sysroot)"
+    LIBRARY_PATH="$LIBRARY_PATH" $gcc -print-search-dirs
+    LIBRARY_PATH="$LIBRARY_PATH" $gcc -E -Wp,-v -xc /dev/null
+}
+sucks() {
+    [ -f build-aux/missing ] && :> build-aux/missing
+    : ${GREP:=grep} ${SED:=sed} ${AWK:=awk} ${TAR:=tar} ${FIND:=find}
+    export GREP SED AWK TAR FIND
+}
+main "$@"
