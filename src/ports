@@ -55,6 +55,7 @@ portinfo() {
     [ $# -gt 1 ] && die "info(): too many arguments"
     [ $# -eq 0 ] && die "info(): no argument provided"
     pkgname=$1
+	name=$1
     pkgfile="$ports"/$pkgname/pkgfile
 
     [ -f "$pkgfile" ] || die "addpkg(): could not source $pkgname's pkgfile"
