@@ -20,7 +20,7 @@ setup simply by copying the relevant statically-linked binaries.
 
 3. **A Better C Library**
 
-GNU GLibc is massively bloated and a poor choice for static linking.  
+GNU's [glibc](http://www.gnu.org/software/libc) is massively bloated and a poor choice for static linking.  
 [Musl-libc](http://musl-libc.org) is a fresh lightweight alternative 
 that was [designed from the ground up](https://www.musl-libc.org/intro.html) 
 to be used with static linking. 
