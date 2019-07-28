@@ -36,8 +36,6 @@ bonsai_cc()  { $cc  -static -Os -s "$@" ; }
 bonsai_gcc() { $gcc -static -Os -s "$@" ; }
 
 getflags() {
-#    causing issues, for now remove
-#    [ -f "$root"/etc/profile ] && . "$root"/etc/profile
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
     CFLAGS="$CFLAGS $cflags"
@@ -118,13 +116,12 @@ bonsai_configure() {
 
         for flag in $@ ; do
             printf "%s\n" $flag >> $_tmp_flags
-        done &
-        wait
+        done
     fi
 
     ./$FILE $(cat $_tmp_flags) "$@"
 
-    set $?
+    set -- $?
     unset -f addflag
     unset flag _tmp_help _docs _nls _debug _quiet _tests FILE tmp
     return $1
@@ -147,7 +144,7 @@ bonsai_make() {
         MANDIR="$MANDIR" \
         PRESERVEDIR="$PRESERVEDIR" "$@"
 
-    set $?
+    set -- $?
     unset _quiet _docs
     return $1
 }
@@ -166,9 +163,9 @@ generic_build() {
 
 # remove junk files from $pkgs/$1
 clear_junk() {
-    rm -r "$pkgs/$1/share/info" 2>/dev/null ||:
-    $docs || rm -r "$pkgs/$1/share/doc" 2>/dev/null ||:
-    $mans || rm -r "$pkgs/$1/share/man" 2>/dev/null ||:
+    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
+    $docs || rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
+    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
 }
 # vi:syntax=sh
 # shellcheck shell=sh

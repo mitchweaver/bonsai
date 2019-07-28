@@ -5,14 +5,12 @@ loadconfig() {
         bonsairc="/src/$PKG_MGR_NAME.rc"
     else 
         bonsairc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
-        [ ! -f "$bonsairc" ] && create_skeleton_config
+        [ -s "$bonsairc" ] || create_skeleton_config
     fi
-    . "$bonsairc" || die "loadconfig(): could not source config"
+    [ -r "$bonsairc" ] || die "loadconfig(): could not source config"
+    . "$bonsairc"
 
-    if [ "$_root" ] ; then
-        root="$_root"
-    fi
-    
+    [ "$_root" ] && root="$_root"
    
     # set default variables if not in config file
     # and make necessary directories
