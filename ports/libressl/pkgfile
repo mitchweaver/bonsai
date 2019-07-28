@@ -3,11 +3,6 @@ version=2.9.2
 source=http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/$name-$version.tar.gz
 build() {
     bonsai_configure --disable-hardening --disable-windows-ssp
-
-    mv -f libtool libtool.tmp
-    printf "%s\n%s\n" '#!/bin/sh' 'set -ex' >> libtool
-    cat libtool.tmp >> libtool
-
     bonsai_make
     bonsai_make install
 }
