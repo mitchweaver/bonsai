@@ -35,10 +35,10 @@ get_chroot_shell() {
 }
 
 mount_drives() {
-    sudo mount -R -t devtmpfs /dev "$root"/dev || die 'Could not mount.'
-    sudo mount -R -t devpts /dev/pts "$root"/dev/pts
-    sudo mount -R -t proc /proc "$root"/proc
-    sudo mount -R -t sysfs /sys "$root"/sys
+    sudo mount -o bind -t devtmpfs /dev "$root"/dev || die 'Could not mount.'
+    sudo mount -o bind -t devpts /dev/pts "$root"/dev/pts
+    sudo mount -o bind -t proc /proc "$root"/proc
+    sudo mount -o bind -t sysfs /sys "$root"/sys
 }
 
 unmount_drives() {
