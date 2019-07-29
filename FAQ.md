@@ -34,6 +34,20 @@ If you would like to use busybox instead however, you can.
 
 Perhaps in the future we will add a `core-system-busybox` alternative to `core-system`.
 
+### 04. I'm getting tons of errors when chrooting in
+
+Make sure your `root=` variable is set correctly in your `bonsai.rc`.
+
+If you don't care about saving your config, you can just grab a 
+new skeleton with `bonsai skel`.
+
+<sub>**Explanation:**</sub>  
+When unchrooted, `$root` it should be where the chroot lives.  
+<sub>*(default)*: `root="~/.local/bonsai"` </sub>
+
+Then, when chrooting, `$root` will get changed to `root=/`.  
+Upon exiting the original value gets restored.
+
 ### Something else? Come ask us!
 
 See the **#community** section in the README.md
