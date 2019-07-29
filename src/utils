@@ -2,11 +2,11 @@
 # shellcheck shell=sh
 
 msg()  {
-    [ "$1" ] || read -r input && set -- "$input"
+    [ -z "$1" ] && read -r input && set -- "$input"
     printf "%s\n" "$prompt $*"
 }
 msg_no_nl()  {
-    [ "$1" ] || read -r input && set -- "$input"
+    [ -z "$1" ] && read -r input && set -- "$input"
     printf "%s" "$prompt $*"
 }
 die()  { >&2 msg "error: $*" ; exit 1 ; }
@@ -27,7 +27,6 @@ list   | -l
 print  | -p
 count  | -c
 deps isinst"
-exit
 }
 
 # checks if a function is defined

@@ -20,71 +20,74 @@ initglobals() {
 main() {
     [ "$1" ] || usage
 
+    # assign any special arguments
+    [ "$1" = --debug ]   && { set -x ; shift ; }
+    [ "$1" = --errexit ] && { set -e ; shift ; }
+    [ "$1" = --config ]  && { config="${1#--config=}" ; shift ; }
+    [ "$1" = --root ]    && { root="${1#--root=}"     ; shift ; }
+    [ "$1" = --gcc ]     && { gcc="${1#--gcc=}"       ; shift ; }
+    [ "$1" = -y ]  && { NO_PROMPT=true ; export NO_PROMPT ; shift ; }
+
+    # statements that should be ran before loading config
     case "$1" in
         --skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
-        --config=*) config="${1#--config=}" ; shift ;;
-        --root=*) _root="${1#--root=}" ; shift ;;
-        --gcc=*) _gcc="${1#--gcc=}" ; shift ;;
-        --debug) set -x ; shift ;;
-        -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
-        --help|-h)  usage ;;
+        --help|-h)  usage ; exit
     esac
 
+    # load config and setup the environment
     loadconfig
     initglobals
     create_root_dirs
     setup_etc
 
-    while [ $# -gt 0 ] ; do
-        case "$1" in
-            add|-a) shift ; addpkg "$@" ; exit $?  ;;
-            del|-d)
+    # statements that exit after running once
+    case "$1" in
+        chroot)    enter_chroot  ; exit $? ;;
+        list|-l)   listpkgs      ; exit $? ;;
+        search|-s) search "$2"   ; exit $? ;;
+        info|-i)   portinfo "$2" ; exit $? ;;
+        print|-p)  portcat "$2"  ; exit $? ;;
+        count)     countpkgs     ; exit $? ;;
+        add|-a)
+            shift
+            addpkg "$@"
+            exit $?
+            ;;
+        del|-d)
+            shift
+            while [ "$1" ] ; do
+                delpkg "$1"
                 shift
-                [ "$1" ] || die "delpkg(): no pkg given"
-                while [ "$1" ] ; do
-                    delpkg "$1"
-                    shift
-                done
-                ;;
-            relink|-r)
+            done
+            ;;
+        relink|-r)
+            shift
+            while [ "$1" ] ; do
+                linkpkg "$1"
                 shift
-                [ "$1" ] || die "linkpkg(): invalid number of arguments"
-                while [ "$1" ] ; do
-                    linkpkg "$1"
-                    shift
-                done
-                ;;
-            isinst)
+            done
+            ;;
+        isinst)
+            shift
+            while [ "$1" ] ; do
+                isinst "$1"
                 shift
-                [ "$1" ] || die 'isinst(): no argument given'
-                while [ "$1" ] ; do
-                    isinst "$1"
-                    shift
-                done
-                ;;
-            list|-l)   listpkgs      ; exit $? ;;
-            search|-s) search "$2"   ; exit $? ;;
-            info|-i)   portinfo "$2" ; exit $? ;;
-            print|-p)  portcat "$2"  ; exit $? ;;
-            count)     countpkgs     ; exit $? ;;
-            deps)
-                pkgdeps "$2"
-                if [ "$pkgdeps" ] ; then
-                    msg "$pkgdeps"
-                    exit $?
-                else
-                    msg "port $2 has no dependencies"
-                    exit 1
-                fi
-                ;;
-            --relink-world)
-                shift
-                relink_world "$@"
+            done
+            ;;
+        deps)
+            pkgdeps "$2"
+            if [ "$pkgdeps" ] ; then
+                msg "$pkgdeps"
                 exit $?
-                ;;
-            chroot) enter_chroot ; exit $? ;;
-            *) set -- add "$@" ;;
-        esac
-    done
-    exit $?
+            else
+                msg "port $2 has no dependencies"
+                exit 1
+            fi
+            ;;
+        --relink-world)
+            shift
+            relink_world "$@"
+            exit $?
+            ;;
+    esac
 }

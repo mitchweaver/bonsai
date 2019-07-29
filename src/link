@@ -9,6 +9,7 @@
 #   This is useful for bootstrapping, as after chrooting in
 #   if you had not done this all of your symlinks would be broken.
 linkpkg() {
+    [ "$1" ] || die "linkpkg(): invalid number of arguments"
     name="$1" 
 
     case $# in

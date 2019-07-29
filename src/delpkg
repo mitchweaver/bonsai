@@ -2,6 +2,7 @@
 # shellcheck shell=sh
 
 delpkg() {
+    [ "$1" ] || die "delpkg(): no pkg given"
     sanity_check
     pkgname="$1"
     isinst "$pkgname" > /dev/null || die "$pkgname is not installed"
