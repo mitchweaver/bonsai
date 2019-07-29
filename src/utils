@@ -115,6 +115,23 @@ validate_gcc() {
     fi
 }
 
+bonsai() {
+printf "%b\n" \
+"
+    [32m,####,
+   [32m#######,  [32m,#####,
+   [32m#####',#  [32m'######
+    [32m''###'[33m';,,,'[32m###'
+   [33m       ,;  ''''
+   [33m      ;;;   [32m,#####,
+   [33m     ;;;'  ,,;[32m;;###
+   [33m     ';;;;''[32m'####'
+   [33m      ;;;
+   [33m   ,.;;';'',,,
+   [33m  '     '
+[36m"
+}
+
 # check variables are still sane before operations
 sanity_check() {
     [ -d "$root"     ]   || die "\$root is not a directory"

@@ -1,3 +1,3 @@
-info="C program used to test $PKG_MGR_NAME"
+info="C program used to test bonsai"
 version=1.0
 source=http://ix.io/1N2i.tar.xz

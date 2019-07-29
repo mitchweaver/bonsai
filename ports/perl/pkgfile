@@ -28,7 +28,7 @@ build() {
     # see: https://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
     sh Configure -des \
-        -Dcf_by="$PKG_MGR_NAME" \
+        -Dcf_by=bonsai \
         -Dcc="$CC" \
         -Accflags="-D_GNU_SOURCE -D_BSD_SOURCE $CFLAGS" \
         -Aldflags="$LDFLAGS" \

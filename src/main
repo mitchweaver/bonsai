@@ -1,9 +1,6 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
-PKG_MGR_NAME=$(basename "$0")
-export PKG_MGR_NAME
-
 initglobals() {
     # unset any env variables that could interfere
     unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
@@ -18,7 +15,7 @@ initglobals() {
 }
 
 main() {
-    [ "$1" ] || usage
+    [ "$1" ] || { bonsai ; exit ; }
 
     # assign any special arguments
     [ "$1" = --debug ]   && { set -x ; shift ; }
