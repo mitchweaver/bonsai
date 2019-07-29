@@ -71,10 +71,9 @@ linkpkg() {
 #   Alternatively, if using the standard /src/pkgs location you
 #   can specify --chroot as an alias for --pkgs=/src/pkgs
 relink_world() {
-
+    sanity_check
     case $# in
         0)
-            sanity_check
             relink_pkgs="$pkgs"
             msg 'relinking world...'
             ;;

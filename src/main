@@ -42,6 +42,7 @@ main() {
 
     # statements that exit after running once
     case "$1" in
+        --relink-world) relink_world "$2" ; exit $? ;;
         chroot)    enter_chroot  ; exit $? ;;
         list|-l)   listpkgs      ; exit $? ;;
         search|-s) search "$2"   ; exit $? ;;
@@ -83,11 +84,5 @@ main() {
                 msg "port $2 has no dependencies"
                 exit 1
             fi
-            ;;
-        --relink-world)
-            shift
-            relink_world "$@"
-            exit $?
-            ;;
     esac
 }
