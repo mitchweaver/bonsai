@@ -27,7 +27,7 @@ main() {
         *help|-h)  usage ;;
     esac
 
-    loadconfig "$@"
+    loadconfig
     initglobals
     create_root_dirs
     setup_etc

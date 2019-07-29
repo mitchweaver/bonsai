@@ -1,19 +1,18 @@
 loadconfig() {
     if [ "$config" ] ; then
         bonsairc="$config"
-    elif [ -f /src/"$PKG_MGR_NAME".rc ] ; then
-        bonsairc="/src/$PKG_MGR_NAME.rc"
+    elif [ -f /src/bonsai.rc ] ; then
+        bonsairc=/src/bonsai.rc
     else 
-        bonsairc="${HOME}/.local/$PKG_MGR_NAME/src/$PKG_MGR_NAME.rc"
+        bonsairc="${HOME}"/.local/bonsai/src/bonsai.rc
         [ -s "$bonsairc" ] || create_skeleton_config
     fi
-    [ -r "$bonsairc" ] || die "loadconfig(): could not source config"
+    [ -r "$bonsairc" ] || die 'loadconfig(): could not source config'
     . "$bonsairc"
 
     [ "$_root" ] && root="$_root"
    
-    # set default variables if not in config file
-    # and make necessary directories
+    # make necessary directories
     mkdir -p "${root:="${HOME}/.local/bonsai"}" \
              "${bonsaihome:="$root/src"}" \
              "${pkgs:="$bonsaihome/pkgs"}" \
@@ -21,7 +20,11 @@ loadconfig() {
              "${sources:="$bonsaihome/sources"}" \
              "${work:="$bonsaihome/work"}"
 
-    : "${bonsaidb:="$bonsaihome/bonsai.db"}"
+    # set default variables if not in config file
+    : "${bonsaidb:="$bonsaihome/bonsai.db"}" \
+      "${confirm_prompt:="continue? (y/n): "}" \
+      "${prompt='→'}" \
+      "${delim:='#'}"
 
     [ "$_gcc" ] && gcc="$_gcc"
 
@@ -40,17 +43,18 @@ create_skeleton_config() {
             die "create_skeleton_config(): Refusing to overwrite $1"
         fi
     else
-        path="${HOME}/.local/$PKG_MGR_NAME/src"
+        path="${HOME}"/.local/bonsai/src
         mkdir -p "$path"
-        echo "copying default config to ~/.local/$PKG_MGR_NAME/$PKG_MGR_NAME.rc"
+        echo 'copying default config to ~/.local/bonsai/bonsai.rc'
     fi
-cat > "$path/$PKG_MGR_NAME".rc << "EOF"
+cat > "$path"/bonsai.rc << "EOF"
 # bonsai root
 root=${HOME}/.local/bonsai
 
 # compiling
-jobs=$(grep -c 'cpu cores' /proc/cpuinfo)
 gcc="$root/bin/gcc"
+jobs=$(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null)
+: ${jobs:=1}
 
 # options
 makeflags=''
@@ -58,16 +62,29 @@ keep_tarballs=true
 mans=true   # install man pages?
 docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
-quiet=false # configure/make silently without warnings?
 debug=false # compile in debugging tools/information?
 tests=false # compile included tests?
+
+# prompt prefixing msgs from the pkg mgr
 prompt='→'  # msg prompt
+
+# used to confirm adding/deleting pkgs
+confirm_prompt='continue? (y/n): '
+
+# configure/make silently without warnings?
+# note: this enables as much silencing as allowed,
+#       but does NOT send everything to /dev/null
+quiet=false
+
+# PS1 inside chroot
+# common favorites: 🌿 🍂 🌱 → % $
+PS1='🌿 '
 
 # package/version delimiter
 # can be any character or series of characters, however:
-# * must be sane (no $, `, / etc)
+# * must be sane (no $, `, /, etc)
 # * cannot be '-' due to the character often being in pkg names
-# * commonly used: #@?!*†¤§≡
+# * common favorites: #@?!*†¤§≡
 delim='#'
 
 # flags
