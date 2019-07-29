@@ -2,7 +2,7 @@
 # shellcheck shell=sh
 
 # runs build() method inside a pkgfile! -name readme 
-# params: $name
+# params: none
 run_build() { 
     msg "building $name..."
 
@@ -11,23 +11,23 @@ run_build() {
 
     # run user defined prebuild(), if exists
     if defined prebuild ; then
-        prebuild || die "$1 prebuild() failed"
+        prebuild || die "$name prebuild() failed"
     # else, try to apply any patches (convenience)
     elif ! ismetapkg $name ; then
-        bonsai_patch || die "$1 generic prebuild() failed"
+        bonsai_patch || die "$name generic prebuild() failed"
     fi
 
     # run user defined build(), if exists
     if defined build ; then
-        build || die "$1 build() failed"
+        build || die "$name build() failed"
     # otherwise run our automagic generic_build
     elif ! ismetapkg $name ; then
-        generic_build || die "$1 generic_build() failed"
+        generic_build || die "$name generic_build() failed"
     fi
 
     # run user defined postbuild(), if exists
     if defined postbuild ; then
-        postbuild || die "$1 postbuild() failed"
+        postbuild || die "$name postbuild() failed"
     fi
 
     # unset in case we are adding multiple packages
@@ -81,7 +81,7 @@ bonsai_configure() {
         FILE=configure
     fi
 
-    ${docs:=false}  || _docs="--disable-docs --disable-gtk-docs --disable-gtk-docs-html --docdir=/dev/null"
+    ${docs:=false}  || _docs='--disable-docs --disable-gtk-docs --disable-gtk-docs-html --docdir=/dev/null'
     ${nls:=false}   || _nls=--disable-nls
     ${tests:=false} || _tests=--without-tests
     ${debug:=false} || _debug='--disable-debug --disable-debugger'
@@ -90,15 +90,15 @@ bonsai_configure() {
     if [ $FILE = configure ] ; then
         # try to enable as many options as possible
         # if they are allowed in the configure script
-        _tmp_help="$root"/src/work/$name.confhelp
-        _tmp_flags="$root"/src/work/$name.confflags
-        ./$FILE --help > $_tmp_help
-        :> $_tmp_flags
+        tmp_help="$root/src/work/$name.confhelp"
+        tmp_flags="$root/src/work/$name.confflags"
+        ./$FILE --help > "$tmp_help"
+        :> "$tmp_flags"
 
         # params: flag_to_check flag_to_add
         addflag() {
-            grep -F -- "$1" $_tmp_help > /dev/null && 
-                printf "%s\n" "$2" >> $_tmp_flags
+            grep -F -- "$1" $tmp_help > /dev/null && 
+                printf "%s\n" "$2" >> $tmp_flags
         }
 
         for flag in --static --enable-static --enable-static-link --disable-shared \
@@ -113,20 +113,21 @@ bonsai_configure() {
         addflag --enable-shared --disable-shared &
         addflag --enable-tests  --disable-tests &
         addflag --with-shared   --without-shared &
-        $debug || addflag --with-debug    --without-debug &
+        $debug || addflag --with-debug --without-debug &
         $tests || addflag --with-tests --without-tests &
         $tests && addflag --enable-extratests --enable-extratests &
+        wait
 
-        for flag in $@ ; do
-            printf "%s\n" $flag >> $_tmp_flags
+        for flag in "$@" ; do
+            printf "%s\n" "$flag" >> "$tmp_flags"
         done
     fi
 
-    ./$FILE $(cat $_tmp_flags) "$@"
+    ./$FILE $(cat "$tmp_flags") "$@"
 
     set -- $?
     unset -f addflag
-    unset flag _tmp_help _docs _nls _debug _quiet _tests FILE tmp
+    unset flag tmp_help _docs _nls _debug _quiet _tests FILE tmp
     return $1
 }
 

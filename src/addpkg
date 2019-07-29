@@ -80,7 +80,7 @@ addpkg() {
             trap 'rmdir $pkgs/$name' INT TERM
         fi
 
-        run_build "$name" || die "$name failed to build"
+        run_build || die "$name failed to build"
 
         if [ -d "$pkgs/$name" ] ; then
             linkpkg "$name" || die "$name failed to link"
