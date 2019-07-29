@@ -37,52 +37,59 @@ main() {
     create_root_dirs
     setup_etc
 
-    # statements that exit after running once
-    case "$1" in
-        --relink-world) relink_world "$2" ; exit $? ;;
-        chroot)    enter_chroot  ; exit $? ;;
-        list|-l)   listpkgs      ; exit $? ;;
-        search|-s) search "$2"   ; exit $? ;;
-        info|-i)   portinfo "$2" ; exit $? ;;
-        print|-p)  portcat "$2"  ; exit $? ;;
-        count)     countpkgs     ; exit $? ;;
-        add|-a)
-            shift
-            addpkg "$@"
-            exit $?
-            ;;
-        del|-d)
-            shift
-            while [ "$1" ] ; do
-                delpkg "$1"
+    arg() {
+        # statements that exit after running once
+        case "$1" in
+            --relink-world) relink_world "$2" ; exit $? ;;
+            chroot)    enter_chroot  ; exit $? ;;
+            list|-l)   listpkgs      ; exit $? ;;
+            search|-s) search "$2"   ; exit $? ;;
+            info|-i)   portinfo "$2" ; exit $? ;;
+            print|-p)  portcat "$2"  ; exit $? ;;
+            count)     countpkgs     ; exit $? ;;
+            add|-a)
                 shift
-            done
-            ;;
-        relink|-r)
-            shift
-            while [ "$1" ] ; do
-                linkpkg "$1"
-                shift
-            done
-            ;;
-        isinst)
-            shift
-            while [ "$1" ] ; do
-                isinst "$1"
-                shift
-            done
-            ;;
-        deps)
-            pkgdeps "$2"
-            if [ "$pkgdeps" ] ; then
-                msg "$pkgdeps"
+                addpkg "$@"
                 exit $?
-            else
-                msg "port $2 has no dependencies"
-                exit 1
-            fi
-            ;;
-        *)
-            die "unknown command '$1'"
-    esac
+                ;;
+            del|-d)
+                shift
+                while [ "$1" ] ; do
+                    delpkg "$1"
+                    shift
+                done
+                ;;
+            relink|-r)
+                shift
+                while [ "$1" ] ; do
+                    linkpkg "$1"
+                    shift
+                done
+                ;;
+            isinst)
+                shift
+                while [ "$1" ] ; do
+                    isinst "$1"
+                    shift
+                done
+                ;;
+            deps)
+                pkgdeps "$2"
+                if [ "$pkgdeps" ] ; then
+                    msg "$pkgdeps"
+                    exit $?
+                else
+                    msg "port $2 has no dependencies"
+                    exit 1
+                fi
+                ;;
+            *)
+                # If none matched, we must be adding a package
+                # and omitting the 'add' (convenience).
+                # recurse again, adding the 'add' argument
+                set -- add "$@"
+                arg "$@"
+        esac
+    }
+    arg "$@"
 }
