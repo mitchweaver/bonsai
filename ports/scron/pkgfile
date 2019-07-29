@@ -1,3 +1,3 @@
-info='Simple cron daemon'
+info='simple cron daemon'
 version=0.4
-source=http://dl.2f30.org/releases/scron-$version.tar.gz
+source=http://dl.2f30.org/releases/$name-$version.tar.gz

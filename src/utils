@@ -92,8 +92,23 @@ clean() {
 
 # returns if given $name is a metapkg
 ismetapkg() {
-    grep '^metapkg=true$' "$ports/$1/pkgfile" > /dev/null
+    grep '^metapkg=true$' "$ports/$1/pkgfile" >/dev/null
     return $?
+}
+
+# prompts user for confirmation
+# returns 1 on 'n' or bad input
+# params: message to be printed
+confirm() {
+    if [ -z "$NO_PROMPT" ] ; then
+        msg_no_nl "$confirm_prompt"
+        read -r ans
+        case "$ans" in
+            y|"") ;; # "" is equivalent to user pressing enter
+            *) return 1
+        esac
+        unset ans
+    fi
 }
 
 # if we're using pkg mgr's built in gcc, make sure its valid/existant
@@ -126,7 +141,6 @@ sanity_check() {
     [ -r "$bonsaidb" ]   || die "\$bonsaidb is not readable"
     [ "$delim"       ]   || die "\$delim is not set"
     [ "$gcc"         ]   || warn "\$gcc is not set"
-    : "${jobs:=1}"
     mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
 }
 

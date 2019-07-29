@@ -31,24 +31,6 @@ addpkg() {
         unset -f prebuild build postbuild
     }
 
-    # prompts user y/n to install packages
-    # returns 1 on 'n' or bad input
-    prompt_user() {
-        # prompt user before continuing
-        warn "these packages will be installed:"
-        # note: $dep_needed is padded by spaces
-        printf "\n  %s\n\n" "$1"
-        if [ -z "$NO_PROMPT" ] ; then
-            msg_no_nl "$confirm_prompt"
-            read -r ans
-            case "$ans" in
-                y|"") ;; # "" is equivalent to user pressing enter
-                *) return 1
-            esac
-            unset ans
-        fi
-    }
-
     # adds the given $name
     add() {
         ismetapkg "$1" || validate_gcc $1
@@ -117,8 +99,11 @@ addpkg() {
         unload_pkgfile
     done
 
-    # prompt before continuing
-    prompt_user "$*" || return 1
+    warn "these packages will be installed:"
+    printf "\n  %s\n\n" "$*"
+
+    # prompt user for confirmation before continuing
+    confirm || return 1
 
     for pkg in $@ ; do
         add "$pkg"
