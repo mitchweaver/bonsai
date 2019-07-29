@@ -1,0 +1,46 @@
+version=3.7.3
+info="$name${version%.*} scripting language interpreter"
+source=http://www.python.org/ftp/python/$version/Python-$version.tar.xz
+deps='netbsd-curses libedit libressl bzip2 expat'
+prebuild() {
+    bonsai_patch
+    # change all instances of env and local/bin to /bin/python3
+    sed -e "s|^#.* /usr/local/bin/python|#!/bin/python3|" Lib/cgi.py > tmp
+    mv -f tmp Lib/cgi.py
+    find . -name '*.py' -type f | while read -r file ; do
+        sed "s|#[ ]*![ ]*/usr/bin/env python$|#!/usr/bin/env python3|" \
+            "$file" > tmp
+        mv -f tmp "$file"
+    done
+}
+#--with-system-ffi \
+build() {
+    CFLAGS="$CFLAGS -D_GNU_SOURCE -fPIC" \
+    LIBS="-lncursesw -lterminfo" \
+    bonsai_configure \
+        --build=x86_64-linux-gnu \
+        --with-system-expat
+#    bonsai_make Parser/pgen
+    bonsai_make
+    bonsai_make altinstall
+}
+postbuild() {
+    # Compile all .pyc files so they will be in the $pkg dir to be linked.
+    # Otherwise they'll get created later and be in the root.
+    ./python -E Lib/compileall.py "${pkg:?}"/lib/python3.7
+
+    # remove tests
+    for test in sqlite3/test email/test ctypes/test test unittest/test \
+            tkinter/test bsddb/test json/tests lib2to3/tests \
+            distutils/tests tests ; do
+        rm -rf "${pkg:?}"/lib/python${version%.*}/"$test"
+    done
+
+    # create symlinks with only the main version number (ex: 3.7.3 -> 3)
+    for prog in idle${version%.*} 2to3-${version%.*} pip${version%.*} \
+            easy_install-${version%.*} python${version%.*} \
+            pyvenv-${version%.*} python${version%.*}m \
+            pydoc${version%.*} python${version%.*}m-config ; do
+        ln -sf "$prog" "$pkg/bin/${prog%.*}"
+    done
+}
