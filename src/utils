@@ -2,26 +2,31 @@
 # shellcheck shell=sh
 
 msg()  {
-    [ $# -eq 0 ] && read -r input && set -- "$input"
+    [ "$1" ] || read -r input && set -- "$input"
     printf "%s\n" "$prompt $*"
 }
 msg_no_nl()  {
-    [ $# -eq 0 ] && read -r input && set -- "$input"
+    [ "$1" ] || read -r input && set -- "$input"
     printf "%s" "$prompt $*"
 }
 die()  { >&2 msg "error: $*" ; exit 1 ; }
 warn() { >&2 msg "warning: $*" ; }
 
 usage() {
-    printf "%s\n\n%s\n" "$PKG_MGR_NAME pkg mgr" \
-"commands:
+printf "%s\n" \
+"bonsai pkg mgr
+ 
+commands:
 -----------
 add    | -a
 del    | -d
+relink | -r
 search | -s
+info   | -i
 list   | -l
-isinst | -i
-count  | -c"
+print  | -p
+count  | -c
+deps isinst"
 exit
 }
 
@@ -102,10 +107,10 @@ validate_gcc() {
             *) 
             if [ -e "$gcc" ] ; then
                 die "No compiler toolchain has yet been installed.
-         Try \`$PKG_MGR_NAME search gcc\` to find one."
+         Try \`bonsai search gcc\` to find one."
             else
                 die "World appears to still be linked as a chroot.
-         Use --relink-world to relink externally."
+         Use --relink-world --pkgs=/src/pkgs to relink externally."
             fi
         esac
     fi
@@ -113,23 +118,14 @@ validate_gcc() {
 
 # check variables are still sane before operations
 sanity_check() {
-    [ -d "$root"     ] || die "\$root is not a directory"
+    [ -d "$root"     ]   || die "\$root is not a directory"
     [ -d "$bonsaihome" ] || die "\$bonsaihome is not a directory"
-    [ -d "$pkgs"     ] || die "\$pkgs is not a directory"
-    [ -d "$ports"    ] || die "\$ports is not a directory"
-    [ -d "$sources"  ] || die "\$sources is not a directory"
-    [ -r "$bonsaidb" ] || die "\$bonsaidb is not readable"
-    [ "$delim"       ] || die "\$delim is not set"
-    [ "$gcc"         ] || warn "\$gcc is not set"
-    jobs="${jobs:=1}"
+    [ -d "$pkgs"     ]   || die "\$pkgs is not a directory"
+    [ -d "$ports"    ]   || die "\$ports is not a directory"
+    [ -d "$sources"  ]   || die "\$sources is not a directory"
+    [ -r "$bonsaidb" ]   || die "\$bonsaidb is not readable"
+    [ "$delim"       ]   || die "\$delim is not set"
+    [ "$gcc"         ]   || warn "\$gcc is not set"
+    : "${jobs:=1}"
     mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
-}
-
-gccinfo() {
-    getflags
-    printf "%s\n\n" "version: $($gcc -dumpversion)"
-    printf '%s\n\n' "arch: $($gcc -dumpmachine)"
-    printf "%s\n\n" "sysroot: $($gcc -print-sysroot)"
-    LIBRARY_PATH="$LIBRARY_PATH" $gcc -print-search-dirs
-    LIBRARY_PATH="$LIBRARY_PATH" $gcc -E -Wp,-v -xc /dev/null
 }

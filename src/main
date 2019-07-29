@@ -21,13 +21,13 @@ main() {
     [ "$1" ] || usage
 
     case "$1" in
-        *skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
+        --skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
         --config=*) config="${1#--config=}" ; shift ;;
         --root=*) _root="${1#--root=}" ; shift ;;
         --gcc=*) _gcc="${1#--gcc=}" ; shift ;;
         --debug) set -x ; shift ;;
         -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
-        *help|-h)  usage ;;
+        --help|-h)  usage ;;
     esac
 
     loadconfig
@@ -46,7 +46,15 @@ main() {
                     shift
                 done
                 ;;
-            isinst|-i)
+            relink|-r)
+                shift
+                [ "$1" ] || die "linkpkg(): invalid number of arguments"
+                while [ "$1" ] ; do
+                    linkpkg "$1"
+                    shift
+                done
+                ;;
+            isinst)
                 shift
                 [ "$1" ] || die 'isinst(): no argument given'
                 while [ "$1" ] ; do
@@ -56,33 +64,24 @@ main() {
                 ;;
             list|-l)   listpkgs      ; exit $? ;;
             search|-s) search "$2"   ; exit $? ;;
-            count|-c)  countpkgs     ; exit $? ;;
-            info)      portinfo "$2" ; exit $? ;;
-            cat)       portcat "$2"  ; exit $? ;;
+            info|-i)   portinfo "$2" ; exit $? ;;
+            print|-p)  portcat "$2"  ; exit $? ;;
+            count)     countpkgs     ; exit $? ;;
             deps)
                 pkgdeps "$2"
                 if [ "$pkgdeps" ] ; then
                     msg "$pkgdeps"
-                    exit
+                    exit $?
                 else
                     msg "port $2 has no dependencies"
                     exit 1
                 fi
-                ;;
-            relink|link)
-                shift
-                [ "$1" ] || die "linkpkg(): invalid number of arguments"
-                while [ "$1" ] ; do
-                    linkpkg "$1"
-                    shift
-                done
                 ;;
             --relink-world)
                 shift
                 relink_world "$@"
                 exit $?
                 ;;
-            gccinfo) gccinfo ; exit $? ;;
             chroot) enter_chroot ; exit $? ;;
             *) set -- add "$@" ;;
         esac
