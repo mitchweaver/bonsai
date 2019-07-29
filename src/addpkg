@@ -7,29 +7,27 @@ addpkg() {
     [ "$1" ] || die "addpkg(): no pkg given"
     is_empty "$ports" && die "addpkg(): no ports found"
 
-    for pkg in "$@" ; do
+    for pkg in $@ ; do
         isinst "$pkg" > /dev/null &&
             die "port $pkg is already installed"
     done
 
-    # params: $name
+    # loads pkgfile for given $name
     load_pkgfile() {
         name="$1"
         pkg="$pkgs"/"$name"
         pkgfile="$ports/$name/pkgfile"
         export pkg name pkgfile
-
         [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
         . "$pkgfile"
         ismetapkg "$name" && version=metapkg
-        : "${version:=unknown}"
-        pkgid="${name}${delim}${version}"
+        pkgid="${name}${delim:=#}${version:=unknown}"
         export version source pkgid
     }
 
     # unsets vars as not to persist from pkg to pkg
     unload_pkgfile() {
-        unset pkgname pkgfile pkgid version source depends deps
+        unset name pkgfile pkgid version source depends deps
         unset -f prebuild build postbuild
     }
 
@@ -53,12 +51,11 @@ addpkg() {
 
     # adds the given $name
     add() {
-        ismetapkg "$name" || validate_gcc $1
+        ismetapkg "$1" || validate_gcc $1
 
         # clear any work from previous build
         rm -rf "${work:?}" 2>/dev/null ||:
 
-        unload_pkgfile
         load_pkgfile "$1"
 
         if isinst "$name" >/dev/null ; then
@@ -90,7 +87,7 @@ addpkg() {
         add_db "$name" "$version"
         msg "$name installed!"
 
-        sanity_check && [ -d "${work}/$pkgid" ] && rm -rf "${work:?}/$pkgid"
+        [ -d "$work/$pkgid" ] && rm -rf "${work:?}/$pkgid"
         clean
         trap - INT TERM
         unload_pkgfile
@@ -111,8 +108,7 @@ addpkg() {
         # add deps to list, before the main package
         case "$pkgdeps" in
             # if deps is unset or empty string, there are no deps
-            "") ;;
-            "* *") ;;
+            ""|"* *") ;;
             *) for dep in $pkgdeps ; do
                    isinst "$dep" > /dev/null || set -- "$* $dep"
                done
