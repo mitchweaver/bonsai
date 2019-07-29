@@ -5,9 +5,9 @@
 # params: $pkgname
 isinst() {
     [ "$1" ] || die 'isinst(): no argument given'
-    result="$$(grep -i -x -- "$1$delim.*" "$bonsaidb")"
-    if [ "$result" ] ; then
-        msg "port $result is installed"
+    set -- "$1" "$(grep -i -x -- "$1$delim.*" "$bonsaidb")"
+    if [ "$2" ] ; then
+        msg "port $2 is installed"
     else
         msg "port $1 is not installed"
         return 1
@@ -20,10 +20,10 @@ listpkgs() { cat "$bonsaidb" ; }
 # count packages installed
 countpkgs() { listpkgs | wc -l ; }
 
-sort_db() { [ -f "$bonsaidb" ] && sort -o "$bonsaidb" "$bonsaidb" ; }
+sort_db() { [ -s "$bonsaidb" ] && sort -o "$bonsaidb" "$bonsaidb" ; }
 
 update_db() {
-    if [ -f "$bonsaidb" ] ; then
+    if [ -s "$bonsaidb" ] ; then
         sort_db
     else
         :> "$bonsaidb"
