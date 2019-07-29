@@ -27,20 +27,25 @@ enter_chroot() {
 
 # try to find a posix compatible shell who's symlink
 # is correctly pointing to the correct root, (after chrooting)
-# params: none
-# sets: $chroot_shell
+# exports: $chroot_shell
 get_chroot_shell() {
-    for shell in loksh mksh bash dash sh ; do
+    set -- loksh mksh bash dash rc ksh zsh csh tcsh fish sh
+    for shell ; do
         if [ -h "$root"/bin/$shell ] ; then
             chroot_shell="$(readlink "$root"/bin/$shell)"
-            if [ "$chroot_shell" != /src/pkgs/$shell/bin/$shell ] ; then
-                warn "$root/bin/$shell exists but it is pointing to $targ"
-                die "You might want to --relink-world before chrooting in..."
-            fi
-            return
+            case "$chroot_shell" in
+                /src/pkgs/$shell/bin/$shell|//src/pkgs/$shell/bin/$shell)
+                    export chroot_shell
+                    return
+                    ;;
+                *) warn "$shell exists but it is pointing to $chroot_shell"
+                   die "You might want to --relink-world before chrooting in..."
+            esac
         fi
     done
+    warn "exhausted: $@"
     die "can't find a working shell?"
+    unset shell
 }
 
 mount_drives() {
@@ -92,5 +97,5 @@ unchroot() {
 # check if drives have already been mounted
 already_chrooted() {
     [ "$(ls -A "$root"/dev/pts 2> /dev/null)" ] || return 1
-    msg "the chroot has already been mounted!"
+    warn "the chroot has already been mounted!"
 }
