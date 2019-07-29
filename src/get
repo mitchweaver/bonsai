@@ -48,6 +48,9 @@ get() {
                 decompress "$1" | tar -C "$dldir" -xf -
                 # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
                 mv "$dldir"/*/*  "$workdir"
+                # try to remove possible empty dirs
+                rmdir "$dldir"/* 2>/dev/null ||:
+                rmdir "$dldir" 2>/dev/null ||:
                 # copy any hidden files
                 find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
                     mv "$file" "$workdir"
