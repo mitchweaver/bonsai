@@ -5,8 +5,9 @@ sucks() {
     # and if it has a -gt 0 exit code, the dependency must not be in $PATH.
     #
     # This breaks all kinds of things, namely if we are running under `set -e`
-    # As a workaround, just manually track depedencies -- clear the file.
+    # As a workaround, just manually track depedencies -- clear the files.
     [ -f build-aux/missing ] && :> build-aux/missing
+    [ -f missing ] && :> missing
 
     # Configure scripts often try to run programs with certain flags
     # to see if they support different things.
