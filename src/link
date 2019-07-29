@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # create symlinks for a port
 # params: $name [$pkgs]
 # * If $pkgs is not provided, use the config's
@@ -101,5 +104,3 @@ relink_world() {
 
     unset relink_pkgs
 }
-# vi:syntax=sh
-# shellcheck shell=sh

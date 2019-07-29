@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # search ports for given $name
 search() {
     set -- $(find "$ports" ! -path "$ports" -type d -name "*$1*")
@@ -78,6 +81,3 @@ portcat() {
     [ -f "$pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
     cat "$pkgfile"
 }
-
-# vi:syntax=sh
-# shellcheck shell=sh

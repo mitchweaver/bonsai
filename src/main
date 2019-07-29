@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 PKG_MGR_NAME=$(basename "$0")
 export PKG_MGR_NAME
 
@@ -86,5 +89,3 @@ main() {
     done
     exit $?
 }
-# vi:syntax=sh
-# shellcheck shell=sh

@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 loadconfig() {
     if [ "$config" ] ; then
         bonsairc="$config"
@@ -96,5 +99,3 @@ cppflags='-static --static'
 cxxflags="$cflags"
 EOF
 }
-# vi:syntax=sh
-# shellcheck shell=sh

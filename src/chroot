@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 enter_chroot() {
     if already_chrooted > /dev/null ; then
         unmount_drives
@@ -91,5 +94,3 @@ already_chrooted() {
     [ "$(ls -A "$root"/dev/pts 2> /dev/null)" ] || return 1
     msg "the chroot has already been mounted!"
 }
-# vi:syntax=sh
-# shellcheck shell=sh

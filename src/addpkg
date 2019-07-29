@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # adds a port
 # params: $name
 addpkg() {
@@ -128,5 +131,3 @@ addpkg() {
     unset main_packages pkg dep
     unset -f load_pkgfile unload_pkgfile prompt_user add
 }
-# vi:syntax=sh
-# shellcheck shell=sh

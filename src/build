@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # runs build() method inside a pkgfile! -name readme 
 # params: $name
 run_build() { 
@@ -167,5 +170,3 @@ clear_junk() {
     $docs || rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
     $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
 }
-# vi:syntax=sh
-# shellcheck shell=sh

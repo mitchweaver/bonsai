@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # downloads url and extracts to $work/$pkg
 # params: none
 # assumes: $name $version $source $pkgid $pkgfile in environment
@@ -76,5 +79,3 @@ get() {
     unset workdir dldir ext file
     unset -f dlgit dlcurl extract decompress
 }
-# vi:syntax=sh
-# shellcheck shell=sh

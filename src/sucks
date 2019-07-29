@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # helper to get around all things wrong with packaging
 sucks() {
     # GNU programs have the most insane dependency tracking I have ever seen.
@@ -15,8 +18,6 @@ sucks() {
     # If they do, they can be patched on a per-port basis.
     # Usually to avoid these checks all you need to is have their name
     # in the environment in all caps like so:
-    : ${GREP:=grep} ${SED:=sed} ${AWK:=awk} ${TAR:=tar} ${FIND:=find}
+    : "${GREP:=grep}" "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}"
     export GREP SED AWK TAR FIND
 }
-# vi:syntax=sh
-# shellcheck shell=sh

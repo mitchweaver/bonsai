@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 delpkg() {
     sanity_check
     pkgname="$1"
@@ -36,5 +39,3 @@ delpkg() {
     msg "$pkgname deleted"
     unset pkgname file dir root_file root_dir
 }
-# vi:syntax=sh
-# shellcheck shell=sh

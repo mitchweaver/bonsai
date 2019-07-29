@@ -1,6 +1,9 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # create top level dirs in given $root, if needed
 create_root_dirs() {
-    cd "$root" || die "create_root_dirs(): could not cd to $1"
+    cd "$root" || die "create_root_dirs(): could not cd to $root"
 
     # mkdir -pm only sets the permissions
     # for the LAST dir in the path
@@ -59,5 +62,3 @@ VERSION_CODENAME="beta"
 EOF
 fi
 }
-# vi:syntax=sh
-# shellcheck shell=sh

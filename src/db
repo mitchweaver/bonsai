@@ -1,3 +1,6 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
 # check db if pkg is installed
 # params: $pkgname
 isinst() {
@@ -40,5 +43,3 @@ del_db() {
     mv -f "$bonsaidb".tmp "$bonsaidb"
     update_db
 }
-# vi:syntax=sh
-# shellcheck shell=sh

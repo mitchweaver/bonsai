@@ -30,7 +30,7 @@ clean:
 uninstall:
 	@echo "Unsafe. Please do this manually."
 
-ignores = -e 1090 -e 2154 -e SC2068 -e SC2046 -e SC2086
+ignores = -e 1090 -e 2154 -e SC2068 -e SC2046 -e SC2086 -e SC2218
 # ----- ShellCheck Explanations --------
 # SC1090: "at run-time file sourcing" ie '. $pkgfile'
 #         We use this to import each package's variables.
@@ -43,6 +43,9 @@ ignores = -e 1090 -e 2154 -e SC2068 -e SC2046 -e SC2086
 # 		  This one is the hardest to ignore,
 # 		  but it is the one most carefully managed.
 # 		  When words are split, they are done so intentionally.
+# SC2218: "function not yet defined"
+# 		  This is a shellcheck bug and it has to do with the way
+# 		  we're collating the files.
 test: $(name)
 	@clear
 	@echo "------- ERRORS --------------"
