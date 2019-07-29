@@ -93,13 +93,13 @@ relink_world() {
             die "relink_all(): invalid number of arguments"
     esac
 
-    printf '\n'
+    echo
 
     listpkgs | while read -r pkgid ; do
         linkpkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
     done || die "relink_world(): linking failed"
 
-    printf '\n'
+    echo
     msg 'done!'
 
     unset relink_pkgs

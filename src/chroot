@@ -16,7 +16,7 @@ enter_chroot() {
 
     # change whatever user had $root equal to
     # to root=/ in their bonsairc
-    old_config_root="$(head -n 1 "$bonsairc")"
+    old_config_root="$(headn1 "$bonsairc")"
     sed 's|root=.*|root=/|' "$bonsairc" > "$bonsairc".tmp
     mv -f "$bonsairc".tmp "$bonsairc"
 
