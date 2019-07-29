@@ -1,7 +1,7 @@
 info="GNU bc -- arbitrary precision calculator"
 version=1.07.1
-source=http://ftpmirror.gnu.org/gnu/$name/$name-$version.tar.gz
-deps=readline
+source=http://ftpmirror.gnu.org/gnu/bc/bc-$version.tar.gz
+deps=libedit
 build() {
     bonsai_configure --with-readline
 

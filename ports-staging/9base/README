@@ -4,4 +4,6 @@ causing problems. they're just too unportable. cutting out for now.
 
 This 9base is patched to only provide the tools that sbase and ubase lack.
 
-~~Installing this is part of the core system. You shouldn't need to install manually.~~
+-------------------
+
+update: this is now no longer used due to `hbase`

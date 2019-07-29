@@ -1,1 +1,1 @@
-we are now using `libedit` instead of GNU readline
+we are now using `pkgconf` instead
