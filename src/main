@@ -84,11 +84,18 @@ main() {
                 fi
                 ;;
             *)
-                # If none matched, we must be adding a package
-                # and omitting the 'add' (convenience).
-                # recurse again, adding the 'add' argument
-                set -- add "$@"
-                arg "$@"
+                
+                if [ "$1" ] ; then
+                    # If none matched and there is an argument,
+                    # we must be adding a package
+                    # and omitting the 'add' (convenience).
+                    # recurse again, adding the 'add' argument
+                    arg add "$@"
+                else
+                    # otherwise must have no arguments
+                    # just print a pretty tree
+                    bonsai
+                fi
         esac
     }
     arg "$@"
