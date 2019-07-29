@@ -109,7 +109,8 @@ validate_gcc() {
          Try \`bonsai search gcc\` to find one."
             else
                 die "World appears to still be linked as a chroot.
-         Use --relink-world --pkgs=/src/pkgs to relink externally."
+         Use --relink-world --pkgs=/src/pkgs to relink externally
+         or without arguments to relink internally."
             fi
         esac
     fi
