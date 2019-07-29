@@ -38,7 +38,7 @@ addpkg() {
         # note: $dep_needed is padded by spaces
         printf "\n  %s\n\n" "$1"
         if [ -z "$NO_PROMPT" ] ; then
-            msg_no_nl "continue? (y/n): "
+            msg_no_nl "continue? [Y/n]: "
             read -r ans
             case "$ans" in
                 y|"") ;; # "" is equivalent to user pressing enter
