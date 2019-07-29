@@ -81,5 +81,8 @@ main() {
                 msg "port $2 has no dependencies"
                 exit 1
             fi
+            ;;
+        *)
+            die "unknown command '$1'"
     esac
 }
