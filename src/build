@@ -63,7 +63,9 @@ getflags() {
 }
 
 # convenience function, tries to find all *.patch
-# in $work/$name directory and apply them
+# in the top-level $work/$name directory and apply them
+# note: -prune here is a more portable way of -maxdepth
+#       (sbase's find does not have -maxdepth)
 bonsai_patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
         patch -p0 < "$patch" | msg
