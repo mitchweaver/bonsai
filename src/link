@@ -71,35 +71,34 @@ linkpkg() {
 #   Alternatively, if using the standard /src/pkgs location you
 #   can specify --chroot as an alias for --pkgs=/src/pkgs
 relink_world() {
+    [ "$2" ] && die "relink_all(): invalid number of arguments"
     sanity_check
-    case $# in
-        0)
-            relink_pkgs="$pkgs"
-            msg 'relinking world...'
-            ;;
-        1)
-            # helper for the standard location
-            [ "$1" = --chroot ] && set -- '--pkgs=/src/pkgs'
 
-            # check if $1 contains '--pkgs='
-            if [ "${1#*--pkgs=}" != "$1" ] ; then
-                relink_pkgs="${1#--pkgs=}"
-            else
-                die 'bad argument given to --relink-world'
-            fi
-            msg "relinking world with \$pkgs=$relink_pkgs..."
-            ;;
-        *)
-            die "relink_all(): invalid number of arguments"
-    esac
+    # if no args, use the $pkgs variable from the bonsai.rc
+    if [ -z "$1" ] ; then
+        relink_pkgs="$pkgs"
+        msg 'relinking world...'
+    else
+        # helper for the default location
+        [ "$1" = --chroot ] && set -- '--pkgs=/src/pkgs'
 
-    echo
+        # check if $1 contains '--pkgs='
+        if [ "${1#*--pkgs=}" != "$1" ] ; then
+            relink_pkgs="${1#--pkgs=}"
+        else
+            die 'bad argument given to --relink-world'
+        fi
+        msg "relinking world with \$pkgs=$relink_pkgs..."
+    fi
+
+    printf '\n'
 
     listpkgs | while read -r pkgid ; do
         linkpkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
     done || die "relink_world(): linking failed"
 
-    echo
+    printf '\n'
+
     msg 'done!'
 
     unset relink_pkgs
