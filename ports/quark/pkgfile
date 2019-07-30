@@ -1,0 +1,3 @@
+info='an extremely small GET/HEAD static site webserver'
+version=33def953e9d216036ad921ac26052a5b0fa790dc
+source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
