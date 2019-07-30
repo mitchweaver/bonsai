@@ -47,18 +47,8 @@ main() {
             info|-i)   portinfo "$2" ; exit $? ;;
             print|-p)  portcat "$2"  ; exit $? ;;
             count)     countpkgs     ; exit $? ;;
-            add|-a)
-                shift
-                addpkg "$@"
-                exit $?
-                ;;
-            del|-d)
-                shift
-                while [ "$1" ] ; do
-                    delpkg "$1"
-                    shift
-                done
-                ;;
+            add|-a) shift ; addpkg "$@" ; exit $? ;;
+            del|-d) shift ; delpkg "$@" ; exit $? ;;
             relink|-r)
                 shift
                 while [ "$1" ] ; do

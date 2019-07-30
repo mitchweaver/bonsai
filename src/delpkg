@@ -4,51 +4,65 @@
 # uninstalls a given $name and removes its symlinks
 delpkg() {
     [ "$1" ] || die "delpkg(): no pkg given"
-    name="$1"
 
     # ensure we're sane before doing anything damaging
     sanity_check
-    isinst "$name" >/dev/null || die "$name is not installed"
-    cd "$root" || die "delpkg(): unable to cd to $root"
 
     # todo: here we will also add any orphaned 
     # sub-deps instead of just "$name"
     # --- still up for debate if this should be implemented
     warn "these packages will be deleted:"
-    printf "\n  %s\n\n" "$name"
+    printf "\n  %s\n\n" "$*"
 
     # prompt user for confirmation before continuing
     confirm || return 1
 
-    if [ -d "$pkgs/$name" ] ; then
-        # go through $pkgs/name, deleting files as we go
-        # afterwards, remove its symlink in the root
-        find "$pkgs/$name" -type f -o -type l | while read -r file ; do
-            rm -f "$file"
-            root_file="${file#$pkgs/$name}"
-            test_link "$root/$root_file" || rm -f "$root/$root_file"
-        done
-        # recurse through dirs in reverse, removing empty dirs as we go
-        # afterwards, remove its equivalent dir in the root, if empty
-        # note: the sed command here is to emulte 'tac' which is not portable
-        find "$pkgs/$name" -type d | sed '1!G;h;$!d' | while read -r dir ; do
-            rmdir "$dir" 2>/dev/null ||:
+    # delete the packages, one at a time
+    while [ "$1" ] ; do
 
-            root_dir="${dir#$pkgs/$name}"
-            # check that $dir contains at least one slash before removing
-            # (so we don't remove any top level dirs i.e. bin,etc,lib...)
-            case "$root_dir" in
-                *'/'*) ;;
-                *) rmdir "$root/$root_dir" 2>/dev/null ||:
-            esac
-        done
-    else
-        ismetapkg "$name" || warn "$name was not found in \$pkgs"
-    fi
+        name="$1"
 
-    del_db "$name"
-    clean
+        # only proceed if $name is installed
+        if ! isinst "$name" >/dev/null ; then
+            warn "$name is not installed"
+            shift
+            continue
+        fi
 
-    msg "$name deleted"
-    unset name file dir root_file root_dir
+        cd "$root" || die "delpkg(): unable to cd to $root"
+
+        if [ -d "$pkgs/$name" ] ; then
+            # go through $pkgs/name, deleting files as we go
+            # afterwards, remove its symlink in the root
+            find "$pkgs/$name" -type f -o -type l | while read -r file ; do
+                rm -f "$file"
+                root_file="${file#$pkgs/$name}"
+                test_link "$root/$root_file" || rm -f "$root/$root_file"
+            done
+            # recurse through dirs in reverse, removing empty dirs as we go
+            # afterwards, remove its equivalent dir in the root, if empty
+            # note: the sed command here is to emulte 'tac' which is not portable
+            find "$pkgs/$name" -type d | sed '1!G;h;$!d' | while read -r dir ; do
+                rmdir "$dir" 2>/dev/null ||:
+
+                root_dir="${dir#$pkgs/$name}"
+                # check that $dir contains at least one slash before removing
+                # (so we don't remove any top level dirs i.e. bin,etc,lib...)
+                case "$root_dir" in
+                    *'/'*) ;;
+                    *) rmdir "$root/$root_dir" 2>/dev/null ||:
+                esac
+            done
+        else
+            ismetapkg "$name" || warn "$name was not found in \$pkgs"
+        fi
+
+        del_db "$name"
+        clean
+
+        msg "$name deleted"
+        unset name file dir root_file root_dir
+
+        shift
+    done
 }
