@@ -51,33 +51,27 @@ pkgdeps() {
 
 # print info about a given $name
 portinfo() {
-    [ $# -gt 1 ] && die "info(): too many arguments"
-    [ $# -eq 0 ] && die "info(): no argument provided"
-    name=$1
-    pkgfile="$ports"/$name/pkgfile
+    [ "$2" ]    && die "info(): too many arguments"
+    [ -z "$1" ] && die "info(): no argument provided"
+    name="$1"
+    pkgfile="$ports/$name/pkgfile"
 
     [ -f "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
     . "$pkgfile"
 
-    [ "$depends" ] || depends=none
-    [ "$version" ] || version=unknown
-    [ "$info" ]    || info='?'
-
-cat << EOF
-name:    $name
-info:    $info
-version: $version
-source:  $source
-depends: $depends
-EOF
+    printf "%s\n%s\n%s\n%s\n%s\n" \
+        "name:    $name" \
+        "info:    ${info:=?}" \
+        "version: ${version:=unknown}" \
+        "source:  ${source:=?}" \
+        "depends: ${depends:=none}"
     unset name pkgfile name info version source depends 
 }
 
 # print out the contents of a given $name's pkgfile
 portcat() {
-    [ $# -gt 1 ] && die "pkgcat(): too many arguments"
-    [ $# -eq 0 ] && die "pkgcat(): no argument provided"
-    pkgfile="$ports"/$1/pkgfile
-    [ -f "$pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
-    cat "$pkgfile"
+    [ "$2" ]    && die "portcat(): too many arguments"
+    [ -z "$1" ] && die "portcat(): no argument provided"
+    [ -f "$ports/$1/pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
+    cat "$ports/$1/pkgfile"
 }

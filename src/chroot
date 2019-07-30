@@ -43,7 +43,7 @@ get_chroot_shell() {
             esac
         fi
     done
-    warn "exhausted: $@"
+    warn "exhausted: $*"
     die "can't find a working shell?"
     unset shell
 }

@@ -50,7 +50,9 @@ create_skeleton_config() {
         mkdir -p "$path"
         echo 'copying default config to ~/.local/bonsai/bonsai.rc'
     fi
-cat > "$path"/bonsai.rc << "EOF"
+
+# 'command' here as not to use our cat from utils
+command cat > "$path"/bonsai.rc << "EOF"
 # bonsai root
 root=${HOME}/.local/bonsai
 
@@ -69,7 +71,7 @@ debug=false # compile in debugging tools/information?
 tests=false # compile included tests?
 
 # prompt prefixing msgs from the pkg mgr
-prompt='→'  # msg prompt
+prompt='→'
 
 # used to confirm adding/deleting pkgs
 confirm_prompt='continue? (y/n): '

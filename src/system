@@ -43,22 +43,18 @@ create_root_dirs() {
     cd - >/dev/null || die "create_root_dirs(): could not return from cd"
 }
 setup_etc() {
-if [ ! -f "$root"/etc/profile ] ; then
-cat > "$root"/etc/profile << EOF
-umask 022
-. /src/bonsai.rc
-export PATH="/bin:/src:/local/bin:${HOME}/bin:${HOME}/.local/bin"
-export POSIXLY_CORRECT=1
-EOF
-fi
-if [ ! -f "$root"/etc/os-release ] ; then
-cat > "$root"/etc/os-release << EOF
-NAME="bonsai"
-ID="bonsai"
-DISTRIB_ID="bonsai"
-PRETTY_NAME="bonsai"
-VERSION="(beta)"
-VERSION_CODENAME="beta"
-EOF
-fi
+    [ ! -s "$root"/etc/profile ] &&
+        > "$root"/etc/profile printf "%s\n%s\n%s\n%s\n" \
+        "umask 022" \
+        ". /src/bonsai.rc" \
+        "export PATH=\"/bin:/src:/local/bin:${HOME}/bin:${HOME}/.local/bin\"" \
+        "export POSIXLY_CORRECT=1"
+    [ ! -s "$root"/etc/os-release ] &&
+        > "$root"/etc/os-release printf "%s\n%s\n%s\n%s\n%s\n%s\n" \
+        "NAME=bonsai" \
+        "ID=bonsai" \
+        "DISTRIB_ID=bonsai" \
+        "PRETTY_NAME=bonsai" \
+        "VERSION='(beta)'" \
+        "VERSION_CODENAME=beta"
 }
