@@ -77,10 +77,26 @@ trim() {
 basename() { printf "%s" "${1##*/}" ; }
 #dirname()  { printf "%s" "${1%/*}/" ; }
 
-# prints the first line of a file
+# print first line of a file
+# (3600% speedup compared to `head -n 1` on small files)
 headn1() {
     read -r line < "$1"
-    printf "%s\n" "$line"
+    echo "$line"
+}
+
+# print last line of a file
+# (200% speedup compared to `tail -n 1` on small files)
+tailn1() {
+IFS="
+"
+file="$1"
+set --
+while read -r line ; do
+    set -- "$@" "$line"
+done < "$file"
+
+shift $(($# - 1))
+echo "$1"
 }
 # -------------------------------------------
 
