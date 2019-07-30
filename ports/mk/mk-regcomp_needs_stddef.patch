@@ -1,0 +1,7 @@
+--- libregexp/regcomp.c
++++ libregexp/regcomp.c
+@@ -1,3 +1,4 @@
++#include <stddef.h>
+ #include "lib9.h"
+ #include "regexp9.h"
+ #include "regcomp.h"
