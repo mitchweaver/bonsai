@@ -1,6 +1,5 @@
-index c0c2c33..4a98f05 100644
 --- src/drivers/drivers.mak
-+++ src/drivers/drivers.mak_new
++++ src/drivers/drivers.mak
 @@ -44,7 +44,11 @@ NEED_AP_MLME=y
  NEED_NETLINK=y
  NEED_LINUX_IOCTL=y

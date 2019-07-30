@@ -1,7 +1,7 @@
 // patch taken courtesy of the Sabotage Linux project
 // see: http://github.com/sabotage-linux/sabotage/blob/master/KEEP/libedit_readlineh.patch
 --- src/editline/readline.h
-+++ src/editline/readline.h_new
++++ src/editline/readline.h
 @@ -75,9 +75,7 @@
  
  #ifndef CTRL

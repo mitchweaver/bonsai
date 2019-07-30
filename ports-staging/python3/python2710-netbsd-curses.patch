@@ -1,5 +1,5 @@
 --- Modules/_cursesmodule.c
-+++ Modules/_cursesmodule.c_new
++++ Modules/_cursesmodule.c
 @@ -113,11 +113,13 @@
  #define CURSES_MODULE
  #include "py_curses.h"

@@ -1,5 +1,5 @@
---- src/utils.c	    2019-04-24 08:56:57.000000000 +0000
-+++ src/utils.c.new 2019-07-13 14:15:07.403430254 +0000
+--- src/utils.c
++++ src/utils.c
 @@ -250,7 +250,7 @@
  				regmatches[0].rm_so = next_rung;
  				regmatches[0].rm_eo = far_end;

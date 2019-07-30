@@ -1,5 +1,5 @@
---- config.h    	2019-04-24 18:52:00.000000000 +0000
-+++ config.h_new	2019-07-14 04:12:14.121472527 +0000
+--- config.h
++++ config.h
 @@ -25,4 +25,16 @@
  # error "Define either EMACS or VI."
  #endif

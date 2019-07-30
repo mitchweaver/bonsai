@@ -1,6 +1,5 @@
-diff -rup wpa_supplicant-2.1-orig/src/drivers/linux_wext.h wpa_supplicant-2.1/src/drivers/linux_wext.h
---- src/drivers/linux_wext.h	2014-02-07 21:43:20.904533453 +0200
-+++ src/drivers/linux_wext.h	2014-02-07 21:44:13.712535425 +0200
+--- src/drivers/linux_wext.h
++++ src/drivers/linux_wext.h
 @@ -19,13 +19,14 @@
  #define _LINUX_SOCKET_H
  #define _LINUX_IF_H

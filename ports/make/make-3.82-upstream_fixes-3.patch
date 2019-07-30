@@ -1,12 +1,5 @@
-Submitted By:            Armin K. <krejzi at email dot com>
-Date:                    2012-09-19
-Initial Package Version: 3.82
-Upstream Status:         Fixed Upstream
-Origin:                  Upstream
-Description:             Several bug fixes from upstream cvs.
-
---- expand.c	    2010-07-13 03:20:39.000000000 +0200
-+++ expand.c_new	2012-09-19 17:25:52.496989738 +0200
+--- expand.c
++++ expand.c
 @@ -197,7 +197,7 @@
  {
    struct variable *v;
@@ -48,8 +41,8 @@ Description:             Several bug fixes from upstream cvs.
  
    variable_buffer_output (o, "", 1);
    return (variable_buffer + line_offset);
---- function.c	201210-07-13 03:20:39.000000000 +0200
-+++ function.c_new	2012-09-19 17:25:52.509989959 +0200
+--- function.c
++++ function.c
 @@ -706,7 +706,7 @@
    const char *word_iterator = argv[0];
    char buf[20];
@@ -85,8 +78,8 @@ Description:             Several bug fixes from upstream cvs.
  
    /* Now assign pointers to each string in the array.  */
    t = argv[0];
---- job.c	21010-07-24 10:27:50.000000000 +0200
-+++ job.c_new	2012-09-19 17:25:52.509989959 +0200
+--- job.c
++++ job.c
 @@ -29,6 +29,15 @@
  
  #include <string.h>
@@ -174,8 +167,8 @@ Description:             Several bug fixes from upstream cvs.
        }
      if (ap == new_line + shell_len + sflags_len + 2)
        /* Line was empty.  */
---- main.c	201210-07-19 09:10:53.000000000 +0200
-+++ main.c_new	2012-09-19 17:25:52.510989976 +0200
+--- main.c
++++ main.c
 @@ -1138,7 +1138,7 @@
       a macro and some compilers (MSVC) don't like conditionals in macros.  */
    {
@@ -214,8 +207,8 @@ Description:             Several bug fixes from upstream cvs.
  	      else
  		{
  		  char *buf = alloca (30);
---- read.c	208810-07-13 03:20:42.000000000 +0200
-+++ read.c_new	2012-09-19 17:25:52.511989993 +0200
+--- read.c
++++ read.c
 @@ -2904,6 +2904,7 @@
        const char *name;
        const char **nlist = 0;
@@ -344,8 +337,8 @@ Description:             Several bug fixes from upstream cvs.
  
  #ifndef NO_ARCHIVES
        if (arname)
---- remake.c	    2010-07-13 03:20:42.000000000 +0200
-+++ remake.c_new	2012-09-19 17:26:09.116270849 +0200
+--- remake.c
++++ remake.c
 @@ -614,6 +614,10 @@
                  d->file->dontcare = file->dontcare;
                }

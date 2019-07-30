@@ -1,5 +1,5 @@
---- crypto/compat/getprogname_linux.c	2019-05-07 07:05:51.000000000 +0000
-+++ getprogname_linux.c	2019-07-02 23:57:06.827021642 +0000
+--- crypto/compat/getprogname_linux.c
++++ crypto/compat/getprogname_linux.c
 @@ -26,9 +26,7 @@
  #if defined(__ANDROID_API__) && __ANDROID_API__ < 21
  	extern const char *__progname;

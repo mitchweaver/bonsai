@@ -1,6 +1,5 @@
-index c4f5f97..c1bfff1 100644
 --- src/drivers/drivers.mak
-+++ src/drivers/drivers.mak_new
++++ src/drivers/drivers.mak
 @@ -63,7 +63,9 @@ else
    endif
  
@@ -12,9 +11,8 @@ index c4f5f97..c1bfff1 100644
      DRV_CFLAGS += -DCONFIG_LIBNL20
    endif
  endif
-index 0a05a24..0444e52 100644
 --- src/drivers/drivers.mk
-+++ src/drivers/drivers.mk_new
++++ src/drivers/drivers.mk
 @@ -51,7 +51,9 @@ else
    endif
  

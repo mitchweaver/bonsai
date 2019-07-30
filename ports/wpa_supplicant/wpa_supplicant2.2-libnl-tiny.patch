@@ -1,5 +1,5 @@
---- src/drivers/driver_nl80211.c	2014-08-22 21:38:40.456927876 +0300
-+++ src/drivers/driver_nl80211.c	2014-08-22 21:39:16.583927229 +0300
+--- src/drivers/driver_nl80211.c
++++ src/drivers/driver_nl80211.c
 @@ -60,6 +60,12 @@
  #define PACKET_TX_TIMESTAMP	16
  #endif
@@ -13,8 +13,8 @@
  #ifdef ANDROID
  #include "android_drv.h"
  #endif /* ANDROID */
---- src/drivers/drivers.mak	2014-08-22 21:38:40.456927876 +0300
-+++ src/drivers/drivers.mak	2014-08-22 21:39:16.583927229 +0300
+--- src/drivers/drivers.mak
++++ src/drivers/drivers.mak
 @@ -39,6 +39,7 @@ ifdef CONFIG_LIBNL32
  else
    ifdef CONFIG_LIBNL_TINY

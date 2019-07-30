@@ -1,5 +1,5 @@
 --- gnumake.h
-+++ gnumake.h_new
++++ gnumake.h
 @@ -342,9 +342,10 @@
  #if defined(HAVE_SYS_RESOURCE_H) && defined(HAVE_GETRLIMIT) && defined(HAVE_SETRLIMIT)
  # define SET_STACK_SIZE

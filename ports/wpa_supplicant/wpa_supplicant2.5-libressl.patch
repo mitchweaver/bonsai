@@ -1,5 +1,5 @@
---- src/crypto/crypto_openssl.c	2016-10-02 20:51:11.000000000 +0200
-+++ src/crypto/crypto_openssl.c	2016-10-30 01:17:58.018292303 +0200
+--- src/crypto/crypto_openssl.c
++++ src/crypto/crypto_openssl.c
 @@ -611,7 +611,7 @@
  
  void * dh5_init(struct wpabuf **priv, struct wpabuf **publ)
@@ -18,8 +18,8 @@
  	DH *dh;
  
  	dh = DH_new();
---- src/crypto/tls_openssl.c	2016-10-02 20:51:11.000000000 +0200
-+++ src/crypto/tls_openssl.c	2016-10-30 02:25:22.648279455 +0200
+--- src/crypto/tls_openssl.c
++++ src/crypto/tls_openssl.c
 @@ -919,7 +919,7 @@
  		}
  #endif /* OPENSSL_FIPS */

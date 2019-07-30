@@ -1,5 +1,5 @@
---- libnl-tiny#git/Makefile	2019-07-12 23:57:29.396864000 +0000
-+++ Makefile	2019-07-14 01:39:23.611153446 +0000
+--- Makefile
++++ Makefile
 @@ -10,7 +10,7 @@
  CFLAGS?=-O2
  INCLUDES=-Iinclude

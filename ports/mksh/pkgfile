@@ -3,7 +3,7 @@ version=R57
 source=http://www.mirbsd.org/MirOS/dist/mir/$name/$name-$version.tgz
 build() {
     LDFLAGS="$LDFLAGS" CFLAGS="$CFLAGS" CC="$cc" \
-        sh Build.sh -r -Q -j > /dev/null
+        sh Build.sh -r -j -Q
     install -Dm755 mksh "$pkgs"/mksh/bin/mksh
     install -Dm644 mksh.1 "$pkgs"/mksh/share/man/man1/mksh.1
 }

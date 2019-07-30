@@ -1,5 +1,5 @@
---- config.mk   	2019-07-07 19:33:29.440654389 +0000
-+++ config.mk_new	2019-07-07 19:33:22.060694369 +0000
+--- config.mk
++++ config.mk
 @@ -5,9 +5,9 @@
  MANPREFIX   = ${PREFIX}/share/man
  

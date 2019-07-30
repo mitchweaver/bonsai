@@ -1,5 +1,5 @@
 --- glob/glob.c
-+++ glob/glob.c_new
++++ glob/glob.c
 @@ -1325,7 +1325,7 @@
  		  /* If we shall match only directories use the information
  		     provided by the dirent call if possible.  */

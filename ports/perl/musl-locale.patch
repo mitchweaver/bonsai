@@ -1,8 +1,7 @@
 // Taken from Alpine Linux
 // https://git.alpinelinux.org/aports/tree/main/perl/musl-locale.patch
-index 7653340..7243cb1 100644
 --- locale.c
-+++ locale.c_new
++++ locale.c
 @@ -581,6 +581,10 @@ S_emulate_setlocale(const int category,
  
          return (char *) querylocale(mask, cur_obj);
