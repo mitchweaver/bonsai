@@ -79,7 +79,7 @@ dirname()  { printf "%s\n" "${1%/*}/" ; }
 
 # print out a file
 # 200%+ speed increase on small files
-cat() {
+shellcat() {
     while read -r _line ; do
         printf "%s\n" "$_line"
     done < "$1"

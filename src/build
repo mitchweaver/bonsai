@@ -123,7 +123,7 @@ bonsai_configure() {
         done
     fi
 
-    ./$FILE $(cat "$tmp_flags") "$@"
+    ./$FILE $(shellcat "$tmp_flags") "$@"
 
     set -- $?
     unset -f addflag

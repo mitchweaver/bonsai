@@ -51,8 +51,7 @@ create_skeleton_config() {
         echo 'copying default config to ~/.local/bonsai/bonsai.rc'
     fi
 
-# 'command' here as not to use our cat from utils
-command cat > "$path"/bonsai.rc << "EOF"
+cat > "$path"/bonsai.rc << "EOF"
 # bonsai root
 root=${HOME}/.local/bonsai
 

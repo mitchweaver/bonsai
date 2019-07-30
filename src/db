@@ -15,7 +15,7 @@ isinst() {
 }
 
 # list packages currently installed
-listpkgs() { cat "$bonsaidb" ; }
+listpkgs() { shellcat "$bonsaidb" ; }
 
 # count packages installed
 countpkgs() { listpkgs | wc -l ; }

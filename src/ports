@@ -73,5 +73,5 @@ portcat() {
     [ "$2" ]    && die "portcat(): too many arguments"
     [ -z "$1" ] && die "portcat(): no argument provided"
     [ -f "$ports/$1/pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
-    cat "$ports/$1/pkgfile"
+    shellcat "$ports/$1/pkgfile"
 }
