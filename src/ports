@@ -30,7 +30,7 @@ pkgdeps() {
             for dep in $deps ; do
                 case "$to_check" in
                     *" $dep "*) ;; # dependency is already in list
-                    *) to_check=" $deps $pkgdep "
+                    *) to_check=" $deps "
                 esac
             done
 
