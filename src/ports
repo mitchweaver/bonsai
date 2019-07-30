@@ -3,7 +3,7 @@
 
 # search ports for given $name
 search() {
-    set -- $(find "$ports" ! -path "$ports" -type d -name "*$1*")
+    set -- $(find "$ports" ! -path "$ports" -type d -name "*$1*" | sort)
     [ "$1" ] || die "port $1 not found"
     for path in $@ ; do
         path="${path##*/}"
