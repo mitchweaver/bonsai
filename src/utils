@@ -80,16 +80,18 @@ dirname()  { printf "%s\n" "${1%/*}/" ; }
 # print out a file
 # 200%+ speed increase on small files
 cat() {
-    while read -r line ; do
-        printf "%s\n" "$line"
+    while read -r _line ; do
+        printf "%s\n" "$_line"
     done < "$1"
+    unset _line
 }
 
 # print first line of a file
 # 3000%+ speed increase on small files
 headn1() {
-    read -r line < "$1"
-    printf "%s\n" "$line"
+    read -r _line < "$1"
+    printf "%s\n" "$_line"
+    unset _line
 }
 
 # print last line of a file
@@ -97,14 +99,15 @@ headn1() {
 tailn1() {
 IFS="
 "
-file="$1"
+_file="$1"
 set --
-while read -r line ; do
-    set -- "$@" "$line"
-done < "$file"
+while read -r _line ; do
+    set -- "$@" "$_line"
+done < "$_file"
 
 shift $(($# - 1))
 echo "$1"
+unset _file _line
 }
 # -------------------------------------------
 
