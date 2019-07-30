@@ -74,18 +74,26 @@ trim() {
 }
 
 # --- some coreutils in posix sh builtins ---
-basename() { printf "%s" "${1##*/}" ; }
-#dirname()  { printf "%s" "${1%/*}/" ; }
+basename() { printf "%s\n" "${1##*/}" ; }
+dirname()  { printf "%s\n" "${1%/*}/" ; }
+
+# print out a file
+# 200%+ speed increase on small files
+cat() {
+    while read -r line ; do
+        printf "%s\n" "$line"
+    done < "$1"
+}
 
 # print first line of a file
-# (3600% speedup compared to `head -n 1` on small files)
+# 3000%+ speed increase on small files
 headn1() {
     read -r line < "$1"
-    echo "$line"
+    printf "%s\n" "$line"
 }
 
 # print last line of a file
-# (200% speedup compared to `tail -n 1` on small files)
+# 200%+ speed increase on small files
 tailn1() {
 IFS="
 "
