@@ -87,6 +87,13 @@ headn1() {
 }
 # -------------------------------------------
 
+# checks if a given string contains another
+# params: full_string, partial_string
+contains() {
+    [ "${1#*$2}" != "$1" ]
+    return $?
+}
+
 # converts "bash#4.8" -> "bash"
 pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 

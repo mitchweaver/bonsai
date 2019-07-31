@@ -30,10 +30,7 @@ pkgdeps() {
 
         # recurse and find the dep's deps, skipping if already in list
         for dep in $deps ; do
-            case "$pkgdeps" in
-                *" $dep "*) ;; # already in list
-                *) dep_recurse $dep
-            esac
+            contains "$pkgdeps" " $dep " || dep_recurse $dep
         done
 
         # check if dep is not the main package stored in $arg
