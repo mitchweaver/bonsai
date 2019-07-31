@@ -12,35 +12,39 @@ search() {
     unset results path
 }
 
-# gets dependencies of a given port 
-# and stores them in $pkgdeps 
-# in the order needed to be installed
-# param: $name
+# calculate dependencies and store them
+# in $pkgdeps in the correct installation order
+# params: $name
 pkgdeps() {
+    # remember the original package we're checking
     arg=$1
+
     dep_recurse() {
+        # unset as not to carry over deps from previous pkg
         unset deps
-        if [ -f "$ports/$1/pkgfile" ] ; then
-            . "$ports/$1/pkgfile"
-        else
+
+        # source the dep's pkgfile
+        [ -s "$ports/$1/pkgfile" ] || 
             die "pkgdeps(): could not source $1's pkgfile"
-        fi
+        . "$ports/$1/pkgfile"
 
-        if [ "$deps" ] ; then
-            for dep in $deps ; do
-                case "$to_check" in
-                    *" $dep "*) ;; # dependency is already in list
-                    *) to_check=" $dep $to_check "
-                esac
-            done
+        # recurse and find the dep's deps, skipping if already in list
+        for dep in $deps ; do
+            case "$pkgdeps" in
+                *" $dep "*) ;; # already in list
+                *) dep_recurse $dep
+            esac
+        done
 
-            for dep in $deps ; do
-                dep_recurse "$dep"
-            done
-        fi
-        [ $1 != $arg ] && pkgdeps="$pkgdeps $1"
+        # check if dep is not the main package stored in $arg
+        # (do not display a package as a dep of itself)
+        [ $1 != $arg ] && pkgdeps=" $pkgdeps $1 "
     }
     dep_recurse "$arg"
+
+    # remove multiple whitespaces
+    set -- $pkgdeps
+    pkgdeps="$*"
 
     export pkgdeps
 
