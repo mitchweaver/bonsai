@@ -1,0 +1,4 @@
+info='implementation of the standard Unix documentation system accessed using the man command'
+version=2.8.5
+source=http://download.savannah.nongnu.org/releases/$name/$name-$version.tar.xz
+deps='libpipeline gdbm groff zlib'

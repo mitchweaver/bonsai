@@ -1,0 +1,3 @@
+info='the official documentation format of the GNU project'
+version=6.6
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz

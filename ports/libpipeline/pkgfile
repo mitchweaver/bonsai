@@ -1,0 +1,4 @@
+info='a C library for manipulating pipelines of subprocesses in a flexible and convenient way'
+version=1.5.1
+source=http://download.savannah.nongnu.org/releases/$name/$name-$version.tar.gz
+deps='pkgconf'
