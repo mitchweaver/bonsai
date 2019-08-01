@@ -1,0 +1,9 @@
+info='GNU grep, egrep, fgrep'
+version=3.3
+source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.xz
+build() {
+    CFLAGS="-D_GNU_SOURCE $CFLAGS" \
+    bonsai_configure
+    bonsai_make
+    bonsai_make install
+}
