@@ -82,7 +82,7 @@ quiet=false
 
 # PS1 inside chroot
 # common favorites: 🌿 🍂 🌱 → % $
-PS1='🌿 '
+PS1='% '
 
 # package/version delimiter
 # can be any character or series of characters, however:
