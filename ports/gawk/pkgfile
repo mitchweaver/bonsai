@@ -8,5 +8,5 @@ build() {
     bonsai_make install
 }
 postbuild() {
-    ln -sf "$pkg"/bin/gawk awk
+    ln -sf gawk "$pkg"/bin/awk
 }
