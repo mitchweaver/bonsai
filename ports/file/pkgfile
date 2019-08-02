@@ -2,6 +2,7 @@ info='standard file type identification utility'
 version=5.37
 source=ftp://ftp.astron.com/pub/$name/$name-$version.tar.gz
 deps=zlib
+sha256=e9c13967f7dd339a3c241b7710ba093560b9a33013491318e88e6b8b57bae07f
 build() {
     bonsai_configure --disable-libseccomp
     bonsai_make

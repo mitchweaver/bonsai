@@ -2,3 +2,4 @@ info='GNU diff'
 version=3.7
 source=https://mirrors.kernel.org/gnu/diff/diff-$version.tar.xz
 deps=perl
+sha256=255f462758db0d3d11ec17df797d97d8144e7a5ee24dbceacef16a70e1010b05

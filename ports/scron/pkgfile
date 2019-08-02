@@ -1,3 +1,4 @@
 info='simple cron daemon'
 version=0.4
 source=http://dl.2f30.org/releases/$name-$version.tar.gz
+sha256=4ae8225a3991e42e29791d981192c9daf5b9b02609f68775768fe1598ae2ce18

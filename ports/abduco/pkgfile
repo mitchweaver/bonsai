@@ -1,3 +1,4 @@
 info='Tool for session {at,de}tach support'
 version=0.6
 source=http://github.com/martanne/abduco/archive/v$version.tar.gz
+sha256=647d0381418f43a38f861d151b0efb2e3458ec651914e7d477956768b0af9bb7

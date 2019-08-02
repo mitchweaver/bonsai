@@ -2,6 +2,7 @@ info='ViM Vi-Improved text editor'
 version=8.1.1770
 source=http://github.com/$name/$name/archive/v$version.tar.gz
 deps='netbsd-curses acl'
+sha256=440c08d4e5f49609f3492626f65e240da5ddf98e802cabc42e7918da8ade18f4
 build() {
     bonsai_configure LIBS='-lncursesw -ltinfow' \
         --disable-gui \

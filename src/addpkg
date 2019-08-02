@@ -27,7 +27,8 @@ addpkg() {
 
     # unsets vars as not to persist from pkg to pkg
     unload_pkgfile() {
-        unset name pkgfile pkgid version source depends deps
+        unset name pkgfile pkgid version source depends deps \
+              md5 sha1 sha256 sha512
         unset -f prebuild build postbuild
     }
 

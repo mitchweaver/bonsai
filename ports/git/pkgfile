@@ -2,6 +2,8 @@ info='git version control system'
 version=2.22.0
 source=http://mirrors.edge.kernel.org/pub/software/scm/$name/$name-$version.tar.xz
 deps=curl
+sha256=159e4b599f8af4612e70b666600a3139541f8bacc18124daf2cbe8d1b934f29f
+
 prebuild() {
 cat > config.mak << EOF
 NO_TCLTK=YesPlease
@@ -23,6 +25,7 @@ EOF
         templates/Makefile > templates/Makefile.tmp
     mv -f templates/Makefile.tmp templates/Makefile
 }
+
 build() {
     # use provided regex.h over system's regex.h
     # as musl does not support glibc's REG_STARTEND
@@ -35,6 +38,7 @@ build() {
     bonsai_make CFLAGS="-Icompat/regex $CFLAGS" \
                 CPPFLAGS="-Icompat/regex $CPPFLAGS" install
 }
+
 postbuild() {
     rm -f "$pkg"/lib/perl5/core_perl/perllocal.pod
 }

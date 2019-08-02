@@ -2,6 +2,7 @@ info='IEEE 802.1X/WPA wireless network client'
 version=2.5
 source=http://w1.fi/releases/$name-$version.tar.gz
 deps="libressl libnl-tiny zlib"
+sha256=cce55bae483b364eae55c35ba567c279be442ed8bab5b80a3c7fb0d057b9b316
 prebuild() {
 bonsai_patch
 cd wpa_supplicant

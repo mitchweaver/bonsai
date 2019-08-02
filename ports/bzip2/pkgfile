@@ -1,6 +1,7 @@
 info='bz2 compression/decompression utility'
 version=1.0.8
 source=http://sourceware.org/pub/$name/$name-$version.tar.gz
+sha256=ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269
 build() {
     bonsai_make CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64"
     bonsai_make CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64" install

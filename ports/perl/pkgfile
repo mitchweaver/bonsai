@@ -2,6 +2,7 @@ info='Perl programming language'
 version=5.30.0
 source=http://www.cpan.org/src/5.0/$name-$version.tar.xz
 deps='zlib bzip2'
+sha256=ac501cad4af904d33370a9ea39dbb7a8ad4cb19bc7bc8a9c17d8dc3e81ef6306
 prebuild() {
     bonsai_patch
 

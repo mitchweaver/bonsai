@@ -2,6 +2,7 @@ info='heirloom base - a compliment to sbase and ubase'
 version=1.3
 source=http://github.com/mitchweaver/$name/archive/$version.tar.gz
 deps=zlib
+sha256=8fcd1066b48d6e05e742ae467c22a95a86f2a615955eaf22dc56cead49658a4d
 build() {
     CC="$CC" SHELL=/bin/sh PREFIX="$PREFIX" \
         YACC="$PWD/heirloom-devtools/yacc/yacc -d -P $PWD/heirloom-devtools/yacc/yaccpar" \

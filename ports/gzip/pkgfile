@@ -1,3 +1,4 @@
 info="GNU gzip compression/decompression utility"
 version=1.10
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
+sha256=8425ccac99872d544d4310305f915f5ea81e04d0f437ef1a230dc9d1c819d7c0

@@ -2,6 +2,7 @@ info="Linux port of OpenBSD's oksh"
 version=6.5
 source=http://github.com/dimkr/$name/archive/$version.tar.gz
 deps=libedit
+sha256=afa6dddfe914a3cb4c2f5c6b9da03d30fb549c8cfb4daeff0472fc103696f7a4
 build() {
     bonsai_make NCURSES_LDFLAGS='-lncursesw -ltinfo'
     bonsai_make install

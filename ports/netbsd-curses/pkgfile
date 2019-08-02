@@ -1,6 +1,7 @@
 info="minimal NetBSD curses library ported to Linux"
 version=0.3.1
 source=http://github.com/sabotage-linux/$name/archive/v$version.tar.gz
+sha256=bebaf1656440409b0b0e40b5a336c97dcd142e2368b47840a353040fe34d987f
 build() {
     bonsai_make all-static
     bonsai_make install-static

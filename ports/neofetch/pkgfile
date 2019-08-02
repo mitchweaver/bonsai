@@ -2,3 +2,4 @@ info='A command-line system information tool written in bash 3.2+'
 version=780263f6e6b7c310d39b455cb8778fde324c690f
 source=http://github.com/dylanaraps/$name/archive/$version.tar.gz
 deps=bash
+sha256=f3e76046b7a9f122d4a563f28e155d698535518575b82704426b4e19e9a5a5fa

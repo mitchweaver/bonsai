@@ -2,3 +2,4 @@ info='Network Wide 80x86 Assembler'
 version=2.14.02
 source=http://nasm.us/pub/nasm/releasebuilds/$version/$name-$version.tar.xz
 deps=perl
+sha256=e24ade3e928f7253aa8c14aa44726d1edf3f98643f87c9d72ec1df44b26be8f5

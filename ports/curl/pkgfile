@@ -2,6 +2,7 @@ info='command line online file transfer and download tool'
 version=7.65.1
 source=http://curl.haxx.se/download/$name-$version.tar.xz
 deps='libressl zlib'
+sha256=f6c22074877f235aebc7c53057dbc7ee82358f8ae58bfb767e955c18c859a77a
 build() {
     bonsai_configure --without-librtmp --without-cyassl \
               --without-libpsl --without-winidn \

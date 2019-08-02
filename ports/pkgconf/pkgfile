@@ -1,6 +1,7 @@
 info='a lightweight drop-in replacement for pkg-config'
 version=1.6.3
 source=http://distfiles.dereferenced.org/$name/$name-$version.tar.xz
+sha256=61f0b31b0d5ea0e862b454a80c170f57bad47879c0c42bd8de89200ff62ea210
 build() {
    # Instead of using these, prefer to use $PKG_CONFIG_PATH
    # environment variable for more flexibility
