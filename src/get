@@ -35,8 +35,10 @@ get() {
         ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
     }
 
-    # extracts given archive/file to $workdir
+    # compares checksum for $archive and extracts to $workdir
+    # params: archive
     extract() {
+        checksum "$1"
         msg "extracting $name"...
         decompress() {
             case "${ext##*.}" in
@@ -67,9 +69,9 @@ get() {
     # download tarball only if not in $sources
     if [ ! -e "$sources/$pkgid$ext" ] ; then
         dlcurl "$source" || die "get(): could not download $name"
-        extract "$dldir/$pkgid$ext"
+        extract "$dldir/$pkgid$ext" "$md5"
     else
-        extract "$sources/$pkgid$ext"
+        extract "$sources/$pkgid$ext" "$md5"
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
@@ -78,4 +80,35 @@ get() {
     done
     unset workdir dldir ext file
     unset -f dlgit dlcurl extract decompress
+}
+
+# verifies hash of $tarball against hash in the pkgfile
+# params: $tarball
+checksum() {
+    [ "$1" ] || die "checksum(): no tarball provided"
+
+    if [ "$sha512" ] ; then
+        set -- "$sha512" $(sha512sum "$1") "$1"
+    elif [ "$sha256" ] ; then
+        set -- "$sha256" $(sha256sum "$1") "$1"
+    elif [ "$sha1" ] ; then
+        set -- "$sha1" $(sha1sum "$1") "$1"
+    elif [ "$md5" ] ; then
+        set -- "$md5" $(md5sum "$1") "$1"
+    else
+        # if unable to validate checksum,
+        # prompt user to confirm they wish to still continue
+        warn "no checksum defined for $1"
+        confirm || die 'exiting'
+    fi
+
+    msg_no_nl "comparing checksum for $name... "
+
+    # compare the the hashes
+    if [ "$1" = "$2" ] ; then
+        printf "%s\n" "matched!"
+    else
+        printf "\n"
+        die "checksum mismatch for $3"
+    fi
 }
