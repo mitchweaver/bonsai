@@ -84,7 +84,9 @@ relink_world() {
 
         # check if $1 contains '--pkgs='
         if [ "${1#*--pkgs=}" != "$1" ] ; then
-            relink_pkgs="${1#--pkgs=}"
+            # note: sed here to remove the double '//' incase
+            #       user appended a slash onto their argument
+            relink_pkgs="$(echo ${1#--pkgs=} | sed 's|\/$|\/|')"
         else
             die 'bad argument given to --relink-world'
         fi
