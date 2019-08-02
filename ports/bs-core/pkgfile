@@ -1,0 +1,3 @@
+info="the bonsai core system"
+deps='gcc xz-embedded gzip sbase ubase hbase dash make patch curl'
+metapkg=true

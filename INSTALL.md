@@ -38,7 +38,7 @@ This will copy a default skeleton config to `~/.local/bonsai/src/bonsai.rc`.
 4. **bootstrap**
 
 ```bash
-./bonsai add core-system
+./bonsai add bs-core
 ```
 
 This will create dirs, permissions, etc -- and install the base system.
@@ -60,7 +60,7 @@ as they do not point to files on the correct root.
 ./bonsai chroot
 ```
 
-Assuming `core-system` installed correctly and `--relink-world` succeeded,
+Assuming `bs-core` installed correctly and `--relink-world` succeeded,
 this will chroot inside, mounting drives automatically.
 
 8. **exit**
