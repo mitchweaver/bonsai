@@ -101,7 +101,6 @@ The symlinks are then tracked and removed once the program is uninstalled.
 These are lightweight/embedded technologies incorporated into bonsai as to be more "suckless" alternatives to conventional GNU/Linux software.
 
 **C Library**: [musl-libc](https://www.musl-libc.org/)  
-**Compiler**: [tcc](https://bellard.org/tcc) *(where possible)*  
 **Libraries**: [LibreSSL](https://www.libressl.org/) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
 **Init System**: [sinit](https://core.suckless.org/sinit)  
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)  
