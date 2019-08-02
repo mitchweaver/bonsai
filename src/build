@@ -4,6 +4,7 @@
 # runs build() method inside a pkgfile! -name readme 
 # params: none
 run_build() { 
+    cd "$pkgworkdir" || die "build(): unable to cd to $work/$pkgid"
     msg "building $name..."
 
     getflags
@@ -18,6 +19,7 @@ run_build() {
     fi
 
     # run user defined build(), if exists
+    cd "$pkgworkdir"
     if defined build ; then
         build || die "$name build() failed"
     # otherwise run our automagic generic_build
@@ -26,12 +28,14 @@ run_build() {
     fi
 
     # run user defined postbuild(), if exists
+    cd "$pkgworkdir"
     if defined postbuild ; then
         postbuild || die "$name postbuild() failed"
     fi
 
     # unset in case we are adding multiple packages
     unset -f prebuild build postbuild
+    unset OLD_PWD
 }
 
 # convenience functions

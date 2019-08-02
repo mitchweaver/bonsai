@@ -22,13 +22,14 @@ addpkg() {
         . "$pkgfile"
         ismetapkg "$name" && version=metapkg
         pkgid="${name}${delim:=#}${version:=unknown}"
-        export version source pkgid
+        pkgworkdir="$work/$name"
+        export version source pkgid pkgworkdir
     }
 
     # unsets vars as not to persist from pkg to pkg
     unload_pkgfile() {
         unset name pkgfile pkgid version source depends deps \
-              md5 sha1 sha256 sha512
+              md5 sha1 sha256 sha512 pkgworkdir
         unset -f prebuild build postbuild
     }
 
@@ -55,7 +56,6 @@ addpkg() {
         esac
 
         if ! ismetapkg "$name" ; then
-            cd "$work/$name" || die "addpkg(): unable to cd to $work/$pkgid"
             mkdir -p "$pkgs/$name"
             trap 'rmdir $pkgs/$name' INT TERM
         fi
