@@ -5,6 +5,13 @@
 delpkg() {
     [ "$1" ] || die "delpkg(): no pkg given"
 
+    # if we are only installing one package, 
+    # make sure it is installed -- die otherwise
+    # -- (if installing multiple packages, we'll warn instead of exiting)
+    if [ -z "$2" ] && ! isinst "$1" >/dev/null ; then
+        die "$1 is not installed"
+    fi
+
     # ensure we're sane before doing anything damaging
     sanity_check
 

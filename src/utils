@@ -163,6 +163,22 @@ sanity_check() {
     mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
 }
 
+check_pkg_mgr_deps() {
+    for prog in gcc make curl gzip ; do
+        has $prog || die "$prog is needed by bonsai but is not in \$PATH."
+    done
+}
+
+get_sudo() {
+    if has sudo ; then
+        echo sudo
+    elif has doas ; then
+        echo doas
+    else
+        die "sudo or doas is needed by bonsai but neither found in \$PATH."
+    fi
+}
+
 bonsai() {
 printf "%b\n" \
 "

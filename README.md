@@ -2,7 +2,9 @@
 
 <img align="right" src="res/bonsai.png">
 
-A truly minimal system that is easy to setup, configure, and maintain.
+A truly minimal Linux system.
+
+For the idealists, for the masochists.
 
 # Core Philosophy
 
@@ -17,7 +19,7 @@ Minimize moving parts. Simpler is better.
 2. **Sandboxing**
 
 Chroot sandboxes should be *dead simple* to 
-setup simply by copying the relevant statically-linked binaries.  
+setup simply by copying the statically-linked binaries.  
 
 3. **A Better C Library**
 
@@ -38,9 +40,8 @@ under musl-libc, however this *almost always* makes their code better.
 
 No matter how great, a system is bottlenecked by its ability to be understood.
 
-* Entirely written in clean, [shellchecked](http://github.com/koalaman/shellcheck), POSIX sh
-* Sane and optimal default flags for both performance and security
-* A modular automated build system with parts that can overriden simply be defining the given function in the pkgfile
+* Sane and optimal default flags
+* A modular automated build system with parts that can overriden simply by defining the given function in the pkgfile
 * Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
 * Automatic detection of required flags, configs, patches, and workarounds
 * Ports can be written with *[just one line](http://pastebin.com/raw/zjpEfq4K)*!
@@ -101,7 +102,6 @@ The symlinks are then tracked and removed once the program is uninstalled.
 These are lightweight/embedded technologies incorporated into bonsai as to be more "suckless" alternatives to conventional GNU/Linux software.
 
 **C Library**: [musl-libc](https://www.musl-libc.org/)  
-**Compiler**: [tcc](https://bellard.org/tcc) *(where possible)*  
 **Libraries**: [LibreSSL](https://www.libressl.org/) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
 **Init System**: [sinit](https://core.suckless.org/sinit)  
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)  
@@ -129,7 +129,6 @@ from these wonderful projects.
 
 * Rich Felker's work on [musl-crossmake](https://github.com/richfelker/musl-cross-make) for ease of musl toolchain compilation
 * The folks at [musl.cc](musl.cc) for providing statically-compiled toolchain binaries
-* [suckless](http://suckless.org) and [cat-v](cat-v.org) projects for being a breath of fresh air in a world of insanity
 
 ----
 
@@ -147,7 +146,7 @@ Star it! 🌟
 It helps get it higher in GitHub's search results and motivates 
 us to continue development.
 
-If you would like to contribute, pull requests are __*always*__ encouraged!  
+If you would like to contribute, look into submitting a pull request.  
 You can see our contributing guidelines [here](CONTRIBUTING.md).
 
 ### Community 

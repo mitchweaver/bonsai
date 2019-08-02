@@ -17,6 +17,9 @@ initglobals() {
 main() {
     [ "$1" ] || { bonsai ; exit ; }
 
+    # check dependencies of the pkg mgr
+    check_pkg_mgr_deps
+
     # assign any special arguments
     [ "$1" = --debug ]   && { set -x ; shift ; }
     [ "$1" = --errexit ] && { set -e ; shift ; }

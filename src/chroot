@@ -2,6 +2,7 @@
 # shellcheck shell=sh
 
 enter_chroot() {
+    sudo=$(get_sudo)
     if already_chrooted > /dev/null ; then
         unmount_drives
         already_chrooted &&
@@ -21,7 +22,7 @@ enter_chroot() {
     mv -f "$bonsairc".tmp "$bonsairc"
 
     mount_drives
-    sudo chroot "$root" "$chroot_shell" -l -i
+    $sudo chroot "$root" "$chroot_shell" -l -i
     unchroot
 }
 
@@ -49,22 +50,24 @@ get_chroot_shell() {
 }
 
 mount_drives() {
-    sudo mount -o bind -t devtmpfs /dev "$root"/dev || die 'Could not mount.'
-    sudo mount -o bind -t devpts /dev/pts "$root"/dev/pts
-    sudo mount -o bind -t proc /proc "$root"/proc
-    sudo mount -o bind -t sysfs /sys "$root"/sys
+    sudo=$(get_sudo)
+    $sudo mount -o bind -t devtmpfs /dev "$root"/dev || die 'Could not mount.'
+    $sudo mount -o bind -t devpts /dev/pts "$root"/dev/pts
+    $sudo mount -o bind -t proc /proc "$root"/proc
+    $sudo mount -o bind -t sysfs /sys "$root"/sys
 }
 
 unmount_drives() {
+    sudo=$(get_sudo)
     tryumount() {
         path="$1"
-        if ! sudo umount "$path" 2> /dev/null ; then
+        if ! $sudo umount "$path" 2> /dev/null ; then
             msg "umount ${path} failed... trying to umount -f"
             sleep 1
-            if ! sudo umount -f "$path" 2> /dev/null ; then
+            if ! $sudo umount -f "$path" 2> /dev/null ; then
                 msg "umount -f ${path} failed... trying to umount -l"
                 sleep 1
-                if ! sudo umount -l "$path" 2> /dev/null ; then
+                if ! $sudo umount -l "$path" 2> /dev/null ; then
                     warn "WARNING: could  not umount -l ${path}!"
                 fi
             fi
@@ -78,6 +81,7 @@ unmount_drives() {
 }
 
 unchroot() {
+    sudo=$(get_sudo)
     unmount_drives
     if already_chrooted ; then
         unmount_drives
@@ -89,7 +93,7 @@ unchroot() {
     sed "s|root=.*|$old_config_root|" "$bonsairc" > "$bonsairc".tmp
     mv -f "$bonsairc".tmp "$bonsairc"
 
-    sudo chown -R "$USER" "${root:?}"
+    $sudo chown -R "$USER" "${root:?}"
 
     msg 'exited chroot!'
 }
