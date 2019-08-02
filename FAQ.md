@@ -28,9 +28,10 @@ If a port isn't available, you're welcome to [port it yourself](http://github.co
 Busybox is a suite of minimal, unfortunately [GPL](http://busybox.net/license.html),
 programs with the same goals as our `sbase`, `ubase`, and `hbase`.
 
-While it is a good collection, our userland is *much smaller*.
+While it is a good collection, our userland is *much smaller*.  
+Our `sbase` and `ubase` are also built *"box-style"* as popularized by `busybox`.
 
-If you would like to use busybox instead however, you can.
+If you would like to use busybox instead however, you can!
 
 Perhaps in the future we will add a `core-system-busybox` alternative to `core-system`.
 
