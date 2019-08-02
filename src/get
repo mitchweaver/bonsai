@@ -42,10 +42,11 @@ get() {
         msg "extracting $name"...
         decompress() {
             case "${ext##*.}" in
-                xz)     xz-embedded < "$1" ;;
-                gz|tgz) gunzip  -dc "$1"   ;;
-                bz2)    bunzip2 -dc "$1"   ;;
-                zip)    unzip -p "$1"      ;;
+                xz)     xz-embedded < "$1"  ;;
+                gz|tgz) gunzip  -qdc  "$1"   ;;
+                zip)    unzip   -qp   "$1"   ;;
+                # bz2 is currently broken under sbase-tar, see issue #19
+                # bz2)    bunzip2 -qdc "$1"   ;;
             esac || die "get(): failed to decompress $1"
         }
         case "$ext" in
