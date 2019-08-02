@@ -99,7 +99,7 @@ checksum() {
         # if unable to validate checksum,
         # prompt user to confirm they wish to still continue
         warn "no checksum defined for $1"
-        confirm || die 'exiting'
+        confirm && return || die 'exiting'
     fi
 
     msg_no_nl "comparing checksum for $name... "
