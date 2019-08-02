@@ -131,31 +131,7 @@ Can't find a hosted tarball? Have no fear! GitHub can generate you one from any 
 info='an awesome package'
 version=6340629c52b16392fe2e0b4522860b832e7fae75
 source=http://github.com/foobar/$name/archive/$version.tar.gz
-```
-
-### Do not overwrite build functions if unnecessary
-
-If your port doesn't require anything special, don't redundantly define the build functions.
-
-Example:
-
-<sub>**DO:**</sub>
-
-```bash
-info='an awesome package'
-version=6340629c52b16392fe2e0b4522860b832e7fae75
-source=http://github.com/foobar/$name/archive/$version.tar.gz
-```
-
-<sub>**DON'T:**</sub>
-
-```bash
-info='an awesome package'
-version=6340629c52b16392fe2e0b4522860b832e7fae75
-source=http://github.com/foobar/$name/archive/$version.tar.gz
-prebuild() { bonsai_patch ; }
-build() { bonsai_make ; bonsai_make install ; }
-postbuild { : ; }
+sha256=58db744a9198327f185355c6c9b3ee2bc7e55af4f5b02bba7b2f7de12c4088ed
 ```
 
 ### List dependencies
@@ -183,6 +159,48 @@ Therefore `bash`'s dependencies should look like:
 deps=libedit
 ```
 
-### Shellcheck
+### Prefer sha256
 
-Make sure your port clears `shellcheck`, with any SC code ignores explained with sound reasoning.
+`bonsai` will accept most checksum formats if given,
+however for official ports `sha256` is preferred.  
+Reasoning: `md5sum` and `sha1` are now considered insecure and `sha512` generates
+obnoxiously long hashes.
+
+### Prefer `xz` over `gz` or `bz2`
+
+* smaller source tarball sizes
+* roughly the same speed for small archives
+* and for the love of unix try not to use `zip`
+
+### DO and DON'T  --  a ports final review
+
+* Write an `info=` description
+* Use `sha256=`
+* Use `$name` and `$version` in the `source=` if possible
+* Use `http://` over `https://`
+* Do not overwrite build functions if unnecessary
+
+Example:
+
+<sub>**DO:**</sub>
+
+```bash
+info='an awesome package'
+version=0.4.8
+source=http://github.com/foobar/$name/archive/v$version.tar.gz
+deps=bash
+sha256=58db744a9198327f185355c6c9b3ee2bc7e55af4f5b02bba7b2f7de12c4088ed
+```
+
+<sub>**DON'T:**</sub>
+
+```bash
+info='an awesome package'
+version=0.4.8
+source=https://github.com/foobar/an-awesome-package/archive/v0.4.8.tar.gz
+deps='bash net-bsd-curses libedit'
+md5=70d103eb8d196d188b516ee030bf3ab3
+prebuild() { bonsai_patch ; }
+build() { bonsai_make ; bonsai_make install ; }
+postbuild { : ; }
+```
