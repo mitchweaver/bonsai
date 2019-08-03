@@ -1,0 +1,14 @@
+info='library for reading and editing ELF files'
+version=0.8.13
+source=http://fossies.org/linux/misc/old/$name-$version.tar.gz
+deps=autoconf
+sha256=591a9b4ec81c1f2042a97aa60564e0cb79d041c52faa7416acb38bc95bd2c76d
+build() {
+    autoreconf
+    bonsai_configure
+    
+    # only make lib
+    cd lib
+    bonsai_make
+    bonsai_make install
+}
