@@ -35,7 +35,7 @@ pkgdeps() {
 
         # check if dep is not the main package stored in $arg
         # (do not display a package as a dep of itself)
-        [ $1 != $arg ] && pkgdeps=" $pkgdeps $1 "
+        [ $1 = $arg ] || pkgdeps=" $pkgdeps $1 "
     }
     dep_recurse "$arg"
 

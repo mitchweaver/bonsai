@@ -5,10 +5,7 @@ msg()  {
     [ -z "$1" ] && read -r input && set -- "$input"
     printf "%s\n" "$prompt $*"
 }
-msg_no_nl()  {
-    [ -z "$1" ] && read -r input && set -- "$input"
-    printf "%s" "$prompt $*"
-}
+msg_no_nl() { printf "%s" "$prompt $*" ; }
 die()  { >&2 msg "error: $*" ; exit 1 ; }
 warn() { >&2 msg "warning: $*" ; }
 
@@ -89,10 +86,7 @@ headn1() {
 
 # checks if a given string contains another
 # params: full_string, partial_string
-contains() {
-    [ "${1#*$2}" != "$1" ]
-    return $?
-}
+contains() { [ "${1#*$2}" != "$1" ] || return 1 ; }
 
 # converts "bash#4.8" -> "bash"
 pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
@@ -161,12 +155,6 @@ sanity_check() {
     [ "$delim"       ]   || die "\$delim is not set"
     [ "$gcc"         ]   || warn "\$gcc is not set"
     mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
-}
-
-check_pkg_mgr_deps() {
-    for prog in gcc make curl gzip ; do
-        has $prog || die "$prog is needed by bonsai but is not in \$PATH."
-    done
 }
 
 get_sudo() {
