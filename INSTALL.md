@@ -65,7 +65,7 @@ as they do not point to files on the correct root.
 ./bonsai chroot
 ```
 
-Assuming `bs-core` installed correctly and `--relink-world` succeeded,
+Assuming `bonsai-core` installed correctly and `--relink-world` succeeded,
 this will chroot inside, mounting drives automatically.
 
 8. **exit**
