@@ -2,3 +2,7 @@ info='GNU Multiple Precision Arithmetic Library'
 version=6.1.2
 source=http://ftp.gnu.org/gnu/${name#lib}/${name#lib}-$version.tar.xz
 sha256=87b565e89a9a684fe4ebeeddb8399dce2599f9c9049854ca8c0dfbdea0e21912
+postbuild() {
+    # junk
+    rm -r "${pkg:?}"/share
+}

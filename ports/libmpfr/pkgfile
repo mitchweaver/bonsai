@@ -4,6 +4,6 @@ source=http://mpfr.org/${name#lib}-$version/${name#lib}-$version.tar.xz
 deps=libgmp
 sha256=1d3be708604eae0e42d578ba93b390c2a145f17743a744d8f3f8c2ad5855a38a
 postbuild() {
-    # junk docs
-    rm -r "$pkg"/share
+    # junk
+    rm -r "${pkg:?}"/share
 }
