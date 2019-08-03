@@ -43,16 +43,21 @@ get() {
         msg "extracting $name"...
         decompress() {
             case "${ext##*.}" in
-                xz)     xz-embedded < "$1"  ;;
-                gz|tgz) gunzip  -qdc  "$1"   ;;
-                zip)    unzip   -qp   "$1"   ;;
-                # bz2 is currently broken under sbase-tar, see issue #19
-                # bz2)    bunzip2 -qdc "$1"   ;;
+                xz)     xz-embedded < "$1" ;;
+                gz|tgz) gunzip  -qdc  "$1" ;;
+                zip)    unzip   -qp   "$1" ;;
+                # note: bz2 to stdout is broken for some pkgs
+                #       with sbase-tar, see issue #19.
+                #       This is a duct-tape fix for now.
+                bz2) 
+                    bunzip2 -qdkf "$1"
+                    cat "${1%%.bz2}"
+                    rm "$sources"/"${1%%.bz2}" 2>/dev/null ||:
             esac || die "get(): failed to decompress $1"
         }
         case "$ext" in
             .tar.*|.tgz)
-                decompress "$1" | tar -C "$dldir" -xf -
+                decompress "$1" | tar -C "$dldir" -xf - || die "failed to decompress $1"
                 # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
                 mv "$dldir"/*/*  "$pkgworkdir"/
                 # copy any hidden files
