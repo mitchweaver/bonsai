@@ -39,7 +39,7 @@ get() {
     # compares checksum for $archive and extracts to $pkgworkdir
     # params: archive
     extract() {
-        ismetapkg "$name" || checksum "$1"
+        ismetapkg "$name" || verify_checksum "$1"
         msg "extracting $name"...
         decompress() {
             case "${ext##*.}" in
@@ -94,8 +94,8 @@ get() {
 
 # verifies hash of $tarball against hash in the pkgfile
 # params: $tarball
-checksum() {
-    [ "$1" ] || die "checksum(): no tarball provided"
+verify_checksum() {
+    [ "$1" ] || die "verify_checksum(): no tarball provided"
 
     msg_no_nl "comparing checksum for $name... "
 
