@@ -48,12 +48,8 @@ addpkg() {
             return 1
         fi
 
-        case "$source" in
-            # if meta package, will not have a source
-            # do not try to download
-            ""|none) ;;
-            *) get
-        esac
+        # download / checksum / extract the package
+        get
 
         if ! ismetapkg "$name" ; then
             mkdir -p "$pkgs/$name"

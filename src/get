@@ -3,17 +3,18 @@
 
 # downloads url and extracts to $work/$pkg
 # params: none
-# assumes: $name $version $source $pkgid $pkgfile in environment
+# assumes: $name $version $source $pkgid $pkgfile $pkgworkdir in environment
 get() {
-    workdir="$work/$name"
     dldir="$work/dl"
-    mkdir -p "$workdir" "$dldir"
-    if [ "$version" = git ] ; then 
-        ext=""
-    else
-        ext=".${source##*.}"
-        grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar$ext"
-    fi
+    mkdir -p "$pkgworkdir" "$dldir" "$sources"
+
+    # get extension
+    # if is a metapkg or using git, there will be no extension
+    case "$version" in
+        git|metapkg) ext="" ;;
+        *) ext=".${source##*.}"
+           grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar$ext"
+    esac
 
     # NOTE: Downloading via git comes highly unrecommended.
     #       This makes packages depend on git, which is
@@ -22,7 +23,7 @@ get() {
     #       version=<SHA_HASH>
     #       source=http://github.com/<GITHUB_USER>/$name/archive/$version.tar.gz
     dlgit() {
-        : # todo
+        : # todo - see issue #6
     }
 
     # downloads given url to $sources
@@ -35,7 +36,7 @@ get() {
         ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
     }
 
-    # compares checksum for $archive and extracts to $workdir
+    # compares checksum for $archive and extracts to $pkgworkdir
     # params: archive
     extract() {
         ismetapkg "$name" || checksum "$1"
@@ -53,33 +54,36 @@ get() {
             .tar.*|.tgz)
                 decompress "$1" | tar -C "$dldir" -xf -
                 # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
-                mv "$dldir"/*/*  "$workdir"/
+                mv "$dldir"/*/*  "$pkgworkdir"/
                 # copy any hidden files
                 find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
-                    mv "$file" "$workdir"/
+                    mv "$file" "$pkgworkdir"/
                 done
                 # try to remove possible empty dirs
                 rmdir "$dldir"/* 2>/dev/null ||:
                 rmdir "$dldir" 2>/dev/null ||:
                 ;;
-            # if not a tarball, simply write to $workdir
-            *) decompress "$1" > "$workdir/${1%%$ext}"
+            # if not a tarball, simply write to $pkgworkdir
+            *) decompress "$1" > "$pkgworkdir/${1%%$ext}"
         esac || die "get(): failed to extract $1"
     }
 
-    # download tarball only if not in $sources
-    if [ ! -e "$sources/$pkgid$ext" ] ; then
-        dlcurl "$source" || die "get(): could not download $name"
-        extract "$dldir/$pkgid$ext" "$md5"
-    else
-        extract "$sources/$pkgid$ext" "$md5"
+    # do not try to dl / extract if metapkg
+    if [ "$version" != metapkg ] ; then
+        # download tarball only if not in $sources
+        if [ ! -e "$sources/$pkgid$ext" ] ; then
+            dlcurl "$source" || die "get(): could not download $name"
+            extract "$dldir/$pkgid$ext" "$md5"
+        else
+            extract "$sources/$pkgid$ext" "$md5"
+        fi
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
     find "$ports/$name" ! -name pkgfile ! -name $name | while read -r file ; do
-        cp -f "$file" "$workdir"/
+        cp -f "$file" "$pkgworkdir"/
     done
-    unset workdir dldir ext file
+    unset dldir ext file
     unset -f dlgit dlcurl extract decompress
 }
 
@@ -100,7 +104,11 @@ checksum() {
         # if unable to validate checksum,
         # prompt user to confirm they wish to still continue
         warn "no checksum defined for $1"
-        confirm && return || die 'exiting'
+        confirm
+        case $? in
+            0) return ;;
+            *) die 'exiting'
+        esac
     fi
 
     msg_no_nl "comparing checksum for $name... "
