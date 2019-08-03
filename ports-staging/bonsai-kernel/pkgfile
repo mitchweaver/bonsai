@@ -1,0 +1,69 @@
+info='the bonsai linux kernel'
+version=5.2.5
+source=http://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-$version.tar.xz
+deps='bonsai-core bison flex posix-bc'
+sha512=533bdda3890aa63326a9e4e888fa1902d8e7dcc05608b667cfeb9bb05c8220f150974c1ddd99865ebf928ba91b89433c6a4c90e24a6cdfd32a12802a620a8a30
+prebuild() {
+    # clear any junk that comes with the tarball
+    msg 'making mrproper...'
+    bonsai_make mrproper
+
+    msg 'creating defconfig'
+    bonsai_make \
+        HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
+        KBUILD_BUILD_HOST=bonsai \
+        DISABLE_PAX_PLUGINS=y \
+        defconfig
+
+    msg 'editing config...'
+    # set the distro name
+    sed 's|.*CONFIG_DEFAULT_HOSTNAME.*|CONFIG_DEFAULT_HOSTNAME=bonsai|' .config > tmp
+    mv -f tmp .config
+
+    # disable debug symbols in kernel (smaller kernel binary)
+    sed 's|.*CONFIG_DEBUG_KERNEL.*|\# CONFIG_DEBUG_KERNEL is not set|' .config > tmp
+    mv -f tmp .config
+
+    # auto enable inode number mapping
+    printf 'CONFIG_OVERLAY_FS_XINO_AUTO=y' >> .config
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# use old frame pointer vs ORC to remove libelf/elfutils dependency
+#    sed 's|.*CONFIG_UNWINDER_ORC=y.*|\# CONFIG_UNWINDER_ORC is not set|' .config > tmp
+#    mv -f tmp .config
+#    sed 's|.*CONFIG_UNWINDER_FRAME_POINTER.*|CONFIG_UNWINDER_FRAME_POINTER=y|' .config > tmp
+#    mv -f tmp .config
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+    msg 'creating directories...'
+    # make directories for modules
+    mkdir -p "$root"/lib/modules/$version "$root"/lib/firmware
+}
+build() {
+    # compile kernel
+    msg 'compiling kernel...'
+    bonsai_make \
+        HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
+        KBUILD_BUILD_HOST=bonsai \
+        DISABLE_PAX_PLUGINS=y \
+        bzImage
+
+    # compile modules
+    msg 'compiling modules...'
+    bonsai_make \
+        HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
+        DISABLE_PAX_PLUGINS=y \
+        modules
+
+    # install kernel
+    msg 'installing kernel...'
+    install -m 0644 arch/x86/boot/bzImage "$root"/boot/vmlinuz
+    install -m 0644 System.map "$root"/boot/System.map
+
+    # install modules
+    msg 'installing modules...'
+    make INSTALL_MOD_PATH="$root" modules_install
+
+    printf "\n"
+    msg 'all done!'
+}

@@ -1,0 +1,5 @@
+configure fails with `__thread support? ...no`
+
+im not sure if this is possible with musl
+
+`libelf` compiles, we may not need this.
