@@ -2,6 +2,7 @@
 # shellcheck shell=sh
 
 enter_chroot() {
+    set +e
     sudo=$(get_sudo)
     if already_chrooted > /dev/null ; then
         unmount_drives
@@ -24,6 +25,7 @@ enter_chroot() {
     mount_drives
     $sudo chroot "$root" "$chroot_shell" -l -i
     unchroot
+    set -e
 }
 
 # try to find a posix compatible shell who's symlink
