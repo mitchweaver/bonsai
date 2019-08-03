@@ -16,7 +16,7 @@ $(name):
 	echo 'main "$$@"' >> $(name)
 	@echo '[*] removing comments and blank lines from executable...'
 	sed -e 's:^\s*#.*$$::g' -e '/^$$/d' $(name) > $(name).tmp
-	echo '#!/bin/sh' > $(name)
+	echo '#!/bin/sh -e' > $(name)
 	cat $(name).tmp >> $(name)
 	rm $(name).tmp
 	chmod +x $(name)
