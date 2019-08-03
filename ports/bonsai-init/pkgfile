@@ -1,0 +1,25 @@
+info='the bonsai init system'
+metapkg=true
+deps='bonsai-core smdev inetutils sdhcp'
+prebuild() {
+    printf "\n"
+}
+build() {
+    msg "installing init with mode 0755..."
+    install -m 0755 init "$root"/init
+
+    for file in dev fsck init mnt net ; do
+        msg "installing etc/rc.$file with mode 0755..."
+        install -m 0755 rc.$file "$root"/etc/rc.$file
+    done
+    unset file
+
+    # don't overwrite user's rc.local if exists
+    if [ ! -s "$root"/etc/rc.local ] ; then
+        msg "installing etc/rc.local with mode 0755..."
+        install -m 0755 rc.local "$root"/etc/rc.local
+    fi
+}
+postbuild() {
+    printf "\n"
+}

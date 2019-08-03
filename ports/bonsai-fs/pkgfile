@@ -1,0 +1,63 @@
+info='the bonsai filesystem'
+metapkg=true
+
+# create top level dirs in $root, if needed
+prebuild() {
+    cd "$root" || die "could not cd to $root"
+
+    # mkdir -pm only sets the permissions
+    # for the LAST dir in the path
+    create() {
+        perm="$1"
+        shift
+        for dir in "$@" ; do
+            # incase the dir exists, nop the exit code
+            msg "creatig dir $dir with mode $perm..."
+            mkdir -m "$perm" "$dir" 2>/dev/null ||:
+        done
+    }
+
+    create 0755 bin boot dev etc home include \
+                lib local mnt proc run root share \
+                src sys var \
+                dev/pts dev/pts var/log
+
+    create 0775 tmp dev/shm var/tmp var/preserve
+
+    create 0744 share/man
+    for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
+        create 0744 share/man/$manX
+    done
+
+    create 0775 src/work src/pkgs src/ports src/sources
+
+    link() {
+        [ -L "$2" ] && rm -f "$2"
+        msg "symlinking $2 to $1..."
+        ln -sf "$1" "$2"
+    }
+
+    link . usr       # /usr     -> /
+    link bin sbin    # /sbin    -> /bin
+    link tmp var/tmp # /var/tmp -> /tmp
+    link lib libexec # /libexec -> /lib
+    link var/run run # /run     -> /var/run
+
+    unset -f create link
+    unset dir manX perm
+}
+
+build() {
+    for file in profile os-release fstab passwd shadow group ; do
+        # do not overwrite in case user has edited
+        [ -s "$root"/etc/$file ] && continue
+        msg "installing /etc/$file with mode 0644..."
+        install -m 0644 $file "$root"/etc/$file
+    done
+    unset file
+}
+
+postbuild() {
+    msg "all done!"
+    printf "\n"
+}

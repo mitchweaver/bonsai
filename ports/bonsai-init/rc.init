@@ -1,0 +1,63 @@
+#!/bin/sh
+
+dmesg -n 1
+umask 022
+export PATH="/bin:/src:/local/bin"
+
+echo '* Mounting necessary folders'
+/etc/rc.mnt > /dev/null
+echo '* Checking filesystems'
+/etc/rc.fsck > /dev/null
+echo '* Setting up devices'
+/etc/rc.dev > /dev/null
+echo '* Configuring net'
+/etc/rc.net > /dev/null
+if [ -x /etc/rc.local ]; then
+    echo '* Running rc.local'
+    /etc/rc.local
+fi
+
+# save boot messages
+dmesg > /var/log/dmesg.log
+if [ -e /proc/sys/kernel/dmesg_restrict ] && [ $(cat /proc/sys/kernel/dmesg_restrict) = "1" ] ; then
+    chmod 0600 /var/log/dmesg.log
+else
+    chmod 0644 /var/log/dmesg.log
+fi
+
+# empty /tmp
+if [ -d /tmp ] && [ ! -L /tmp ] ; then
+    rm -rf /tmp
+    mkdir -m 0775 /tmp
+fi
+
+# login file
+touch /var/run/utmp
+
+# display welcome message
+cat << "EOF"
+
+   ,####,
+   #######,  ,#####,
+   #####',#  '######
+    ''###'';,,,'###'
+          ,;  ''''
+         ;;;   ,#####,
+        ;;;'  ,,;;;###
+        ';;;;'''####'
+         ;;;
+      ,.;;';'',,,
+     '     '
+
+ #
+ #                        o
+ ##, ,##,',##, ,##  ,#,   ,
+ # # #  # #''# #,,  # #   #
+ '#' '##' #  #  ,,# '##;, #
+
+EOF
+
+respawn getty /dev/tty1 linux &> /dev/null &
+respawn getty /dev/tty2 linux &> /dev/null &
+respawn getty /dev/tty3 linux &> /dev/null &
+respawn getty /dev/tty4 linux &> /dev/null &

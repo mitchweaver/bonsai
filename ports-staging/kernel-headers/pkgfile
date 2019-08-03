@@ -1,0 +1,15 @@
+# kernel headers patched for musl libc
+# courtesy of sabotage linux
+version=3.12.6-6
+source=http://github.com/sabotage-linux/kernel-headers/archive/v${version}.tar.gz
+build() {
+    make ARCH=generic install 
+    make ARCH=x86_64 install 
+}
+postbuild() {
+    for junk in test* create-dist.sh \
+                powerpc or1k openrisc mips \
+                microblaze i386 arm* aarch64 ; do
+        rm -rf $junk
+    done
+}

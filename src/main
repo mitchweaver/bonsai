@@ -37,8 +37,6 @@ main() {
     # load config and setup the environment
     loadconfig
     initglobals
-    create_root_dirs
-    setup_etc
 
     arg() {
         # statements that exit after running once

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+mount -o remount,ro /
+
+fsck -ATa
+if [ $? -gt 0 ] ; then
+    >&2 echo Filesystem errors detected.
+    /bin/sh
+    /sbin/halt -r
+fi
+
+mount -o remount,rw /
