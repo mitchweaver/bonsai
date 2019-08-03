@@ -59,8 +59,8 @@ addpkg() {
         run_build || die "$name failed to build"
 
         if [ -d "$pkgs/$name" ] ; then
-            linkpkg "$name" || die "$name failed to link"
             clear_junk "$name"
+            linkpkg "$name" || die "$name failed to link"
         fi
 
         add_db "$name" "$version"
@@ -108,4 +108,11 @@ addpkg() {
 
     unset main_packages pkg dep
     unset -f load_pkgfile unload_pkgfile prompt_user add
+}
+
+# remove junk files from $pkgs/$1
+clear_junk() {
+    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
+    $docs || rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
+    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
 }

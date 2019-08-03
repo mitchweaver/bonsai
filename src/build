@@ -170,10 +170,3 @@ generic_build() {
     bonsai_make
     bonsai_make install
 }
-
-# remove junk files from $pkgs/$1
-clear_junk() {
-    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
-    $docs || rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
-    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
-}
