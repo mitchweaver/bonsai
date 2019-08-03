@@ -92,6 +92,8 @@ get() {
 checksum() {
     [ "$1" ] || die "checksum(): no tarball provided"
 
+    msg_no_nl "comparing checksum for $name... "
+
     if [ "$sha512" ] ; then
         set -- "$sha512" $(sha512sum "$1") "$1"
     elif [ "$sha256" ] ; then
@@ -103,6 +105,7 @@ checksum() {
     else
         # if unable to validate checksum,
         # prompt user to confirm they wish to still continue
+        printf "\n"
         warn "no checksum defined for $1"
         confirm
         case $? in
@@ -110,8 +113,6 @@ checksum() {
             *) die 'exiting'
         esac
     fi
-
-    msg_no_nl "comparing checksum for $name... "
 
     # compare the the hashes
     if [ "$1" = "$2" ] ; then
