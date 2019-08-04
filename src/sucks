@@ -20,4 +20,11 @@ sucks() {
     # in the environment in all caps like so:
     : "${GREP:=grep}" "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}"
     export GREP SED AWK TAR FIND
+
+    # musl-libc does not have ldconfig. To stop some makefiles from 
+    # exiting if its not found, add a bogus script to $PATH to avoid errors.
+    mkdir -p .bogus
+    echo '#!/bin/sh' > .bogus/ldconfig
+    chmod +x .bogus/ldconfig
+    export PATH="$PATH:\"$PWD\"/.bogus"
 }
