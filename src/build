@@ -72,12 +72,12 @@ getflags() {
 #       (sbase's find does not have -maxdepth)
 bonsai_patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
-        patch -p0 < "$patch" | msg
+        { patch -p0 < "$patch" || return 1 ; } | msg
     done
     unset patch
 }
 
-bonsai_autogen() { configure --autogen ; }
+bonsai_autogen() { configure --autogen || return 1 ; }
 
 bonsai_configure() {
     if [ "$1" = "--autogen" ] ; then
@@ -115,10 +115,13 @@ bonsai_configure() {
         done
 
         addflag --prefix= --prefix="$PREFIX" &
+        addflag --build= --build=x86_64-bonsai-linux-musl &
+        addflag --target= --target=x86_64-bonsai-linux-musl &
         addflag --with-gnu-ld --without-gnu-ld &
         addflag --enable-shared --disable-shared &
-        addflag --enable-tests  --disable-tests &
-        addflag --with-shared   --without-shared &
+        addflag --disable-static --enable-static &
+        addflag --enable-tests --disable-tests &
+        addflag --with-shared --without-shared &
         $debug || addflag --with-debug --without-debug &
         $tests || addflag --with-tests --without-tests &
         $tests && addflag --enable-extratests --enable-extratests &
@@ -129,12 +132,10 @@ bonsai_configure() {
         done
     fi
 
-    ./$FILE $(shellcat "$tmp_flags") "$@"
+    ./$FILE $(shellcat "$tmp_flags") "$@" || die "$FILE failed for $name"
 
-    set -- $?
     unset -f addflag
     unset flag tmp_help _docs _nls _debug _quiet _tests FILE tmp
-    return $1
 }
 
 bonsai_make() {
@@ -152,21 +153,19 @@ bonsai_make() {
         LIBDIR="$LIBDIR" \
         LIBEXECDIR="$LIBEXECDIR" \
         MANDIR="$MANDIR" \
-        PRESERVEDIR="$PRESERVEDIR" "$@"
+        PRESERVEDIR="$PRESERVEDIR" "$@" || die "make $* failed for $name"
 
-    set -- $?
     unset _quiet _docs
-    return $1
 }
 
 # run if pkgfile doesn't define a custom build()
 generic_build() {
     if [ -s configure ] ; then
-        bonsai_configure
+        bonsai_configure || return 1
     elif [ -s autogen.sh ] ; then
-        bonsai_autogen
-        bonsai_configure
+        bonsai_autogen || return 1
+        bonsai_configure || return 1
     fi
-    bonsai_make
-    bonsai_make install
+    bonsai_make || return 1
+    bonsai_make install || return 1
 }
