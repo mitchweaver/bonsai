@@ -1,0 +1,30 @@
+info='Multi-format archive and compression library'
+version=3.4.0
+source=http://github.com/$name/$name/releases/download/v$version/$name-$version.tar.gz
+deps=zlib
+sha256=8643d50ed40c759f5412a3af4e353cffbce4fdf3b5cf321cb72cacf06b2d825e
+build() {
+    CFLAGS="-D_BSD_SOURCE $CFLAGS" \
+    bonsai_configure \
+        --enable-bsdtar=static \
+        --enable-posix-regex-lib=libc \
+        --without-xml2 \
+        --without-expat \
+        --without-nettle \
+        --without-openssl \
+        --without-zstd \
+        --disable-acl
+
+    CFLAGS="-D_BSD_SOURCE $CFLAGS" \
+    bonsai_make
+
+    CFLAGS="-D_BSD_SOURCE $CFLAGS" \
+    bonsai_make install
+}
+postbuild() {
+    ln -sf bsdtar  "$pkg"/bin/tar
+    ln -sf bsdcpio "$pkg"/bin/cpio
+    ln -sf bsdcat  "$pkg"/bin/zcat
+    ln -sf bsdcat  "$pkg"/bin/xzcat
+    ln -sf bsdcat  "$pkg"/bin/bzcat
+}

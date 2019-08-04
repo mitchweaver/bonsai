@@ -45,14 +45,8 @@ get() {
             case "${ext##*.}" in
                 xz)     xz-embedded < "$1" ;;
                 gz|tgz) gunzip  -qdc  "$1" ;;
+                bz2)    bunzip2 -qdc  "$1" ;;
                 zip)    unzip   -qp   "$1" ;;
-                # note: bz2 to stdout is broken for some pkgs
-                #       with sbase-tar, see issue #19.
-                #       This is a duct-tape fix for now.
-                bz2) 
-                    bunzip2 -qdkf "$1"
-                    cat "${1%%.bz2}"
-                    rm "$sources"/"${1%%.bz2}" 2>/dev/null ||:
             esac || die "get(): failed to decompress $1"
         }
         case "$ext" in
