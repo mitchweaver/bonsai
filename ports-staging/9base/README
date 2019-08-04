@@ -1,9 +1,0 @@
-causing problems. they're just too unportable. cutting out for now.
-
--------------------
-
-This 9base is patched to only provide the tools that sbase and ubase lack.
-
--------------------
-
-update: this is now no longer used due to `hbase`
