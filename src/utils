@@ -29,18 +29,21 @@ deps isinst"
 # checks if a function is defined
 # params: $func_name(s)
 defined() {
-    for arg ; do
-        type "$arg" | grep 'is.*.function' || return 1
-    done > /dev/null 2>&1
-    unset arg
+    for _arg ; do
+        case "$(type "$_arg")" in
+            *" function"*) ;;
+            *) return 1
+        esac
+    done
+    unset _arg
 }
 # checks if a command exists
 # params: $command_name(s)
 has() { 
-    for arg ; do
-        type "$arg" || return 1
+    for _arg ; do
+        type "$_arg" || return 1
     done > /dev/null 2>&1
-    unset arg
+    unset _arg
 }
 
 # check if dir is empty
@@ -159,12 +162,13 @@ sanity_check() {
 
 get_sudo() {
     if has sudo ; then
-        echo sudo
+        SUDO=sudo
     elif has doas ; then
-        echo doas
+        SUDO=doas
     else
         die "sudo or doas is needed by bonsai but neither found in \$PATH."
     fi
+    export SUDO
 }
 
 bonsai() {
