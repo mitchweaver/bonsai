@@ -45,6 +45,15 @@ has() {
     done > /dev/null 2>&1
     unset _arg
 }
+# checks if command exists, exiting if not found
+# params: caller func, progs to check
+requires() {
+    func="$1"
+    shift
+    for _prog ; do
+        has $_prog || die "$_prog not found in \$PATH but is required for $func"
+    done
+}
 
 # check if dir is empty
 # params: dir
@@ -169,6 +178,17 @@ get_sudo() {
         die "sudo or doas is needed by bonsai but neither found in \$PATH."
     fi
     export SUDO
+}
+
+# tar up a package for release / distribution, placing result in $PWD
+# params: $name
+pack() {
+    requires 'pack()' tar xz
+    isinst "$1" >/dev/null || die "$1 is not installed"
+    [ -d "$pkgs/$1" ] || die "$1 was not found in \$pkgs"
+    { tar -C "$pkgs" -cf - "$1" | xz -z - > "$1".tar.xz ; } || \
+        die "failed to compress $1"
+    msg "successfully packed $1 as ./$1.tar.xz"
 }
 
 bonsai() {
