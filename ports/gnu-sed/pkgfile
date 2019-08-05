@@ -2,7 +2,3 @@ info='GNU sed - Streams Editor'
 version=4.7
 source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.xz
 sha256=2885768cd0a29ff8d58a6280a270ff161f6a3deb5690b2be6c49f46d4c67bd6a
-postbuild() {
-    warn "Installing as 'sed'. This will overwrite any pre-existing sed."
-    link $name
-}
