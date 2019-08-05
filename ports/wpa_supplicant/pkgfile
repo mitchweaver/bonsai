@@ -26,9 +26,13 @@ sed 's|CONFIG_DRIVER_WEXT=y|#CONFIG_DRIVER_WEXT=y|' .config > .config.tmp
 mv -f .config.tmp .config
 }
 
-build() { bonsai_make ; }
+build() {
+    cd wpa_supplicant
+    bonsai_make
+}
 
 postbuild() {
+    cd wpa_supplicant
     # wpa_supplicant's "make install" sucks.
     # to get around its nonsense just do things manually
     
