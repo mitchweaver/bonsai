@@ -51,12 +51,15 @@ addpkg() {
         # download / checksum / extract the package
         get
 
+        # return if we've been instructed only to download the tarball
+        [ "$DLONLY" ] && return
+
         if ! ismetapkg "$name" ; then
             mkdir -p "$pkgs/$name"
             trap 'rmdir $pkgs/$name' INT TERM
         fi
 
-        run_build || die "$name failed to build"
+        run_build "$@" || die "$name failed to build"
 
         if [ -d "$pkgs/$name" ] ; then
             clear_junk "$name"
@@ -66,7 +69,6 @@ addpkg() {
         add_db "$name" "$version"
         msg "$name installed!"
 
-        [ -d "$work/$pkgid" ] && rm -rf "${work:?}/$pkgid"
         clean
         trap - INT TERM
         unload_pkgfile
