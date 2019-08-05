@@ -1,52 +1,74 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
+# unset any env variables that could interfere
+unset cc c99 c89 CC \
+CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PKG_CONFIG \
+LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
+OBJC_INCLUDE_PATH LD_LIBRARY_PATH LIBDIR EXTRALIBDIR \
+LIBS INCLUDE
+
 initglobals() {
-    # unset any env variables that could interfere
-    unset cc CC CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-        LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
-        OBJC_INCLUDE_PATH PKG_CONFIG INCLUDE LD_LIBRARY_PATH
-    
-    PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
-    PATH="$root/bin:$PATH"
+    # If bootstrapping, use the host's userland.
+    # As things install, they will take preference.
+    if [ "$BOOTSTRAP" ] ; then
+        PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
+        PATH=".:$root/bin:$PATH"
+    else
+        # otherwise if not bootstrapping, ONLY use the chroot's tools
+        PKG_CONFIG_PATH="$root/lib/pkgconfig"
+        PATH=".:$root/bin"
+    fi
+
+    # can offer significant speedup
     LC_ALL=C
     LANG=C
+
     export PATH PKG_CONFIG_PATH LC_ALL LANG
 }
 
 main() {
+    # if no arguments, just print a pretty tree
     [ "$1" ] || { bonsai ; exit ; }
 
-    # assign any special arguments
-    [ "$1" = --debug ]   && { set -x ; shift ; }
-    [ "$1" = --errexit ] && { set -e ; shift ; }
-    [ "$1" = --config ]  && { config="${1#--config=}" ; shift ; }
-    [ "$1" = --root ]    && { root="${1#--root=}"     ; shift ; }
-    [ "$1" = --gcc ]     && { gcc="${1#--gcc=}"       ; shift ; }
-    [ "$1" = -y ]  && { NO_PROMPT=true ; export NO_PROMPT ; shift ; }
-
-    # statements that should be ran before loading config
-    case "$1" in
-        --skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
-        --help|-h)  usage ; exit
-    esac
-
     # load config and setup the environment
-    loadconfig
-    initglobals
-
-    arg() {
-        # statements that exit after running once
+    case "$1" in
+        *help|-h|*skeleton|skel) ;; # no need to load config
+        --config=*)
+            bonsairc="${1#--config=}"
+            export bonsairc
+            loadconfig
+            initglobals
+            shift
+            ;;
+        *) loadconfig
+           initglobals
+    esac
+    
+    while [ "$1" ] ; do
         case "$1" in
-            --relink-world) relink_world "$2" ; exit $? ;;
+            # ---- variable setting -------
+            *debug) set -x ; shift ;;
+            *errexit) set -e ; shift ;;
+            *dlonly) DLONLY=true ; export DLONLY ; shift ;;
+            --bootstrap) BOOTSTRAP=true ; export BOOTSTRAP ; shift ;;
+            --root) ROOT="${1#--root=}" ; export ROOT ; shift ;;
+            --gcc) GCC="${1#--gcc=}" ; export GCC ; shift ;;
+            -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
+            --hosts-curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
+            # -----------------------------
+            *relink-world) relink_world "$2" ; exit $? ;;
+            *skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
             chroot)    enter_chroot  ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;
             search|-s) search "$2"   ; exit $? ;;
             info|-i)   portinfo "$2" ; exit $? ;;
             print|-p)  portcat "$2"  ; exit $? ;;
             count)     countpkgs     ; exit $? ;;
+            pack)      pack "$2"     ; exit $? ;;
             add|-a) shift ; addpkg "$@" ; exit $? ;;
             del|-d) shift ; delpkg "$@" ; exit $? ;;
+            *help|-h) usage ; exit ;;
             relink|-r)
                 shift
                 while [ "$1" ] ; do
@@ -78,13 +100,12 @@ main() {
                     # we must be adding a package
                     # and omitting the 'add' (convenience).
                     # recurse again, adding the 'add' argument
-                    arg add "$@"
+                    set -- add "$@"
                 else
                     # otherwise must have no arguments
                     # just print a pretty tree
                     bonsai
                 fi
         esac
-    }
-    arg "$@"
+    done
 }

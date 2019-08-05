@@ -2,18 +2,20 @@
 # shellcheck shell=sh
 
 loadconfig() {
-    if [ "$config" ] ; then
-        bonsairc="$config"
-    elif [ -f /src/bonsai.rc ] ; then
-        bonsairc=/src/bonsai.rc
-    else 
-        bonsairc="${HOME}"/.local/bonsai/src/bonsai.rc
-        [ -s "$bonsairc" ] || create_skeleton_config
+    # use --config= argument if given
+    if [ -z "$bonsairc" ] ; then
+        # otherwise use user's config if exists, else system's config
+        bonsairc="${HOME}/.local/bonsai/src/bonsai.rc"
+        [ -s "$bonsairc" ] || bonsairc=/src/bonsai.rc
     fi
+    # check if file is valid and is readable
     [ -r "$bonsairc" ] || die 'loadconfig(): could not source config'
     . "$bonsairc"
 
-    [ "$_root" ] && root="$_root"
+    # assign root if we've been given --root=
+    [ "$ROOT" ] && root="$ROOT"
+    # assign gcc if we've been given --gcc=
+    [ "$GCC" ] && gcc="$GCC"
    
     # set default variables if not in config file
     : "${root:="${HOME}/.local/bonsai"}" \
@@ -29,8 +31,6 @@ loadconfig() {
 
     # remake directories if deleted
     mkdir -p "$pkgs" "$sources" "$ports"
-
-    [ "$_gcc" ] && gcc="$_gcc"
 
     update_db
     sanity_check
@@ -93,8 +93,8 @@ delim='#'
 
 # flags
 # warning: do not change these unless you seriously know what you're doing.
-cflags="-static --static -s -w -Os -no-pie -pipe -march=native -ffast-math"
-cflags="$cflags -Wl,--gc-sections -fstack-protector-strong"
+# note: enable this cflag if you do not care about package portability: -march=native 
+cflags="-static --static -s -w -Os -no-pie -pipe -Wl,--gc-sections -fstack-protector-strong"
 ldflags="-static --static -s -fdata-sections -ffunction-sections"
 cppflags='-static --static'
 cxxflags="$cflags"
