@@ -3,6 +3,10 @@ version=3.4
 source=http://ftp.gnu.org/gnu/bison/bison-$version.tar.xz
 deps='m4 perl'
 sha256=6f3582cce1bb040fa09cfa238d6ee8643c03c79e34d0d203a7466b8cc1038efa
+prebuild() {
+    # don't compile useless examples
+    find examples -type f -exec echo > "{}" \;
+}
 build() {
     # bison does not nop its test exit codes
     # causing the build to abort under set -e
