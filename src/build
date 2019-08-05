@@ -12,25 +12,25 @@ run_build() {
 
     # run user defined prebuild(), if exists
     if defined prebuild ; then
-        prebuild "$@" || die "$name prebuild() failed"
+        prebuild || die "$name prebuild() failed"
     # else, try to apply any patches (convenience)
     elif ! ismetapkg $name ; then
-        bonsai_patch "$@" || die "$name generic prebuild() failed"
+        bonsai_patch || die "$name generic prebuild() failed"
     fi
 
     # run user defined build(), if exists
     cd "$pkgworkdir"
     if defined build ; then
-        build "$@" || die "$name build() failed"
+        build || die "$name build() failed"
     # otherwise run our automagic generic_build
     elif ! ismetapkg $name ; then
-        generic_build "$@" || die "$name generic_build() failed"
+        generic_build || die "$name generic_build() failed"
     fi
 
     # run user defined postbuild(), if exists
     cd "$pkgworkdir"
     if defined postbuild ; then
-        postbuild "$@" || die "$name postbuild() failed"
+        postbuild || die "$name postbuild() failed"
     fi
 
     # unset in case we are adding multiple packages
@@ -161,11 +161,11 @@ bonsai_make() {
 # run if pkgfile doesn't define a custom build()
 generic_build() {
     if [ -s configure ] ; then
-        bonsai_configure "$@" || return 1
+        bonsai_configure || return 1
     elif [ -s autogen.sh ] ; then
-        bonsai_autogen "$@" || return 1
-        bonsai_configure "$@" || return 1
+        bonsai_autogen || return 1
+        bonsai_configure || return 1
     fi
-    bonsai_make "$@" || return 1
-    bonsai_make install "$@" || return 1
+    bonsai_make || return 1
+    bonsai_make install || return 1
 }

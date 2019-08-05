@@ -31,7 +31,7 @@ clean:
 uninstall:
 	@echo "Unsafe. Please do this manually."
 
-ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086
+ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086 -e SC2119 -e SC2120
 # ----- ShellCheck Explanations --------
 # SC1090: "at run-time file sourcing" ie '. $pkgfile'
 #         We use this to import each package's variables.
@@ -44,6 +44,8 @@ ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086
 # 		  This one is the hardest to ignore,
 # 		  but it is the one most carefully managed.
 # 		  When words are split, they are done so intentionally.
+# SC2119 + SC2120: arguments supplied but not forwarded/used
+# 		  Shellcheck cannot see arguments given from pkgfiles.
 test: $(name)
 	shellcheck -s sh -x -a $(name) $(ignores)
 	@echo "All checks passed!"

@@ -34,6 +34,14 @@ main() {
     # load config and setup the environment
     case "$1" in
         *help|-h|*skeleton|skel) ;; # no need to load config
+        --bootstrap)
+            BOOTSTRAP=true
+            export BOOTSTRAP
+            shift
+            loadconfig
+            initglobals
+            set -- add bonsai-core
+            ;;
         --config=*)
             bonsairc="${1#--config=}"
             export bonsairc
@@ -51,7 +59,6 @@ main() {
             *debug) set -x ; shift ;;
             *errexit) set -e ; shift ;;
             *dlonly) DLONLY=true ; export DLONLY ; shift ;;
-            --bootstrap) BOOTSTRAP=true ; export BOOTSTRAP ; shift ;;
             --root) ROOT="${1#--root=}" ; export ROOT ; shift ;;
             --gcc) GCC="${1#--gcc=}" ; export GCC ; shift ;;
             -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;

@@ -38,10 +38,10 @@ This will copy a default skeleton config to `~/.local/bonsai/src/bonsai.rc`.
 4. **bootstrap**
 
 ```bash
-./bonsai bonsai-core
+./bonsai --bootstrap
 ```
 
-This will create dirs, permissions, etc via `bonsai-fs` and then install the base system.
+This will create dirs, assign permissions, and install the base system.
 
 ----
 
