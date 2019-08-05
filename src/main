@@ -34,13 +34,12 @@ main() {
     # load config and setup the environment
     case "$1" in
         *help|-h|*skeleton|skel) ;; # no need to load config
-        --bootstrap)
+        --bootstrap|*relink-world|chroot)
             BOOTSTRAP=true
             export BOOTSTRAP
-            shift
             loadconfig
             initglobals
-            set -- add bonsai-core
+            [ "$1" = --bootstrap ] && set -- add bonsai-core
             ;;
         --config=*)
             bonsairc="${1#--config=}"
