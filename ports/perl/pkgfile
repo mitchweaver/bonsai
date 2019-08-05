@@ -1,6 +1,6 @@
 info='Perl programming language'
 version=5.30.0
-source=http://www.cpan.org/src/5.0/$name-$version.tar.xz
+source=http://cpan.org/src/5.0/$name-$version.tar.xz
 deps='zlib bzip2'
 sha256=ac501cad4af904d33370a9ea39dbb7a8ad4cb19bc7bc8a9c17d8dc3e81ef6306
 prebuild() {
@@ -13,8 +13,8 @@ prebuild() {
     mv -f Configure.tmp Configure
 
     # use system zlib/bzip2, do not bundle
-    rm -rf cpan/Compress-Raw-Zlib/zlib-src
-    rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
+    rm -r cpan/Compress-Raw-Zlib/zlib-src
+    rm -r cpan/Compress-Raw-Bzip2/bzip2-src
     sed '/\(bzip2\|zlib\)-src/d' MANIFEST > MANIFEST.tmp
     mv -f MANIFEST.tmp MANIFEST
     BUILD_ZLIB=0
@@ -26,12 +26,12 @@ prebuild() {
 build() {
     # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
     # its own poll.h over <sys/poll.h> -- (overwrite ".:$root/include")
-    # see: https://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
+    # see: http://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
     sh Configure -des \
         -Dcf_by=bonsai \
-        -Dcc="$CC" \
-        -Accflags="-D_GNU_SOURCE -D_BSD_SOURCE $CFLAGS" \
+        -Dcc="$CC -static --static" \
+        -Accflags="-D_GNU_SOURCE $CFLAGS" \
         -Aldflags="$LDFLAGS" \
         -Dprefix="$pkg" \
         -Dvendorprefix="$pkg" \
@@ -51,10 +51,12 @@ build() {
         -Darchname=linux \
         -Dinc_version_list=none \
         -Uonlyextensions='' \
+        -Dusedevel \
         -Uusedl
 
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
-        bonsai_make
+    JOBS=${jobs:=1}  CC="$CC -static --static" \
+    bonsai_make
     bonsai_make install
 }
 postbuild() {
