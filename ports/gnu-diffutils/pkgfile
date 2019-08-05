@@ -1,5 +1,5 @@
-info='GNU diff'
+info='GNU diff, diff3, sdiff, and cmp'
 version=3.7
-source=https://mirrors.kernel.org/gnu/diff/diff-$version.tar.xz
+source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.xz
 deps=perl
-sha256=255f462758db0d3d11ec17df797d97d8144e7a5ee24dbceacef16a70e1010b05
+sha256=b3a7a6221c3dc916085f0d205abf6b8e1ba443d4dd965118da364a1dc1cb3a26
