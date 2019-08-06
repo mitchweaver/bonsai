@@ -1,0 +1,4 @@
+info='Simple preprocessor'
+version=1.0.1
+source=http://adi.tilde.institute/$name/$name-$version.tgz
+sha256=90501faa2952223d3e1e3bdae94fe6e911b271678075fee792ba30cc8e3499e0
