@@ -5,7 +5,7 @@ deps='m4 perl'
 sha256=6f3582cce1bb040fa09cfa238d6ee8643c03c79e34d0d203a7466b8cc1038efa
 prebuild() {
     # don't compile useless examples
-    find examples -type f -exec echo > "{}" \;
+    find examples -name Makefile -exec echo 'all:' > "{}" \;
 }
 build() {
     # bison does not nop its test exit codes
@@ -15,6 +15,7 @@ build() {
     # relocatable allows bison to work with the static philosophy
     bonsai_configure --enable-relocatable
     bonsai_make
+
     bonsai_make install
 
     set -e
