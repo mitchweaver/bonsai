@@ -3,9 +3,9 @@ version=4.2.1
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
 sha256=e40b8f018c1da64edd1cc9a6fce5fa63b2e707e404e20cad91fbae337c98a5b7
 build() {
-    CFLAGS="-D_GNU_SOURCE $CFLAGS" 
-        bonsai_configure --without-guile
-    CFLAGS="-D_GNU_SOURCE $CFLAGS" 
-        bonsai_make
+    CFLAGS="-D_GNU_SOURCE $CFLAGS" \
+    bonsai_configure --without-guile
+    CFLAGS="-D_GNU_SOURCE $CFLAGS" \
+    bonsai_make
     bonsai_make install
 }
