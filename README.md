@@ -2,7 +2,7 @@
 
 <img align="right" src="res/bonsai.png">
 
-A truly minimal Linux system.
+Linux done differently.
 
 For the idealists, for the hobbyists.
 
@@ -19,7 +19,7 @@ Minimize moving parts. Simpler is better.
 2. **Sandboxing**
 
 Chroot sandboxes should be *dead simple* to 
-setup simply by copying the statically-linked binaries.  
+setup just by copying the statically-linked binaries.  
 
 3. **A Better C Library**
 
@@ -28,13 +28,13 @@ GNU's [glibc](http://www.gnu.org/software/libc) is massively bloated and a poor 
 that was [designed from the ground up](https://www.musl-libc.org/intro.html) 
 to be used with static linking. 
 
-Just take a look at this simple [hello world](http://0x0.st/zpbd.png) comparison.
+Just take a look at this [hello world](http://0x0.st/zpbd.png) comparison.
 
 Applications statically-linked
 with musl carefully avoid pulling in large amounts of code or 
 data that the application will not use and have no runtime 
 dependencies. Many programs need patching to compile
-under musl-libc, however this *almost always* makes their code better.
+under musl-libc, however this *almost always* makes their code [better](http://wiki.musl-libc.org/bugs-found-by-musl.html).
 
 4. **Simplicity**
 
@@ -44,7 +44,7 @@ No matter how great, a system is bottlenecked by its ability to be understood.
 * A modular automated build system with parts that can overriden simply by defining the given function in the pkgfile
 * Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
 * Automatic detection of required flags, configs, patches, and workarounds
-* Ports can be written with *[just one line](http://pastebin.com/raw/zjpEfq4K)*!
+* Ports can be written with *[just one line](http://ix.io/1QMb)*!
 * Extensive documentation, with unclear or missing manuals considered a bug
 
 5. **Sane File System Hierarchy**
@@ -101,14 +101,14 @@ The symlinks are then tracked and removed once the program is uninstalled.
 
 These are lightweight/embedded technologies incorporated into bonsai as to be more "suckless" alternatives to conventional GNU/Linux software.
 
-**C Library**: [musl-libc](https://www.musl-libc.org/)  
-**Libraries**: [LibreSSL](https://www.libressl.org/) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
-**Init System**: [sinit](https://core.suckless.org/sinit)  
+**C Library**: [musl-libc](http://www.musl-libc.org/)  
+**Libraries**: [libressl](http://www.libressl.org/) [libnl-tiny](http://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](http://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
+**Init System**: [sinit](http://core.suckless.org/sinit) [rc](http://github.com/mitchweaver/bonsai/tree/master/ports/bonsai-init)  
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)   
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
-**Build Automation**: [pkgconf](http://pkgconf.org/) [mk](https://9fans.github.io/plan9port/unix) [samurai](https://github.com/michaelforney/samurai)  
-**Networking**: [sdhcp](http://core.suckless.org/sdhcp) [dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html)  
-**Compression**: [xz-embedded](http://tukaani.org/xz/embedded.html)  
+**Build Automation**: [pkgconf](http://pkgconf.org/) [mk](http://9fans.github.io/plan9port/unix) [samurai](http://github.com/michaelforney/samurai)  
+**Networking**: [sdhcp](http://core.suckless.org/sdhcp) [dropbear](http://matt.ucc.asn.au/dropbear/dropbear.html)  
+**Compression**: [libarchive](http://libarchive.org/) [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
 **Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk)
 
@@ -151,7 +151,8 @@ You can see our contributing guidelines [here](CONTRIBUTING.md).
 
 ### Community 
 
-**irc**: `moving hosts - TBA`  
-**discord server** *(irc mirror)*: http://discord.gg/qcjRGZv  
-**email**: `moving hosts - TBA`  
-**mailing list**: `moving hosts - TBA`
+**discord server**: [discord.gg/qcjRGZv](http://discord.gg/qcjRGZv)  
+**website**: [bonsai-linux.org](http://bonsai-linux.org) <sub>*(under construction)*</sub>  
+**email**: dev@bonsai-linux.org  
+**irc**: `coming soon`  
+**mailing list**: `coming soon`
