@@ -1,38 +1,46 @@
 info='Perl programming language'
 version=5.30.0
-source=http://cpan.org/src/5.0/$name-$version.tar.xz
+source=http://cpan.org/src/$(echo $version | sed 's|\..*.\.|\.|')/$name-$version.tar.xz
 deps='zlib bzip2'
-sha256=ac501cad4af904d33370a9ea39dbb7a8ad4cb19bc7bc8a9c17d8dc3e81ef6306
+sha512=68a295eccd64debd9d6a10f0d5577f872a19ad8c2d702798f6b0f45b8c3af6ab3230768056e2131e9e2e2506d1035b27cfd627c845e32263fe448649c4b98ae9
 prebuild() {
+    # locale.c needs made writable before can be patched
+    chmod +w locale.c
     bonsai_patch
 
     # musl does not have a separate libnsl
     # remove it as a dep from the configure script
-    # see: https://github.com/openwrt/packages/pull/1393/files
-    sed 's/ nsl //g' Configure > Configure.tmp
-    mv -f Configure.tmp Configure
+    # see: http://github.com/openwrt/packages/pull/1393/files
+    sed 's/ nsl //g' Configure > tmp
+    mv -f tmp Configure
 
     # use system zlib/bzip2, do not bundle
-    rm -r cpan/Compress-Raw-Zlib/zlib-src
-    rm -r cpan/Compress-Raw-Bzip2/bzip2-src
-    sed '/\(bzip2\|zlib\)-src/d' MANIFEST > MANIFEST.tmp
-    mv -f MANIFEST.tmp MANIFEST
+    rm -rf cpan/Compress-Raw-Zlib/zlib-src
+    rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
+    sed '/\(bzip2\|zlib\|Bzip2\|Zlib\)/d' MANIFEST > tmp
+    mv -f tmp MANIFEST
     BUILD_ZLIB=0
     BUILD_BZIP2=0
     BZIP2_LIB="$root"/lib
-    BZIP2_INCLUDE="$root"/inculde
+    BZIP2_INCLUDE="$root"/include
     export BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
+
+    # remove gdbm / db dependencies
+    sed '/\(gdbm\|GDBM\)/d' MANIFEST > tmp ; mv -f tmp MANIFEST
+    sed 's/gdbm dbm db//g' Configure > tmp ; mv -f tmp Configure
 }
 build() {
     # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
     # its own poll.h over <sys/poll.h> -- (overwrite ".:$root/include")
     # see: http://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
+    CFLAGS="-D_GNU_SOURCE -D_BSD_SOURCE $CFLAGS" \
     sh Configure -des \
-        -Dcf_by=bonsai \
-        -Dcc="$CC -static --static" \
-        -Accflags="-D_GNU_SOURCE $CFLAGS" \
+        -Dcf_by="bonsai" \
+        -Dcc="$CC $CFLAGS" \
+        -Accflags="$CFLAGS" \
         -Aldflags="$LDFLAGS" \
+        -Dlocincpth=' ' \
         -Dprefix="$pkg" \
         -Dvendorprefix="$pkg" \
         -Dprivlib="$pkg"/lib/perl5/core_perl \
@@ -44,34 +52,45 @@ build() {
         -Dscriptdir="$pkg"/bin \
         -Dsitescript="$pkg"/bin \
         -Dvendorscript="$pkg"/bin \
-        -Dman1dir="$pkg"/share/man/man1perl \
-        -Dman3dir="$pkg"/share/man/man3perl \
         -Dman1ext=1 \
         -Dman3ext=3 \
+        -Dman1dir="$pkg"/share/man/man1 \
+        -Dman3dir="$pkg"/share/man/man3 \
+        -Dinstallman1dir="$pkg"/share/man/man1 \
+        -Dinstallman3dir="$pkg"/share/man/man3 \
         -Darchname=linux \
         -Dinc_version_list=none \
-        -Uonlyextensions='' \
+        -Donlyextensions='' \
+        -Dusethreads \
         -Dusedevel \
         -Uusedl
 
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    #-Duseshrplib : Build a shared libperl needed by some perl modules.
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+#    JOBS=${jobs:=1} CC="$CC -static --static" \
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
-    JOBS=${jobs:=1}  CC="$CC -static --static" \
+
     bonsai_make
     bonsai_make install
 }
 postbuild() {
-    msg 'cleaning up'
-
-    # perl creates two copies of its binary
-    # pointless, just make one a symlink
-    ln -sf perl$version perl
+    # create symlinks without version numbers
+    # ex: perl -> perl5.30.0
+    cd "$pkg"/bin
+    find . -name "*$version" | while read -r bin ; do
+        ln -sf "$bin" "${bin%$version}"
+    done
+    ln -sf perl5 "$pkg"/lib/perl
 
     # perl mans are 20MB(???) in size
-    # not ideal to remove them, but it seems excessive
+    # not ideal to remove them, but seems excessive
     rm -rf "$pkg"/share/man
 
     # more junk
     for junk in 'TODO*' 'Change*' 'README*' '*.bs' '.packlist' 'perllocal.pod' ; do
-        find "$pkg" -type f -name "$junk" | xargs rm
+        find "$pkg" -type f -name "$junk" -exec rm "{}" \;
     done
+    unset bin junk BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
 }
