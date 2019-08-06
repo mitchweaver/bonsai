@@ -61,7 +61,7 @@ main() {
             --root) ROOT="${1#--root=}" ; export ROOT ; shift ;;
             --gcc) GCC="${1#--gcc=}" ; export GCC ; shift ;;
             -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
-            --host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
+            *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
             # -----------------------------
             *relink-world) relink_world "$2" ; exit $? ;;
             *skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
