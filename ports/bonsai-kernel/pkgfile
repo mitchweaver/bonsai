@@ -67,22 +67,20 @@ build() {
         DISABLE_PAX_PLUGINS=y \
         modules
 
-    # install kernel
+
     msg 'installing kernel...'
-    install -m 0644 arch/x86/boot/bzImage "$root"/boot/vmlinuz
-    install -m 0644 System.map "$root"/boot/System.map
-    install -m 0644 .config "$root"/boot/.config
 
-    # install modules
+    install -Dm 0644 arch/x86/boot/bzImage "$root"/boot/vmlinuz
+    install -Dm 0644 System.map "$root"/boot/System.map
+    install -Dm 0644 .config "$root"/boot/.config
+    # -
+    install -Dm 0644 arch/x86/boot/bzImage "$pkg"/boot/vmlinuz
+    install -Dm 0644 System.map "$pkg"/boot/System.map
+    install -Dm 0644 .config "$pkg"/boot/.config
+
     msg 'installing modules...'
-    make INSTALL_MOD_PATH="$root" modules_install
 
-    msg "All is installed!"
-}
-postbuild() {
-    msg "Copying build to \$pkg/linux-$version..."
-    cd ..
-    cp -rf $name "$pkg"/linux-$version
-    printf "\n"
-    msg 'all done!'
+    make INSTALL_MOD_PATH="$root" modules_install
+    # -
+    make INSTALL_MOD_PATH="$pkg" modules_install
 }
