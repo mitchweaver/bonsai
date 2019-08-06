@@ -8,10 +8,8 @@ info='a tiny package manager based on musl-libc and static compilation'
 #version=?
 #source=http://github.com/mitchweaver/bonsai/?
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-version=none
-source=none
-build() { : ; }
-postbuild() {
+version=metapkg
+build() {
     mkdir -p "$pkg"/bin
 
     # create aliases for 'bonsai'

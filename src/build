@@ -60,10 +60,12 @@ getflags() {
     PRESERVEDIR="$root/var/preserve"
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
+    MAKEINFO=false
     export LIBRARY_PATH CPATH \
            CFLAGS LDFLAGS CPPFLAGS CXXFLAGS CC cc \
            PREFIX prefix DESTDIR BINDIR INCLUDEDIR \
-           LIBDIR LIBEXECDIR MANDIR PRESERVEDIR
+           LIBDIR LIBEXECDIR MANDIR PRESERVEDIR \
+           MAKEINFO
 }
 
 # convenience function, tries to find all *.patch
@@ -87,7 +89,6 @@ bonsai_configure() {
         FILE=configure
     fi
 
-    ${docs:=false}  || _docs='--disable-docs --disable-gtk-docs --disable-gtk-docs-html --docdir=/dev/null'
     ${nls:=false}   || _nls=--disable-nls
     ${tests:=false} || _tests=--without-tests
     ${debug:=false} || _debug='--disable-debug --disable-debugger'
@@ -110,7 +111,10 @@ bonsai_configure() {
         for flag in --static --enable-static --enable-static-link --disable-shared \
                     --disable-rpath --disable-option-checking  --enable-fast-install \
                     --disable-dependency-tracking --without-ada --without-shared \
-                    --disable-libtool-lock $_quiet $_debug $_nls $_docs $_tests -C ; do
+                    --disable-libtool-lock --disable-docs --disable-gtk-docs \
+                    --disable-gtk-docs-html --docdir=/dev/null \
+                    $_quiet $_debug $_nls $_tests -C ; do
+
             addflag $flag $flag &
         done
 
@@ -133,7 +137,7 @@ bonsai_configure() {
     ./$FILE $(shellcat "$tmp_flags") "$@" || die "$FILE failed for $name"
 
     unset -f addflag
-    unset flag tmp_help _docs _nls _debug _quiet _tests FILE tmp
+    unset flag tmp_help _nls _debug _quiet _tests FILE tmp
 }
 
 bonsai_make() {
@@ -153,7 +157,7 @@ bonsai_make() {
         MANDIR="$MANDIR" \
         PRESERVEDIR="$PRESERVEDIR" "$@" || die "make $* failed for $name"
 
-    unset _quiet _docs
+    unset _quiet
 }
 
 # run if pkgfile doesn't define a custom build()

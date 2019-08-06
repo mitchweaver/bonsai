@@ -64,7 +64,6 @@ jobs=${jobs:=$(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null)}
 makeflags=''
 keep_tarballs=true
 mans=true   # install man pages?
-docs=false  # install extra documentation?
 nls=false   # provide native-language-support?
 debug=false # compile in debugging tools/information?
 tests=false # compile included tests?
