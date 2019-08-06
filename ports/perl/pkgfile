@@ -1,6 +1,6 @@
 info='Perl programming language'
 version=5.30.0
-source=http://cpan.org/src/$(echo $version | sed 's|\..*.\.|\.|')/$name-$version.tar.xz
+source=http://cpan.org/src/${version%%.*}.0/$name-$version.tar.xz
 deps='zlib bzip2'
 sha512=68a295eccd64debd9d6a10f0d5577f872a19ad8c2d702798f6b0f45b8c3af6ab3230768056e2131e9e2e2506d1035b27cfd627c845e32263fe448649c4b98ae9
 prebuild() {
@@ -26,71 +26,60 @@ prebuild() {
     export BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
 
     # remove gdbm / db dependencies
-    sed '/\(gdbm\|GDBM\)/d' MANIFEST > tmp ; mv -f tmp MANIFEST
     sed 's/gdbm dbm db//g' Configure > tmp ; mv -f tmp Configure
+    sed '/\(gdbm\|GDBM\)/d' MANIFEST > tmp ; mv -f tmp MANIFEST
 }
 build() {
     # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
     # its own poll.h over <sys/poll.h> -- (overwrite ".:$root/include")
     # see: http://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
     CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
-    CFLAGS="-D_GNU_SOURCE -D_BSD_SOURCE $CFLAGS" \
     sh Configure -des \
-        -Dcf_by="bonsai" \
+        -Dcf_by=bonsai \
         -Dcc="$CC $CFLAGS" \
+        -Doptimize="$CFLAGS" \
         -Accflags="$CFLAGS" \
         -Aldflags="$LDFLAGS" \
-        -Dlocincpth=' ' \
         -Dprefix="$pkg" \
-        -Dvendorprefix="$pkg" \
-        -Dprivlib="$pkg"/lib/perl5/core_perl \
-        -Darchlib="$pkg"/lib/perl5/core_perl \
-        -Dsitelib="$pkg"/lib/perl5/site_perl \
-        -Dsitearch="$pkg"/lib/perl5/site_perl \
-        -Dvendorlib="$pkg"/lib/perl5/vendor_perl \
-        -Dvendorarch="$pkg"/lib/perl5/vendor_perl \
-        -Dscriptdir="$pkg"/bin \
-        -Dsitescript="$pkg"/bin \
-        -Dvendorscript="$pkg"/bin \
-        -Dman1ext=1 \
-        -Dman3ext=3 \
-        -Dman1dir="$pkg"/share/man/man1 \
-        -Dman3dir="$pkg"/share/man/man3 \
-        -Dinstallman1dir="$pkg"/share/man/man1 \
-        -Dinstallman3dir="$pkg"/share/man/man3 \
-        -Darchname=linux \
-        -Dinc_version_list=none \
-        -Donlyextensions='' \
         -Dusethreads \
         -Dusedevel \
-        -Uusedl
+        -Uusedl \
+        -Ui_gdbm \
+        -Ui_db
 
-    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-    #-Duseshrplib : Build a shared libperl needed by some perl modules.
-    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-#    JOBS=${jobs:=1} CC="$CC -static --static" \
-    CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
-
+    CPATH="$root/include" C_INCLUDE_PATH="$CPATH" CC="$CC $CFLAGS" \
     bonsai_make
     bonsai_make install
 }
 postbuild() {
+    # Perl naturally installs mans to $perl/man
+    # rather than $perl/share/man. (why!)
+    #
+    # They are also huge, more than 20MB -- (why!?)
+    #
+    # 1.) To fix both of these problems we will create the share dir:
+    mkdir -p "$pkg"/share/man/man1
+    # 2.) Only copy perl.1 and cpan.1, (the two that are important):
+    cp -f "$pkg"/man/man1/perl.1 "$pkg"/share/man/man1/perl.1
+    cp -f "$pkg"/man/man1/cpan.1 "$pkg"/share/man/man1/cpan.1
+    # 3.) And then remove the rest:
+    rm -rf "${pkg:?}"/man
+
+    # more junk
+    find "$pkg" \
+         -name 'TODO*' -o \
+         -name 'Change*' -o \
+         -name 'README*' -o \
+         -name '*.bs' -o \
+         -name '.packlist' -o \
+         -name 'perllocal.pod' -exec rm "{}" \;
+
     # create symlinks without version numbers
     # ex: perl -> perl5.30.0
     cd "$pkg"/bin
     find . -name "*$version" | while read -r bin ; do
         ln -sf "$bin" "${bin%$version}"
     done
-    ln -sf perl5 "$pkg"/lib/perl
 
-    # perl mans are 20MB(???) in size
-    # not ideal to remove them, but seems excessive
-    rm -rf "$pkg"/share/man
-
-    # more junk
-    for junk in 'TODO*' 'Change*' 'README*' '*.bs' '.packlist' 'perllocal.pod' ; do
-        find "$pkg" -type f -name "$junk" -exec rm "{}" \;
-    done
     unset bin junk BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
 }
