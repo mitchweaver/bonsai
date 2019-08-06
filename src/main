@@ -9,16 +9,18 @@ OBJC_INCLUDE_PATH LD_LIBRARY_PATH LIBDIR EXTRALIBDIR \
 LIBS INCLUDE
 
 initglobals() {
-    # If bootstrapping, use the host's userland.
-    # As things install, they will take preference.
-    if [ "$BOOTSTRAP" ] ; then
-        PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
-        PATH=".:$root/bin:$PATH"
-    else
-        # otherwise if not bootstrapping, ONLY use the chroot's tools
-        PKG_CONFIG_PATH="$root/lib/pkgconfig"
-        PATH=".:$root/bin"
-    fi
+    case "$1" in
+        # If bootstrapping, relinking the world, or chrooting,
+        # use the host's userland. When bootstraping, programs
+        # will take preference in the $PATH as they install.
+        USE_HOST_PATH)
+            PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
+            PATH=".:$root/bin:$PATH"
+            ;;
+        *)  # otherwise if not bootstrapping, ONLY use the chroot's tools
+            PKG_CONFIG_PATH="$root/lib/pkgconfig"
+            PATH=".:$root/bin"
+    esac
 
     # can offer significant speedup
     LC_ALL=C
@@ -29,17 +31,17 @@ initglobals() {
 
 main() {
     # if no arguments, just print a pretty tree
-    [ "$1" ] || { bonsai ; exit ; }
+    [ "$1" ] || { print_logo ; exit ; }
 
     # load config and setup the environment
     case "$1" in
         *help|-h|*skeleton|skel) ;; # no need to load config
-        --bootstrap|*relink-world|chroot)
+        --bootstrap)
             BOOTSTRAP=true
             export BOOTSTRAP
             loadconfig
-            initglobals
-            [ "$1" = --bootstrap ] && set -- add bonsai-core
+            initglobals USE_HOST_PATH
+            set -- add bonsai-core
             ;;
         --config=*)
             bonsairc="${1#--config=}"
@@ -47,6 +49,10 @@ main() {
             loadconfig
             initglobals
             shift
+            ;;
+        *relink*world|chroot)
+            loadconfig
+            initglobals USE_HOST_PATH
             ;;
         *) loadconfig
            initglobals
@@ -63,7 +69,7 @@ main() {
             -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
             *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
             # -----------------------------
-            *relink-world) relink_world "$2" ; exit $? ;;
+            *relink*world) relink_world "$2" ; exit $? ;;
             *skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
             chroot)    enter_chroot  ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;

@@ -191,7 +191,7 @@ pack() {
     msg "successfully packed $1 as ./$1.tar.xz"
 }
 
-bonsai() {
+print_logo() {
 printf "%b\n" \
 "
     \033[32m,####,

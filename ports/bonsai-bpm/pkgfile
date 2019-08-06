@@ -13,5 +13,16 @@ source=none
 build() { : ; }
 postbuild() {
     mkdir -p "$pkg"/bin
+
+    # create aliases for 'bonsai'
+    #
+    # haven't yet decided what we want to call the pkg mgr
+    #
+    # for now, (as long as no naming collisions are reported),
+    # let's just create all of them
+    ln -sf "$root"/src/bonsai "$pkg"/bin/bs
     ln -sf "$root"/src/bonsai "$pkg"/bin/bpm
+    ln -sf "$root"/src/bonsai "$pkg"/bin/bpk
+    ln -sf "$root"/src/bonsai "$pkg"/bin/bpkg
+    ln -sf "$root"/src/bonsai "$pkg"/bin/bkg
 }

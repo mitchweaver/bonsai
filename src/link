@@ -20,10 +20,17 @@ linkpkg() {
         *) die "linkpkg(): invalid number of arguments"
     esac
 
-    if ismetapkg "$1" || [ "$nolink" ] ; then
+    # if told not to link, return
+    if [ "$nolink" ] ; then
         return
-    elif [ ! -d "$pkgs"/$name ] ; then
-        die "linkpkg(): $name doesn't appear to be in $pkgs"
+    # if pkgdir does not exist, check if metapkg -- if so return
+    #                                            -- if not, error out
+    elif [ ! -d "$pkgs/$name" ] ; then
+        if ismetapkg "$name" ; then
+            return
+        else
+            die "linkpkg(): $name doesn't appear to be in $pkgs"
+        fi
     fi
 
     cd "$root" || die "linkpkg(): unable to cd to $root"
@@ -101,7 +108,16 @@ relink_world() {
     printf '\n'
 
     listpkgs | while read -r pkgid ; do
-        linkpkg "$(pkgid2pkg "$pkgid")" "$relink_pkgs"
+        pkg="$(pkgid2pkg "$pkgid")"
+        if ! grep -x 'nolink=true' "$ports/$pkg/pkgfile" >/dev/null ; then
+            # if its a metapkg, only link if it has a pkgdir
+            if ismetapkg "$pkg" && [ ! -d "$pkgs/$pkg" ] ; then
+                continue
+            else
+                linkpkg "$pkg" "$relink_pkgs"
+            fi
+        fi
+        unset pkg
     done || die "relink_world(): linking failed"
 
     printf '\n'
