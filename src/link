@@ -3,6 +3,8 @@
 
 # create symlinks for a port
 # params: $name [$pkgs]
+# assumes: all pkgfile variables in environment
+#
 # * If $pkgs is not provided, use the config's
 #
 # * If it is provided, symlink targets using this value.
@@ -18,8 +20,11 @@ linkpkg() {
         *) die "linkpkg(): invalid number of arguments"
     esac
 
-    ismetapkg "$1" || [ -d "$pkgs"/$name ] || 
+    if ismetapkg "$1" || [ "$nolink" ] ; then
+        return
+    elif [ ! -d "$pkgs"/$name ] ; then
         die "linkpkg(): $name doesn't appear to be in $pkgs"
+    fi
 
     cd "$root" || die "linkpkg(): unable to cd to $root"
     msg "creating symlinks for $name..."
