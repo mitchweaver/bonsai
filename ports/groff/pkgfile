@@ -1,0 +1,16 @@
+info='GNU version of troff typesetting system'
+version=1.22.4
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
+sha256=e78e7b4cb7dec310849004fa88847c44701e8d133b5d4c13057d876c1bad0293
+deps=texinfo
+build() {
+    CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE" \
+    bonsai_configure --without-x --with-doc=no
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    ln -sf eqn "$pkg"/bin/geqn
+    ln -sf tbl "$pkg"/bin/gtbl
+    ln -sf soelim "$pkg"/bin/zsoelim
+}
