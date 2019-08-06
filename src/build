@@ -115,8 +115,6 @@ bonsai_configure() {
         done
 
         addflag --prefix= --prefix="$PREFIX" &
-        addflag --build= --build=x86_64-bonsai-linux-musl &
-        addflag --target= --target=x86_64-bonsai-linux-musl &
         addflag --with-gnu-ld --without-gnu-ld &
         addflag --enable-shared --disable-shared &
         addflag --disable-static --enable-static &
