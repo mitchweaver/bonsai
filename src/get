@@ -42,7 +42,7 @@ get() {
             /usr/bin/curl -q -L -C - -# --url "$source" -o "$dldir/curl-$name-dl$ext"
         else
             curl -q -L -C - -# --url "$source" -o "$dldir/curl-$name-dl$ext"
-        fi
+        fi || die "get(): curl failed to download"
 
         mv "$dldir/curl-$name-dl$ext" "$dldir/$pkgid$ext"
         ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
