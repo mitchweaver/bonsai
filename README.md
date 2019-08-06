@@ -4,7 +4,7 @@
 
 A truly minimal Linux system.
 
-For the idealists, for the masochists.
+For the idealists, for the hobbyists.
 
 # Core Philosophy
 
@@ -104,12 +104,13 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 **C Library**: [musl-libc](https://www.musl-libc.org/)  
 **Libraries**: [LibreSSL](https://www.libressl.org/) [libnl-tiny](https://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](https://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
 **Init System**: [sinit](https://core.suckless.org/sinit)  
-**Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)  
+**Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)   
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
 **Build Automation**: [pkgconf](http://pkgconf.org/) [mk](https://9fans.github.io/plan9port/unix) [samurai](https://github.com/michaelforney/samurai)  
 **Networking**: [sdhcp](http://core.suckless.org/sdhcp) [dropbear](https://matt.ucc.asn.au/dropbear/dropbear.html)  
 **Compression**: [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
+**Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk)
 
 ## Special thanks to
 
@@ -117,7 +118,6 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 * [Sabotage Linux](https://github.com/sabotage-linux/sabotage)
 * [Morpheus Linux](https://morpheus.2f30.org/)
 * [Stali Linux](http://sta.li)
-* [oasis](https://github.com/michaelforney/oasis)
 * [KISS Linux](https://getkiss.org/)
 * [CRUX Linux](http://crux.nu)
 * [OpenBSD](http://openbsd.org)

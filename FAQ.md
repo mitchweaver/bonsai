@@ -49,6 +49,10 @@ When unchrooted, `$root` it should be where the chroot lives.
 Then, when chrooting, `$root` will get changed to `root=/`.  
 Upon exiting the original value gets restored.
 
+### 05. Isn't static linking slow / inefficient / insecure?
+
+The Stali Linux project has a [great read](http://sta.li/faq) on this topic.
+
 ### Something else? Come ask us!
 
-See the **#community** section in the README.md
+See the **#community** section in the [readme](README.md).
