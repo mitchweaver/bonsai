@@ -85,8 +85,8 @@ get() {
         esac || die "get(): failed to extract $1"
     }
 
-    # do not try to dl / extract if metapkg
-    if [ "$version" != metapkg ] ; then
+    # do not try to dl / extract if metapkg or source=none
+    if [ "$version" != metapkg ] && [ "$source" != none ] ; then
         # download tarball only if not in $sources
         if [ ! -e "$sources/$pkgid$ext" ] ; then
             dlcurl "$source" || die "get(): could not download $name"

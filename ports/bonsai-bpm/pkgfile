@@ -1,0 +1,17 @@
+info='a tiny package manager based on musl-libc and static compilation'
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# NOTE: As bonsai is still in rapid early development,
+#       this package is mostly a placeholder.
+#
+#       In the future this will install/update 
+#           bpm and the ports tree.
+#version=?
+#source=http://github.com/mitchweaver/bonsai/?
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+version=none
+source=none
+build() { : ; }
+postbuild() {
+    mkdir -p "$pkg"/bin
+    ln -sf "$root"/src/bonsai "$pkg"/bin/bpm
+}
