@@ -5,7 +5,7 @@ deps=libedit
 sha256=b4a80f2ac66170b2913efbfb9f2594f1f76c7b1afd11f799e22035d63077fb4d
 build() {
     LIBS='-lreadline -lcurses' \
-        bonsai_configure --without-bash-malloc
+    bonsai_configure --without-bash-malloc
     bonsai_make
     bonsai_make install
 }

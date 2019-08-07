@@ -32,8 +32,12 @@ initglobals() {
 main() {
     # if no arguments, just print a pretty tree
     [ "$1" ] || { print_logo ; exit ; }
-    # debug for troubleshooting
-    [ "$1" = --debug ] && { shift ; set -ex ; }
+
+    # misc options before real commands
+    case "$1" in
+        --debug) shift ; set -ex ;;
+        *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
+    esac
 
     # load config and setup the environment
     case "$1" in
@@ -79,7 +83,6 @@ main() {
             --root) ROOT="${1#--root=}" ; export ROOT ; shift ;;
             --gcc) GCC="${1#--gcc=}" ; export GCC ; shift ;;
             -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
-            *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;
             *chroot)   enter_chroot  ; exit $? ;;

@@ -35,11 +35,11 @@ run_build() {
     fi
 
     msg 'stripping binaries...'
-    for dir in bin lib ; do
-        [ -d "$pkg/$dir" ] &&
-        find "$pkg"/$dir -type f | while read -r file ; do
-            strip --strip-all "$file" 2>/dev/null ||:
-        done
+    find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
+        strip --strip-all "$file" 2>/dev/null ||:
+    done
+    find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
+        strip --strip-unneeded "$file" 2>/dev/null ||:
     done
 
     # unset in case we are adding multiple packages
