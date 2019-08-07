@@ -1,0 +1,8 @@
+info='simple inotify based directory watcher'
+version=e0d77986af818120da2174f5bb7a1e2688773592
+source=http://github.com/z3bra/wendy/archive/$version.tar.gz
+sha256=6d18a20f302445fefdb96ed48b285dc20a13d9e9f506d304fb67098469305fd6
+build() {
+    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+    bonsai_make install
+}
