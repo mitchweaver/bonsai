@@ -54,9 +54,11 @@ get() {
         # download tarball only if not in $sources
         if [ ! -e "$sources/$pkgid$ext" ] ; then
             dlcurl "$source" || die "get(): could not download $name"
-            extract "$dldir/$pkgid$ext" "$md5"
+            verify_checksum "$dldir/$pkgid$ext"
+            extract "$dldir/$pkgid$ext"
         else
-            extract "$sources/$pkgid$ext" "$md5"
+            verify_checksum "$sources/$pkgid$ext"
+            extract "$sources/$pkgid$ext"
         fi
     fi
 
@@ -106,8 +108,9 @@ verify_checksum() {
 }
 
 # decompresses a given tarball to stdout
+# params: tarball
 decompress() {
-    case "${ext##*.}" in
+    case "${1##*.}" in
         xz|txz) 
             if type xz-embedded >/dev/null ; then
                 xz-embedded < "$1"
@@ -123,15 +126,13 @@ decompress() {
 
 # compares checksum for given tarball and extracts to $pkgworkdir
 # params: tarball
-# assumes: 1. $name, $ext, $dldir, $pkgworkdir
-#          2. one of the following: sha{512,256,1} or md5 in the environment
+# assumes: $name, $ext, $dldir, $pkgworkdir
 extract() {
-    ismetapkg "$name" || verify_checksum "$1"
     msg "extracting $name..."
     mkdir -p "$dldir" "$pkgworkdir"
     case "$ext" in
         .tar.*|.tgz)
-            decompress "$1" | tar -C "$dldir" -xf - || die "failed to decompress $1"
+            { decompress "$1" | tar -C "$dldir" -xf - ; } || die "failed to decompress $1"
             # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
             mv -f "${dldir:?}"/*/* "${pkgworkdir:?}"/
             # copy any hidden files

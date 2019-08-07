@@ -2,31 +2,38 @@
 # shellcheck shell=sh
 
 # tar up a package for release / distribution, placing result in $PWD
+# Notes: We force delim to be '-' here, this is to ensure web
+#        compatbility. (Ex: cannot have '#' natively in URLs)
 # params: $name
 pack() {
     requires 'pack()' tar xz
     isinst "$1" >/dev/null || die "$1 is not installed"
     [ -d "$pkgs/$1" ] || die "$1 was not found in \$pkgs"
-    file="$(pkg2pkgid "$1")".tar.xz
+    file="$(pkg2pkgid "$1" | sed "s/$delim/-/")".tar.xz
     { tar -C "$pkgs" -cf - "$1" | xz -T 0 -z - > "$file" ; } || \
         die "failed to compress $1"
     msg "successfully packed $1 as ./$file"
     unset file
 }
 
-# untar a downloaded package and install it with addpkg()
-# params: pkg.tar.xz
+# untar a downloaded binary package and install it.
+# params: name-version.tar.xz
 unpack() {
     pkgid="${1%.tar.xz}"
-    name="${pkgid%$delim*}"
-    version="${pkgid#$name$delim}"
+    name="${pkgid%-*}"
+    version="${pkgid#$name-}"
 
-    export pkgid name version
+    # clear any work from possible existing build
+    rm -rf "${work:?}" 2>/dev/null ||:
 
-    echo "pkgid: $pkgid"
-    echo "name: $name"
-    echo "version: $version"
+    # check if is already installed
+    isinst "$name" >/dev/null && die "port $name is already installed"
 
+    # unpack
+    { decompress "$1" | tar -C "$pkgs" -xf - ; } || die "failed to decompress $1"
+
+    # link and install
+    installpkg "$name" || die "$name failed to install"
     unload_pkgfile
 }
 
