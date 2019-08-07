@@ -1,0 +1,4 @@
+info='reads some text on stdin and makes it scroll on stdout'
+version=0.6
+source=http://dl.z3bra.org/releases/$name-$version.tar.bz2
+sha256=32221fef51f6814a7bf3cf4207b8a2466624544a2fd1e5b110ee2af3580d2959
