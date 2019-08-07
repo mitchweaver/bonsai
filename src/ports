@@ -70,6 +70,40 @@ pkgdeps() {
     unset dep deps arg
 }
 
+# show what packages depend on given port
+# params: $name
+rdeps() {
+    # echo all packages that list $1 in their $deps
+    depends() {
+        find "$ports" -name pkgfile | while read -r _pkgfile ; do
+            deps=""
+            . "$_pkgfile"
+            for dep in $deps ; do
+                [ "$dep" = "$1" ] && echo "$_pkgfile"
+            done
+        done
+    }
+
+    deps="$(depends "$1")"
+
+    for dep in $deps ; do
+        deps="$deps $(depends "$dep")"
+    done
+   
+    # 1. remove duplicates and white space
+    # 2. convert $root/src/ports/$name/pkgfile -> $name
+    set -- $(\
+        for dep in $deps ; do
+            printf '%s\n' $(basename $(dirname $dep)) $@
+        done | sort -u \
+    )
+
+    msg "$*"
+
+    unset -f depends
+    unset deps dep
+}
+
 
 # print info about a given $name
 portinfo() {
