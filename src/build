@@ -34,8 +34,16 @@ run_build() {
         postbuild || die "$name postbuild() failed"
     fi
 
+    msg 'stripping binaries...'
+    for dir in bin lib ; do
+        [ -d "$pkg/$dir" ] &&
+        find "$pkg"/$dir -type f | while read -r file ; do
+            strip --strip-all "$file" 2>/dev/null ||:
+        done
+    done
+
     # unset in case we are adding multiple packages
-    unset -f prebuild build postbuild
+    unset -f prebuild build postbuild dir file
     unset OLD_PWD
 }
 
