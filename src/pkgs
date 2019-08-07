@@ -1,0 +1,50 @@
+# vi:syntax=sh
+# shellcheck shell=sh
+
+# tar up a package for release / distribution, placing result in $PWD
+# params: $name
+pack() {
+    requires 'pack()' tar xz
+    isinst "$1" >/dev/null || die "$1 is not installed"
+    [ -d "$pkgs/$1" ] || die "$1 was not found in \$pkgs"
+    file="$(pkg2pkgid "$1")".tar.xz
+    { tar -C "$pkgs" -cf - "$1" | xz -T 0 -z - > "$file" ; } || \
+        die "failed to compress $1"
+    msg "successfully packed $1 as ./$file"
+    unset file
+}
+
+# converts "bash#4.8" -> "bash"
+pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
+
+# converts "bash" -> "bash#4.8"
+pkg2pkgid() {
+    isinst "$1" >/dev/null || \
+        die "$1 is not installed -- cannot determine version"
+    printf '%s' "$(grep -x -E "$1$delim.*" "$root"/src/bonsai.db)"
+}
+
+# returns if given $name is a metapkg
+ismetapkg() {
+    grep '^metapkg=true$' "$ports/$1/pkgfile" >/dev/null
+    return $?
+}
+
+# remove junk files from given package
+# params: $name
+clear_junk() {
+    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
+    rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
+    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
+}
+
+# cleans $pkgs tree of empty dirs and clears $work
+# params: none
+clean() {
+    rm -rf "${work:?}"
+    find "$pkgs" -type d ! -path "$pkgs" 2>/dev/null | while read -r dir ; do
+        rmdir "$dir" 2> /dev/null ||:
+    done
+    update_db
+    unset dir
+}

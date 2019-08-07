@@ -111,10 +111,3 @@ addpkg() {
     unset main_packages pkg dep
     unset -f load_pkgfile unload_pkgfile prompt_user add
 }
-
-# remove junk files from $pkgs/$1
-clear_junk() {
-    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
-    rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
-    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
-}
