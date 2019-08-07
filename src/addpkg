@@ -1,7 +1,7 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
-# adds a port
+# downloads, builds, and installs a port
 # params: $name
 addpkg() {
     [ "$1" ] || die "addpkg(): no pkg given"
@@ -11,68 +11,6 @@ addpkg() {
         isinst "$pkg" > /dev/null &&
             die "port $pkg is already installed"
     done
-
-    # loads pkgfile for given $name
-    load_pkgfile() {
-        name="$1"
-        pkg="$pkgs"/"$name"
-        pkgfile="$ports/$name/pkgfile"
-        export pkg name pkgfile
-        [ -s "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
-        . "$pkgfile"
-        ismetapkg "$name" && version=metapkg
-        pkgid="${name}${delim:=#}${version:=unknown}"
-        pkgworkdir="$work/$name"
-        export version source pkgid pkgworkdir
-    }
-
-    # unsets vars as not to persist from pkg to pkg
-    unload_pkgfile() {
-        unset name pkgfile pkgid version source depends deps \
-              md5 sha1 sha256 sha512 pkgworkdir nolink
-        unset -f prebuild build postbuild
-    }
-
-    # adds the given $name
-    add() {
-        ismetapkg "$1" || validate_gcc $1
-
-        # clear any work from previous build
-        rm -rf "${work:?}" 2>/dev/null ||:
-
-        load_pkgfile "$1"
-
-        if isinst "$name" >/dev/null ; then
-            msg "port $name is already installed"
-            unload_pkgfile
-            return 1
-        fi
-
-        # download / checksum / extract the package
-        get
-
-        # return if we've been instructed only to download the tarball
-        [ "$DLONLY" ] && return
-
-        if ! ismetapkg "$name" ; then
-            mkdir -p "$pkgs/$name"
-            trap 'rmdir $pkgs/$name' INT TERM
-        fi
-
-        run_build "$@" || die "$name failed to build"
-
-        if [ -d "$pkgs/$name" ] ; then
-            clear_junk "$name"
-            linkpkg "$name" || die "$name failed to link"
-        fi
-
-        add_db "$name" "$version"
-        msg "$name installed!"
-
-        clean
-        trap - INT TERM
-        unload_pkgfile
-    }
     
     # the packages asked to install
     main_packages="$*"
@@ -104,10 +42,80 @@ addpkg() {
     # prompt user for confirmation before continuing
     confirm || return 1
 
-    for pkg in $@ ; do
-        add "$pkg"
+    # main loop
+    for pkg_to_add in $@ ; do
+        # clear any work from previous build
+        rm -rf "${work:?}" 2>/dev/null ||:
+
+        # sanity check if not meta pkg
+        ismetapkg "$pkg_to_add" || validate_gcc "$pkg_to_add"
+
+        # load all pkgfile variables into environment
+        load_pkgfile "$pkg_to_add"
+
+        # check if is already installed
+        if isinst "$name" >/dev/null ; then
+            msg "port $name is already installed"
+            unload_pkgfile
+            continue
+        fi
+
+        # download / checksum / extract the package
+        get "$pkg_to_add"
+
+        # continue if we've been instructed only to download the tarball
+        [ "$DLONLY" ] && continue
+
+        # create $pkgdir directory
+        createpkgdir "$pkg_to_add" || die "failed to create $root/src/pkgs/$pkg_to_add"
+
+        # build
+        run_build || die "$pkg_to_add failed to build"
+
+        # link and install
+        installpkg "$pkg_to_add" || die "$pkg_to_add failed to install"
+
+        # unload as not to persist from pkg to pkg
+        unload_pkgfile
     done || die "failed to install $port"
 
     unset main_packages pkg dep
-    unset -f load_pkgfile unload_pkgfile prompt_user add
+    unset -f load_pkgfile unload_pkgfile prompt_user
+}
+
+# 1) create the $pkgdir if needed with given $name
+# 2) set a trap to remove it incase we are interrupted
+#    this trap is unset at the end of installpkg()
+# params: $name
+createpkgdir() {
+    if ! ismetapkg "$1" ; then
+        mkdir -p "$pkgs/$1"
+        trap 'rmdir $pkgs/$1' INT TERM
+    fi
+}
+
+# 1) cleans up package
+# 2) links it
+# 3) adds to the database
+# params: $name
+# assumes: all pkgfile vars in the environment
+installpkg() {
+    # check again incase we weren't called via addpkg()
+    if isinst "$1" >/dev/null ; then
+        msg "port $1 is already installed"
+        unload_pkgfile
+        return 1
+    fi
+
+    if [ -d "$pkgs/$1" ] ; then
+        clear_junk "$1"
+        linkpkg "$1" || die "$1 failed to link"
+    fi
+
+    add_db "$1" "$version"
+    msg "$1 installed!"
+
+    # clear $pkgs tree of empty dirs and removes $work
+    clean
+    trap - INT TERM
 }

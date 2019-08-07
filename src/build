@@ -3,8 +3,9 @@
 
 # runs build() method inside a pkgfile! -name readme 
 # params: none
+# asssumes: $pkgworkdir $name and all pkgfile vars in the environment
 run_build() { 
-    cd "$pkgworkdir" || die "build(): unable to cd to $work/$pkgid"
+    cd "$pkgworkdir" || die "build(): unable to cd to $pkgworkdir"
     msg "building $name..."
 
     getflags
@@ -70,8 +71,6 @@ getflags() {
 
 # convenience function, tries to find all *.patch
 # in the top-level $work/$name directory and apply them
-# note: -prune here is a more portable way of -maxdepth
-#       (sbase's find does not have -maxdepth)
 bonsai_patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
         { patch -p0 < "$patch" || return 1 ; } | msg
@@ -90,8 +89,6 @@ bonsai_configure() {
     fi
 
     ${nls:=false}   || _nls=--disable-nls
-    ${tests:=false} || _tests=--without-tests
-    ${debug:=false} || _debug='--disable-debug --disable-debugger'
     ${quiet:=false} && _quiet='--silent --quiet'
 
     if [ $FILE = configure ] ; then
@@ -112,8 +109,9 @@ bonsai_configure() {
                     --disable-rpath --disable-option-checking  --enable-fast-install \
                     --disable-dependency-tracking --without-ada --without-shared \
                     --disable-libtool-lock --disable-docs --disable-gtk-docs \
-                    --disable-gtk-docs-html --docdir=/dev/null \
-                    $_quiet $_debug $_nls $_tests -C ; do
+                    --disable-gtk-docs-html --docdir=/dev/null --without-tests \
+                    --disable-debug --disable-debugger \
+                    $_quiet $_nls -C ; do
 
             addflag $flag $flag &
         done
@@ -124,9 +122,8 @@ bonsai_configure() {
         addflag --disable-static --enable-static &
         addflag --enable-tests --disable-tests &
         addflag --with-shared --without-shared &
-        $debug || addflag --with-debug --without-debug &
-        $tests || addflag --with-tests --without-tests &
-        $tests && addflag --enable-extratests --enable-extratests &
+        addflag --with-debug --without-debug &
+        addflag --with-tests --without-tests &
         wait
 
         for flag in "$@" ; do
@@ -137,7 +134,7 @@ bonsai_configure() {
     ./$FILE $(shellcat "$tmp_flags") "$@" || die "$FILE failed for $name"
 
     unset -f addflag
-    unset flag tmp_help _nls _debug _quiet _tests FILE tmp
+    unset flag tmp_help _nls _quiet FILE tmp
 }
 
 bonsai_make() {

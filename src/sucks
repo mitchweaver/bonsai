@@ -1,7 +1,7 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
-# helper to get around all things wrong with packaging
+# Helper to get around all things that suck.
 sucks() {
     # GNU programs have the most insane dependency tracking I have ever seen.
     # To check for dependencies, they often simply try to run the program
@@ -27,4 +27,17 @@ sucks() {
     echo '#!/bin/sh' > .bogus/ldconfig
     chmod +x .bogus/ldconfig
     export PATH="$PATH:\"$PWD\"/.bogus"
+}
+
+# remove junk files from given package
+# params: $name
+clear_junk() {
+    # garbage gnu texinfo files
+    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
+
+    # extraneous (and huge) html docs
+    rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
+
+    # remove man pages if user wishes, (mans=false in bonsai.rc)
+    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
 }

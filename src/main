@@ -78,6 +78,7 @@ main() {
             print|-p)  portcat "$2"  ; exit $? ;;
             count)     countpkgs     ; exit $? ;;
             pack)      pack "$2"     ; exit $? ;;
+            unpack)    unpack "$2"   ; exit $? ;;
             add|-a) shift ; addpkg "$@" ; exit $? ;;
             del|-d) shift ; delpkg "$@" ; exit $? ;;
             *help|-h) usage ; exit ;;

@@ -14,6 +14,22 @@ pack() {
     unset file
 }
 
+# untar a downloaded package and install it with addpkg()
+# params: pkg.tar.xz
+unpack() {
+    pkgid="${1%.tar.xz}"
+    name="${pkgid%$delim*}"
+    version="${pkgid#$name$delim}"
+
+    export pkgid name version
+
+    echo "pkgid: $pkgid"
+    echo "name: $name"
+    echo "version: $version"
+
+    unload_pkgfile
+}
+
 # converts "bash#4.8" -> "bash"
 pkgid2pkg() { printf '%s' "${1%%$delim*}" ; }
 
@@ -30,19 +46,11 @@ ismetapkg() {
     return $?
 }
 
-# remove junk files from given package
-# params: $name
-clear_junk() {
-    rm -r "${pkgs:?}/${1:?}/share/info" 2>/dev/null ||:
-    rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
-    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
-}
-
 # cleans $pkgs tree of empty dirs and clears $work
 # params: none
 clean() {
     rm -rf "${work:?}"
-    find "$pkgs" -type d ! -path "$pkgs" 2>/dev/null | while read -r dir ; do
+    find "$pkgs" -type d ! -path "$pkgs" -prune | while read -r dir ; do
         rmdir "$dir" 2> /dev/null ||:
     done
     update_db

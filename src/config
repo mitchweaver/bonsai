@@ -65,8 +65,6 @@ makeflags=''
 keep_tarballs=true
 mans=true   # install man pages?
 nls=false   # provide native-language-support?
-debug=false # compile in debugging tools/information?
-tests=false # compile included tests?
 
 # prompt prefixing msgs from the pkg mgr
 prompt='→'

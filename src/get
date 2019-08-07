@@ -3,8 +3,9 @@
 
 # downloads url and extracts to $work/$pkg
 # params: none
-# assumes: $name $version $source $pkgid $pkgfile $pkgworkdir in environment
+# assumes: $version $source $pkgid $pkgfile $pkgworkdir in environment
 get() {
+    name="$1"
     dldir="$work/dl"
     mkdir -p "$pkgworkdir" "$dldir" "$sources"
 
@@ -48,43 +49,6 @@ get() {
         ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
     }
 
-    # compares checksum for $archive and extracts to $pkgworkdir
-    # params: archive
-    extract() {
-        ismetapkg "$name" || verify_checksum "$1"
-        msg "extracting $name"...
-        decompress() {
-            case "${ext##*.}" in
-                xz)
-                    if type xz-embedded >/dev/null ; then
-                        xz-embedded < "$1"
-                    else
-                        xz -qdc "$1"
-                    fi
-                    ;;
-                gz|tgz) gunzip  -qdc  "$1" ;;
-                bz2)    bunzip2 -qdc  "$1" ;;
-                zip)    unzip   -qp   "$1" ;;
-            esac || die "get(): failed to decompress $1"
-        }
-        case "$ext" in
-            .tar.*|.tgz)
-                decompress "$1" | tar -C "$dldir" -xf - || die "failed to decompress $1"
-                # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
-                mv "$dldir"/*/*  "$pkgworkdir"/
-                # copy any hidden files
-                find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
-                    mv "$file" "$pkgworkdir"/
-                done
-                # try to remove possible empty dirs
-                rmdir "$dldir"/* 2>/dev/null ||:
-                rmdir "$dldir" 2>/dev/null ||:
-                ;;
-            # if not a tarball, simply write to $pkgworkdir
-            *) decompress "$1" > "$pkgworkdir/${1%%$ext}"
-        esac || die "get(): failed to extract $1"
-    }
-
     # do not try to dl / extract if metapkg or source=none
     if [ "$version" != metapkg ] && [ "$source" != none ] ; then
         # download tarball only if not in $sources
@@ -101,11 +65,12 @@ get() {
         cp -f "$file" "$pkgworkdir"/
     done
     unset dldir ext file
-    unset -f dlgit dlcurl extract decompress
+    unset -f dlgit dlcurl
 }
 
 # verifies hash of $tarball against hash in the pkgfile
 # params: $tarball
+# assumes: one of the following: sha{512,256,1} or md5 in the environment
 verify_checksum() {
     [ "$1" ] || die "verify_checksum(): no tarball provided"
 
@@ -138,4 +103,47 @@ verify_checksum() {
         printf "\n"
         die "checksum mismatch for $3"
     fi
+}
+
+# decompresses a given tarball to stdout
+decompress() {
+    case "${ext##*.}" in
+        xz|txz) 
+            if type xz-embedded >/dev/null ; then
+                xz-embedded < "$1"
+            else
+                xz -qdc "$1"
+            fi
+            ;;
+        gz|tgz)  gunzip  -qdc  "$1" ;;
+        bz2|tbz) bunzip2 -qdc  "$1" ;;
+        zip)     unzip   -qp   "$1" ;;
+    esac || die "get(): failed to decompress $1"
+}
+
+# compares checksum for given tarball and extracts to $pkgworkdir
+# params: tarball
+# assumes: 1. $name, $ext, $dldir, $pkgworkdir
+#          2. one of the following: sha{512,256,1} or md5 in the environment
+extract() {
+    ismetapkg "$name" || verify_checksum "$1"
+    msg "extracting $name..."
+    mkdir -p "$dldir" "$pkgworkdir"
+    case "$ext" in
+        .tar.*|.tgz)
+            decompress "$1" | tar -C "$dldir" -xf - || die "failed to decompress $1"
+            # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
+            mv -f "${dldir:?}"/*/* "${pkgworkdir:?}"/
+            # copy any hidden files
+            find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
+                mv "$file" "${pkgworkdir:?}"/
+            done
+            # try to remove possible empty dirs
+            rmdir "$dldir"/* 2>/dev/null ||:
+            rmdir "$dldir" 2>/dev/null ||:
+            ;;
+        # if not a tarball, simply write to $pkgworkdir
+        *) decompress "$1" > "${pkgworkdir:?}/${1%%$ext}"
+    esac || die "get(): failed to extract $1"
+    unset file
 }

@@ -12,6 +12,27 @@ search() {
     unset results path
 }
 
+# loads pkgfile for given $name
+load_pkgfile() {
+    name="$1"
+    pkg="$pkgs"/"$name"
+    pkgfile="$ports/$name/pkgfile"
+    export pkg name pkgfile
+    [ -s "$pkgfile" ] || die "failed to load $name's pkgfile"
+    . "$pkgfile"
+    ismetapkg "$name" && version=metapkg
+    pkgid="${name}${delim:=#}${version:=unknown}"
+    pkgworkdir="$work/$name"
+    export version source pkgid pkgworkdir
+}
+
+# unsets vars as not to persist from pkg to pkg
+unload_pkgfile() {
+    unset name pkgfile pkgid version source depends deps \
+            md5 sha1 sha256 sha512 pkgworkdir nolink
+    unset -f prebuild build postbuild
+}
+
 # calculate dependencies and store them
 # in $pkgdeps in the correct installation order
 # params: $name
