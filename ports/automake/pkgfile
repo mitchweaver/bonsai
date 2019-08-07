@@ -1,5 +1,5 @@
 info='GNU automake, a tool for generating Makefiles'
-version=1.16
+version=1.16.1
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
 deps=autoconf
-sha256=f98f2d97b11851cbe7c2d4b4eaef498ae9d17a3c2ef1401609b7b4ca66655b8a
+sha256=5d05bb38a23fd3312b10aea93840feec685bdf4a41146e78882848165d3ae921
