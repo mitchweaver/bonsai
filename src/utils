@@ -127,9 +127,7 @@ validate_gcc() {
                 die "No compiler toolchain has yet been installed.
          Try \`bonsai search gcc\` to find one."
             else
-                die "World appears to still be linked as a chroot.
-         Use --relink-world --pkgs=/src/pkgs to relink externally
-         or without arguments to relink internally."
+                err_bad_links
             fi
         esac
     fi

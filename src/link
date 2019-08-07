@@ -126,3 +126,25 @@ relink_world() {
 
     unset relink_pkgs
 }
+
+# checks if links are still sane, (pointing to $pkgs on the correct root)
+# * if chrooted, they should point to the /src/pkgs/$name/bin/$name
+# * if NOT chrooted, they should point to the $root/src/pkgs/$name/bin/$name
+# params: none
+check_links() {
+    # if we are bootstrapping, we won't have any programs to check with
+    [ "$BOOTSTRAP" ] && return
+
+    # Test symlinks for coreutils to ensure links are valid.
+    # This will fail should they not exist, but if
+    # you don't have coreutils, then your system is borked anyway.
+    for prog in ls cp rm rmdir ; do
+        test_link "$root"/bin/$prog || err_bad_links
+    done
+    unset prog
+}
+
+err_bad_links() {
+        die "World appears to still be linked as a chroot.
+         Use --relink-world without arguments to relink externally."
+}

@@ -32,10 +32,15 @@ initglobals() {
 main() {
     # if no arguments, just print a pretty tree
     [ "$1" ] || { print_logo ; exit ; }
+    # debug for troubleshooting
+    [ "$1" = --debug ] && { shift ; set -ex ; }
 
     # load config and setup the environment
     case "$1" in
-        *help|-h|*skeleton|skel) ;; # no need to load config
+        *skeleton|skel)
+            create_skeleton_config "$2"
+            exit $?
+            ;;
         --bootstrap)
             BOOTSTRAP=true
             export BOOTSTRAP
@@ -57,12 +62,19 @@ main() {
         *) loadconfig
            initglobals
     esac
+
+    # check if our package symlinks are valid -- if not, error out
+    case "$1" in
+        *chroot|*relink*world)
+            # if chrooting or relinking the world,
+            # we know our symlinks will be currently incorrect
+            ;;
+        *) check_links 
+    esac
     
     while [ "$1" ] ; do
         case "$1" in
             # ---- variable setting -------
-            *debug) set -x ; shift ;;
-            *errexit) set -e ; shift ;;
             *dlonly) DLONLY=true ; export DLONLY ; shift ;;
             --root) ROOT="${1#--root=}" ; export ROOT ; shift ;;
             --gcc) GCC="${1#--gcc=}" ; export GCC ; shift ;;
@@ -70,8 +82,7 @@ main() {
             *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;
-            *skeleton|skel) create_skeleton_config "$2" ; exit $? ;;
-            chroot)    enter_chroot  ; exit $? ;;
+            *chroot)   enter_chroot  ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;
             search|-s) search "$2"   ; exit $? ;;
             info|-i)   portinfo "$2" ; exit $? ;;
