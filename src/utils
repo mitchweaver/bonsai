@@ -23,7 +23,10 @@ info   | -i
 list   | -l
 print  | -p
 count  | -c
-deps isinst"
+deps isinst
+pack unpack
+chroot skel
+relink-world"
 }
 
 # checks if a function is defined
