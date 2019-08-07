@@ -80,7 +80,7 @@ test_link() {
 
 # --- some coreutils in posix sh builtins ---
 basename() { printf "%s\n" "${1##*/}" ; }
-dirname()  { printf "%s\n" "${1%/*}" ; }
+dirname()  { printf "%s\n" "${1%/*}"  ; }
 
 # print out a file
 # 200%+ speed increase on small files

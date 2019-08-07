@@ -43,8 +43,8 @@ run_build() {
     done
 
     # unset in case we are adding multiple packages
-    unset -f prebuild build postbuild dir file
-    unset OLD_PWD
+    unset -f prebuild build postbuild
+    unset dir file
 }
 
 # convenience functions
@@ -86,66 +86,76 @@ bonsai_patch() {
     unset patch
 }
 
-bonsai_autogen() { configure --autogen || return 1 ; }
+bonsai_autogen() { ./autogen.sh "$@" || die "autogen.sh failed for $name" ; }
 
 bonsai_configure() {
-    if [ "$1" = "--autogen" ] ; then
-        FILE=autogen.sh
-        shift
-    else
-        FILE=configure
-    fi
+    # try to enable as many options as possible
+    # if they are allowed in the configure script
+    tmp_help="$root/src/work/$name.cfhelp"
+    tmp_flags="$root/src/work/$name.cfflags"
 
+    ./configure --help > "$tmp_help"
+    :> "$tmp_flags"
+
+    # params: flag_to_check flag_to_add
+    addflag() {
+        grep -F -- "$1" $tmp_help >/dev/null && 
+            echo "$2" >> $tmp_flags
+    }
+
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    # Global configure flags. These are applied to all packages.
+    #
+    # set in bonsai.rc:
     ${nls:=false}   || _nls=--disable-nls
-    ${quiet:=false} && _quiet='--silent --quiet'
+    ${quiet:=false} && _quiet='--silent --quiet'   
+    #
+    # flags that are the same as what we check for
+    for flag in --static --enable-static --enable-static-link --disable-shared \
+                --without-shared --disable-rpath --disable-option-checking  \
+                --enable-fast-install --disable-dependency-tracking --without-ada \
+                --disable-libtool-lock --disable-largefile \
+                --disable-docs --disable-gtk-docs --disable-gtk-docs-html \
+                --without-tests --disable-debug --disable-debugger \
+                $_quiet $_nls ; do
+        addflag $flag $flag
+    done
 
-    if [ $FILE = configure ] ; then
-        # try to enable as many options as possible
-        # if they are allowed in the configure script
-        tmp_help="$root/src/work/$name.confhelp"
-        tmp_flags="$root/src/work/$name.confflags"
-        ./$FILE --help > "$tmp_help"
-        :> "$tmp_flags"
+    # flags that change based on what is in the --help
+    addflag --enable-shared --disable-shared
+    addflag --with-shared --without-shared
+    addflag --disable-static --enable-static
+    addflag --with-gnu-ld --without-gnu-ld
+    addflag --with-debug --without-debug
+    addflag --enable-tests --disable-tests
+    addflag --with-tests --without-tests
+    addflag --with-doc= --with-doc=no
+    addflag --prefix= --prefix="$PREFIX"
+    addflag --bindir= --bindir="$BINDIR"
+    addflag --sbindir= --sbindir="$BINDIR"
+    addflag --libdir= --libdir="$LIBDIR"
+    addflag --libexecdir= --libexecdir="$LIBEXECDIR"
+    addflag --includedir= --includedir="$INCLUDEDIR"
+    addflag --mandir= --mandir="$MANDIR"
+    addflag --infodir= --docdir="$PREFIX"/sucks
+    addflag --docdir= --docdir="$PREFIX"/sucks
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-        # params: flag_to_check flag_to_add
-        addflag() {
-            grep -F -- "$1" $tmp_help > /dev/null && 
-                printf "%s\n" "$2" >> $tmp_flags
-        }
+    # add a new line to denote separation between global flags
+    # and argument-supplied flags
+    echo >> "$tmp_flags"
 
-        for flag in --static --enable-static --enable-static-link --disable-shared \
-                    --disable-rpath --disable-option-checking  --enable-fast-install \
-                    --disable-dependency-tracking --without-ada --without-shared \
-                    --disable-libtool-lock --disable-docs --disable-gtk-docs \
-                    --disable-gtk-docs-html --docdir=/dev/null --without-tests \
-                    --disable-debug --disable-debugger \
-                    $_quiet $_nls -C ; do
+    # add all argument-supplied flags to the flag file
+    for flag in "$@" ; do echo "$flag" ; done >> "$tmp_flags"
 
-            addflag $flag $flag &
-        done
-
-        addflag --prefix= --prefix="$PREFIX" &
-        addflag --with-gnu-ld --without-gnu-ld &
-        addflag --enable-shared --disable-shared &
-        addflag --disable-static --enable-static &
-        addflag --enable-tests --disable-tests &
-        addflag --with-shared --without-shared &
-        addflag --with-debug --without-debug &
-        addflag --with-tests --without-tests &
-        wait
-
-        for flag in "$@" ; do
-            printf "%s\n" "$flag" >> "$tmp_flags"
-        done
-    fi
-
-    ./$FILE $(shellcat "$tmp_flags") "$@" || die "$FILE failed for $name"
+    ./configure $(shellcat "$tmp_flags") || die "configure failed for $name"
 
     unset -f addflag
-    unset flag tmp_help _nls _quiet FILE tmp
+    unset flag tmp_help _nls _quiet
 }
 
 bonsai_make() {
+    # set in bonsai.rc:
     $mans   || _mans='MANDIR=/dev/null'
     $quiet  && _quiet='-s'
 
