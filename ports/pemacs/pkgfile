@@ -1,0 +1,14 @@
+info='Small footprint Emacs'
+version=eec861be80a8e00ae17418d9671325bd8cd6a0f8
+source=http://github.com/hughbarney/pEmacs/archive/$version.tar.gz
+deps=netbsd-curses
+sha256=c19346e7c90424ccc2b8f58216bad22a30363fa28d40609e7c1cbfba97fe85b3
+build() {
+    bonsai_make CFLAGS="$CFLAGS -D_GNU_SOURCE" LDFLAGS="$LDFLAGS"
+    # make install has some flags that are not supported
+    install -Dm0755 pe   "$pkg"/bin/pe
+    install -Dm0644 pe.1 "$pkg"/share/man/man1/pe.1
+}
+postbuild() {
+    ln -sf pe "$pkg"/bin/pemacs
+}
