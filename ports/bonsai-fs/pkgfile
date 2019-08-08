@@ -1,6 +1,6 @@
 info='the bonsai filesystem'
 metapkg=true
-
+nolink=true
 # create top level dirs in $root, if needed
 prebuild() {
     cd "$root" || die "could not cd to $root"
@@ -17,12 +17,11 @@ prebuild() {
         done
     }
 
-    create 0755 bin boot dev etc home include \
-                lib local mnt proc run root share \
-                src sys var \
+    create 0755 bin boot dev etc home include lib local \
+                mnt proc root share src sys var \
                 dev/pts dev/pts var/log
 
-    create 0775 tmp dev/shm var/tmp var/preserve
+    create 0775 tmp dev/shm var/tmp var/preserve var/run
 
     create 0744 share/man
     for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
@@ -46,18 +45,16 @@ prebuild() {
     unset -f create link
     unset dir manX perm
 }
-
 build() {
-    for file in profile os-release fstab passwd shadow group ; do
-        # do not overwrite in case user has edited
-        [ -s "$root"/etc/$file ] && continue
+    warn "bonsai-fs does not clobber existing files. Please remove any if updating."
+    for file in profile os-release fstab passwd shadow \
+                group shells aliases hostname resolv.conf ; do
+        if [ -s "$root"/etc/$file ] ; then
+            warn "$root/etc/$file exists, refusing to overwrite"
+            continue
+        fi
         msg "installing /etc/$file with mode 0644..."
         install -m 0644 $file "$root"/etc/$file
     done
     unset file
-}
-
-postbuild() {
-    msg "all done!"
-    printf "\n"
 }
