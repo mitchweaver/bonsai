@@ -1,0 +1,5 @@
+Note:
+
+This package simply downloads syslinux, for convenience.
+
+It does not actually "install" it to your MBR.
