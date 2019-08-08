@@ -1,7 +1,7 @@
 info="GNU C Compiler"
 version=9.1.0
 source=http://mirrors.kernel.org/gnu/$name/$name-$version/$name-$version.tar.xz
-deps='binutils musl libmpc bison flex libarchive'
+deps='binutils musl kernel-headers libmpc bison flex libarchive'
 sha512=b6134df027e734cee5395afd739fcfa4ea319a6017d662e54e89df927dea19d3fff7a6e35d676685383034e3db01c9d0b653f63574c274eeb15a2cb0bc7a1f28
 prebuild() {
     # use /lib instead of /lib64
@@ -11,13 +11,15 @@ prebuild() {
 build() {
     GCC_FLAGS="-fno-align-functions -fno-align-jumps -fno-align-loops -fno-align-labels"
 
+    CC="$CC -static --static -Wl,-Bstatic -static-libgcc" \
+    CXX="$CXX -static --static -Wl,-Bstatic -static-libgcc" \
     LIBRARY_PATH="$root/lib:$root/libexec" \
     CFLAGS="$CFLAGS $GCCFLAGS" \
     CXXFLAGS="$CXXFLAGS $GCCFLAGS" \
-    CC="$CC -static --static" \
     bonsai_configure \
-        --build=x86_64-linux-musl \
-        --target=x86_64-linux-musl \
+        --host="$HOST" \
+        --build="$BUILD" \
+        --target="$TARGET" \
         --prefix="$PREFIX" \
         --mandir="$MANDIR" \
         --disable-multilib \
@@ -41,11 +43,12 @@ build() {
         --enable-languages=c,c++
 
     LIBRARY_PATH="$root/lib:$root/libexec" \
+    CC="$CC -static --static -Wl,-Bstatic -static-libgcc" \
+    CXX="$CXX -static --static -Wl,-Bstatic -static-libgcc" \
     bonsai_make \
         CC="$CC -static --static $GCCFLAGS" \
         CFLAGS="$CFLAGS $GCCFLAGS" \
-        CXXFLAGS="$CXXFLAGS $GCCFLAGS" \
-        LDFLAGS="$LDFLAGS"
+        CXXFLAGS="$CXXFLAGS $GCCFLAGS"
 
     LIBRARY_PATH="$root/lib:$root/libexec" \
     CFLAGS="$CFLAGS $GCCFLAGS" \

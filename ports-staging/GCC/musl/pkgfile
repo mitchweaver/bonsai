@@ -3,11 +3,16 @@ version=1.1.23
 source=http://musl-libc.org/releases/$name-$version.tar.gz
 sha512=a2278de9903852b08352d3e734a39d4616caa602496997ba843e8fea0e1c481761776745faf04536a149d1c4af416b68df681b6fbc9ae2de8794e18c2e853b09
 build() {
+    CC="$CC -static --static -Wl,-Bstatic -static-libgcc" \
+    CXX="$CXX -static --static -Wl,-Bstatic -static-libgcc" \
     bonsai_configure \
-        --build=x86_64-linux-musl \
-        --target=x86_64-linux-musl \
+        --host="$HOST" \
+        --build="$BUILD" \
+        --target="$TARGET" \
         --disable-wrapper \
         --enable-optimize
+    CC="$CC -static --static -Wl,-Bstatic -static-libgcc" \
+    CXX="$CXX -static --static -Wl,-Bstatic -static-libgcc" \
     bonsai_make
     bonsai_make install
 }
