@@ -2,24 +2,18 @@
 
 dmesg -n 1
 umask 022
-export PATH="/bin:/src:/local/bin"
+export PATH="/bin:/local/bin"
 
-echo '* Mounting necessary folders'
-/etc/rc.mnt > /dev/null
-echo '* Checking filesystems'
-/etc/rc.fsck > /dev/null
-echo '* Setting up devices'
-/etc/rc.dev > /dev/null
-echo '* Configuring net'
-/etc/rc.net > /dev/null
-if [ -x /etc/rc.local ]; then
-    echo '* Running rc.local'
-    /etc/rc.local
-fi
+echo '* Mounting necessary folders' ; /etc/rc.mnt   > /dev/null
+echo '* Checking filesystems'       ; /etc/rc.fsck  > /dev/null
+echo '* Setting up devices'         ; /etc/rc.dev   > /dev/null
+echo '* Configuring net'            ; /etc/rc.net   > /dev/null
+echo '* Running rc.local'           ; /etc/rc.local > /dev/null
 
 # save boot messages
 dmesg > /var/log/dmesg.log
-if [ -e /proc/sys/kernel/dmesg_restrict ] && [ $(cat /proc/sys/kernel/dmesg_restrict) = "1" ] ; then
+if [ -e /proc/sys/kernel/dmesg_restrict ] && 
+    [ "$(cat /proc/sys/kernel/dmesg_restrict)" = 1 ] ; then
     chmod 0600 /var/log/dmesg.log
 else
     chmod 0644 /var/log/dmesg.log
@@ -28,7 +22,7 @@ fi
 # empty /tmp
 if [ -d /tmp ] && [ ! -L /tmp ] ; then
     rm -rf /tmp
-    mkdir -m 0775 /tmp
+    mkdir -pm 0775 /tmp
 fi
 
 # login file

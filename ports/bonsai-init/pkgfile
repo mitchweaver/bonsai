@@ -1,9 +1,7 @@
 info='the bonsai init system'
 metapkg=true
-deps='bonsai-core smdev inetutils sdhcp'
-prebuild() {
-    printf "\n"
-}
+nolink=true
+deps='bonsai-core sinit smdev sdhcp inetutils'
 build() {
     msg "installing init with mode 0755..."
     install -m 0755 init "$root"/init
@@ -19,7 +17,4 @@ build() {
         msg "installing etc/rc.local with mode 0755..."
         install -m 0755 rc.local "$root"/etc/rc.local
     fi
-}
-postbuild() {
-    printf "\n"
 }

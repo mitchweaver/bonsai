@@ -1,17 +1,19 @@
 #!/bin/sh
 
-if [ -f /etc/hostname ] ; then
+if [ -s /etc/hostname ] ; then
     hostname /etc/hostname
     cat /etc/hostname > /proc/sys/kernel/hostname
 fi
 
-if [ ! -s /etc/resolv.conf ] ; then
+[ -s /etc/resolv.conf ] ||
 cat > /etc/resolv.conf << EOF
-# Google DNS
+# google dns
 nameserver 8.8.8.8
 nameserver 8.4.4.8
+# dns.watch
+nameserver 84.200.69.80
+nameserver 84.200.70.40
 EOF
-fi
 
 ifconfig eth0 up
 sdhcp -d
