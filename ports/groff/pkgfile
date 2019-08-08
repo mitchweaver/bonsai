@@ -10,6 +10,9 @@ build() {
 }
 postbuild() {
     ln -sf eqn "$pkg"/bin/geqn
+    ln -sf eqn.1 "$pkg"/share/man/man1/geqn.1
     ln -sf tbl "$pkg"/bin/gtbl
+    ln -sf tbl.1 "$pkg"/share/man/man1/gtbl.1
     ln -sf soelim "$pkg"/bin/zsoelim
+    ln -sf soelim.1 "$pkg"/share/man/man1/zsoelim.1
 }
