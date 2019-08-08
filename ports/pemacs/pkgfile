@@ -11,4 +11,5 @@ build() {
 }
 postbuild() {
     ln -sf pe "$pkg"/bin/pemacs
+    ln -sf pe.1 "$pkg"/share/man/man1/pemacs.1
 }
