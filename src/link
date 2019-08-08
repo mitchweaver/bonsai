@@ -21,7 +21,7 @@ linkpkg() {
     esac
 
     # if told not to link, return
-    if [ "$nolink" ] ; then
+    if [ "$nolink" = true ] ; then
         return
     # if pkgdir does not exist, check if metapkg -- if so return
     #                                            -- if not, error out

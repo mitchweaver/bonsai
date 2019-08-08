@@ -32,6 +32,11 @@ unpack() {
     # unpack
     { decompress "$1" | tar -C "$pkgs" -xf - ; } || die "failed to decompress $1"
 
+    # this is to be fixed later, for now:
+    case "$name" in
+        bonsai-kernel|syslinux) nolink=true
+    esac
+
     # link and install
     installpkg "$name" || die "$name failed to install"
     unload_pkgfile
