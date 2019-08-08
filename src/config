@@ -91,9 +91,12 @@ delim='#'
 # flags
 # warning: do not change these unless you seriously know what you're doing.
 # note: enable this cflag if you do not care about package portability: -march=native 
-cflags="-static --static -s -w -Os -no-pie -pipe -Wl,--gc-sections -fstack-protector-strong"
+cflags="-s -w -Os -no-pie -pipe -Wl,--gc-sections -fstack-protector-strong"
+cflags="$cflags -static --static -Wl,-Bstatic -static-libgcc"
+cflags="$cflags -static-libstdc++ -static-libasan -static-libtsan"
+cflags="$cflags -static-liblsan -static-libubsan"
 ldflags="-static --static -s -fdata-sections -ffunction-sections"
-cppflags='-static --static'
+cppflags="$cflags"
 cxxflags="$cflags"
 EOF
 }

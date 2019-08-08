@@ -53,8 +53,12 @@ run_build() {
 # convenience functions
 bonsai_cc()  { $cc  -static -Os -s "$@" ; }
 bonsai_gcc() { $gcc -static -Os -s "$@" ; }
+bonsai_cxx() { $cxx -static -Os -s "$@" ; }
 
 getflags() {
+    TARGET=x86_64-linux-musl
+    HOST="$(gcc -dumpmachine)"
+    BUILD="$HOST"
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
     CFLAGS="$CFLAGS $cflags"
@@ -72,12 +76,13 @@ getflags() {
     PRESERVEDIR="$root/var/preserve"
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
+    cxx=g++
+    CXX=g++
     MAKEINFO=false
-    export LIBRARY_PATH CPATH \
-           CFLAGS LDFLAGS CPPFLAGS CXXFLAGS CC cc \
-           PREFIX prefix DESTDIR BINDIR INCLUDEDIR \
-           LIBDIR LIBEXECDIR MANDIR PRESERVEDIR \
-           MAKEINFO
+    export TARGET HOST BUILD CC cc CXX cxx \
+           LIBRARY_PATH CPATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+           PREFIX prefix DESTDIR BINDIR INCLUDEDIR LIBDIR \
+           LIBEXECDIR MANDIR PRESERVEDIR MAKEINFO
 }
 
 # convenience function, tries to find all *.patch
@@ -125,6 +130,9 @@ bonsai_configure() {
     done
 
     # flags that change based on what is in the --help
+    addflag --target= --target="$TARGET"
+    addflag --host= --host="$HOST"
+    addflag --build= --build="$BUILD"
     addflag --enable-shared --disable-shared
     addflag --with-shared --without-shared
     addflag --disable-static --enable-static
