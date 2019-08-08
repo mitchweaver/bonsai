@@ -11,5 +11,5 @@ prebuild() {
 }
 postbuild() {
     warn "IMPORTANT: overwriting /sbin/init to point to \$pkgs/sinit/bin/sinit"
-    ln -sf /src/pkgs/bin/sinit /sbin/init
+    ln -sf /src/pkgs/sinit/bin/sinit /sbin/init
 }
