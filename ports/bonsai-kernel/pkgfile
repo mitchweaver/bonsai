@@ -10,7 +10,7 @@ prebuild() {
     bonsai_make mrproper
 
     msg 'creating defconfig'
-    bonsai_make V=1 \
+    bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
         HOSTLDFLAGS="$LDFLAGS" \
         KBUILD_BUILD_HOST=bonsai \
@@ -28,6 +28,16 @@ prebuild() {
 
     # auto enable inode number mapping
     echo 'CONFIG_OVERLAY_FS_XINO_AUTO=y' >> .config
+
+    # uevent stuff for smdev
+    echo 'CONFIG_HOTPLUG=y' >> .config
+    echo 'CONFIG_DEVTMPFS=y' >> .config
+    echo 'CONFIG_DEVTMPFS_MOUNT=y' >> .config
+    echo 'CONFIG_UEVENT_HELPER=y' >> .config
+    echo 'CONFIG_USB_DEVICE_CLASS=y' >> .config
+    echo 'CONFIG_USB_DEVICEFS=y' >> .config
+    echo 'CONFIG_INPUT_EVDEV=y' >> .config
+    echo 'CONFIG_INOTIFY=y' >> .config
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     # Note: This method is slower than ORC, currently looking into
@@ -67,20 +77,11 @@ build() {
         DISABLE_PAX_PLUGINS=y \
         modules
 
+    msg 'copying files to $pkgs/bonsai-kernel...'
 
-    msg 'installing kernel...'
+    install -m 0644 arch/x86/boot/bzImage "$pkg"/vmlinuz
+    install -m 0644 System.map "$pkg"/System.map
+    install -m 0644 .config "$pkg"/config
 
-    install -Dm 0644 arch/x86/boot/bzImage "$root"/boot/vmlinuz
-    install -Dm 0644 System.map "$root"/boot/System.map
-    install -Dm 0644 .config "$root"/boot/.config
-    # -
-    install -Dm 0644 arch/x86/boot/bzImage "$pkg"/boot/vmlinuz
-    install -Dm 0644 System.map "$pkg"/boot/System.map
-    install -Dm 0644 .config "$pkg"/boot/.config
-
-    msg 'installing modules...'
-
-    make INSTALL_MOD_PATH="$root" modules_install
-    # -
     make INSTALL_MOD_PATH="$pkg" modules_install
 }
