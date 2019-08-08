@@ -51,6 +51,10 @@ cat << "EOF"
 
 EOF
 
+# ensure bonsai.rc's root= variable is pointing to '/'
+sed 's|^root=.*|root=/|' /src/bonsai.rc > /src/bonsai.rc.tmp
+mv -f /src/bonsai.rc.tmp /src/bonsai.rc
+
 respawn getty /dev/tty1 linux &> /dev/null &
 respawn getty /dev/tty2 linux &> /dev/null &
 respawn getty /dev/tty3 linux &> /dev/null &
