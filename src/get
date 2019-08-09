@@ -55,14 +55,15 @@ get() {
         if [ ! -e "$sources/$pkgid$ext" ] ; then
             dlcurl "$source" || die "get(): could not download $name"
             verify_checksum "$dldir/$pkgid$ext"
-            extract "$dldir/$pkgid$ext"
+            [ "$DLONLY" ] || extract "$dldir/$pkgid$ext"
         else
             verify_checksum "$sources/$pkgid$ext"
-            extract "$sources/$pkgid$ext"
+            [ "$DLONLY" ] || extract "$sources/$pkgid$ext"
         fi
     fi
 
     # copy all port's files, except its pkgfile -- (ex: patches)
+    [ "$DLONLY" ] ||
     find "$ports/$name" ! -name pkgfile ! -name $name | while read -r file ; do
         cp -f "$file" "$pkgworkdir"/
     done
