@@ -8,7 +8,13 @@ run_build() {
     cd "$pkgworkdir" || die "build(): unable to cd to $pkgworkdir"
     msg "building $name..."
 
+    # export all our flags to the environment
     getflags
+
+    # this will sed out many common gotchas from programs that assume glibc
+#    musl_fixes
+
+    # workarounds for packaging that sucks
     sucks
 
     # run user defined prebuild(), if exists
@@ -25,7 +31,10 @@ run_build() {
         build || die "$name build() failed"
     # otherwise run our automagic generic_build
     elif ! ismetapkg $name ; then
-        generic_build || die "$name generic_build() failed"
+        case "$name" in
+            *-bin) ;; # do not try to compile if binary package
+            *) generic_build || die "$name generic_build() failed"
+        esac
     fi
 
     # run user defined postbuild(), if exists
@@ -34,16 +43,16 @@ run_build() {
         postbuild || die "$name postbuild() failed"
     fi
 
-    if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
-        msg 'stripping binaries...'
-        find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
-            strip --strip-all "$file" 2>/dev/null ||:
-        done &
-        find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
-            strip --strip-unneeded "$file" 2>/dev/null ||:
-        done &
-        wait
-    fi
+    # if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
+        # msg 'stripping binaries...'
+        # find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
+        #     strip --strip-all "$file" 2>/dev/null ||:
+        # done &
+        # find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
+        #     strip --strip-unneeded "$file" 2>/dev/null ||:
+        # done &
+        # wait
+    # fi
 
     # unset in case we are adding multiple packages
     unset -f prebuild build postbuild
@@ -57,12 +66,13 @@ bonsai_cxx() { $cxx -static -Os -s "$@" ; }
 
 getflags() {
     TARGET=x86_64-linux-musl
-    HOST="$(gcc -dumpmachine)"
+    HOST="$(gcc -dumpmachine 2>/dev/null)" # will error if gcc is not yet installed
     BUILD="$HOST"
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
     CFLAGS="$CFLAGS $cflags"
     LDFLAGS="$LDFLAGS $ldflags"
+    AM_LDFLAGS="$LDFLAGS"
     CPPFLAGS="$CPPFLAGS $cppflags"
     CXXFLAGS="$CXXFLAGS $cxxflags"
     PREFIX="$pkgs/$name"
@@ -73,16 +83,17 @@ getflags() {
     LIBDIR="$PREFIX/lib"
     LIBEXECDIR="$PREFIX/libexec"
     MANDIR="$PREFIX/share/man"
+    DOCDIR="$PREFIX/sucks"
     PRESERVEDIR="$root/var/preserve"
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
-    cxx=g++
-    CXX=g++
+    HOSTCC="$CC"
+    SHELL=/bin/sh
     MAKEINFO=false
-    export TARGET HOST BUILD CC cc CXX cxx \
+    export TARGET HOST BUILD CC cc HOSTCC AM_LDFLAGS \
            LIBRARY_PATH CPATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
            PREFIX prefix DESTDIR BINDIR INCLUDEDIR LIBDIR \
-           LIBEXECDIR MANDIR PRESERVEDIR MAKEINFO
+           LIBEXECDIR MANDIR DOCDIR PRESERVEDIR MAKEINFO SHELL
 }
 
 # convenience function, tries to find all *.patch
@@ -148,8 +159,9 @@ bonsai_configure() {
     addflag --libexecdir= --libexecdir="$LIBEXECDIR"
     addflag --includedir= --includedir="$INCLUDEDIR"
     addflag --mandir= --mandir="$MANDIR"
-    addflag --infodir= --docdir="$PREFIX"/sucks
+    addflag --infodir= --infodir="$PREFIX"/sucks
     addflag --docdir= --docdir="$PREFIX"/sucks
+    addflag --htmldir= --htmldir="$PREFIX"/sucks
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     # add a new line to denote separation between global flags
@@ -167,7 +179,7 @@ bonsai_configure() {
 
 bonsai_make() {
     # set in bonsai.rc:
-    $mans   || _mans='MANDIR=/dev/null'
+    $mans   || _mans="MANDIR=$pkg/sucks"
     $quiet  && _quiet='-s'
 
     make $makeflags -j${jobs:=1} $_mans $_quiet \
@@ -181,6 +193,7 @@ bonsai_make() {
         LIBDIR="$LIBDIR" \
         LIBEXECDIR="$LIBEXECDIR" \
         MANDIR="$MANDIR" \
+        DOCDIR="$DOCDIR" \
         PRESERVEDIR="$PRESERVEDIR" "$@" || die "make $* failed for $name"
 
     unset _quiet

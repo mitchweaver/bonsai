@@ -64,7 +64,7 @@ addpkg() {
         get "$pkg_to_add"
 
         # continue if we've been instructed only to download the tarball
-        [ "$DLONLY" ] && continue
+        [ "$DLONLY" ] && { unload_pkgfile ; continue ; }
 
         # create $pkgdir directory
         createpkgdir "$pkg_to_add" || die "failed to create $root/src/pkgs/$pkg_to_add"
