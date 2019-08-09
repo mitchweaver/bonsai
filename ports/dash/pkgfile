@@ -17,8 +17,8 @@ export PATH="$PWD:$PATH"
 }
 build() {
     CC="$CC $CFLAGS" \
-        bonsai_configure
-    bonsai_make
+    bonsai_configure
+    bonsai_make CC="$CC $CFLAGS"
     bonsai_make install
 }
 postbuild() {
