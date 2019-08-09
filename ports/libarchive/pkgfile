@@ -15,10 +15,7 @@ build() {
         --without-zstd \
         --disable-acl
 
-    CFLAGS="-D_BSD_SOURCE $CFLAGS" \
-    bonsai_make
-
-    CFLAGS="-D_BSD_SOURCE $CFLAGS" \
+    bonsai_make CFLAGS="-D_BSD_SOURCE $CFLAGS"
     bonsai_make install
 }
 postbuild() {
