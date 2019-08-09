@@ -109,7 +109,7 @@ relink_world() {
 
     listpkgs | while read -r pkgid ; do
         pkg="$(pkgid2pkg "$pkgid")"
-        if ! grep -x 'nolink=true' "$ports/$pkg/pkgfile" >/dev/null ; then
+        if ! grep '^nolink=true$' "$ports/$pkg/pkgfile" >/dev/null ; then
             # if its a metapkg, only link if it has a pkgdir
             if ismetapkg "$pkg" && [ ! -d "$pkgs/$pkg" ] ; then
                 continue
@@ -132,13 +132,13 @@ relink_world() {
 # * if NOT chrooted, they should point to the $root/src/pkgs/$name/bin/$name
 # params: none
 check_links() {
-    # if we are bootstrapping, we won't have any programs to check with
-    [ "$BOOTSTRAP" ] && return
+    [ "$USE_HOST_PATH" ] && return
 
-    # Test symlinks for coreutils to ensure links are valid.
-    # This will fail should they not exist, but if
-    # you don't have coreutils, then your system is borked anyway.
-    for prog in ls cp rm rmdir ; do
+    # Test symlinks for a few coreutils to ensure links are valid.
+    # This will fail should they not exist, but if you don't 
+    # have coreutils, then your system is borked anyway.
+    for prog in cp grep printf ; do
+        [ -e "$root"/bin/$prog ] || die 'no coreutils yet installed?'
         test_link "$root"/bin/$prog || err_bad_links
     done
     unset prog
