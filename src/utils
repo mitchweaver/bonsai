@@ -98,6 +98,11 @@ headn1() {
     printf "%s\n" "$_line"
     unset _line
 }
+
+# mktemp replacement, returns a unique string to be used as a filename
+gettemp() {
+    printf "$$.%.15s" "$(head -n 5 /dev/urandom | tr -dc A-Za-z0-9)"
+}
 # -------------------------------------------
 
 # checks if a given string contains another
@@ -119,20 +124,20 @@ confirm() {
     fi
 }
 
-# if we're using pkg mgr's built in gcc, make sure its valid/existant
-# if its not -- check to see if we're trying to download one
-# ... if not, we cannot compile packages -- error out
+# test if our gcc is sane
+# if it isn't, disregard if its one of the following packages
+# otherwise error out appropriately
+# params: $name we're trying to add
 validate_gcc() {
-    if [ ! -x "$gcc" ] ; then
+    if ! test_link "$root"/bin/gcc ; then
         case $1 in
-            *gcc*|core-system) ;;
+            *gcc*|bonsai-core|bonsai-fs|bonsai-bpm) ;;
             *) 
-            if [ -e "$gcc" ] ; then
-                die "No compiler toolchain has yet been installed.
-         Try \`bonsai search gcc\` to find one."
-            else
-                err_bad_links
-            fi
+                if [ -e "$gcc" ] ; then
+                    die "No compiler toolchain has yet been installed."
+                else
+                    err_bad_links
+                fi
         esac
     fi
 }

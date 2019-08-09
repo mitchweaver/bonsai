@@ -29,6 +29,22 @@ sucks() {
     export PATH="$PATH:\"$PWD\"/.bogus"
 }
 
+# common fixes needed by programs that assume use of glibc
+# putting things here removes the need for mass patching
+musl_fixes() {
+    # musl splits glibc's <sys/types.h> into 
+    # <sys/types.h> and <sys/sysmacros.h>
+    find . -type f -name '*.c' | while read -r file ; do
+        {
+            set -- "$(gettemp)"
+            sed 's|#include <sys/types.h>|#include <sys/types.h>\n#include <sys/sysmacros.h>|' "$file" > "$1"
+            mv -f "$1" "$file"
+        } &
+    done
+    wait
+    unset file
+}
+
 # remove junk files from given package
 # params: $name
 clear_junk() {
