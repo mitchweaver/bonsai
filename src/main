@@ -9,18 +9,17 @@ OBJC_INCLUDE_PATH LD_LIBRARY_PATH LIBDIR EXTRALIBDIR \
 LIBS INCLUDE
 
 initglobals() {
-    case "$1" in
+    if [ "$USE_HOST_PATH" = true ] ; then
         # If bootstrapping, relinking the world, or chrooting,
         # use the host's userland. When bootstraping, programs
         # will take preference in the $PATH as they install.
-        USE_HOST_PATH)
-            PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
-            PATH=".:$root/bin:$PATH"
-            ;;
-        *)  # otherwise if not bootstrapping, ONLY use the chroot's tools
-            PKG_CONFIG_PATH="$root/lib/pkgconfig"
-            PATH=".:$root/bin"
-    esac
+        PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
+        PATH=".:$root/bin:$PATH"
+    else
+        # otherwise if not bootstrapping, ONLY use the chroot's tools
+        PKG_CONFIG_PATH="$root/lib/pkgconfig"
+        PATH=".:$root/bin"
+    fi
 
     # can offer significant speedup
     LC_ALL=C
@@ -46,10 +45,10 @@ main() {
             exit $?
             ;;
         --bootstrap)
-            BOOTSTRAP=true
-            export BOOTSTRAP
+            BOOTSTRAP=true ; USE_HOST_PATH=true
+            export BOOTSTRAP USE_HOST_PATH
             loadconfig
-            initglobals USE_HOST_PATH
+            initglobals
             set -- add bonsai-core
             ;;
         --config=*)
@@ -61,7 +60,26 @@ main() {
             ;;
         *relink*world|chroot)
             loadconfig
-            initglobals USE_HOST_PATH
+            USE_HOST_PATH=true
+            export USE_HOST_PATH
+            initglobals
+            ;;
+        unpack)
+            loadconfig
+            if isinst sbase >/dev/null ; then
+                initglobals
+            else
+                USE_HOST_PATH=true
+                export USE_HOST_PATH
+                initglobals
+            fi
+            ;;
+        --hosts-path) # force usage of host's path
+            loadconfig
+            USE_HOST_PATH=true
+            export USE_HOST_PATH
+            initglobals
+            shift
             ;;
         *) loadconfig
            initglobals
