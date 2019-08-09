@@ -18,10 +18,10 @@ build() {
     #
     # for now, (as long as no naming collisions are reported),
     # let's just create all of them
-    ln -sf "$root"/src/bonsai "$pkg"/bin/bonsai
-    ln -sf "$root"/src/bonsai "$pkg"/bin/bs
-    ln -sf "$root"/src/bonsai "$pkg"/bin/bpm
-    ln -sf "$root"/src/bonsai "$pkg"/bin/bpk
-    ln -sf "$root"/src/bonsai "$pkg"/bin/bpkg
-    ln -sf "$root"/src/bonsai "$pkg"/bin/bkg
+    ln -sf /src/bonsai "$pkg"/bin/bonsai
+    ln -sf /src/bonsai "$pkg"/bin/bs
+    ln -sf /src/bonsai "$pkg"/bin/bpm
+    ln -sf /src/bonsai "$pkg"/bin/bpk
+    ln -sf /src/bonsai "$pkg"/bin/bpkg
+    ln -sf /src/bonsai "$pkg"/bin/bkg
 }
