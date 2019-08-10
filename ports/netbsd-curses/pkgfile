@@ -3,23 +3,29 @@ version=0.3.1
 source=http://github.com/sabotage-linux/$name/archive/v$version.tar.gz
 sha256=bebaf1656440409b0b0e40b5a336c97dcd142e2368b47840a353040fe34d987f
 build() {
-    # bug: nbperf not being compiled statically without -static in $CC
-    CC="$CC -static --static" \
-    bonsai_make all-static
-    bonsai_make install-static
+    bonsai_make CFLAGS="-D_BSD_SOURCE $CFLAGS" \
+                CFLAGS_HOST="-D_BSD_SOURCE $CFLAGS" \
+                LDFLAGS="$LDFLAGS" \
+                CC="$CC $CFLAGS" \
+                HOSTCC="$CC $CFLAGS" \
+                all-static
+    bonsai_make CFLAGS="-D_BSD_SOURCE $CFLAGS" \
+                CFLAGS_HOST="-D_BSD_SOURCE $CFLAGS" \
+                LDFLAGS="$LDFLAGS" \
+                CC="$CC $CFLAGS" \
+                HOSTCC="$CC $CFLAGS" \
+                install-static
 
     bonsai_make terminfo/terminfo.cdb
     install -Dm0655 terminfo/terminfo.cdb "$pkg"/share/terminfo.cdb
 
-    $mans && 
-        bonsai_make install-manpages
+    $mans && bonsai_make install-manpages
 }
 postbuild() {
     # symlink '-ltinfo' for compatibility
-    cd "$pkg"/lib
-    ln -s libterminfo.a libtinfo.a
+    ln -s libterminfo.a "$pkg"/lib/libtinfo.a
 
     # bin/clear collides with clear from other packages
-    # (specifically ubase-box)
+    # (specifically ubase)
     mv "$pkg"/bin/clear "$pkg"/bin/netbsd-curses-clear
 }
