@@ -11,9 +11,6 @@ run_build() {
     # export all our flags to the environment
     getflags
 
-    # this will sed out many common gotchas from programs that assume glibc
-#    musl_fixes
-
     # workarounds for packaging that sucks
     sucks
 
