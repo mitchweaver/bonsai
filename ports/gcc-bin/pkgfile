@@ -1,19 +1,8 @@
-info="musl-libc gcc toolchain for x86_64 (statically compiled)"
+info='GNU C Compiler x64 musl-libc toolchain (binary)'
 version=9.1.0
-
-# note: for now, we are only targeting x86_64
-#       more archetectures are planned to be tested in the future
-source=http://musl.cc/x86_64-linux-musl-native.tgz
-sha512=f83f6f5042e974d708dc9426b42364077ab2fc45540f42146bf2a606c656f8165cfd6bb57caa982fb04db2889db25914bb6f5eab8983d555308ec19bba1b8ddc
-
-# note, to retrieve $source: 
-# % curl -s -q -L http://musl.cc | grep x86_64.*.musl-native.tgz | head -n 1
-
+source=http://bonsai-linux.org/pkgs/$name-$version.tar.xz
+sha512=048834ae9293d8146b51811a02bec69347690e041082063831c7528c7eb75858c937700e6912293a5ee0a5542ea22947689493eb4e5706433dfe4a774c0aed7e
 build() {
     cd ..
-    cp -rf $name/*  "$pkgs/$name"
-}
-postbuild() {
-    cd "$pkg"/bin
-    ln -sf ../lib/ld-musl-x86_64.so.1 ldd
+    cp -rf $name/*  "$pkgs"/$name
 }
