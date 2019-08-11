@@ -2,3 +2,8 @@ info='a mostly mdev-compatible suckless device node manager'
 version=8d07540c417e3a31942028318197c89b640278d5
 source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 sha256=b7cd9d9c9a82516614ce4cbaa082eefd56b78495c4fac315be9f28662739b647
+prebuild() {
+    # fix missing makedev call in musl-libc
+    sed 's|.*<sys/types.h>|#include <sys/types.h>\n#include <sys/sysmacros.h>|' smdev.c > tmp
+    mv -f tmp smdev.c
+}
