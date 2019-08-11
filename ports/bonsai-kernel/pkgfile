@@ -1,18 +1,17 @@
 info='the bonsai linux kernel'
-version=5.2.5
-source=http://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-$version.tar.xz
+version=5.2.8
+source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$version.tar.xz
 deps='bonsai-core bison flex posix-bc'
 nolink=true
-sha512=533bdda3890aa63326a9e4e888fa1902d8e7dcc05608b667cfeb9bb05c8220f150974c1ddd99865ebf928ba91b89433c6a4c90e24a6cdfd32a12802a620a8a30
+sha512=89d1b8d5aff901ee86211e1c03adfa912fbbe221e63f54cc7894eea1ff1a10c49dc359a4f097054be43041bec01dcf119af2967cf9ac6eb2198c2af7d0d18a46
 prebuild() {
-    # clear any junk that comes with the tarball
+    # clear any junk that may have come with the tarball
     msg 'making mrproper...'
     bonsai_make mrproper
 
     msg 'creating defconfig'
     bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
-        HOSTLDFLAGS="$LDFLAGS" \
         KBUILD_BUILD_HOST=bonsai \
         DISABLE_PAX_PLUGINS=y \
         defconfig
@@ -58,22 +57,24 @@ prebuild() {
     # however, this -n isn't actually needed. We can safely sed it out.
     sed 's|ln -fsn|ln -fs|' arch/x86/Makefile > tmp
     mv -f tmp arch/x86/Makefile
+
+    # sbase's head does not have the -l flag
+    # this script checks if the atomic headers have been modified.
+    # bizarre to use head for this.... but as we are checksumming 
+    # the tarball we don't care anyway, nop the file.
+    :> scripts/atomic/check-atomics.sh
 }
 build() {
-    # compile kernel
     msg 'compiling kernel...'
     bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
-        HOSTLDFLAGS="$LDFLAGS" \
         KBUILD_BUILD_HOST=bonsai \
         DISABLE_PAX_PLUGINS=y \
         bzImage
 
-    # compile modules
     msg 'compiling modules...'
     bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
-        HOSTLDFLAGS="$LDFLAGS" \
         DISABLE_PAX_PLUGINS=y \
         modules
 
@@ -83,5 +84,5 @@ build() {
     install -m 0644 System.map "$pkg"/System.map
     install -m 0644 .config "$pkg"/config
 
-    make INSTALL_MOD_PATH="$pkg" modules_install
+    bonsai_make INSTALL_MOD_PATH="$pkg" modules_install
 }
