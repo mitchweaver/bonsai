@@ -15,7 +15,13 @@ $(name):
 	done
 	echo 'main "$$@"' >> $(name)
 	@echo '[*] removing comments and blank lines from executable...'
-	sed -e 's:^\s*#.*$$::g' -e '/^$$/d' $(name) > $(name).tmp
+	# note: lines prefixed by '#_' remain blank lines
+	#       '##' are preserved as comments
+	sed -e 's:## :_TEMP_:g' \
+	    -e 's:^\s*# .*$$::g' \
+	    -e 's:_TEMP_:## :g' \
+	    -e '/^$$/d' \
+	    -e 's:#_::g' $(name) > $(name).tmp
 	echo '#!/bin/sh -e' > $(name)
 	cat $(name).tmp >> $(name)
 	rm $(name).tmp

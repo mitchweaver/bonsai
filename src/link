@@ -71,13 +71,13 @@ linkpkg() {
 
 # relinks every package installed
 # used to fix broken / inconsistent symlinks
-#
+# 
 # also is used to bootstrap systems under a different $root
-#
+# 
 # params: [--pkgs=]
-#
+# 
 # * If param is not provided, simply relink all using the config's $pkgs
-#
+# 
 # * If param is provided, relink the world using the given $pkgs location
 #   See comment heading of linkpkg() for details.
 #   Alternatively, if using the standard /src/pkgs location you

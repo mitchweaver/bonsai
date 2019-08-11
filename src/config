@@ -52,50 +52,59 @@ create_skeleton_config() {
         echo 'copying default config to ~/.local/bonsai/bonsai.rc'
     fi
 
+# see the makefile for explanation on commenting style here
 cat > "$path"/bonsai.rc << "EOF"
-# bonsai root
+## bonsai root
 root=${HOME}/.local/bonsai
-
-# compiling
-gcc="$root/bin/gcc"
+#_
+## number of concurrent threads (default: nproc + 1)
 jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null) + 1))"
-
-# options
-makeflags=''
-keep_tarballs=true
-mans=true   # install man pages?
-nls=false   # provide native-language-support?
-
-# prompt prefixing msgs from the pkg mgr
+#_
+## general options
+makeflags=''        ## custom make flags (NOT cflags!)
+keep_tarballs=true  ## save tarballs in /src/sources?
+mans=true           ## install man pages?
+nls=false           ## provide native-language-support?
+#_
+## prompt prefixing msgs from the pkg mgr
 prompt='→'
-
-# used to confirm adding/deleting pkgs
+#_
+## used to confirm adding/deleting pkgs
 confirm_prompt='continue? (y/n): '
-
-# configure/make silently without warnings?
-# note: this enables as much silencing as allowed,
-#       but does NOT send everything to /dev/null
-quiet=false
-
-# PS1 inside chroot
-# common favorites: 🌿 🍂 🌱 → % $
+#_
+## PS1 inside chroot
+## common favorites: 🌿 🍂 🌱 → % $
 PS1='% '
-
-# package/version delimiter
-# can be any character or series of characters, however:
-# * must be sane (no $, `, /, etc)
-# * cannot be '-' due to the character often being in pkg names
-# * common favorites: #@?!*†¤§≡
+#_
+## configure/make silently?
+## note: this enables as much silencing as allowed,
+##       but does NOT send everything to /dev/null
+quiet=false
+#_
+## package/version delimiter
+## can be any character or series of characters, however:
+## * must be sane (no $, `, /, etc...)
+## * cannot be '-' due to the character often being in pkg names
+## * common favorites: #@?!†¤§≡
 delim='#'
-
-# flags
-# warning: do not change these unless you seriously know what you're doing.
-# note: enable this cflag if you do not care about package portability: -march=native 
-cflags="-s -w -Os -no-pie -pipe -Wl,--gc-sections -fstack-protector-strong"
-cflags="$cflags -static --static -Wl,-Bstatic -static-libgcc"
+#_
+## custom flags
+cflags="-s -w -Os -pipe -fstack-protector-strong"
+ldflags="-s"
+#_
+## note: enable this cflag for a performance boost, but your 
+##       builds will become unportable between systems:
+## cflags="$cflags -march=native"
+#_
+## -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+## * DANGER ZONE *
+## WARNING: do not change these unless you seriously know what you're doing.
+## -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+gcc="$root/bin/gcc"
+cflags="$cflags -static --static -no-pie -Wl,-Bstatic -static-libgcc -Wl,--gc-sections"
 cflags="$cflags -static-libstdc++ -static-libasan -static-libtsan"
 cflags="$cflags -static-liblsan -static-libubsan"
-ldflags="-static --static -s -fdata-sections -ffunction-sections"
+ldflags="$ldflags -static --static -fdata-sections -ffunction-sections"
 cppflags="$cflags"
 cxxflags="$cflags"
 EOF
