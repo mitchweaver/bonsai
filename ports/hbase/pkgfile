@@ -3,6 +3,15 @@ version=aebf737f4f6fe271c9b4cafc91e42b150d25c180
 source=http://github.com/mitchweaver/$name/archive/$version.tar.gz
 deps=zlib
 sha256=40cfa961b2f975434682a7737832302474ba2be2d23faae28cda82e54c222b38
+prebuild() {
+    # fix missing mknod call for musl-libc
+    for file in cpio file ; do
+        sed 's|.*<sys/types.h>|#include <sys/types.h>\n#include <sys/sysmacros.h>|' \
+            heirloom/$file/$file.c > tmp
+        mv -f tmp heirloom/$file/$file.c
+    done
+    unset file
+}
 build() {
     # hbase builds yacc first, we can use it to build the rest of its utilities
     YACC="$PWD/heirloom-devtools/yacc/yacc -d -P $PWD/heirloom-devtools/yacc/yaccpar" \
