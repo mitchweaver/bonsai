@@ -18,8 +18,9 @@ enter_chroot() {
 
     # change whatever user had $root equal to
     # to root=/ in their bonsairc
-    old_config_root="$(headn1 "$bonsairc")"
-    sed 's|root=.*|root=/|' "$bonsairc" > "$bonsairc".tmp
+    old_config_root="$(grep '^root=.*' "$bonsairc")"
+    : "${old_config_root:="${HOME}/.local/bonsai"}"
+    sed 's|^root=.*|root=/|' "$bonsairc" > "$bonsairc".tmp
     mv -f "$bonsairc".tmp "$bonsairc"
 
     mount_drives
@@ -92,7 +93,7 @@ unchroot() {
     export TERM="$_TERM" PS1="$_PS1"
 
     # restore the users config
-    sed "s|root=.*|$old_config_root|" "$bonsairc" > "$bonsairc".tmp
+    sed "s|^root=.*|$old_config_root|" "$bonsairc" > "$bonsairc".tmp
     mv -f "$bonsairc".tmp "$bonsairc"
 
     $SUDO chown -R "$USER" "${root:?}"
