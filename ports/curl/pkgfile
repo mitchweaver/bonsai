@@ -9,17 +9,23 @@ build() {
               --without-libidn2 --without-gnutls \
               --without-winssl --without-schannel \
               --without-darwinssl --without-secure-transport \
-              --without-amissl --disable-ldap \
-              --disable-ldaps --disable-telnet \
+              --without-amissl --without-brotli \
+              --disable-ldap --disable-ldaps \
+              --disable-telnet --without-mbedtls \
               --disable-file --disable-sspi \
               --disable-dict --disable-telnet \
               --disable-ldaps --disable-librtsp \
               --disable-pop3 --disable-imap \
               --disable-smtp --disable-gopher \
               --disable-smb --without-libidn \
+              --disable-werror --disable-curldebug \
               --with-ssl=$pkgs/libressl \
               --with-zlib=$pkgs/zlib \
               --with-ca-bundle=/etc/ssl/cert.pem
-    bonsai_make curl_LDFLAGS=-all-static
-    bonsai_make curl_LDFLAGS=-all-static install
+
+    bonsai_make curl_CFLAGS="$CFLAGS" \
+                curl_LDFLAGS="-all-static $LDFLAGS"
+
+    bonsai_make curl_CFLAGS="$CFLAGS" \
+                curl_LDFLAGS="-all-static $LDFLAGS" install
 }
