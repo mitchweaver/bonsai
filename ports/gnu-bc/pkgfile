@@ -1,10 +1,9 @@
-info="GNU bc -- arbitrary precision calculator"
+info="GNU bc - arbitrary precision calculator"
 version=1.07.1
 source=http://ftpmirror.gnu.org/gnu/bc/bc-$version.tar.gz
-deps=libedit
 sha256=62adfca89b0a1c0164c2cdca59ca210c1d44c3ffc46daf9931cf4942664cb02a
 build() {
-    bonsai_configure --with-readline
+    bonsai_configure --without-readline
 
     # do not regen docs (would require texinfo as dep)
     touch doc/*.info doc/*.1 doc/Makefile
