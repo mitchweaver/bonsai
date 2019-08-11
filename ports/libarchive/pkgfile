@@ -14,6 +14,7 @@ build() {
         --without-openssl \
         --without-zstd \
         --without-lzma \
+        --without-bz2lib \
         --disable-acl
 
     bonsai_make CFLAGS="-D_BSD_SOURCE $CFLAGS"
