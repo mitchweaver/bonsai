@@ -1,8 +1,4 @@
 umask 022
-. /src/bonsai.rc
-
+[ -f /src/bonsai.rc ] && . /src/bonsai.rc
 PATH="/bin:/local/bin:${HOME}/bin:${HOME}/.local/bin"
-ENV=/etc/aliases
-POSIXLY_CORRECT=1
-
-export PATH ENV POSIXLY_CORRECT
+export PATH
