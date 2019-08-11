@@ -1,3 +1,4 @@
 info='the bonsai core system'
 metapkg=true
-deps='bonsai-fs gcc-bin sbase ubase hbase xz-embedded gzip libarchive make patch dash curl'
+# note: order listed here is important!
+deps='bonsai-fs bonsai gcc-bin musl kernel-headers sbase ubase hbase make patch dash xz-embedded gzip libarchive curl'
