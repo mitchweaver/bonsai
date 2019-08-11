@@ -9,51 +9,19 @@ get() {
     dldir="$work/dl"
     mkdir -p "$pkgworkdir" "$dldir" "$sources"
 
-    # get extension
+    # get file extension
     # if is a metapkg or using git, there will be no extension
     case "$version" in
-        git|metapkg) ext="" ;;
-        *) ext=".${source##*.}"
-           grep '^source=.*.\.tar\.' "$pkgfile" >/dev/null && ext=".tar$ext"
+        git|metapkg|none) ext="" ;;
+        *) ext="$(get_ext "$source")"
     esac
-
-    # NOTE: Downloading via git comes highly unrecommended.
-    #       This makes packages depend on git, which is
-    #       a rather large dependency for otherwise small programs.
-    #       Instead, download a tarball from a commit hash using this format:
-    #       version=<SHA_HASH>
-    #       source=http://github.com/<GITHUB_USER>/$name/archive/$version.tar.gz
-    dlgit() {
-        : # todo - see issue #6
-    }
-
-    # downloads given url to $sources
-    dlcurl() {
-        msg "downloading $source..."
-
-        # --- notes on curl:
-        #    1. curl bugs out with certain delimiters, as a fix
-        #       have curl output to a temporary file, then rename.
-        #
-        #    2. curl/libressl are often buggy when working outside
-        #       of the chroot. Until the reason for this problem is 
-        #       discovered, if your system is experiencing this problem
-        #       pass the --hosts-curl option.
-        if [ "$HOSTS_CURL" ] ; then
-            /usr/bin/curl -q -L -C - -# --url "$source" -o "$dldir/curl-$name-dl$ext"
-        else
-            curl -q -L -C - -# --url "$source" -o "$dldir/curl-$name-dl$ext"
-        fi || die "get(): curl failed to download"
-
-        mv "$dldir/curl-$name-dl$ext" "$dldir/$pkgid$ext"
-        ${keep_tarballs:=true} && cp -f "$dldir/$pkgid$ext" "$sources"/
-    }
 
     # do not try to dl / extract if metapkg or source=none
     if [ "$version" != metapkg ] && [ "$source" != none ] ; then
         # download tarball only if not in $sources
         if [ ! -e "$sources/$pkgid$ext" ] ; then
-            dlcurl "$source" || die "get(): could not download $name"
+            dlcurl "$source" "$name" "$version" || 
+                die "get(): could not download $name"
             verify_checksum "$dldir/$pkgid$ext"
             [ "$DLONLY" ] || extract "$dldir/$pkgid$ext"
         else
