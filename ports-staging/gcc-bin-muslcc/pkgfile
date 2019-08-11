@@ -1,0 +1,8 @@
+info='an alternative gcc musl-libc toolchain from http://musl.cc (binary)'
+version=9.1.0
+source=http://musl.cc/x86_64-linux-musl-native.tgz
+sha512=f83f6f5042e974d708dc9426b42364077ab2fc45540f42146bf2a606c656f8165cfd6bb57caa982fb04db2889db25914bb6f5eab8983d555308ec19bba1b8ddc
+build() {
+    cd ..
+    cp -rf $name/*  "$pkgs"/$name
+}
