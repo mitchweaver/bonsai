@@ -58,7 +58,7 @@ root=${HOME}/.local/bonsai
 
 # compiling
 gcc="$root/bin/gcc"
-jobs=${jobs:=$(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null)}
+jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null) + 1))"
 
 # options
 makeflags=''
