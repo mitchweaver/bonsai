@@ -2,6 +2,7 @@ info='a tiny version of the libnl netlink library'
 version=4225e93bec5304abee3386213213718367e54a93
 source=http://github.com/sabotage-linux/$name/archive/$version.tar.gz
 sha256=d2b57597b234c84b113e7640064c3273616c0bf086ad223d71f49aaea086ad59
+deps=kernel-headers
 build() {
     bonsai_make ALL_LIBS=libnl-tiny.a
     bonsai_make ALL_LIBS=libnl-tiny.a install
