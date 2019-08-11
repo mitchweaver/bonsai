@@ -47,8 +47,8 @@ prebuild() {
 }
 build() {
     warn "bonsai-fs does not clobber existing files. Please remove any if updating."
-    for file in profile os-release fstab passwd shadow \
-                group shells aliases hostname resolv.conf ; do
+    for file in profile fstab passwd shadow group \
+                os-release issue hostname hosts resolv.conf ; do
         if [ -s "$root"/etc/$file ] ; then
             warn "$root/etc/$file exists, refusing to overwrite"
             continue
