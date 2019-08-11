@@ -36,7 +36,59 @@ get() {
         cp -f "$file" "$pkgworkdir"/
     done
     unset dldir ext file
-    unset -f dlgit dlcurl
+}
+
+# NOTE: Downloading via git comes highly unrecommended.
+#       This makes packages depend on git, which is
+#       a rather large dependency for otherwise small programs.
+#       Instead, download a tarball from a commit hash using this format:
+#       version=<SHA_HASH>
+#       source=http://github.com/<GITHUB_USER>/$name/archive/$version.tar.gz
+# dlgit() {
+    # todo - see issue #6
+# }
+
+# downloads given url to $sources
+# params: $source $name $version
+dlcurl() {
+    _dldir="$work"/dl
+    _source="$1"
+    _name="$2"
+    _version="$3"
+    _pkgid="$_name$delim$_version"
+    _ext="$(get_ext "$_source")"
+    mkdir -p "$_dldir"
+
+    msg "downloading $_source..."
+
+    # --- notes on curl:
+    #    1. curl bugs out with certain delimiters, as a fix
+    #       have curl output to a temporary file, then rename.
+    #
+    #    2. curl/libressl are often buggy when working outside
+    #       of the chroot. Until the reason for this problem is 
+    #       discovered, if your system is experiencing this problem
+    #       pass the --hosts-curl option.
+    if [ "$HOSTS_CURL" ] ; then
+        /usr/bin/curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
+    else
+        curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
+    fi || die "get(): curl failed to download $_source"
+
+    mv -f "$_dldir/curl-$_name-dl$_ext" "$_dldir/$_pkgid$_ext"
+    ${keep_tarballs:=true} && cp -f "$_dldir/$_pkgid$_ext" "$sources"/
+
+    unset _dldir _ext _source _name _version _pkgid
+}
+
+# returns the extension from given url
+# params: $source
+get_ext() {
+    set -- "$1" ".${1##*.}"
+    case "$1" in
+        *.tar.*) echo ".tar$2" ;;
+        *) echo "$2"
+    esac
 }
 
 # verifies hash of $tarball against hash in the pkgfile
@@ -44,8 +96,7 @@ get() {
 # assumes: one of the following: sha{512,256,1} or md5 in the environment
 verify_checksum() {
     [ "$1" ] || die "verify_checksum(): no tarball provided"
-
-    msg_no_nl "comparing checksum for $name... "
+    msg_no_nl "comparing checksum for $(basename "$1" | sed "s|$delim.*||")... "
 
     if [ "$sha512" ] ; then
         set -- "$sha512" $(sha512sum "$1") "$1"
@@ -110,7 +161,7 @@ extract() {
             done
             # try to remove possible empty dirs
             rmdir "$dldir"/* 2>/dev/null ||:
-            rmdir "$dldir" 2>/dev/null ||:
+            rmdir "$dldir"   2>/dev/null ||:
             ;;
         # if not a tarball, simply write to $pkgworkdir
         *) decompress "$1" > "${pkgworkdir:?}/${1%%$ext}"
