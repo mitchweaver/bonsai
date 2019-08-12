@@ -1,0 +1,27 @@
+info="ext2/3/4 filesystem utilities"
+version=1.45.3
+source=http://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/$name/v$version/$name-$version.tar.xz
+deps='kernel-headers pkgconf'
+sha256=90d10066b815e27b0b4875f0d5e396c663e0bf55aa3ca10868978d10c6ffe595
+build() {
+    bonsai_configure \
+        --enable-symlink-install \
+        --disable-elf-shlibs \
+        --disable-bsd-shlibs \
+        --disable-jbd-debug \
+        --disable-blkid-debug \
+        --disable-testio-debug \
+        --disable-e2initrd-helper \
+        --disable-fuse2fs \
+        --disable-threads \
+        --disable-uuid \
+        --enable-fsck
+
+#    --disable-libuuid \
+#    --disable-libblkid \
+
+    bonsai_make
+
+    # MKDIR_P avoids mkdir flags sbase does not have
+    bonsai_make MKDIR_P='mkdir -p' install install-libs
+}
