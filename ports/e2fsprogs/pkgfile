@@ -17,9 +17,6 @@ build() {
         --disable-uuid \
         --enable-fsck
 
-#    --disable-libuuid \
-#    --disable-libblkid \
-
     bonsai_make
 
     # MKDIR_P avoids mkdir flags sbase does not have

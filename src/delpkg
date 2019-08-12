@@ -52,12 +52,11 @@ delpkg() {
             find "$pkgs/$name" -type d | sed '1!G;h;$!d' | while read -r dir ; do
                 rmdir "$dir" 2>/dev/null ||:
 
-                root_dir="${dir#$pkgs/$name}"
                 # check that $dir contains at least one slash before removing
                 # (so we don't remove any top level dirs i.e. bin,etc,lib...)
-                case "$root_dir" in
-                    *'/'*) ;;
-                    *) rmdir "$root/$root_dir" 2>/dev/null ||:
+                case "${dir#$pkgs/$name}" in
+                    *'/'*) rmdir "$root/${dir#$pkgs/$name}" 2>/dev/null ||: ;;
+                    *)
                 esac
             done
         else
@@ -68,7 +67,7 @@ delpkg() {
         clean
 
         msg "$name deleted"
-        unset name file dir root_file root_dir
+        unset name file dir root_file
 
         shift
     done
