@@ -7,14 +7,15 @@ build() {
     CXX="$CXX $CFLAGS" \
     bonsai_configure \
         --disable-wrapper \
-        --enable-optimize
+        --enable-optimize \
+        --enable-shared
     CC="$CC $CFLAGS" \
     CXX="$CXX $CFLAGS" \
     bonsai_make
     bonsai_make install
 }
-#postbuild() {
-    # -- Note: only if we have shared enabled:
+postbuild() {
     # add ldd, which in musl is baked into the .so
-    # ln -sf ../lib/ld-musl-x86_64.so.1 "$pkg"/bin/ldd
-#}
+    mkdir -p "$pkg"/bin
+    ln -sf ../lib/libc.so.1 "$pkg"/bin/ldd
+}
