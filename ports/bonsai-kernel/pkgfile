@@ -9,20 +9,37 @@ prebuild() {
     msg 'making mrproper...'
     bonsai_make mrproper
 
-    msg 'creating defconfig'
-    bonsai_make \
+    # note: yes "" | here is accept defaults without prompting
+    #       for (NEW) configs
+    msg 'creating localmodconfig'
+    yes "" | bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
         KBUILD_BUILD_HOST=bonsai \
         DISABLE_PAX_PLUGINS=y \
         defconfig
 
-    msg 'editing config...'
-    # set the distro name
-    sed 's|.*CONFIG_DEFAULT_HOSTNAME.*|CONFIG_DEFAULT_HOSTNAME=bonsai|' .config > tmp
-    mv -f tmp .config
+    # -*-*-*- for a static kernel -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    # disable modules
+    # sed 's|.*CONFIG_MODULES.*|\# CONFIG_MODULES (disabled by bonsai)|' .config > tmp
+    # mv -f tmp .config
+
+    # convert all detected modules to built-in
+    # sed 's|=m$|=y|g' .config > tmp
+    # mv -f tmp .config
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+    # -*-*- to disable swap -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    # sed 's|.*CONFIG_SWAP.*|\# CONFIG_SWAP (disabled by bonsai)|' .config > tmp
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+    # set distro name
+    echo 'CONFIG_DEFAULT_HOSTNAME=bonsai' >> .config
+
+    # use gzip compression (fastest, and cant guarantee user will have xz installed)
+    echo 'CONFIG_KERNEL_GZIP=y' >> .config
 
     # disable debug symbols in kernel (smaller kernel binary)
-    sed 's|.*CONFIG_DEBUG_KERNEL.*|\# CONFIG_DEBUG_KERNEL is not set|' .config > tmp
+    sed 's|.*CONFIG_DEBUG_KERNEL.*|\# CONFIG_DEBUG_KERNEL (disabled by bonsai)|' .config > tmp
     mv -f tmp .config
 
     # auto enable inode number mapping
@@ -43,7 +60,7 @@ prebuild() {
     #       getting libelf from elfutils to get around this.
     #
     # Use old frame pointer vs ORC to remove libelf/elfutils dependency.
-    sed 's|.*CONFIG_UNWINDER_ORC=y.*|\# CONFIG_UNWINDER_ORC is not set|' .config > tmp
+    sed 's|.*CONFIG_UNWINDER_ORC=y.*|\# CONFIG_UNWINDER_ORC (disabled by bonsai)|' .config > tmp
     mv -f tmp .config
     sed 's|.*CONFIG_UNWINDER_FRAME_POINTER.*|CONFIG_UNWINDER_FRAME_POINTER=y|' .config > tmp
     mv -f tmp .config
