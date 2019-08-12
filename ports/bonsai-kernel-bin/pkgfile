@@ -1,0 +1,21 @@
+info='the bonsai linux kernel (binary)'
+version=5.2.8
+source=http://bonsai-linux.org/pkgs/${name%-bin}-$version.tar.xz
+deps='bonsai-core bison flex posix-bc'
+nolink=true
+sha512=cf7629fd6ea4c6b3036fb8990e8f89fd560954e14c8d9e0292ff79459a17cf837b3070613730648dc69a1e75c4e7b6371fef98f0bab5c754ecae26efc6072e58
+build() {
+    msg 'copying files to $pkgs/bonsai-kernel-bin...'
+
+    install -m 0644 vmlinuz "$pkg"/vmlinuz
+    install -m 0644 System.map "$pkg"/System.map
+    install -m 0644 .config "$pkg"/config
+    cp -rf lib "${pkg:?}"/
+
+    msg 'copying files to $root/boot...'
+
+    install -m 0644 vmlinuz "$root"/boot/vmlinuz
+    install -m 0644 System.map "$root"/boot/System.map
+    install -m 0644 .config "$root"/boot/config
+    cp -rf lib/modules "${root:?}"/lib/
+}
