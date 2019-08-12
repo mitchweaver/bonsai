@@ -52,7 +52,7 @@ linkpkg() {
         find "$pkgs/$name/$dir" ! -path "*share/*man*" \
                 -type f -o -type l 2> /dev/null | while read -r file ; do
             file="${file#$pkgs/$name/}"
-            ln -sf "$_pkgs/$name/$file" "$file"
+            ln -sf "$_pkgs/$name/$file" "$file" 2>/dev/null
         done
     done
 
@@ -62,7 +62,7 @@ linkpkg() {
             find "$pkgs/$name/share/man/$manX" \
                     ! -path "*/$manX" 2> /dev/null | while read -r man ; do
                 ln -sf "$_pkgs/$name/share/man/$manX/${man##*/}" \
-                    "${man#$pkgs/$name/}"
+                    "${man#$pkgs/$name/}" 2>/dev/null
             done
         done
     fi
