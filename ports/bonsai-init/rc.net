@@ -1,19 +1,22 @@
 #!/bin/sh
 
-if [ -s /etc/hostname ] ; then
+if [ "$HOSTNAME" ] ; then
+    echo "$HOSTNAME" > /etc/hostname
+    echo "$HOSTNAME" > /proc/sys/kernel/hostname
     hostname /etc/hostname
-    cat /etc/hostname > /proc/sys/kernel/hostname
+    export HOSTNAME
 fi
 
-[ -s /etc/resolv.conf ] ||
-cat > /etc/resolv.conf << EOF
-# google dns
-nameserver 8.8.8.8
-nameserver 8.4.4.8
-# dns.watch
-nameserver 84.200.69.80
-nameserver 84.200.70.40
-EOF
+if [ "$dns" ] ; then
+    :> /etc/resolv.conf
+    IFS=":" set -- $dns
+    while [ "$1" ] ; do
+        echo "nameserver $1" >> /etc/resolv.conf
+        shift
+    done
+fi
 
-ifconfig eth0 up
-sdhcp -d
+if [ "$interface" ] ; then
+    ifconfig "$interface" up
+    sdhcp -d "$interface" &
+fi

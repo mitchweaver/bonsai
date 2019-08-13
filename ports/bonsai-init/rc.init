@@ -2,9 +2,12 @@
 
 dmesg -n 1
 umask 022
-export PATH="/bin:/local/bin"
+[ -f /etc/rc.conf ] && . /etc/rc.conf
+: "${PATH:="/bin:/local/bin"}"
+export PATH
 
 echo '* Mounting necessary folders' ; /etc/rc.mnt   > /dev/null
+[ "$fsck" != false ] &&
 echo '* Checking filesystems'       ; /etc/rc.fsck  > /dev/null
 echo '* Setting up devices'         ; /etc/rc.dev   > /dev/null
 echo '* Configuring net'            ; /etc/rc.net   > /dev/null
@@ -29,6 +32,7 @@ fi
 touch /var/run/utmp
 
 # display welcome message
+[ "$welcome" != false ] &&
 printf "%b\n\n" \
 "
 \033[32m,####,
@@ -52,7 +56,6 @@ printf "%b\n\n" \
 sed 's|^root=.*|root=/|' /src/bonsai.rc > /src/bonsai.rc.tmp
 mv -f /src/bonsai.rc.tmp /src/bonsai.rc
 
-respawn getty /dev/tty1 linux &> /dev/null &
-respawn getty /dev/tty2 linux &> /dev/null &
-respawn getty /dev/tty3 linux &> /dev/null &
-respawn getty /dev/tty4 linux &> /dev/null &
+for i in $(seq ${num_ttys:=4}) ; do
+    respawn getty /dev/tty$i linux &> /dev/null &
+done
