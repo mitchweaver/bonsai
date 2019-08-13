@@ -1,5 +1,8 @@
 Note:
 
-This package simply downloads syslinux, for convenience.
+This package simply copies syslinux files to $pkgs/syslinux.
+It is only meant for convenience.
 
 It does not actually "install" it to your MBR.
+
+Please see the handbook for instructions how to do so.

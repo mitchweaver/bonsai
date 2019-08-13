@@ -1,9 +1,26 @@
 info="Lightweight MBR bootloaders for Linux"
 version=6.03
 source=http://kernel.org/pub/linux/utils/boot/$name/$name-$version.tar.xz
+deps=perl
 sha256=26d3986d2bea109d5dc0e4f8c4822a459276cf021125e8c9f23c3cca5d8c850e
-nolink=true
 build() {
+    bonsai_make OPTFLAGS="-D_GNU_SOURCE $CFLAGS" installer
+    bonsai_make -j1 \
+        OPTFLAGS="-D_GNU_SOURCE $CFLAGS" \
+        INSTALLROOT="$pkg" \
+        install
+}
+postbuild() {
+    # clean up awkward installation directories
+    mv -f "${pkg:?}"/src/pkgs/syslinux/share "${pkg:?}"/
+    mv -f "${pkg:?}"/src/pkgs/syslinux/bin "${pkg:?}"/
+    mv -f "${pkg:?}"/usr/share/* "${pkg:?}"/share/
+    mv -f "${pkg:?}"/sbin/* "${pkg:?}"/bin/
+    rmdir -p "$pkg"/src/pkgs/syslinux \
+             "$pkg"/usr/share \
+             "$pkg"/sbin 2>/dev/null ||:
+
+    # copy bootloader files to top level directory for convenience
     install -m0644 bios/core/isolinux.bin "$pkg"/isolinux.bin
     install -m0644 bios/com32/elflink/ldlinux/ldlinux.c32 "$pkg"/ldlinux.c32
 }
