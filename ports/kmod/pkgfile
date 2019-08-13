@@ -1,6 +1,11 @@
 info='linux kernel module utilities'
 version=26
 source=http://mirrors.edge.kernel.org/pub/linux/utils/kernel/$name/$name-$version.tar.xz
+
+# kmod's libtool annoyingly depends on bash
+# if you can help with patches to remove this, please PR -- thanks.
+deps=bash
+
 sha256=57bb22c8bb56435991f6b0810a042b0a65e2f1e217551efa58235b7034cdbb9d
 prebuild() {
     # kmod's configure fails if given --disable-largefile.
@@ -12,13 +17,20 @@ prebuild() {
 build() {
     # kmod cannot be configured statically, 
     # we must force it to be dynamic
+    CFLAGS="-s -Os -pipe -fstack-protector-strong" \
+    LDFLAGS="-s" \
     bonsai_configure \
-        --with-rootlibdir=/lib \
         --disable-static \
-        --enable-shared
+        --enable-shared \
+        --disable-manpages \
+        --with-rootlibdir=/lib \
+        --with-bashcompletiondir="$pkg"/sucks
 
     # do not use our cflags/ldflags, which conflict with kmod
-    bonsai_make CFLAGS="-s -Os -pipe" LDFLAGS="-s"
+    bonsai_make \
+        CFLAGS="-s -Os -pipe -fstack-protector-strong" \
+        LDFLAGS="-s"
+
     bonsai_make install
 }
 postbuild() {
@@ -37,6 +49,4 @@ postbuild() {
     ln -s kmod "$pkg"/bin/rmmod
     ln -s kmod "$pkg"/bin/modprobe
     ln -s kmod "$pkg"/bin/lsmod
-
-    rm -r "$pkg"/share/bash-completion
 }
