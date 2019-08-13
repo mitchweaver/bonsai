@@ -58,7 +58,7 @@ cat > "$path"/bonsai.rc << "EOF"
 root=${HOME}/.local/bonsai
 #_
 ## number of concurrent threads (default: nproc + 1)
-jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null) + 1))"
+jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null ||:) + 1))"
 #_
 ## general options
 makeflags=''        ## custom make flags (NOT cflags!)
