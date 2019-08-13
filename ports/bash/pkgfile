@@ -13,6 +13,9 @@ build() {
     bonsai_make install
 }
 postbuild() {
+    # for some reason bash.1 isn't in makefile's install...
+    install -D -m 0644 doc/bash.1 "$pkg"/share/man/man1/bash.1
+
     # bug reporting utility, useless
     rm -f "$pkg"/bin/bashbug
     rm -f "$pkg"/share/man/man1/bashbug.1
