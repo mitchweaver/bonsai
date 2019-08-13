@@ -1,9 +1,13 @@
 info='document processor for mdoc and man'
-version=1.14.3
+version=1.14.5
 source=http://mdocml.bsd.lv/snapshots/$name-$version.tar.gz
 deps=less
-sha256=0b0c8f67958c1569ead4b690680c337984b879dfd2ad4648d96924332fd99528
+sha256=8219b42cb56fc07b2aa660574e6211ac38eefdbf21f41b698d3348793ba5d8f7
 prebuild() {
+    # use less rather more as pager
+    sed 's|more -s|less|g' main.c > tmp
+    mv -f tmp main.c
+
 cat > configure.local << EOF
 PREFIX="$PREFIX"
 MANDIR="$MANDIR"
@@ -20,10 +24,6 @@ EOF
 build() {
     MANPATH_BASE=/share/man \
     bonsai_configure
-
-    # apply patch to use less instead of more as pager
-    bonsai_patch
-
     bonsai_make
     bonsai_make base-install lib-install
 }
