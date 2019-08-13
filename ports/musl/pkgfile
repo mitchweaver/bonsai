@@ -17,5 +17,10 @@ build() {
 postbuild() {
     # add ldd, which in musl is baked into the .so
     mkdir -p "$pkg"/bin
-    ln -sf ../lib/libc.so.1 "$pkg"/bin/ldd
+    ln -sf ../lib/libc.so "$pkg"/bin/ldd
+
+    # add some symlinks for compatibility
+    ln -sf libc.so "$pkg"/lib/ld-musl-x86_64.so
+    ln -sf libc.so "$pkg"/lib/ld-musl-x86_64.so.1
+    ln -sf libc.so "$pkg"/lib/libc.so.1
 }
