@@ -1,0 +1,3 @@
+errors out after compile for a few minutes
+
+seems to be incompatible with netbsd-curses, will require patching
