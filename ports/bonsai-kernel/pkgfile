@@ -1,7 +1,11 @@
 info='the bonsai linux kernel'
 version=5.2.8
 source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$version.tar.xz
-deps='bonsai-core bison flex posix-bc'
+
+# note: it should be able to remove posix-bc dep and use
+#       the one included in hbase, TODO
+deps='bonsai-core kmod bison flex posix-bc'
+
 nolink=true
 sha512=89d1b8d5aff901ee86211e1c03adfa912fbbe221e63f54cc7894eea1ff1a10c49dc359a4f097054be43041bec01dcf119af2967cf9ac6eb2198c2af7d0d18a46
 prebuild() {
@@ -9,8 +13,7 @@ prebuild() {
     msg 'making mrproper...'
     bonsai_make mrproper
 
-    # note: yes "" | here is accept defaults without prompting
-    #       for (NEW) configs
+    # note: yes "" | here is accept (NEW) defaults without prompting
     msg 'creating defconfig'
     yes "" | bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
@@ -83,7 +86,7 @@ prebuild() {
 }
 build() {
     msg 'compiling kernel...'
-    bonsai_make \
+    yes "" | bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
         KBUILD_BUILD_HOST=bonsai \
         DISABLE_PAX_PLUGINS=y \
@@ -97,15 +100,15 @@ build() {
 
     msg 'copying files to $pkgs/bonsai-kernel...'
 
-    install -m 0644 arch/x86/boot/bzImage "$pkg"/vmlinuz
-    install -m 0644 System.map "$pkg"/System.map
-    install -m 0644 .config "$pkg"/config
     bonsai_make INSTALL_MOD_PATH="$pkg" modules_install
+    install -m 0644 .config "$pkg"/config
+    install -m 0644 System.map "$pkg"/System.map
+    install -m 0644 arch/x86/boot/bzImage "$pkg"/vmlinuz
 
     msg 'copying files to $root/boot...'
 
-    install -m 0644 arch/x86/boot/bzImage "$root"/boot/vmlinuz
-    install -m 0644 System.map "$root"/boot/System.map
-    install -m 0644 .config "$root"/boot/config
     bonsai_make INSTALL_MOD_PATH="$root" modules_install
+    install -m 0644 .config "$root"/boot/config
+    install -m 0644 System.map "$root"/boot/System.map
+    install -m 0644 arch/x86/boot/bzImage "$root"/boot/vmlinuz
 }
