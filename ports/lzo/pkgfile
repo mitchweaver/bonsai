@@ -1,0 +1,4 @@
+info='A portable lossless data compression library'
+version=2.10
+source=http://oberhumer.com/opensource/$name/download/$name-$version.tar.gz
+sha256=c0f892943208266f9b6543b3ae308fab6284c5c90e627931446fb49b4221a072
