@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /sbin/init
+exec /bin/init
