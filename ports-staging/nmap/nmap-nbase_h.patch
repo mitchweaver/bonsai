@@ -1,0 +1,11 @@
+--- nbase.h
++++ nbase.h
+@@ -126,7 +126,7 @@
+  *
+  * * Various Windows -> UNIX compatability definitions are added (such as defining EMSGSIZE to WSAEMSGSIZE)
+  */
+-
++#include <sys/select.h>
+ #if HAVE_CONFIG_H
+ #include "nbase_config.h"
+ #else

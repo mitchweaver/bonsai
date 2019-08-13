@@ -1,0 +1,20 @@
+info='Utility for network exploration or security auditing'
+version=7.80
+source=http://$name.org/dist/$name-7.80.tgz
+deps='bison libressl zlib'
+sha256=780cbf4a0ddb9e9cd49d8fbdfa5c7f368cc7ae857ddfc39102dd2b83a905d7a7
+build() {
+    # must use bison here as hbase yacc is complained to be insufficient
+    YACC=bison \
+    bonsai_configure \
+        --without-subversion \
+        --without-nmap-update \
+        --without-zenmap \
+        --without-ndiff \
+        --without-libssh2
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    rm -f "$pkg"/share/nmap/nselib/data/psexec/README
+}
