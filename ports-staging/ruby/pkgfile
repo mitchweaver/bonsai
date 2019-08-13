@@ -1,0 +1,12 @@
+info='Ruby scripting language'
+version=2.6.3
+source=http://cache.$name-lang.org/pub/$name/${version%.*}/$name-$version.tar.gz
+deps='libressl zlib'
+sha256=577fd3795f22b8d91c1d4e6733637b0394d4082db659fccf224c774a2b1c82fb
+build() {
+    bonsai_configure \
+        --with-ruby-version=minor \
+        --disable-install-doc
+    bonsai_make
+    bonsai_make install
+}

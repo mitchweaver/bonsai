@@ -1,0 +1,30 @@
+compiles, fails at final link:
+
+```
+compiling loadpath.c
+linking static-library libruby-static.a
+making srcs under enc
+make[1]: Entering directory '/src/work/ruby'
+make[1]: Nothing to be done for 'srcs'.
+make[1]: Leaving directory '/src/work/ruby'
+generating transdb.h
+linking shared-library libruby.so.2.6.3
+transform_mjit_header: making declaration of 'Init_vm_stack_canary' static inline
+transform_mjit_header: making declaration of 'rb_eql_opt' static inline
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: //lib/../lib/libz.a(uncompr.o): relocation R_X86_64_32
+against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: //lib/../lib/libz.a(inflate.o): relocation R_X86_64_32S against hidden symbol `zcalloc' can not be used when making a shared object
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: //lib/../lib/libz.a(inftrees.o): relocation R_X86_64_32 against `.rodata' can not be used when making a shared object; recompile with -fPIC
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: //lib/../lib/libz.a(zutil.o): relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: //lib/../lib/libz.a(crc32.o): relocation R_X86_64_32 against `.rodata' can not be used when making a shared object; recompile with -fPIC
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: //lib/../lib/libz.a(inffast.o): relocation R_X86_64_32S against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
+/src/pkgs/gcc-bin/bin/../lib/gcc/x86_64-linux-musl/9.1.0/../../../../x86_64-linux-musl/bin/ld: final link failed: nonrepresentable section on output
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:297: libruby.so.2.6.3] Error 1
+make: *** Waiting for unfinished jobs....
+transform_mjit_header: making external definition of 'rb_scan_args_set' static inline
+transform_mjit_header: making declaration of 'rb_scan_args_set' static inline
+transdb.h updated
+ln -sf ../../../.ext/include/x86_64-linux-musl/rb_mjit_min_header-2.6.3.h include/ruby-2.6/x86_64-linux-musl/rb_mjit_min_header-2.6.3.h
+→ error: make  failed for ruby
+```
