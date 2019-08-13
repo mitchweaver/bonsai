@@ -1,9 +1,10 @@
 info='linux kernel firmware blobs'
 version=20190717
 source=http://git.kernel.org/pub/scm/linux/kernel/git/firmware/$name.git/snapshot/$name-$version.tar.gz
+nolink=true
 sha256=ed1839de23db0cc97958c58f35f4bcc8a87a6282a4cd34e07a44a419ed4d3f0a
 build() {
     rm GPL-2 GPL-3
-    mkdir -p  "$pkg"/lib/firmware
-    cp -R ./* "$pkg"/lib/firmware
+    mkdir -p  "$root"/lib/firmware
+    cp -R -v ./* "$root"/lib/firmware
 }
