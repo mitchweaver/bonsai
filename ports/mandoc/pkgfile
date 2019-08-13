@@ -1,0 +1,34 @@
+info='document processor for mdoc and man'
+version=1.14.3
+source=http://mdocml.bsd.lv/snapshots/$name-$version.tar.gz
+deps=less
+sha256=0b0c8f67958c1569ead4b690680c337984b879dfd2ad4648d96924332fd99528
+prebuild() {
+cat > configure.local << EOF
+PREFIX="$PREFIX"
+MANDIR="$MANDIR"
+LIBDIR="$LIBDIR"
+CC="$CC"
+CFLAGS="$CFLAGS"
+LDFLAGS="$LDFLAGS"
+MANPATH_DEFAULT=/share/man
+LN="ln -sf"
+HAVE_WCHAR=1
+OSNAME=bonsai
+EOF
+}
+build() {
+    MANPATH_BASE=/share/man \
+    bonsai_configure
+
+    # apply patch to use less instead of more as pager
+    bonsai_patch
+
+    bonsai_make
+    bonsai_make base-install lib-install
+}
+postbuild() {
+    mv -f "$pkg"/sbin/* "$pkg"/bin/
+    rmdir "$pkg"/sbin
+    rm -rf "$pkg"/share/examples
+}
