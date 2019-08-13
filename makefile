@@ -30,6 +30,9 @@ $(name):
 install:
 	install -Dm755 $(name) ${PREFIX}/src/$(name)
 	cp -rf ports ${PREFIX}/src
+	if [ ! -f ${PREFIX}/src/bonsai.rc ] ; then \
+		./bonsai --skeleton ${PREFIX} ; \
+	fi
 
 clean:
 	rm -f $(name)

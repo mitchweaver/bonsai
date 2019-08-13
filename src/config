@@ -37,25 +37,23 @@ loadconfig() {
     unset _root _gcc _config
 }
 
-# creates a skeleton config
-# params: $path
+# creates a skeleton config at given "$root"
+# with no argument assumes default of ~/.local/bonsai
+# params: [$root]
 create_skeleton_config() {
     if [ "$1" ] ; then
-        if [ ! -e "$1" ] ; then
-            path="$1"
-        else
-            die "create_skeleton_config(): Refusing to overwrite $1"
-        fi
+        path="$1"
     else
-        path="${HOME}"/.local/bonsai/src
-        mkdir -p "$path"
-        echo 'copying default config to ~/.local/bonsai/bonsai.rc'
+        path="${HOME}"/.local/bonsai
     fi
+    mkdir -p "$path"
+    echo "copying default config to $path/src/bonsai.rc"
 
 # see the makefile for explanation on commenting style here
-cat > "$path"/bonsai.rc << "EOF"
-## bonsai root
-root=${HOME}/.local/bonsai
+> "$path"/src/bonsai.rc printf "%s\n%s\n" \
+    "## bonsai root" \
+    "root=\"$path\""
+cat >> "$path"/src/bonsai.rc << "EOF"
 #_
 ## number of concurrent threads (default: nproc + 1)
 jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null ||:) + 1))"

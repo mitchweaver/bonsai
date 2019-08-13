@@ -19,23 +19,18 @@ cd bonsai
 
 ```bash
 make
-make install
+make PREFIX="$PREFIX" install
 ```
 
 The above will compile all the scripts into one executable, then strip it of 
 comments/blank lines.
 
-Next, it will install to the (default) directory of `~/.local/bonsai/src/bonsai`.
+`"$PREFIX"` here is wherever you would like your chroot to be located.  
+If you are planning to install to hardware, then this will be where your drive is mounted.
 
-3. **config**
+Omitting `PREFIX=` will install to the (default) directory of `~/.local/bonsai`.
 
-```bash
-./bonsai skel
-```
-
-This will copy a default skeleton config to `~/.local/bonsai/src/bonsai.rc`.
-
-4. **bootstrap**
+3. **bootstrap**
 
 ```bash
 ./bonsai --bootstrap
@@ -48,7 +43,7 @@ This will create dirs, assign permissions, and install the base system.
 **Note:** If you are planning to install bonsai either to bare metal or QEMU instead 
 using it as a chrootfs, you will also need to add `bonsai-init`.
 
-5. **relink**
+4. **relink**
 
 ```bash
 ./bonsai --relink-world --pkgs=/src/pkgs
@@ -59,7 +54,7 @@ This relinks all the symlinks to `root=/src/pkgs` instead of `root=~/.local/bons
 It is necessary as if you had not, when you chroot in all the symlinks will be broken
 as they do not point to files on the correct root.
 
-7. **chroot**
+5. **chroot**
 
 ```bash
 ./bonsai chroot
@@ -68,7 +63,7 @@ as they do not point to files on the correct root.
 Assuming `bonsai-core` installed correctly and `--relink-world` succeeded,
 this will chroot inside, mounting drives automatically.
 
-8. **exit**
+6. **exit**
 
 Exit the chroot, unmounting drives automatically.
 
