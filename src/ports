@@ -120,8 +120,8 @@ portinfo() {
         "info:    ${info:=?}" \
         "version: ${version:=unknown}" \
         "source:  ${source:=?}" \
-        "depends: ${depends:=none}"
-    unset name pkgfile name info version source depends 
+        "depends: ${deps:=none}"
+    unset name pkgfile name info version source deps 
 }
 
 # print out the contents of a given $name's pkgfile
