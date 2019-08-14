@@ -1,19 +1,16 @@
 info='the bonsai filesystem'
 metapkg=true
 nolink=true
-# create top level dirs in $root, if needed
 prebuild() {
     cd "$root" || die "could not cd to $root"
 
-    # mkdir -pm only sets the permissions
-    # for the LAST dir in the path
     create() {
         perm="$1"
         shift
         for dir in "$@" ; do
             # incase the dir exists, nop the exit code
             msg "creatig dir $dir with mode $perm..."
-            mkdir -m "$perm" "$dir" 2>/dev/null ||:
+            install -d -m "$perm" "$dir"
         done
     }
 
@@ -48,7 +45,7 @@ prebuild() {
 build() {
     warn "bonsai-fs does not clobber existing files. Please remove any if updating."
     for file in profile fstab passwd shadow group \
-                os-release issue hostname hosts resolv.conf ; do
+                os-release hostname hosts ; do
         if [ -s "$root"/etc/$file ] ; then
             warn "$root/etc/$file exists, refusing to overwrite"
             continue

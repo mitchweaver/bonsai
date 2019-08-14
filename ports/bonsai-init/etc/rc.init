@@ -25,7 +25,7 @@ fi
 # empty /tmp
 if [ -d /tmp ] && [ ! -L /tmp ] ; then
     rm -rf /tmp
-    mkdir -pm 0775 /tmp
+    install -d -m 0775 /tmp
 fi
 
 # login file

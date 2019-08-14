@@ -2,6 +2,7 @@ root:!:0:root
 sys:!:3:root
 tty:!:5:
 disk:!:6:root
+cdrom:!:7:root
 video:!:8:root
 audio:!:9:root
 nogroup:!:65534:

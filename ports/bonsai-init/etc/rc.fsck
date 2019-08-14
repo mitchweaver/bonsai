@@ -7,12 +7,12 @@ if command -v fsck >/dev/null ; then
 
     fsck -ATa
     if [ $? -gt 0 ] ; then
-        >&2 echo Filesystem errors detected.
+        >&2 echo 'Filesystem errors detected'
         /bin/sh
         /sbin/halt -r
     fi
 
     mount -o remount,rw /
 else
-    >&2 echo "Warning: fsck could not be found. Skipping filesystem checks."
+    >&2 echo 'Warning: fsck could not be found. Skipping filesystem checks.'
 fi

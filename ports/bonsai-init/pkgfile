@@ -1,16 +1,14 @@
 info='the bonsai init system'
 metapkg=true
-nolink=true
-deps='bonsai-core sinit smdev kmod e2fsprogs sdhcp inetutils'
+deps='bonsai-core bonsai-fs sinit smdev kmod e2fsprogs sdhcp inetutils'
 build() {
     msg "installing init with mode 0755..."
     install -m 0755 init "$root"/init
 
-    for file in dev fsck init mnt net ; do
+    for file in dev fsck init mnt net shutdown ; do
         msg "installing etc/rc.$file with mode 755..."
         install -m 0755 rc.$file "$root"/etc/rc.$file
     done
-    unset file
 
     # don't overwrite user's rc.local or conf if existing
     if [ ! -f "$root"/etc/rc.conf ] ; then
@@ -21,4 +19,11 @@ build() {
         msg "installing etc/rc.local with mode 755..."
         install -m 0755 rc.local "$root"/etc/rc.local
     fi
+
+    for file in poweroff reboot ; do
+        msg "installing bin/$file..."
+        install -D -m 0755 $file "$pkg"/bin/$file
+    done
+
+    unset file
 }

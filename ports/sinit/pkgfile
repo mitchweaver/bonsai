@@ -10,6 +10,6 @@ prebuild() {
     mv -f config.h.tmp config.h
 }
 postbuild() {
-    warn "IMPORTANT: overwriting /sbin/init to point to \$pkgs/sinit/bin/sinit"
-    ln -sf /src/pkgs/sinit/bin/sinit /sbin/init
+    warn "IMPORTANT: overwriting /bin/init to point to \$pkgs/sinit/bin/sinit"
+    ln -sf /src/pkgs/sinit/bin/sinit /bin/init
 }
