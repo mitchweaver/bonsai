@@ -105,13 +105,21 @@ bonsai_patch() {
 
 bonsai_autogen() { ./autogen.sh "$@" || die "autogen.sh failed for $name" ; }
 
+# if --path= param is provided, use ./"$path"/configure
+# instead of assumed "./configure" (ie ./"$PWD"/configure)
+# possible params: --path=""
 bonsai_configure() {
+    case "$1" in
+        --path=*) configure_path="${1#--path=}" ; shift ;;
+        *) configure_path="$PWD"
+    esac
+
     # try to enable as many options as possible
     # if they are allowed in the configure script
     tmp_help="$root/src/work/$name.cfhelp"
     tmp_flags="$root/src/work/$name.cfflags"
 
-    ./configure --help > "$tmp_help"
+    "$configure_path"/configure --help > "$tmp_help"
     :> "$tmp_flags"
 
     # params: flag_to_check flag_to_add
@@ -169,7 +177,7 @@ bonsai_configure() {
     # add all argument-supplied flags to the flag file
     for flag in "$@" ; do echo "$flag" ; done >> "$tmp_flags"
 
-    ./configure $(shellcat "$tmp_flags") || die "configure failed for $name"
+    "$configure_path"/configure $(shellcat "$tmp_flags") || die "configure failed for $name"
 
     unset -f addflag
     unset flag tmp_help _nls _quiet
