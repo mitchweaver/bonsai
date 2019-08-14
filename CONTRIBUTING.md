@@ -23,8 +23,8 @@ Comment heavily. Our makefile strips comments from the executable so there is no
 
 For functions that aren't immediately obvious, use this heading format:
 
-```bash
-# downloads url and extracts to $work/$pkg
+```sh
+# downloads URL and extracts to $work/$pkg
 # params: none
 # assumes: $name $version $source $pkgid $pkgfile in environment
 get() {
@@ -38,7 +38,7 @@ Any time a change to a user's folder or file is made,
 make sure that the variable is set.
 
 <sub>**Example:**</sub>
-```bash
+```sh
 rm -r "${dir:?}"
 ```
 
@@ -57,7 +57,7 @@ Every function should `unset` any variable and `unset -f` any function it create
 
 Take this simple function for example:
 
-```bash
+```sh
 # remove leading/trailing whitespace
 trim() {
     set -- "${1#${1%%[! ]*}}"
@@ -80,11 +80,11 @@ For a line that shows this in vim use: `:set colorcolumn=80`
 Squash if statements if they can fit on one line, within the 80 char limit.
 
 <sub>**DO:**</sub>
-```bash
+```sh
 [ -f "$file" ] && echo 'File exists!'
 ```
 <sub>**DON'T:**</sub>
-```bash
+```sh
 if [ -f "$file" ] ; then
     echo 'File exists!'
 fi
@@ -97,11 +97,11 @@ This guarantees whatever it is will be interpreted as only a string and not any 
 *Always* use this for URLs.
 
 <sub>**DO:**</sub>
-```bash
+```sh
 var='/bin/sh certainly^ won`t # hav$ a pr@blem (here)&'
 ```
 <sub>**DON'T:**</sub>
-```bash
+```sh
 var="/bin/sh certainly^ won`t hav$ a pr@blem (here)&"
 # oh yes, it will --^
 ```
@@ -121,13 +121,13 @@ With that said, make sure you use an official, trusted mirror.
 ### Do not use git in official ports
 
 If you want to use `git` to get "bleeding edge" updates of your programs -- that's fine.  
-However use tarballs for official ports. This is to not require `git` be in the core-system as a depedency.
+However use tarballs for official ports. This is to not require `git` be in the core-system as a dependency.
 
 Can't find a hosted tarball? Have no fear! GitHub can generate you one from any commit hash.
 
 **<sub>Example:**</sub>
 
-```bash
+```sh
 info='an awesome package'
 version=6340629c52b16392fe2e0b4522860b832e7fae75
 source=http://github.com/foobar/$name/archive/$version.tar.gz
@@ -170,7 +170,7 @@ obnoxiously long hashes.
 
 * smaller source tarball sizes
 * roughly the same speed for small archives
-* and for the love of unix try not to use `zip`
+* and for the love of UNIX try not to use `zip`
 
 ### DO and DON'T  --  a ports final review
 
@@ -184,7 +184,7 @@ Example:
 
 <sub>**DO:**</sub>
 
-```bash
+```sh
 info='an awesome package'
 version=0.4.8
 source=http://github.com/foobar/$name/archive/v$version.tar.gz
@@ -194,11 +194,11 @@ sha256=58db744a9198327f185355c6c9b3ee2bc7e55af4f5b02bba7b2f7de12c4088ed
 
 <sub>**DON'T:**</sub>
 
-```bash
+```sh
 info='an awesome package'
 version=0.4.8
 source=https://github.com/foobar/an-awesome-package/archive/v0.4.8.tar.gz
-deps='bash net-bsd-curses libedit'
+deps='bash netbsd-curses libedit'
 md5=70d103eb8d196d188b516ee030bf3ab3
 prebuild() { bonsai_patch ; }
 build() { bonsai_make ; bonsai_make install ; }

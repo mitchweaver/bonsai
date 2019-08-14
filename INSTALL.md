@@ -10,14 +10,14 @@ with lengthy explanations in the actual handbook.
 
 1. **clone**
 
-```bash
+```sh
 git clone http://github.com/mitchweaver/bonsai
 cd bonsai
 ```
 
 2. **build and install**
 
-```bash
+```sh
 make
 make PREFIX="$PREFIX" install
 ```
@@ -32,7 +32,7 @@ Omitting `PREFIX=` will install to the (default) directory of `~/.local/bonsai`.
 
 3. **bootstrap**
 
-```bash
+```sh
 ./bonsai --bootstrap
 ```
 
@@ -45,7 +45,7 @@ using it as a chrootfs, you will also need to add `@init`.
 
 4. **relink**
 
-```bash
+```sh
 ./bonsai --relink-world --pkgs=/src/pkgs
 ```
 
@@ -56,7 +56,7 @@ as they do not point to files on the correct root.
 
 5. **chroot**
 
-```bash
+```sh
 ./bonsai chroot
 ```
 
