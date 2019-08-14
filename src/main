@@ -58,7 +58,7 @@ main() {
             export BOOTSTRAP USE_HOST_PATH
             loadconfig
             initglobals
-            set -- add bonsai-core
+            set -- add @core
             ;;
         *relink*world|chroot)
             loadconfig

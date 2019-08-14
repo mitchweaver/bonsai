@@ -34,7 +34,7 @@ unpack() {
 
     # this is to be fixed later, for now:
     case "$name" in
-        bonsai-kernel|syslinux) nolink=true
+        @kernel|syslinux) nolink=true
     esac
 
     # link and install
