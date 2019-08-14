@@ -126,7 +126,7 @@ confirm() {
 validate_gcc() {
     if ! test_link "$root"/bin/gcc ; then
         case $1 in
-            *gcc*|bonsai-core|bonsai-fs|bonsai) ;;
+            *gcc*|@core|@fs|bonsai) ;;
             *) 
                 if [ -e "$gcc" ] ; then
                     die "No compiler toolchain has yet been installed."
