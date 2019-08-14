@@ -36,21 +36,20 @@ postbuild() {
     # wpa_supplicant's "make install" sucks.
     # to get around its nonsense just do things manually
     
-    install -Dm0755 wpa_cli        "$pkg"/bin/wpa_cli
-    install -Dm0755 wpa_passphrase "$pkg"/bin/wpa_passphrase
-    install -Dm0755 wpa_supplicant "$pkg"/bin/wpa_supplicant
+    install -D -m 0755 wpa_cli        "$pkg"/bin/wpa_cli
+    install -D -m 0755 wpa_passphrase "$pkg"/bin/wpa_passphrase
+    install -D -m 0755 wpa_supplicant "$pkg"/bin/wpa_supplicant
 
-    if $mans ; then
-        install -Dm0644 doc/docbook/wpa_background.8 "$pkg"/share/man/man8/wpa_background.8
-        install -Dm0644 doc/docbook/wpa_passphrase.8 "$pkg"/share/man/man8/wpa_passphrase.8
-        install -Dm0644 doc/docbook/wpa_supplicant.8 "$pkg"/share/man/man8/wpa_supplicant.8
-        install -Dm0644 doc/docbook/wpa_cli.8        "$pkg"/share/man/man8/wpa_cli.8
-        install -Dm0644 doc/docbook/wpa_supplicant.conf.5 "$pkg"/share/man/man5/wpa_supplicant.conf.5
+    if [ "$mans" != false ] ; then
+        install -D -m 0644 doc/docbook/wpa_background.8 "$pkg"/share/man/man8/wpa_background.8
+        install -D -m 0644 doc/docbook/wpa_passphrase.8 "$pkg"/share/man/man8/wpa_passphrase.8
+        install -D -m 0644 doc/docbook/wpa_supplicant.8 "$pkg"/share/man/man8/wpa_supplicant.8
+        install -D -m 0644 doc/docbook/wpa_cli.8        "$pkg"/share/man/man8/wpa_cli.8
+        install -D -m 0644 doc/docbook/wpa_supplicant.conf.5 "$pkg"/share/man/man5/wpa_supplicant.conf.5
     fi
 
-    mkdir "$pkg"/etc
-    :> "$pkg"/etc/wpa_supplicant.conf
-    chmod 0600 "$pkg"/etc/wpa_supplicant.conf
+    :> "$root"/etc/wpa_supplicant.conf
+    chmod 0600 "$root"/etc/wpa_supplicant.conf
 
     # ----- IF USING DBUS: -----------------------------------
     # note: this system.d is a dbus-internal, not actually systemd
