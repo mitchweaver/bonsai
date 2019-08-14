@@ -9,7 +9,10 @@ fi
 
 if [ "$dns" ] ; then
     :> /etc/resolv.conf
-    IFS=":" set -- $dns
+    OLDIFS="$IFS"
+    IFS=':'
+    set -- $dns
+    IFS="$OLDIFS"
     while [ "$1" ] ; do
         echo "nameserver $1" >> /etc/resolv.conf
         shift
