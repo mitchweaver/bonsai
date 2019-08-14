@@ -33,7 +33,7 @@ enter_chroot() {
 # is correctly pointing to the correct root, (after chrooting)
 # exports: $chroot_shell
 get_chroot_shell() {
-    set -- loksh mksh bash dash rc ksh zsh csh tcsh fish sh
+    set -- loksh mksh bash dash ksh zsh sh
     for shell ; do
         if [ -h "$root"/bin/$shell ] ; then
             chroot_shell="$(readlink "$root"/bin/$shell)"

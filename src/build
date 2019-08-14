@@ -40,16 +40,17 @@ run_build() {
         postbuild || die "$name postbuild() failed"
     fi
 
-    # if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
-        # msg 'stripping binaries...'
-        # find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
-        #     strip --strip-all "$file" 2>/dev/null ||:
-        # done &
-        # find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
-        #     strip --strip-unneeded "$file" 2>/dev/null ||:
-        # done &
-        # wait
-    # fi
+    [ "$nostrip" != true ] &&
+    if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
+        msg 'stripping binaries...'
+        find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
+            strip --strip-all "$file" 2>/dev/null ||:
+        done &
+        find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
+            strip --strip-unneeded "$file" 2>/dev/null ||:
+        done &
+        wait
+    fi
 
     # unset in case we are adding multiple packages
     unset -f prebuild build postbuild
