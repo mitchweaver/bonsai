@@ -38,25 +38,27 @@ main() {
         *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
     esac
 
-    # load config and setup the environment
+    # load or create config
     case "$1" in
+        --config=*)
+            bonsairc="${1#--config=}"
+            export bonsairc
+            loadconfig
+            shift
+            ;;
         *skeleton|skel)
             create_skeleton_config "$2"
             exit $?
-            ;;
+    esac
+
+    # special arguments
+    case "$1" in
         --bootstrap)
             BOOTSTRAP=true ; USE_HOST_PATH=true
             export BOOTSTRAP USE_HOST_PATH
             loadconfig
             initglobals
             set -- add bonsai-core
-            ;;
-        --config=*)
-            bonsairc="${1#--config=}"
-            export bonsairc
-            loadconfig
-            initglobals
-            shift
             ;;
         *relink*world|chroot)
             loadconfig
@@ -86,7 +88,7 @@ main() {
     esac
 
     # check if our package symlinks are valid -- if not, error out
-    case "$1" in
+    case " $1 $2 " in
         *chroot|*relink*world)
             # if chrooting or relinking the world,
             # we know our symlinks will be currently incorrect
