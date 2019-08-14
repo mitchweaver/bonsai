@@ -43,7 +43,7 @@ prebuild() {
     unset dir manX perm
 }
 build() {
-    warn "bonsai-fs does not clobber existing files. Please remove any if updating."
+    warn "$name does not clobber existing files. Please remove any if updating."
     for file in profile fstab passwd shadow group \
                 os-release hostname hosts ; do
         if [ -s "$root"/etc/$file ] ; then

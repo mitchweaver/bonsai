@@ -1,14 +1,14 @@
 info='the bonsai linux kernel (binary)'
 version=5.2.8
 source=http://bonsai-linux.org/pkgs/${name%-bin}-$version.tar.xz
-deps=bonsai-core
+deps=@core
 nolink=true
 nostrip=true
 sha512=d5f73e51d4236438f9fa9b1c9c0bfffbd549a2c2916048e6608f8605cd2653bf563a98acafb5c294b7c99284c7620763e1b0960b838339f0dfd274053f239cc6
 build() {
     rm -f lib/modules/$version/source lib/modules/$version/build 
 
-    msg 'copying files to $pkgs/bonsai-kernel-bin...'
+    msg 'copying files to $pkgs/$name...'
     install -m 0644 vmlinuz "$pkg"/vmlinuz
     install -m 0644 System.map "$pkg"/System.map
     install -m 0644 config "$pkg"/config
