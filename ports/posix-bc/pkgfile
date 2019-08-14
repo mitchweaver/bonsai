@@ -1,6 +1,6 @@
 info='POSIX bc calculator implementation with GNU extensions and dc'
 version=2.1.1
-source=https://github.com/gavinhoward/bc/archive/$version.tar.gz
+source=http://github.com/gavinhoward/bc/archive/$version.tar.gz
 sha256=7bdcf9bd7d7ea80973f8ebd43b07ae11593a17b1f70312a5b6f5120706abd5d9
 build() {
     ! $mans && M='-M'

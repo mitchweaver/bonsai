@@ -1,6 +1,6 @@
 info='dynamic virtual terminal manager'
 version=0.15
-source=https://github.com/martanne/$name/archive/v$version.tar.gz
+source=http://github.com/martanne/$name/archive/v$version.tar.gz
 deps=netbsd-curses
 sha256=496eada13d8abaa8d772279746f78b0c6fed11b560599490f3e70ebc21197bf0
 build() {

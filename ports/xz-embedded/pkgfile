@@ -1,6 +1,6 @@
 info='tiny xz decompressor utility'
 version=20130513
-source=https://tukaani.org/xz/$name-$version.tar.gz
+source=http://tukaani.org/xz/$name-$version.tar.gz
 sha256=19577e9f68a2d4e08bb5564e3946e35c6323276cb6749c101c86e26505e3bf0e
 build() {
     cd userspace

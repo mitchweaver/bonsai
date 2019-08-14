@@ -31,10 +31,10 @@ build() {
     # as musl does not support glibc's REG_STARTEND
     # notice: NO_REGEX=YesPlease above
     #
-    # info: https://github.com/git/git.github.io/pull/196
+    # info: http://github.com/git/git.github.io/pull/196
     #
     # for some Rich Felker humor on the change:
-    # https://public-inbox.org/git/20161004150848.GA7949@brightrain.aerifal.cx
+    # http://public-inbox.org/git/20161004150848.GA7949@brightrain.aerifal.cx
     bonsai_make CFLAGS="-Icompat/regex $CFLAGS" \
                 CPPFLAGS="-Icompat/regex $CPPFLAGS" install
 }
