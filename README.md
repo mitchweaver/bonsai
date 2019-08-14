@@ -84,7 +84,7 @@ integration and standards compatibility.
 
 <sub>**Example:**</sub>
 
-```bash
+```sh
 % readlink /bin/perl
 /src/pkgs/perl/bin/perl
 % readlink /share/man/man1/gcc.1
