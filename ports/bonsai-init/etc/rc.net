@@ -23,5 +23,10 @@ ifconfig lo up
 
 if [ "$interface" ] ; then
     ifconfig "$interface" up
-    sdhcp -d "$interface" &
+
+    [ "$wpa_sup" != false ] && command -v wpa_supplicant >/dev/null &&
+    wpa_supplicant -i "$interface" -c /etc/wpa_supplicant.conf \
+        > /var/log/wpa_supplicant.log 2>&1 &
+
+    dhcpcd -d -C resolv.conf "$interface" > /var/log/dhcpcd.log 2>&1 &
 fi
