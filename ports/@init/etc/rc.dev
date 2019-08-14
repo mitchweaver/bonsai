@@ -5,13 +5,13 @@ echo /bin/smdev > /proc/sys/kernel/hotplug
 
 # setup net events
 for device in /sys/class/net/*/uevent ; do
-    [ -f "$device" ] && printf add > "$device"
+    [ -f "$device" ] && echo add > "$device"
 done
 
 # setup usb events
 for device in /sys/bus/usb/devices/* ; do
     case "${device##*/}" in
-        [0-9]*-[0-9]*) printf add > "$device/uevent"
+        [0-9]*-[0-9]*) echo add > "$device/uevent"
     esac
 done
 

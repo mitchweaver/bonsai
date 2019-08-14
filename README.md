@@ -103,7 +103,7 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 
 **C Library**: [musl-libc](http://www.musl-libc.org/)  
 **Libraries**: [libressl](http://www.libressl.org/) [libnl-tiny](http://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](http://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
-**Init System**: [sinit](http://core.suckless.org/sinit) [rc](http://github.com/mitchweaver/bonsai/tree/master/ports/@init)
+**Init System**: [sinit](http://core.suckless.org/sinit) [rc](http://github.com/mitchweaver/bonsai/tree/master/ports/@init)  
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/mitchweaver/hbase)   
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
 **Build Automation**: [pkgconf](http://pkgconf.org/) [mk](http://9fans.github.io/plan9port/unix) [samurai](http://github.com/michaelforney/samurai)  
