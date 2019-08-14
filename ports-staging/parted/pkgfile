@@ -1,0 +1,12 @@
+info='GNU parted - A library and frontend to manipulate partition tables'
+version=3.2
+source=http://mirrors.kernel.org/gnu/$name/$name-$version.tar.xz
+sha256=858b589c22297cacdf437f3baff6f04b333087521ab274f7ab677cb8c6bb78e4
+build() {
+    # parted is not compatible with libedit
+    bonsai_configure \
+        --disable-device-mapper \
+        --without-readline
+    bonsai_make
+    bonsai_make install
+}
