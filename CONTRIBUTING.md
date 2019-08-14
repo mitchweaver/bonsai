@@ -24,7 +24,7 @@ Comment heavily. Our makefile strips comments from the executable so there is no
 For functions that aren't immediately obvious, use this heading format:
 
 ```bash
-# downloads url and extracts to $work/$pkg
+# downloads URL and extracts to $work/$pkg
 # params: none
 # assumes: $name $version $source $pkgid $pkgfile in environment
 get() {
@@ -170,7 +170,7 @@ obnoxiously long hashes.
 
 * smaller source tarball sizes
 * roughly the same speed for small archives
-* and for the love of unix try not to use `zip`
+* and for the love of UNIX try not to use `zip`
 
 ### DO and DON'T  --  a ports final review
 
