@@ -1,0 +1,9 @@
+info='An RFC2131-compliant DHCP client daemon'
+version=8.0.2
+source=http://roy.marples.name/downloads/$name/$name-$version.tar.xz
+sha256=33a26ad561546cd2cfe1e6de6352a85df72b41c37def8c7eb00e90e57c627a5c
+postbuild() {
+    # store actual config in etc, do not symlink
+    mv -f "$pkg"/etc/dhcpcd.conf "$root"/etc/
+    rmdir "$pkg"/etc
+}
