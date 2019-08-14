@@ -154,5 +154,5 @@ You can see our contributing guidelines [here](CONTRIBUTING.md).
 **discord server**: [discord.gg/qcjRGZv](http://discord.gg/qcjRGZv)  
 **website**: [bonsai-linux.org](http://bonsai-linux.org) <sub>*(under construction)*</sub>  
 **email**: dev@bonsai-linux.org  
-**IRC**: `coming soon`  
+**irc**: `coming soon`  
 **mailing list**: `coming soon`
