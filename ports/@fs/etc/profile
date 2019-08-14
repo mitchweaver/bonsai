@@ -3,6 +3,4 @@ umask 022
 [ -f /src/bonsai.rc ] && . /src/bonsai.rc
 
 PATH="/bin:/local/bin:${HOME}/bin:${HOME}/.local/bin"
-TERM=linux
-
-export PATH TERM
+export PATH
