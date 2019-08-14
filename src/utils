@@ -98,11 +98,6 @@ headn1() {
     printf "%s\n" "$_line"
     unset _line
 }
-
-# mktemp replacement, returns a unique string to be used as a filename
-gettemp() {
-    printf "$$.%.15s" "$(head -n 5 /dev/urandom | tr -dc A-Za-z0-9)"
-}
 # -------------------------------------------
 
 # checks if a given string contains another
