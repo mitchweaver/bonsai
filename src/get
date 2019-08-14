@@ -32,7 +32,7 @@ get() {
 
     # copy all port's files, except its pkgfile -- (ex: patches)
     [ "$DLONLY" ] ||
-    find "$ports/$name" ! -name pkgfile ! -name $name | while read -r file ; do
+    find "$ports/$name" -type f ! -name pkgfile ! -name $name | while read -r file ; do
         cp -f "$file" "$pkgworkdir"/
     done
     unset dldir ext file
