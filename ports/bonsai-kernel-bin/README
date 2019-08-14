@@ -1,5 +1,0 @@
-Note:
-
-This does not actually install the kernel to your boot partition.
-
-This simply downloads and compiles it, then copies to its pkgdir.

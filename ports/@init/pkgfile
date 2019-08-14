@@ -1,6 +1,6 @@
 info='the bonsai init system'
 metapkg=true
-deps='bonsai-core bonsai-fs sinit smdev kmod e2fsprogs dhcpcd inetutils'
+deps='@core @fs sinit smdev kmod e2fsprogs dhcpcd inetutils'
 build() {
     msg "installing init with mode 0755..."
     install -m 0755 init "$root"/init

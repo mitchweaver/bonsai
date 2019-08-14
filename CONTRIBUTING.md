@@ -137,7 +137,7 @@ sha256=58db744a9198327f185355c6c9b3ee2bc7e55af4f5b02bba7b2f7de12c4088ed
 ### List dependencies
 
 Triple check to make sure you have all of the dependencies listed.  
-It's wise to test your port in a new chroot with only `bonsai-core` installed to make sure that it compiles.
+It's wise to test your port in a new chroot with only `@core` installed to make sure that it compiles.
 
 ### Do not list sub-dependencies
 

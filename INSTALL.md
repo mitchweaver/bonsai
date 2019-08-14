@@ -41,7 +41,7 @@ This will create dirs, assign permissions, and install the base system.
 ----
 
 **Note:** If you are planning to install bonsai either to bare metal or QEMU instead 
-using it as a chrootfs, you will also need to add `bonsai-init`.
+using it as a chrootfs, you will also need to add `@init`.
 
 4. **relink**
 
@@ -60,7 +60,7 @@ as they do not point to files on the correct root.
 ./bonsai chroot
 ```
 
-Assuming `bonsai-core` installed correctly and `--relink-world` succeeded,
+Assuming `@core` installed correctly and `--relink-world` succeeded,
 this will chroot inside, mounting drives automatically.
 
 6. **exit**
