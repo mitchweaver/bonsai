@@ -1,45 +1,45 @@
 info='the bonsai linux kernel'
 version=5.2.8
 source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$version.tar.xz
-
 # note: it should be able to remove posix-bc dep and use
-#       the one included in hbase, TODO
-deps='bonsai-core kmod bison flex posix-bc'
-
+#       the one included in hbase, (todo)
+# note: curses is only dep for menuconfig
+deps='bonsai-core kmod bison flex posix-bc netbsd-curses'
 nolink=true
 sha512=89d1b8d5aff901ee86211e1c03adfa912fbbe221e63f54cc7894eea1ff1a10c49dc359a4f097054be43041bec01dcf119af2967cf9ac6eb2198c2af7d0d18a46
+
 prebuild() {
-    # clear any junk that may have come with the tarball
+    msg 'ensuring that correct build tools are in $PATH'
+    for i in bison flex posix-bc ; do
+        msg "relinking $i..."
+        linkpkg $i
+    done
+
+    # clear any junk that may have came with the tarball
     msg 'making mrproper...'
-    bonsai_make mrproper
+    make mrproper
 
-    # note: yes "" | here is accept (NEW) defaults without prompting
-    msg 'creating defconfig'
-    yes "" | bonsai_make \
-        HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
-        KBUILD_BUILD_HOST=bonsai \
-        DISABLE_PAX_PLUGINS=y \
-        defconfig
+    # prompt use for their own custom config
+    # if not provided, then we will use 'defconfig' followed
+    # by 'menuconfig' to edit it.
+    printf "%s" "Would you like to provide your own config? (y\n): "
+    read -r ans
+    if [ "$ans" = y ] ; then
+        pritnf "%s" "Path to config: "
+        read -r ans
+        if [ -f "$ans" ] ; then
+            cp -f "$ans" .config
+        else
+            die "$ans is not a valid file"
+        fi
+    else
+        msg "Ok. Creating defconfig instead..."
+        bonsai_make defconfig
+        bonsai_make menuconfig
+    fi
 
-    # -*-*-*- for a static kernel -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-    # disable modules
-    # sed 's|.*CONFIG_MODULES.*|\# CONFIG_MODULES (disabled by bonsai)|' .config > tmp
-    # mv -f tmp .config
-
-    # convert all detected modules to built-in
-    # sed 's|=m$|=y|g' .config > tmp
-    # mv -f tmp .config
-    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-    # -*-*- to disable swap -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-    # sed 's|.*CONFIG_SWAP.*|\# CONFIG_SWAP (disabled by bonsai)|' .config > tmp
-    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-    # set distro name
-    echo 'CONFIG_DEFAULT_HOSTNAME=bonsai' >> .config
-
-    # use gzip compression (fastest, and cant guarantee user will have xz installed)
-    echo 'CONFIG_KERNEL_GZIP=y' >> .config
+    # set default hostname as distro name
+    echo CONFIG_DEFAULT_HOSTNAME=bonsai >> .config
 
     # disable debug symbols in kernel (smaller kernel binary)
     sed 's|.*CONFIG_DEBUG_KERNEL.*|\# CONFIG_DEBUG_KERNEL (disabled by bonsai)|' .config > tmp
@@ -84,11 +84,12 @@ prebuild() {
     # the tarball we don't care anyway, nop the file.
     :> scripts/atomic/check-atomics.sh
 }
+
 build() {
+    # note: yes "" | here is accept (NEW) defaults without prompting
     msg 'compiling kernel...'
     yes "" | bonsai_make \
         HOSTCFLAGS="-D_GNU_SOURCE $CFLAGS" \
-        KBUILD_BUILD_HOST=bonsai \
         DISABLE_PAX_PLUGINS=y \
         bzImage
 
