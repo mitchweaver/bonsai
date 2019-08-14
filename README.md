@@ -41,7 +41,7 @@ under musl-libc, however this *almost always* makes their code [better](http://w
 No matter how great, a system is bottlenecked by its ability to be understood.
 
 * Sane and optimal default flags
-* A modular automated build system with parts that can overriden simply by defining the given function in the pkgfile
+* A modular automated build system with parts that can overridden simply by defining the given function in the pkgfile
 * Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
 * Automatic detection of required flags, configs, patches, and workarounds
 * Ports can be written with *[just one line](http://ix.io/1QMb)*!
@@ -79,8 +79,8 @@ Inside each package is its own prefix with given `/bin`, `/lib`, etc
 As a side effect of this, each `$pkgdir` is its own chroot filesystem that can
 be used at will. In the future, this process is planned to be automated.
 
-Symlinks are created from the package to the outsde root for seamless 
-integration and standards compatibilty.
+Symlinks are created from the package to the outside root for seamless
+integration and standards compatibility.
 
 <sub>**Example:**</sub>
 

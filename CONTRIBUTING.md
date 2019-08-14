@@ -121,7 +121,7 @@ With that said, make sure you use an official, trusted mirror.
 ### Do not use git in official ports
 
 If you want to use `git` to get "bleeding edge" updates of your programs -- that's fine.  
-However use tarballs for official ports. This is to not require `git` be in the core-system as a depedency.
+However use tarballs for official ports. This is to not require `git` be in the core-system as a dependency.
 
 Can't find a hosted tarball? Have no fear! GitHub can generate you one from any commit hash.
 
@@ -198,7 +198,7 @@ sha256=58db744a9198327f185355c6c9b3ee2bc7e55af4f5b02bba7b2f7de12c4088ed
 info='an awesome package'
 version=0.4.8
 source=https://github.com/foobar/an-awesome-package/archive/v0.4.8.tar.gz
-deps='bash net-bsd-curses libedit'
+deps='bash netbsd-curses libedit'
 md5=70d103eb8d196d188b516ee030bf3ab3
 prebuild() { bonsai_patch ; }
 build() { bonsai_make ; bonsai_make install ; }
