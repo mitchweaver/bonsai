@@ -48,8 +48,10 @@ postbuild() {
         install -D -m 0644 doc/docbook/wpa_supplicant.conf.5 "$pkg"/share/man/man5/wpa_supplicant.conf.5
     fi
 
-    :> "$root"/etc/wpa_supplicant.conf
-    chmod 0600 "$root"/etc/wpa_supplicant.conf
+    if [ ! -f "$root"/etc/wpa_supplicant.conf ] ; then
+        :> "$root"/etc/wpa_supplicant.conf
+        chmod 0600 "$root"/etc/wpa_supplicant.conf
+    fi
 
     # ----- IF USING DBUS: -----------------------------------
     # note: this system.d is a dbus-internal, not actually systemd
