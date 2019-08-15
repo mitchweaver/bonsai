@@ -190,6 +190,7 @@ bonsai_make() {
     $mans   || _mans="MANDIR=$pkg/sucks"
     $quiet  && _quiet='-s'
 
+    SOURCE_DATE_EPOCH=0 \
     make $makeflags -j${jobs:=1} $_mans $_quiet \
         CC="$CC" \
         cc="$CC" \
