@@ -22,8 +22,9 @@ run_build() {
         bonsai_patch || die "$name generic prebuild() failed"
     fi
 
-    # run user defined build(), if exists
     cd "$pkgworkdir"
+
+    # run user defined build(), if exists
     if defined build ; then
         build || die "$name build() failed"
     # otherwise run our automagic generic_build
@@ -58,9 +59,9 @@ run_build() {
 }
 
 # convenience functions
-bonsai_cc()  { $cc  -static -Os -s "$@" ; }
-bonsai_gcc() { $gcc -static -Os -s "$@" ; }
-bonsai_cxx() { $cxx -static -Os -s "$@" ; }
+bonsai_cc()  { $cc  "$CFLAGS" "$LDFLAGS" "$@" ; }
+bonsai_gcc() { $gcc "$CFLAGS" "$LDFLAGS" "$@" ; }
+bonsai_cxx() { $cxx "$CFLAGS" "$LDFLAGS" "$@" ; }
 
 getflags() {
     TARGET=x86_64-linux-musl
@@ -116,8 +117,8 @@ bonsai_configure() {
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
-    tmp_help="$root/src/work/$name.cfhelp"
-    tmp_flags="$root/src/work/$name.cfflags"
+    tmp_help="$work/$name.cfhelp"
+    tmp_flags="$work/$name.cfflags"
 
     "$configure_path"/configure --help > "$tmp_help"
     :> "$tmp_flags"
@@ -145,7 +146,7 @@ bonsai_configure() {
                 $_quiet $_nls ; do
         addflag $flag $flag
     done
-
+    #
     # flags that change based on what is in the --help
     addflag --target= --target="$TARGET"
     addflag --host= --host="$HOST"
@@ -177,7 +178,8 @@ bonsai_configure() {
     # add all argument-supplied flags to the flag file
     for flag in "$@" ; do echo "$flag" ; done >> "$tmp_flags"
 
-    "$configure_path"/configure $(shellcat "$tmp_flags") || die "configure failed for $name"
+    "$configure_path"/configure $(shellcat "$tmp_flags") || 
+        die "configure failed for $name"
 
     unset -f addflag
     unset flag tmp_help _nls _quiet

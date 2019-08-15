@@ -1,0 +1,55 @@
+version=3.7.3
+info="$name${version%.*} scripting language interpreter"
+source=http://python.org/ftp/python/$version/Python-$version.tar.xz
+deps='netbsd-curses libedit libressl bzip2 zlib expat'
+sha256=da60b54064d4cfcd9c26576f6df2690e62085123826cff2e667e72a91952d318
+prebuild() {
+    # apply patches for netbsd-curses
+    bonsai_patch
+}
+build() {
+    # copy our Setup included copied from the port dir
+    cp -f Setup Modules/
+
+    # ensure we use system's expat and ctypes, 
+    # do not compile bundled
+    rm -r Modules/expat
+    rm -r Modules/_ctypes
+
+    CC="$CC $CFLAGS" \
+    CXX="$CXX $CFLAGS" \
+    bonsai_configure \
+        --with-computed-gotos \
+        --without-ensurepip \
+        --with-system-expat \
+        --with-system-ffi
+
+    # use our provided script to fix
+    # makesetup's bugged generated makefile
+    sh fix_bad_makefile.sh
+
+    bonsai_make \
+        CC="$CC $CFLAGS" \
+        CXX="$CXX $CFLAGS" \
+        CFLAGS="$CFLAGS" \
+        CPPFLAGS="$CPPFLAGS" \
+        CXXFLAGS="$CXXFLAGS" \
+        LDFLAGS="$LDFLAGS" \
+        install
+}
+postbuild() {
+    # Compile all .pyc files so they will be in the $pkg dir to be linked.
+    # Otherwise they'll get created later and be in the root.
+    # note: some of the dynamic modules may fail, nop error code
+    ./python -E Lib/compileall.py "${pkg:?}"/lib/$name${version%.*} 2>/dev/null ||:
+
+    # remove all tests
+    for test in sqlite3/test email/test ctypes/test test \
+            unittest/test tkinter/test bsddb/test json/tests \
+            lib2to3/tests distutils/tests tests ; do
+        rm -r "${pkg:?}"/lib/python${version%.*}/"$test" 2>/dev/null ||:
+    done
+
+    # create symlink without full version number, (ie 3.7->3)
+    ln -sf python${version%.*} "$pkg"/bin/python3
+}

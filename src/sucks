@@ -40,7 +40,7 @@ clear_junk() {
     rm -r "${pkgs:?}/${1:?}/share/doc" 2>/dev/null ||:
 
     # remove man pages if user wishes, (mans=false in bonsai.rc)
-    $mans || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
+    ${mans:=true} || rm -r "${pkgs:?}/${1:?}/share/man" 2>/dev/null ||:
 
     # any specific things left over that suck
     rm -rf "${pkgs:?}/${1:?}/sucks" 2>/dev/null ||:

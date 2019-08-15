@@ -1,0 +1,23 @@
+info='Python2 interpreter'
+version=2.7.16
+source=http://python.org/ftp/python/$version/Python-$version.tar.xz
+deps=bzip2
+sha256=f222ef602647eecb6853681156d32de4450a2c39f4de93bd5b20235f2e660ed7
+build() {
+    bonsai_configure \
+        --without-ensurepip \
+        --enable-shared \
+        --disable-static \
+        --enable-ipv6
+
+    bonsai_make PREFIX="$pkg"
+
+    bonsai_make PREFIX="$pkg" install
+}
+postbuild() {
+    rm "$pkg"/bin/2to3
+
+    # Python recommends the default 'python' command be python2
+    # see: http://mail.python.org/pipermail/python-dev/2014-September/136387.html
+    ln -sf python2 "$pkg"/bin/python
+}
