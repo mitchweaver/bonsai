@@ -1,0 +1,16 @@
+info='Library allowing easy processing of keyboard entry for terminal programs'
+deps='netbsd-curses unibilium'
+build() {
+    bonsai_make \
+        CFLAGS="$CFLAGS" \
+        LDFLAGS="-lncurses -lterminfo -lunibilium $LDFLAGS"
+    bonsai_make install
+}
+# --- main source:
+#version=0.22
+#source=http://www.leonerd.org.uk/code/$name/$name-$version.tar.gz
+#sha256=6945bd3c4aaa83da83d80a045c5563da4edd7d0374c62c0d35aec09eb3014600
+# --- neovim's fork:
+version=d9928fdb7c079ab429e4132d6c35ca32f893b66f
+source=http://github.com/neovim/$name/archive/$version.tar.gz
+sha256=b9c00b32ad26cc688826a4d2ef56b446e13a2dd9ee83049372d1be09bae91c21
