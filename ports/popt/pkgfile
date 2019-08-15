@@ -1,0 +1,11 @@
+info='Library for parsing commandline options'
+version=1.16
+source=http://fossies.org/linux/misc/$name-$version.tar.xz
+sha256=5115ea9e8d301466f9f4459cff934820a0ddd6f8b8054293793e052401448e7c
+
+build() {
+    unset BUILD TARGET HOST
+    bonsai_configure
+    bonsai_make
+    bonsai_make install
+}
