@@ -5,12 +5,12 @@ deps='netbsd-curses popt libuuid'
 build() {
     bonsai_make LDFLAGS="$LDFLAGS -lncursesw -lterminfo"
     
-    install -D -m 755 gdisk      "$pkg"/bin/gdisk
-    install -D -m 755 sgdisk     "$pkg"/bin/sgdisk
-    install -D -m 755 cgdisk     "$pkg"/bin/cgdisk
-    install -D -m 755 fixparts   "$pkg"/bin/fixparts
-    install -D -m 644 gdisk.8    "$pkg"/share/man/man8/gdisk.8
-    install -D -m 644 sgdisk.8   "$pkg"/share/man/man8/sgdisk.8
-    install -D -m 644 cgdisk.8   "$pkg"/share/man/man8/cgdisk.8
-    install -D -m 644 fixparts.8 "$pkg"/share/man/man8/fixparts.8
+    install -D -m 0755 gdisk      "$pkg"/bin/gdisk
+    install -D -m 0755 sgdisk     "$pkg"/bin/sgdisk
+    install -D -m 0755 cgdisk     "$pkg"/bin/cgdisk
+    install -D -m 0755 fixparts   "$pkg"/bin/fixparts
+    install -D -m 0644 gdisk.8    "$pkg"/share/man/man8/gdisk.8
+    install -D -m 0644 sgdisk.8   "$pkg"/share/man/man8/sgdisk.8
+    install -D -m 0644 cgdisk.8   "$pkg"/share/man/man8/cgdisk.8
+    install -D -m 0644 fixparts.8 "$pkg"/share/man/man8/fixparts.8
 }
