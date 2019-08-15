@@ -1,11 +1,11 @@
 info='An experiment for a better code editor'
 version=2019.07.01
 source=http://github.com/mawww/$name/archive/v$version.tar.gz
-deps=netbsd-curses
+deps='netbsd-curses pkgconf'
 sha256=af4a165b329e0138e0e258f47cf1598fc2f6c63f8fe3f8dc7827f2196a02f9b5
 build() {
     cd src
-    bonsai_make LDFLAGS="-lncursesw -ltinfo $LDFLAGS"
+    bonsai_make LIBS='-ncursesw -ltinfo' LDFLAGS="-lncursesw -ltinfo $LDFLAGS"
     bonsai_make man
     bonsai_make install
 }
