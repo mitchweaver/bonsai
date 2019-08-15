@@ -6,7 +6,7 @@ deps=libtool
 
 build() {
     bonsai_configure
-    cp /bin/libtool .
+    cp -f /bin/libtool .
     bonsai_make
     bonsai_make install
 }
