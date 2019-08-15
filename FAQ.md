@@ -21,7 +21,7 @@ Instead our userland consists of `sbase`, `ubase`, and `hbase`.
 
 If something is missing, it's probably a package -- usually prefixed with `gnu-`.
 
-If a port isn't available, you're welcome to [port it yourself](http://github.com/mitchweaver/bonsai/wiki/Porting-Guidelines).
+If a port isn't available, you're welcome to [port it yourself](http://github.com/bonsai-linux/bonsai/blob/master/CONTRIBUTING.md#porting-guidelines)
 
 ### 03. Why not use `busybox`?
 
