@@ -1,0 +1,35 @@
+info='an interactive process viewer for Unix systems'
+version=2.2.0
+source=http://hisham.hm/$name/releases/$version/$name-$version.tar.gz
+deps='netbsd-curses python3'
+sha256=d9d6826f10ce3887950d709b53ee1d8c1849a70fa38e91d5896ad8cbc6ba3c57
+prebuild() {
+    # patch for netbsd-curses
+    bonsai_patch
+
+    # ensure we use python3
+    sed 's|env python|env python3|' scripts/MakeHeader.py > tmp
+    mv -f tmp scripts/MakeHeader.py
+    chmod +x scripts/MakeHeader.py
+}
+build() {
+    bonsai_configure \
+        --disable-unicode \
+        --disable-cgroup \
+        --disable-openvz \
+        --disable-vserver \
+        --disable-ancient-server \
+        ac_cv_lib_ncurses_refresh=yes
+
+    bonsai_make LIBS='-lncurses -ltinfo -lm'
+    bonsai_make install
+}
+postbuild() {
+    # junk
+    rm -r "${pkg:?}"/share/applications \
+          "${pkg:?}"/share/pixmaps
+
+    # fix weird names
+    mv -f "$pkg"/bin/*$name "$pkg"/bin/$name
+    mv -f "$pkg"/share/man/man1/*$name.1 "$pkg"/share/man/man1/$name.1
+}
