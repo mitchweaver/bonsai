@@ -1,21 +1,35 @@
-fails at libtool
-
+error:
 ```
-make  all-am
-make[3]: Entering directory '/src/work/parted/lib'
-  CC       argmatch.lo
-  CC       c-ctype.lo
-../libtool: 596: ../libtool: Syntax error: newline unexpected (expecting ")")
-make[3]: *** [Makefile:1422: argmatch.lo] Error 2
+  CC       cs/natmath.lo
+  CC       arch/linux.lo
+arch/linux.c: In function 'dm_canonical_path':
+arch/linux.c:2313:48: error: 'DM_DEVICE_INFO' undeclared (first use in this function)
+ 2313 |         struct dm_task *task = dm_task_create (DM_DEVICE_INFO);
+      |                                                ^~~~~~~~~~~~~~
+arch/linux.c:2313:48: note: each undeclared identifier is reported only once for each function it appears in
+arch/linux.c: In function '_disk_sync_part_table':
+arch/linux.c:2949:33: error: '_dm_add_partition' undeclared (first use in this function); did you mean 'add_partition'?
+ 2949 |                 add_partition = _dm_add_partition;
+      |                                 ^~~~~~~~~~~~~~~~~
+      |                                 add_partition
+arch/linux.c:2950:36: error: '_dm_remove_partition' undeclared (first use in this function); did you mean 'remove_partition'?
+ 2950 |                 remove_partition = _dm_remove_partition;
+      |                                    ^~~~~~~~~~~~~~~~~~~~
+      |                                    remove_partition
+arch/linux.c:2951:36: error: '_dm_resize_partition' undeclared (first use in this function); did you mean 'resize_partition'?
+ 2951 |                 resize_partition = _dm_resize_partition;
+      |                                    ^~~~~~~~~~~~~~~~~~~~
+      |                                    resize_partition
+arch/linux.c:2952:50: error: '_dm_get_partition_start_and_length' undeclared (first use in this function); did you mean
+'get_partition_start_and_length'?
+ 2952 |                 get_partition_start_and_length = _dm_get_partition_start_and_length;
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                  get_partition_start_and_length
+make[3]: *** [Makefile:1364: arch/linux.lo] Error 1
 make[3]: *** Waiting for unfinished jobs....
-  CC       c-strcasecmp.lo
-../libtool: 596: ../libtool: Syntax error: newline unexpected (expecting ")")
-make[3]: *** [Makefile:1422: c-ctype.lo] Error 2
-../libtool: 596: ../libtool: Syntax error: newline unexpected (expecting ")")
-make[3]: *** [Makefile:1422: c-strcasecmp.lo] Error 2
-make[3]: Leaving directory '/src/work/parted/lib'
-make[2]: *** [Makefile:1235: all] Error 2
-make[2]: Leaving directory '/src/work/parted/lib'
+make[3]: Leaving directory '/src/work/parted/libparted'
+make[2]: *** [Makefile:1381: all-recursive] Error 1
+make[2]: Leaving directory '/src/work/parted/libparted'
 make[1]: *** [Makefile:1265: all-recursive] Error 1
 make[1]: Leaving directory '/src/work/parted'
 make: *** [Makefile:1188: all] Error 2
