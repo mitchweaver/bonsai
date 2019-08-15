@@ -1,0 +1,17 @@
+version=1.0.4
+source=http://downloads.sourceforge.net/sourceforge/$name/$name-$version.tar.gz
+sha256=b663391a6876f19a3cd901d862423a16e2b5ceaa2f4a3b9bb681e64b9c7ba78d
+deps='netbsd-curses popt libuuid'
+
+build() {
+    bonsai_make LDFLAGS="$LDFLAGS -lncursesw -lterminfo"
+
+    install -Dm755 gdisk "$pkg"/bin/gdisk
+    install -Dm755 sgdisk "$pkg"/bin/sgdisk
+    install -Dm755 cgdisk "$pkg"/bin/cgdisk
+    install -Dm755 fixparts "$pkg"/bin/fixparts
+    install -Dm644 gdisk.8 "$pkg"/share/man/man8/gdisk.8
+    install -Dm644 sgdisk.8 "$pkg"/share/man/man8/sgdisk.8
+    install -Dm644 cgdisk.8 "$pkg"/share/man/man8/cgdisk.8
+    install -Dm644 fixparts.8 "$pkg"/share/man/man8/fixparts.8
+}
