@@ -149,7 +149,8 @@ bonsai_configure() {
                 --enable-fast-install --disable-dependency-tracking --without-ada \
                 --disable-libtool-lock --disable-largefile \
                 --disable-docs --disable-gtk-docs --disable-gtk-docs-html \
-                --without-tests --disable-debug --disable-debugger \
+                --disable-documentation --without-tests --disable-debug \
+                --disable-debugger \
                 $_quiet $_nls ; do
         addflag $flag $flag
     done
@@ -167,6 +168,7 @@ bonsai_configure() {
     addflag --with-tests --without-tests
     addflag --with-doc= --with-doc=no
     addflag --with-doxygen --without-doxygen
+    addflag --enable-documentation --disable-documentation
     addflag --prefix= --prefix="$PREFIX"
     addflag --bindir= --bindir="$BINDIR"
     addflag --sbindir= --sbindir="$BINDIR"
