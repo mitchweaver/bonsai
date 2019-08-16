@@ -1,0 +1,5 @@
+info='Bitmaps for X'
+version=1.1.2
+source=http://x.org/pub/individual/data/${name#xorg-}-$version.tar.bz2
+deps=bzip2
+sha256=b9f0c71563125937776c8f1f25174ae9685314cbd130fb4c2efce811981e07ee

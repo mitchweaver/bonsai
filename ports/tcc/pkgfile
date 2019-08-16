@@ -1,0 +1,18 @@
+info='Tiny C Compiler'
+version=0.9.27
+source=http://download.savannah.gnu.org/releases/tinycc/$name-$version.tar.bz2
+sha256=de23af78fca90ce32dff2dd45b3432b2334740bb9bb7b05bf60fdbfc396ceb9c
+prebuild() {
+    # fix broken ln command for sbase's ln
+    # this call isn't actually needed
+    sed 's|.*ln -sfn \$tgt.*|:|g' configure > tmp
+    mv -f tmp configure
+    chmod +x configure
+}
+build() {
+    bonsai_configure \
+        --config-musl \
+        --enable-static
+    bonsai_make
+    bonsai_make install
+}

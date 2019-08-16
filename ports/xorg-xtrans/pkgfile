@@ -1,0 +1,5 @@
+info='X11 lib for handling network protocols'
+version=1.4.0
+source=http://x.org/releases/individual/lib/${name#xorg-}-$version.tar.bz2
+deps=xorg-util-macros
+sha256=377c4491593c417946efcd2c7600d1e62639f7a8bbca391887e2c4679807d773

@@ -1,9 +1,0 @@
-info='nnn - a fast terminal file manager'
-version=2.6
-source=http://github.com/jarun/$name/archive/v$version.tar.gz
-sha256=17fd3e517308e41065594ffe8dcde348b4d10dea4240699f4708337db48b3e25
-deps='netbsd-curses libedit libarchive'
-build() {
-    bonsai_make LDFLAGS="$LDFLAGS -lncursesw -lterminfo -lreadline"
-    bonsai_make install
-}

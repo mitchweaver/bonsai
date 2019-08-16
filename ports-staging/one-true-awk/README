@@ -1,7 +1,0 @@
-this is already included inside of hbase
-
-perhaps someone who doesn't want to use hbase,
-but wants one-true-awk, could use this
-
-note: requires some kind of yacc, assuming you have hbase, 
-you do not need deps=bison

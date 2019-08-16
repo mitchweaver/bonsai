@@ -1,0 +1,5 @@
+info='macros for m4 to build X11 Window System'
+version=1.19.2
+source=http://x.org/releases/individual/util/${name#xorg-}-$version.tar.bz2
+deps=bzip2
+sha256=d7e43376ad220411499a79735020f9d145fdc159284867e99467e0d771f3e712

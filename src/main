@@ -13,11 +13,9 @@ initglobals() {
         # If bootstrapping, relinking the world, or chrooting,
         # use the host's userland. When bootstraping, programs
         # will take preference in the $PATH as they install.
-        PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
         PATH=".:$root/bin:$PATH"
     else
         # otherwise if not bootstrapping, ONLY use the chroot's tools
-        PKG_CONFIG_PATH="$root/lib/pkgconfig"
         PATH=".:$root/bin"
     fi
 

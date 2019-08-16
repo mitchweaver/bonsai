@@ -1,7 +1,7 @@
 info="Lightweight MBR bootloaders for Linux"
 version=6.03
 source=http://kernel.org/pub/linux/utils/boot/$name/$name-$version.tar.xz
-deps=perl
+deps='perl libuuid'
 sha256=26d3986d2bea109d5dc0e4f8c4822a459276cf021125e8c9f23c3cca5d8c850e
 nolink=true
 build() {

@@ -1,0 +1,11 @@
+info='New Portable THreads library'
+version=1.6
+source=https://gnupg.org/ftp/gcrypt/$name/$name-$version.tar.bz2
+deps='bzip2 libtool'
+sha256=1393abd9adcf0762d34798dc34fdcf4d0d22a8410721e76f1e3afcd1daa4e2d1
+build() {
+    bonsai_configure
+    cp -f /bin/libtool .
+    bonsai_make
+    bonsai_make install
+}
