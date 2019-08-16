@@ -89,10 +89,17 @@ getflags() {
     HOSTCC="$CC"
     SHELL=/bin/sh
     MAKEINFO=false
-    export TARGET HOST BUILD CC cc HOSTCC AM_LDFLAGS \
+    if [ "$USE_HOST_PATH" ] ; then
+        PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig:\
+            /share/pkgconfig:/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/pkgconfig"
+    else
+        PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
+    fi
+    export TARGET HOST BUILD CC cc HOSTCC SHELL \
            LIBRARY_PATH CPATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-           PREFIX prefix DESTDIR BINDIR INCLUDEDIR LIBDIR \
-           LIBEXECDIR MANDIR DOCDIR PRESERVEDIR MAKEINFO SHELL
+           AM_LDFLAGS PREFIX prefix DESTDIR BINDIR INCLUDEDIR \
+           LIBDIR LIBEXECDIR MANDIR DOCDIR PRESERVEDIR MAKEINFO \
+           PKG_CONFIG_PATH
 }
 
 # convenience function, tries to find all *.patch
