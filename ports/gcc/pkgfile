@@ -1,7 +1,7 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 info='GNU C Compiler x64 musl-libc toolchain'
 version=9.1.0
-deps='musl kernel-headers bison flex'
+deps='musl kernel-headers bison flex libgmp'
 source=http://mirrors.kernel.org/gnu/$name/$name-$version/$name-$version.tar.xz
 sha512=b6134df027e734cee5395afd739fcfa4ea319a6017d662e54e89df927dea19d3fff7a6e35d676685383034e3db01c9d0b653f63574c274eeb15a2cb0bc7a1f28
 nostrip=true
@@ -9,10 +9,6 @@ nostrip=true
 binutils_version=2.32
 binutils_source=http://mirrors.kernel.org/gnu/binutils/binutils-$binutils_version.tar.xz
 binutils_sha512=d326408f12a03d9a61a9de56584c2af12f81c2e50d2d7e835d51565df8314df01575724afa1e43bd0db45cfc9916b41519b67dfce03232aa4978704492a6994a
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-gmp_version=6.1.2
-gmp_source=http://ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.xz
-gmp_sha512=9f098281c0593b76ee174b722936952671fab1dae353ce3ed436a31fe2bc9d542eca752353f6645b7077c1f395ab4fdd355c58e08e2a801368f1375690eee2c6
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 mpfr_version=4.0.2
 mpfr_source=http://mpfr.org/mpfr-$mpfr_version/mpfr-$mpfr_version.tar.xz
@@ -29,11 +25,9 @@ prebuild() {
     sed 's/lib64/lib/' gcc/config/i386/linux64.h > tmp       ; mv -f tmp gcc/config/i386/linux64.h
 
     # download and checksum our binutils/libs
-    msg 'downloading binutils, libgmp, libmpfr, libmpc...'
+    msg 'downloading binutils, libmpfr, libmpc...'
     [ -f "$sources/binutils$delim$binutils_version.tar.xz" ] || dlcurl "$binutils_source" binutils "$binutils_version"
     sha512="$binutils_sha512" verify_checksum "$sources/binutils$delim$binutils_version.tar.xz"
-    [ -f "$sources/gmp$delim$gmp_version.tar.xz" ] || dlcurl "$gmp_source" gmp "$gmp_version"
-    sha512="$gmp_sha512" verify_checksum "$sources/gmp$delim$gmp_version.tar.xz"
     [ -f "$sources/mpfr$delim$mpfr_version.tar.xz" ] || dlcurl "$mpfr_source" mpfr "$mpfr_version"
     sha512="$mpfr_sha512" verify_checksum "$sources/mpfr$delim$mpfr_version.tar.xz"
     [ -f "$sources/mpc$delim$mpc_version.tar.gz" ] || dlcurl "$mpc_source" mpc "$mpc_version"
@@ -43,13 +37,11 @@ prebuild() {
     msg "extracting all..."
     mkdir -p ../res
     decompress "$sources/binutils$delim$binutils_version.tar.xz" | tar -C ../res -xf -
-    decompress "$sources/gmp$delim$gmp_version.tar.xz"           | tar -C ../res -xf -
     decompress "$sources/mpfr$delim$mpfr_version.tar.xz"         | tar -C ../res -xf -
     decompress "$sources/mpc$delim$mpc_version.tar.gz"           | tar -C ../res -xf -
 
     # create symlinks from the ../res directory
     # gcc expects each lib's folder to be in the build dir named its name
-    ln -s ../res/gmp-$gmp_version gmp
     ln -s ../res/mpfr-$mpfr_version mpfr
     ln -s ../res/mpc-$mpc_version mpc
     # create symlinks to everything from binutils that does not
