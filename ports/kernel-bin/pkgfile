@@ -4,7 +4,7 @@ source=http://bonsai-linux.org/pkgs/${name%-bin}-$version.tar.xz
 deps=@core
 nolink=true
 nostrip=true
-sha512=d5f73e51d4236438f9fa9b1c9c0bfffbd549a2c2916048e6608f8605cd2653bf563a98acafb5c294b7c99284c7620763e1b0960b838339f0dfd274053f239cc6
+sha512=6bca5d93f4688f1ed87452315ca9760401225de091e96ac3b1ea60bcf0b3e7c414677747d3af81bf2e3dec923a57873d01482aa32b870e9f2140202e7ded01b3
 build() {
     rm -f lib/modules/$version/source lib/modules/$version/build 
 

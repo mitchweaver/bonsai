@@ -11,7 +11,7 @@ with lengthy explanations in the actual handbook.
 1. **clone**
 
 ```sh
-git clone http://github.com/mitchweaver/bonsai
+git clone http://github.com/bonsai-linux/bonsai
 cd bonsai
 ```
 
