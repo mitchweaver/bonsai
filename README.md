@@ -2,6 +2,8 @@
 
 <img align="right" src="res/bonsai.png">
 
+A tiny Linux distribution focused on simplicity and security.
+
 Linux done differently.
 
 For the idealists, for the hobbyists.
@@ -19,7 +21,9 @@ Minimize moving parts. Simpler is better.
 2. **Sandboxing**
 
 Chroot sandboxes should be *dead simple* to 
-setup just by copying the statically-linked binaries.  
+setup simply by copying statically-linked binaries.
+
+Running a chrooted service can be as easy as `chroot /src/pkgs/myapp /bin/myapp`
 
 3. **A Better C Library**
 
@@ -28,19 +32,18 @@ GNU's [glibc](http://www.gnu.org/software/libc) is massively bloated and a poor 
 that was [designed from the ground up](https://www.musl-libc.org/intro.html) 
 to be used with static linking. 
 
-Just take a look at this [hello world](http://0x0.st/zpbd.png) comparison.
+Just take a look at this [hello world](http://bonsai-linux.org/uploads/hello_world.png) comparison.
 
-Applications statically-linked
-with musl carefully avoid pulling in large amounts of code or 
-data that the application will not use and have no runtime 
-dependencies. Many programs need patching to compile
-under musl-libc, however this *almost always* makes their code [better](http://wiki.musl-libc.org/bugs-found-by-musl.html).
+Applications statically-linked with musl carefully avoid pulling 
+in large amounts of code or data that the application will not 
+use and have no runtime dependencies. Many programs need 
+patching to compile under musl-libc, however this 
+*almost always* makes their code [better](http://wiki.musl-libc.org/bugs-found-by-musl.html).
 
 4. **Simplicity**
 
-No matter how great, a system is bottlenecked by its ability to be understood.
+No matter how great, a system is hindered by its ability to be understood.
 
-* Sane and optimal default flags
 * A modular automated build system with parts that can overridden simply by defining the given function in the pkgfile
 * Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
 * Automatic detection of required flags, configs, patches, and workarounds
@@ -128,7 +131,6 @@ from these wonderful projects.
 **Also**:
 
 * Rich Felker's work on [musl-crossmake](https://github.com/richfelker/musl-cross-make) for ease of musl toolchain compilation
-* The folks at [musl.cc](musl.cc) for providing statically-compiled toolchain binaries
 
 ----
 

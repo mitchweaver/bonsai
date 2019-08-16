@@ -33,7 +33,7 @@ Our `sbase` and `ubase` are also built *"box-style"* as popularized by `busybox`
 
 If you would like to use busybox instead however, you can!
 
-Perhaps in the future we will add a `bonsai-core-busybox` alternative to `bonsai-core`.
+Perhaps in the future we will add a `@core-busybox` alternative to `@core`.
 
 ### 04. I'm getting tons of errors when chrooting in
 

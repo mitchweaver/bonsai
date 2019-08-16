@@ -94,7 +94,6 @@ fi
 
 If you are not using a variable or subshell use single `'` quotes.  
 This guarantees whatever it is will be interpreted as only a string and not any possible special characters.  
-*Always* use this for URLs.
 
 <sub>**DO:**</sub>
 ```sh
@@ -120,8 +119,10 @@ With that said, make sure you use an official, trusted mirror.
 
 ### Do not use git in official ports
 
-If you want to use `git` to get "bleeding edge" updates of your programs -- that's fine.  
-However use tarballs for official ports. This is to not require `git` be in the core-system as a dependency.
+If you want to use `git` to get *"bleeding edge"* updates of your programs -- that's fine.  
+However use tarballs for official ports.  
+This is to not require `git` be in `@core` as a dependency, as well as of course, 
+not break things.
 
 Can't find a hosted tarball? Have no fear! GitHub can generate you one from any commit hash.
 
