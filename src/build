@@ -166,6 +166,7 @@ bonsai_configure() {
     addflag --enable-tests --disable-tests
     addflag --with-tests --without-tests
     addflag --with-doc= --with-doc=no
+    addflag --with-doxygen --without-doxygen
     addflag --prefix= --prefix="$PREFIX"
     addflag --bindir= --bindir="$BINDIR"
     addflag --sbindir= --sbindir="$BINDIR"
