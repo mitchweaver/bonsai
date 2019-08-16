@@ -1,0 +1,17 @@
+info='Portable Foreign Function Interface library'
+version=3.2.1
+source=http://sourceware.org/pub/$name/$name-$version.tar.gz
+deps=libtool
+sha256=d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37
+build() {
+    bonsai_configure \
+        --enable-portable-binary
+    cp -f /bin/libtool ${BUILD:-.}/
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    # not sure why this is incorrect
+    mv -f "$pkg"/lib/$name-$version/include "$pkg"/
+    rmdir "$pkg"/lib/$name-$version
+}
