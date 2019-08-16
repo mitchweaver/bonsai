@@ -1,0 +1,11 @@
+info='GNU cryptographic library'
+version=1.8.4
+source=http://gnupg.org/ftp/gcrypt/$name/$name-$version.tar.bz2
+sha256=f638143a0672628fde0cad745e9b14deb85dffb175709cacc1f4fe24b93f2227
+deps='bzip2 libgpg-error'
+build() {
+    bonsai_configure
+    cp -f /bin/libtool .
+    bonsai_make
+    bonsai_make install
+}
