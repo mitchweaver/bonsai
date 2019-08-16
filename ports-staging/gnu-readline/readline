@@ -1,4 +1,0 @@
-unknown if this is working
-
-All programs have been patched either locally or upstream 
-to work with `libedit`, so there shouldn't be any reason to install this.

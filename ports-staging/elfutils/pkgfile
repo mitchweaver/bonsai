@@ -1,5 +1,0 @@
-info='utilities and libraries to read and edit ELF files'
-version=0.176
-source=http://sourceware.org/$name/ftp/$version/$name-$version.tar.bz2
-deps='zlib bzip2'
-sha256=eb5747c371b0af0f71e86215a5ebb88728533c3a104a43d4231963f308cd1023
