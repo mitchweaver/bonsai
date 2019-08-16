@@ -1,0 +1,5 @@
+info='Low level cryptographic library'
+version=3.5.1
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
+deps=libgmp
+sha256=75cca1998761b02e16f2db56da52992aef622bf55a3b45ec538bc2eedadc9419
