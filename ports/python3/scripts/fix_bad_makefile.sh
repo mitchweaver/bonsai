@@ -19,7 +19,7 @@ csplit Makefile  '/LOCALMODLIBS= /'
 
 # 2) append the correct line, formatted, onto xx00
 cat >> xx00 << 'EOF'
-LOCALMODLIBS=-lreadline -ltermcap -L/lib -lssl -lcrypto -lncurses -ltermcap -L$(exec_prefix)/lib -lz
+LOCALMODLIBS=-lreadline -ltermcap -L$(SSL)/lib -lssl -lcrypto -lncurses -ltermcap -L$(exec_prefix)/lib -lz
 BASEMODLIBS=
 SSL=/
 PYTHONPATH=$(COREPYTHONPATH)
