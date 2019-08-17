@@ -11,6 +11,12 @@ build() {
     bonsai_make install
 }
 postbuild() {
+    # fix man page names
+    for man in "$pkg"/share/man/man3/* ; do
+        man=$(basename "$man")
+        mv -f "$pkg"/share/man/man3/"$man" "$pkg"/share/man/man3/"${man#$TARGET-}"
+    done
+
     # not sure why this is incorrect
     mv -f "$pkg"/lib/$name-$version/include "$pkg"/
     rmdir "$pkg"/lib/$name-$version
