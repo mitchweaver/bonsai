@@ -12,13 +12,14 @@ int main() {
     while(fgets(b, sizeof b, stdin)) { printf("%zu %s", i, b); i++; }
 }
 EOF
-bonsai_cc nl.c -o nl
+$CC -static nl.c -o nl
 export PATH="$PWD:$PATH"
 }
 build() {
-    CC="$CC $CFLAGS" \
+    CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \
+    CC="$CC $CFLAGS $LDFLAGS" \
     bonsai_configure
-    bonsai_make CC="$CC $CFLAGS"
+    bonsai_make CC="$CC $CFLAGS $LDFLAGS" 
     bonsai_make install
 }
 postbuild() {
