@@ -44,8 +44,8 @@ defined() {
 # params: $command_name(s)
 has() { 
     for _arg ; do
-        type "$_arg" || return 1
-    done > /dev/null 2>&1
+        type "$_arg" >/dev/null || return 1
+    done
     unset _arg
 }
 # checks if command exists, exiting if not found
@@ -56,13 +56,14 @@ requires() {
     for _prog ; do
         has $_prog || die "$_prog not found in \$PATH but is required for $func"
     done
+    unset _prog
 }
 
 # check if dir is empty
 # params: dir
 # return: 0 if true, 1 if false or not a dir
 is_empty() {
-    if rmdir "$1" 2> /dev/null ; then
+    if rmdir "$1" 2>/dev/null ; then
         mkdir "$1"
         return
     else
