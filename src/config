@@ -55,14 +55,18 @@ create_skeleton_config() {
     "root=\"$path\""
 cat >> "$path"/src/bonsai.rc << "EOF"
 #_
+## which gcc to use
+gcc="$root/bin/gcc"
+#_
 ## number of concurrent threads (default: nproc + 1)
 jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null ||:) + 1))"
 #_
 ## general options
 makeflags=''        ## custom make flags (NOT cflags!)
-keep_tarballs=true  ## save tarballs in /src/sources?
 mans=true           ## install man pages?
 nls=false           ## provide native-language-support?
+keep_tarballs=true  ## save tarballs in /src/sources?
+strip_bins=true     ## strip compiled bins/libs?
 #_
 ## prompt prefixing msgs from the pkg mgr
 prompt='→'
@@ -87,23 +91,11 @@ quiet=false
 delim='#'
 #_
 ## custom flags
-cflags="-s -w -Os -pipe -fstack-protector-strong"
+cflags="-Os -s -w"
 ldflags="-s"
 #_
 ## note: enable this cflag for a performance boost, but your 
 ##       builds will become unportable between systems:
 ## cflags="$cflags -march=native"
-#_
-## -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-## * DANGER ZONE *
-## WARNING: do not change these unless you seriously know what you're doing.
-## -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-gcc="$root/bin/gcc"
-cflags="$cflags -static --static -no-pie -Wl,-Bstatic -static-libgcc -Wl,--gc-sections"
-cflags="$cflags -static-libstdc++ -static-libasan -static-libtsan"
-cflags="$cflags -static-liblsan -static-libubsan"
-ldflags="$ldflags -static --static -fdata-sections -ffunction-sections"
-cppflags="$cflags"
-cxxflags="$cflags"
 EOF
 }

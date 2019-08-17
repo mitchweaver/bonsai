@@ -41,16 +41,19 @@ run_build() {
         postbuild || die "$name postbuild() failed"
     fi
 
-    [ "$nostrip" != true ] &&
-    if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
-        msg 'stripping binaries...'
-        find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
-            strip --strip-all "$file" 2>/dev/null ||:
-        done &
-        find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
-            strip --strip-unneeded "$file" 2>/dev/null ||:
-        done &
-        wait
+    # strip bins/libs, making sure its not disabled in
+    # either the pkgfile or the user's config
+    if [ "$nostrip" != true ] && [ "$strip_bins" = true ] ; then
+        if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
+            msg 'stripping binaries...'
+            find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
+                strip --strip-all "$file" 2>/dev/null ||:
+            done &
+            find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
+                strip --strip-unneeded "$file" 2>/dev/null ||:
+            done &
+            wait
+        fi
     fi
 
     # unset in case we are adding multiple packages
@@ -58,19 +61,29 @@ run_build() {
     unset dir file
 }
 
-# convenience functions
-bonsai_cc()  { $cc  "$CFLAGS" "$LDFLAGS" "$@" ; }
-bonsai_gcc() { $gcc "$CFLAGS" "$LDFLAGS" "$@" ; }
-bonsai_cxx() { $cxx "$CFLAGS" "$LDFLAGS" "$@" ; }
-
 getflags() {
+# static related flags
+CFLAGS="-static --static -Wl,-Bstatic -static-libgcc -no-pie -fpic \
+-static-libstdc++ -static-libasan -static-libtsan -static-liblsan \
+-static-libubsan"
+
+# performance flags
+CFLAGS="$CFLAGS -Wl,--gc-sections -pipe"
+
+# security flags + tack on user's $cflags at the end
+CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -Wformat \
+-fexceptions -fstack-protector-strong -fstack-clash-protection \
+-fasynchronous-unwind-tables -fcf-protection \
+-Wl,-z,defs -Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack \
+-Wl,-z,nodlopen -Wl,-z,nodump $cflags"
+
+    LDFLAGS="-static --static -fdata-sections -ffunction-sections $ldflags"
+
     TARGET=x86_64-linux-musl
     HOST="$(gcc -dumpmachine 2>/dev/null)" # will error if gcc is not yet installed
     BUILD="$HOST"
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
-    CFLAGS="$CFLAGS $cflags"
-    LDFLAGS="$LDFLAGS $ldflags"
     AM_LDFLAGS="$LDFLAGS"
     CPPFLAGS="$CPPFLAGS $cppflags"
     CXXFLAGS="$CXXFLAGS $cxxflags"
