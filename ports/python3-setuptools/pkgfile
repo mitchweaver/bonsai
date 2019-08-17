@@ -1,0 +1,20 @@
+info='Easily download, build, install, upgrade, and uninstall Python packages.'
+version=41.1.0
+source=http://github.com/pypa/${name#python3-}/archive/v$version.tar.gz
+deps=python3
+sha256=2364c818e65b2cdc11259e71113e69401452b60bbf2ac29b39d33eb671fc3313
+prebuild() {
+    export SETUPTOOLS_INSTALL_WINDOWS_SPECIFIC_FILES=0
+}
+build() {
+    python3 bootstrap.py
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1 \
+        --skip-build
+}
+postbuild() {
+    rm "$pkg"/bin/easy_install
+}
