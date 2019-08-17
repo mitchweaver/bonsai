@@ -1,0 +1,12 @@
+info='High productivity build system'
+version=0.51.1
+source=http://github.com/${name}build/$name/archive/$version.tar.gz
+deps=python3-setuptools
+sha256=92cf7f095fe2d1c3f23824805480c29eaa381e71ae0a90ac85949d1e10f9041c
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
