@@ -22,8 +22,8 @@ cat >> xx00 << 'EOF'
 LOCALMODLIBS=-lreadline -ltermcap -L$(SSL)/lib -lssl -lcrypto -lncurses -ltermcap -L$(exec_prefix)/lib -lz
 BASEMODLIBS=
 SSL=/
-PYTHONPATH=$(COREPYTHONPATH)
 COREPYTHONPATH=$(DESTPATH)$(SITEPATH)$(TESTPATH)
+PYTHONPATH=$(COREPYTHONPATH)
 TESTPATH=
 SITEPATH=
 DESTPATH=

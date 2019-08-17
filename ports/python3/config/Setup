@@ -76,6 +76,7 @@ _symtable symtablemodule.c
 # detail; also note that *static* or *disabled* cancels this effect):
 
 #*shared*
+*static*
 
 # GNU readline.  Unlike previous Python incarnations, GNU readline is
 # now incorporated in an optional module, configured in the Setup file
@@ -265,16 +266,15 @@ pyexpat expat/xmlparse.c expat/xmlrole.c expat/xmltok.c pyexpat.c -I$(srcdir)/Mo
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 # Hye-Shik Chang's CJKCodecs
-
 # multibytecodec is required for all the other CJK codec modules
-#_multibytecodec cjkcodecs/multibytecodec.c
+_multibytecodec cjkcodecs/multibytecodec.c
 
-#_codecs_cn cjkcodecs/_codecs_cn.c
-#_codecs_hk cjkcodecs/_codecs_hk.c
-#_codecs_iso2022 cjkcodecs/_codecs_iso2022.c
-#_codecs_jp cjkcodecs/_codecs_jp.c
-#_codecs_kr cjkcodecs/_codecs_kr.c
-#_codecs_tw cjkcodecs/_codecs_tw.c
+_codecs_cn cjkcodecs/_codecs_cn.c
+_codecs_hk cjkcodecs/_codecs_hk.c
+_codecs_iso2022 cjkcodecs/_codecs_iso2022.c
+_codecs_jp cjkcodecs/_codecs_jp.c
+_codecs_kr cjkcodecs/_codecs_kr.c
+_codecs_tw cjkcodecs/_codecs_tw.c
 
 # Another example -- the 'xxsubtype' module shows C-level subtyping in action
-xxsubtype xxsubtype.c
+#xxsubtype xxsubtype.c

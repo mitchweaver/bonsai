@@ -208,7 +208,3 @@
 +    dprintf(("PyThread_allocate_lock() -> %p\n", (void *)lock));
      return (PyThread_type_lock) lock;
  }
- 
--- 
-2.22.0
-
