@@ -7,7 +7,7 @@ build() {
 	unset BUILD TARGET HOST
 	cd build_unix
 	bonsai_configure --path=../dist
-	cp -f /bin/libtool .
+	[ -e "$root"/bin/libtool ] && cp -f "$root"/bin/libtool .
 	bonsai_make
 	bonsai_make install
 }

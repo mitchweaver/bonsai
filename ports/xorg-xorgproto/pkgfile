@@ -14,8 +14,6 @@ build() {
     bonsai_configure \
         --enable-legacy \
         --disable-specs \
-        --without-fop \
-        --without-xmlto \
         --without-xsltproc
     bonsai_make SUBDIRS="" install
 }

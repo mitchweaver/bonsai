@@ -5,7 +5,8 @@ deps=libtool
 sha256=d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37
 build() {
     bonsai_configure
-    cp -f /bin/libtool ${BUILD:-.}/
+	[ -e "$root"/bin/libtool ] && 
+        cp -f "$root"/bin/libtool ${BUILD:-.}/
     bonsai_make
     bonsai_make install
 }

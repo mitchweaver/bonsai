@@ -5,7 +5,7 @@ sha256=f638143a0672628fde0cad745e9b14deb85dffb175709cacc1f4fe24b93f2227
 deps=libgpg-error
 build() {
     bonsai_configure
-    cp -f /bin/libtool .
+	[ -e "$root"/bin/libtool ] && cp -f "$root"/bin/libtool .
     bonsai_make
     bonsai_make install
 }

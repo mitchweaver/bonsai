@@ -15,7 +15,7 @@ prebuild() {
 }
 build() {
     bonsai_configure --disable-specs
-    cp -f /bin/libtool .
+	[ -e "$root"/bin/libtool ] && cp -f "$root"/bin/libtool .
     bonsai_make SUBDIRS=src
     bonsai_make SUBDIRS=src install
 }
