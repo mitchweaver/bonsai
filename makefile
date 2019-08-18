@@ -1,5 +1,5 @@
 name=bonsai
-PREFIX=${HOME}/.local/$(name)
+PREFIX=build
 
 $(name): FORCE
 .PHONY: FORCE
@@ -31,7 +31,7 @@ install:
 	install -Dm755 $(name) ${PREFIX}/src/$(name)
 	cp -rf ports ${PREFIX}/src
 	if [ ! -f ${PREFIX}/src/bonsai.rc ] ; then \
-		./bonsai --skeleton ${PREFIX} ; \
+		root=${PREFIX} ./bonsai --skeleton ; \
 	fi
 
 clean:

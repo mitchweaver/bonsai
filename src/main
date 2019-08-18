@@ -35,19 +35,6 @@ main() {
         --debug) shift ; set -ex ;;
     esac
 
-    # load or create config
-    case "$1" in
-        --config=*)
-            bonsairc="${1#--config=}"
-            export bonsairc
-            loadconfig
-            shift
-            ;;
-        *skeleton|skel)
-            create_skeleton_config "$2"
-            exit $?
-    esac
-
     # special arguments
     case "$1" in
         --bootstrap)
@@ -80,6 +67,11 @@ main() {
             initglobals
             shift
             ;;
+        *skeleton|skel)
+            loadconfig --skeleton
+            create_skeleton_config
+            exit $?
+            ;;
         *) loadconfig
            initglobals
     esac
@@ -96,8 +88,6 @@ main() {
         case "$1" in
             # ---- variable setting -------
             *dlonly) DLONLY=true ; export DLONLY ; shift ;;
-            --root) ROOT="${1#--root=}" ; export ROOT ; shift ;;
-            --gcc) GCC="${1#--gcc=}" ; export GCC ; shift ;;
             -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;

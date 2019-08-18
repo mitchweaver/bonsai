@@ -139,17 +139,7 @@ validate_gcc() {
 }
 
 # check variables are still sane before operations
-sanity_check() {
-    [ -d "$root"     ]   || die "\$root is not a directory"
-    [ -d "$bonsaihome" ] || die "\$bonsaihome is not a directory"
-    [ -d "$pkgs"     ]   || die "\$pkgs is not a directory"
-    [ -d "$ports"    ]   || die "\$ports is not a directory"
-    [ -d "$sources"  ]   || die "\$sources is not a directory"
-    [ -r "$bonsaidb" ]   || die "\$bonsaidb is not readable"
-    [ "$delim"       ]   || die "\$delim is not set"
-    [ "$gcc"         ]   || warn "\$gcc is not set"
-    mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
-}
+sanity_check() { : ; }
 
 print_logo() {
 printf "%b\n" \

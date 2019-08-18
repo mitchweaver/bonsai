@@ -19,7 +19,7 @@ cd bonsai
 
 ```sh
 make
-make PREFIX="$PREFIX" install
+make PREFIX=$path install
 ```
 
 The above will compile all the scripts into one executable, then strip it of 
@@ -28,28 +28,30 @@ comments/blank lines.
 `"$PREFIX"` here is wherever you would like your chroot to be located.  
 If you are planning to install to hardware, then this will be where your drive is mounted.
 
-Omitting `PREFIX=` will install to the (default) directory of `~/.local/bonsai`.
+Omitting `PREFIX=` will install to the (default) directory of `./build`.
 
 3. **bootstrap**
 
 ```sh
-./bonsai --bootstrap
+root=$path ./bonsai --bootstrap
 ```
 
 This will create dirs, assign permissions, and install the base system.
 
+Here you should use whichever `$PREFIX` you used with make install.  
+
 ----
 
-**Note:** If you are planning to install bonsai either to bare metal or QEMU instead 
-using it as a chrootfs, you will also need to add `@init`.
+**Note:** This has to be an absolute path, so if using the default of `./build` 
+you would then need to use `root="$PWD"/build`
 
 4. **relink**
 
 ```sh
-./bonsai --relink-world --pkgs=/src/pkgs
+root=$path ./bonsai --relink-world --chroot
 ```
 
-This relinks all the symlinks to `root=/src/pkgs` instead of `root=~/.local/bonsai/src/pkgs`.
+This relinks all package symlinks to `/src/pkgs` instead of `$PREFIX/src/pkgs`.
 
 It is necessary as if you had not, when you chroot in all the symlinks will be broken
 as they do not point to files on the correct root.
@@ -68,7 +70,7 @@ mount -o bind -t sysfs    /sys     $chroot/sys
 
 6. **exit**
 
-Exit the chroot, unmounting drives automatically.
+Exit the chroot. If you used the `chroot.sh` script, drives will be unmounted automatically.
 
 ----
 

@@ -1,34 +1,18 @@
 bonsai
 bonsai.db
 bonsai.rc
-work
-work/*
-sources
-sources/*
-opt
-opt/*
-old
 
 a.out
 *~*
-*old*
-*dump*
 *bkup*
 *.bk
 tmp
-tmp.txt
-note
-notes
-note.txt
-notes.txt
 
 scripts/build
 build
+
 *rootfs.gz
 *isolinux.bin
 *isolinux.cfg
 *kernel.gz
 *bonsai.iso
-
-ports-broken
-PORTS_BROKEN.txt

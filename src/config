@@ -2,59 +2,33 @@
 # shellcheck shell=sh
 
 loadconfig() {
-    # use --config= argument if given
-    if [ -z "$bonsairc" ] ; then
-        # otherwise use user's config if exists, else system's config
-        bonsairc="${HOME}/.local/bonsai/src/bonsai.rc"
-        [ -s "$bonsairc" ] || bonsairc=/src/bonsai.rc
+    : ${root:=/} "${bonsairc="$root/src/bonsai.rc"}"
+
+    # dont try to load config if we're creating the skeleton
+    if [ "$1" != --skeleton ] ; then
+        [ -r "$bonsairc" ] || die "loadconfig(): could not find $bonsairc"
+        . "$bonsairc"
     fi
-    # check if file is valid and is readable
-    [ -r "$bonsairc" ] || die 'loadconfig(): could not source config'
-    . "$bonsairc"
 
-    # assign root if we've been given --root=
-    [ "$ROOT" ] && root="$ROOT"
-    # assign gcc if we've been given --gcc=
-    [ "$GCC" ] && gcc="$GCC"
-   
-    # set default variables if not in config file
-    : "${root:="${HOME}/.local/bonsai"}" \
-      "${bonsaihome:="$root/src"}" \
-      "${pkgs:="$bonsaihome/pkgs"}" \
-      "${ports:="$bonsaihome/ports"}" \
-      "${sources:="$bonsaihome/sources"}" \
-      "${work:="$bonsaihome/work"}" \
-      "${bonsaidb:="$bonsaihome/bonsai.db"}" \
+    : "${pkgs:="$root/src/pkgs"}" \
+      "${ports:="$root/src/ports"}" \
+      "${sources:="$root/src/sources"}" \
+      "${work:="$root/src/work"}" \
+      "${bonsaidb:="$root/src/bonsai.db"}" \
       "${confirm_prompt:="continue? (y/n): "}" \
-      "${prompt='→'}" \
+      "${prompt=→}" \
       "${delim:='#'}"
-
-    # remake directories if deleted
-    mkdir -p "$pkgs" "$sources" "$ports"
 
     update_db
     sanity_check
-    unset _root _gcc _config
 }
 
-# creates a skeleton config at given "$root"
-# with no argument assumes default of ~/.local/bonsai
-# params: [$root]
 create_skeleton_config() {
-    if [ "$1" ] ; then
-        path="$1"
-    else
-        path="${HOME}"/.local/bonsai
-    fi
-    mkdir -p "$path"
-    echo "copying default config to $path/src/bonsai.rc"
+    mkdir -p "$root"/src
+    msg "copying default config to $bonsairc"
 
 # see the makefile for explanation on commenting style here
-> "$path"/src/bonsai.rc printf "%s\n%s\n" \
-    "## bonsai root" \
-    "root=\"$path\""
-cat >> "$path"/src/bonsai.rc << "EOF"
-#_
+cat > "$bonsairc" << "EOF"
 ## which gcc to use
 gcc="$root/bin/gcc"
 #_
