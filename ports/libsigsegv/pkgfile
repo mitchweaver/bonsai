@@ -1,0 +1,4 @@
+info='GNU library for handling page faults in user mode'
+version=2.12
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
+sha256=3ae1af359eebaa4ffc5896a1aee3568c052c99879316a1ab57f8fe1789c390b6
