@@ -1,0 +1,5 @@
+info='LS on Drugs'
+version=0.16.0
+source=http://github.com/Peltoche/${name%-bin}/releases/download/$version/${name%-bin}-$version-x86_64-unknown-linux-musl.tar.gz
+sha256=27daefe9f5e1fa11a6833d849c6c9aadd7def386c0a2edca0f1b3fded842e4bd
+build() { install -D -m 0755 lsd "$pkg"/bin/lsd ; }
