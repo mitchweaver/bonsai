@@ -61,23 +61,37 @@ run_build() {
     unset dir file
 }
 
+# * export all compilation related flags to environment
+#
+# * if given '--no-static' as an argument, will omit
+#   all static-compilation related CFLAGS and LDFLAGS
+#
+# params: [--no-static]
 getflags() {
-# static related flags
-CFLAGS="-static --static -Wl,-Bstatic -static-libgcc -no-pie -fpic \
--static-libstdc++ -static-libasan -static-libtsan -static-liblsan \
--static-libubsan"
 
-# performance flags
-CFLAGS="$CFLAGS -Wl,--gc-sections -pipe"
+    # 1. users config flags
+    CFLAGS="$cflags"
+    LDFLAGS="$ldflags"
 
-# security flags + tack on user's $cflags at the end
-CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -Wformat \
+    # 2. performance / general flags
+    CFLAGS="$CFLAGS -Wl,--gc-sections -pipe"
+    LDFLAGS="$LDFLAGS -fdata-sections -ffunction-sections"
+
+    # 3. security flags
+    CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -Wformat \
 -fexceptions -fstack-protector-strong -fstack-clash-protection \
 -fasynchronous-unwind-tables -fcf-protection \
 -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack \
--Wl,-z,nodlopen -Wl,-z,nodump $cflags"
+-Wl,-z,nodlopen -Wl,-z,nodump"
 
-    LDFLAGS="-static --static -fdata-sections -ffunction-sections $ldflags"
+    # 4. static related flags
+    case "$1" in
+        --no-static) ;; # do not add static flags
+        *)
+            CFLAGS="$CFLAGS -static --static -Wl,-Bstatic -static-libgcc -no-pie -fpic \
+-static-libstdc++ -static-libasan -static-libtsan -static-liblsan -static-libubsan"
+            LDFLAGS="$LDFLAGS -static --static"
+    esac
 
     TARGET=x86_64-linux-musl
     HOST="$(gcc -dumpmachine 2>/dev/null)" # will error if gcc is not yet installed
@@ -104,7 +118,7 @@ CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -Wformat \
     MAKEINFO=false
     if [ "$USE_HOST_PATH" ] ; then
         PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig:\
-            /share/pkgconfig:/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/pkgconfig"
+/share/pkgconfig:/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/pkgconfig"
     else
         PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
     fi
