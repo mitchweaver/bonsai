@@ -1,0 +1,24 @@
+info='Modular text mode IRC client with Perl scripting'
+version=1.2.1
+source=http://github.com/$name/$name/releases/download/$version/$name-$version.tar.xz
+deps='libgcrypt libressl libtool glib'
+sha256=5466a1ed9612cfa707d9a37d60b29d027b4ac7d83c74ceb1a410e2b59edba92c
+build() {
+    bonsai_configure \
+        --with-perl-staticlib \
+        --without-bot \
+        --disable-glibtest \
+        --disable-installed-tests \
+        --disable-always-build-tests
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    find "${pkg:?}" \
+      -name .packlist -o \
+      -name perllocal.pod -o \
+      -name '*.bs' -o \
+      -name autosplit.ix -exec rm "{}" \;
+
+    rm -r "${pkg:?}"/include
+}
