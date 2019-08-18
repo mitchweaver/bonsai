@@ -1,8 +1,8 @@
 info='git version control system'
-version=2.22.1
+version=2.23.0
 source=http://mirrors.edge.kernel.org/pub/software/scm/$name/$name-$version.tar.xz
 deps=curl
-sha256=4ce1f93ab77847e9a9d565ee7c94ceadb80ea7d477fe68123f2329f8d4937824
+sha256=234fa05b6839e92dc300b2dd78c92ec9c0c8d439f65e1d430a7034f60af16067
 
 prebuild() {
 cat > config.mak << EOF
