@@ -1,0 +1,4 @@
+info='Implementation of the Scheme programming language'
+version=4.9.3
+source=http://www-labs.iro.umontreal.ca/~$name/download/$name/v4.9/source/$name-v4_9_3.tgz
+sha256=131685ba6d674fd7390950f6e4a46f19514778d05343a3e293976606b738c1dc
