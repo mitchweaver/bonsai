@@ -1,8 +1,8 @@
 info='heirloom base - a compliment to sbase and ubase'
-version=1.4
+version=1.4.1
 source=http://github.com/bonsai-linux/$name/archive/$version.tar.gz
 deps=zlib
-sha256=c40d11319fc5ec471f86c909edea272feb58d5b3807e1f6e24d06ef82da9d78c
+sha256=4fe5576cf30f1f5dabf679fc5a293555a20296e05d6fa335f3c815f3a928a143
 build() {
     ./build.sh
     ./build.sh install
