@@ -33,7 +33,6 @@ main() {
     # misc options before real commands
     case "$1" in
         --debug) shift ; set -ex ;;
-        *host*curl) HOSTS_CURL=true ; export HOSTS_CURL ; shift ;;
     esac
 
     # load or create config

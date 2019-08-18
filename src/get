@@ -64,16 +64,7 @@ dlcurl() {
     # --- notes on curl:
     #    1. curl bugs out with certain delimiters, as a fix
     #       have curl output to a temporary file, then rename.
-    #
-    #    2. curl/libressl are often buggy when working outside
-    #       of the chroot. Until the reason for this problem is 
-    #       discovered, if your system is experiencing this problem
-    #       pass the --hosts-curl option.
-    if [ "$HOSTS_CURL" ] ; then
-        /usr/bin/curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
-    else
-        curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
-    fi || die "get(): curl failed to download $_source"
+    curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
 
     mv -f "$_dldir/curl-$_name-dl$_ext" "$_dldir/$_pkgid$_ext"
     ${keep_tarballs:=true} && cp -f "$_dldir/$_pkgid$_ext" "$sources"/
