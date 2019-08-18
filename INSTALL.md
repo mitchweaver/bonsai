@@ -56,12 +56,15 @@ as they do not point to files on the correct root.
 
 5. **chroot**
 
-```sh
-./bonsai chroot
-```
+You have two options: 1. do this manually or 2. use the `chroot.sh` tool from the [tools](http://github.com/bonsai-linux/tools) repo.
 
-Assuming `@core` installed correctly and `--relink-world` succeeded,
-this will chroot inside, mounting drives automatically.
+The tools script comes highly recommended, however if you wish do so manually:
+
+```sh
+mount -o bind -t devtmpfs /dev     $chroot/dev
+mount -o bind -t proc     /proc    $chroot/proc
+mount -o bind -t sysfs    /sys     $chroot/sys
+```
 
 6. **exit**
 

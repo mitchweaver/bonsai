@@ -151,17 +151,6 @@ sanity_check() {
     mkdir -p "$bonsaihome" "$pkgs" "$ports" "$sources" "$work"
 }
 
-get_sudo() {
-    if has sudo ; then
-        SUDO=sudo
-    elif has doas ; then
-        SUDO=doas
-    else
-        die "sudo or doas is needed by bonsai but neither found in \$PATH."
-    fi
-    export SUDO
-}
-
 print_logo() {
 printf "%b\n" \
 "

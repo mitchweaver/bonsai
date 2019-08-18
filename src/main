@@ -10,7 +10,7 @@ LIBS INCLUDE
 
 initglobals() {
     if [ "$USE_HOST_PATH" = true ] ; then
-        # If bootstrapping, relinking the world, or chrooting,
+        # If bootstrapping, relinking the world
         # use the host's userland. When bootstraping, programs
         # will take preference in the $PATH as they install.
         PATH=".:$root/bin:$PATH"
@@ -57,7 +57,7 @@ main() {
             initglobals
             set -- add @core
             ;;
-        *relink*world|chroot)
+        *relink*world)
             loadconfig
             USE_HOST_PATH=true
             export USE_HOST_PATH
@@ -86,9 +86,8 @@ main() {
 
     # check if our package symlinks are valid -- if not, error out
     case " $1 $2 " in
-        *chroot|*relink*world)
-            # if chrooting or relinking the world,
-            # we know our symlinks will be currently incorrect
+        *relink*world)
+            # if relinking the world we know our symlinks will be currently incorrect
             ;;
         *) check_links 
     esac
@@ -102,7 +101,6 @@ main() {
             -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;
-            *chroot)   enter_chroot  ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;
             search|-s) search "$2"   ; exit $? ;;
             info|-i)   portinfo "$2" ; exit $? ;;

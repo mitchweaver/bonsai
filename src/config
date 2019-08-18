@@ -74,10 +74,6 @@ prompt='→'
 ## used to confirm adding/deleting pkgs
 confirm_prompt='continue? (y/n): '
 #_
-## PS1 inside chroot
-## common favorites: 🌿 🍂 🌱 → % $
-PS1='% '
-#_
 ## configure/make silently?
 ## note: this enables as much silencing as allowed,
 ##       but does NOT send everything to /dev/null
