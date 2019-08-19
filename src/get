@@ -35,7 +35,6 @@ get() {
     find "$ports/$name" -type f ! -name pkgfile ! -name $name | while read -r file ; do
         cp -f "$file" "$pkgworkdir"/
     done
-    unset dldir ext file
 }
 
 # NOTE: Downloading via git comes highly unrecommended.
@@ -51,8 +50,7 @@ get() {
 # downloads given url to $sources
 # params: $source $name $version
 dlcurl() {
-    type curl >/dev/null ||
-        die "curl does not seem to be installed. Please install it first."
+    type curl >/dev/null || die "curl does not seem to be installed."
 
     _dldir="$work"/dl
     _source="$1"
@@ -92,17 +90,12 @@ verify_checksum() {
     [ "$1" ] || die "verify_checksum(): no tarball provided"
     msg_no_nl "comparing checksum for $(basename "$1" | sed "s|$delim.*||")... "
 
-    if [ "$sha512" ] ; then
-        set -- "$sha512" $(sha512sum "$1") "$1"
-    elif [ "$sha256" ] ; then
-        set -- "$sha256" $(sha256sum "$1") "$1"
-    elif [ "$sha1" ] ; then
-        set -- "$sha1" $(sha1sum "$1") "$1"
-    elif [ "$md5" ] ; then
-        set -- "$md5" $(md5sum "$1") "$1"
+    if   [ "$sha512" ] ; then set -- "$sha512" $(sha512sum "$1") "$1"
+    elif [ "$sha256" ] ; then set -- "$sha256" $(sha256sum "$1") "$1"
+    elif [ "$sha1"   ] ; then set -- "$sha1"   $(sha1sum "$1")   "$1"
+    elif [ "$md5"    ] ; then set -- "$md5"    $(md5sum "$1")    "$1"
     else
-        # if unable to validate checksum,
-        # prompt user to confirm they wish to still continue
+        # if unable to validate checksum, prompt user to confirm to continue
         printf "\n"
         warn "no checksum defined for $1"
         confirm
@@ -146,7 +139,8 @@ extract() {
     mkdir -p "$dldir" "$pkgworkdir"
     case "$ext" in
         .tar.*|.tgz)
-            { decompress "$1" | tar -C "$dldir" -xf - ; } || die "failed to decompress $1"
+            { decompress "$1" | tar -C "$dldir" -xf - ; } || 
+                die "failed to decompress $1"
             # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
             mv -f "${dldir:?}"/*/* "${pkgworkdir:?}"/
             # copy any hidden files
@@ -154,11 +148,9 @@ extract() {
                 mv "$file" "${pkgworkdir:?}"/
             done
             # try to remove possible empty dirs
-            rmdir "$dldir"/* 2>/dev/null ||:
-            rmdir "$dldir"   2>/dev/null ||:
+            rmdir "$dldir"/* "$dldir" 2>/dev/null ||:
             ;;
         # if not a tarball, simply write to $pkgworkdir
         *) decompress "$1" > "${pkgworkdir:?}/${1%%$ext}"
     esac || die "get(): failed to extract $1"
-    unset file
 }
