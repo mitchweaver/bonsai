@@ -9,9 +9,6 @@ prebuild() {
     sed 's|specs/Makefile||' configure > tmp
     mv -f tmp configure
     chmod +x configure
-
-    # libice does not understand 'musl' triplet
-    unset HOST TARGET BUILD
 }
 build() {
     bonsai_configure --disable-specs

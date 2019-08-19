@@ -93,39 +93,23 @@ getflags() {
             LDFLAGS="$LDFLAGS -static --static"
     esac
 
-    TARGET=x86_64-linux-musl
-    HOST="$(gcc -dumpmachine 2>/dev/null)" # will error if gcc is not yet installed
-    BUILD="$HOST"
     LIBRARY_PATH=".:$root/lib:$root/libexec"
     CPATH=".:$root/include"
-    AM_LDFLAGS="$LDFLAGS"
     CPPFLAGS="$CPPFLAGS $cppflags"
     CXXFLAGS="$CXXFLAGS $cxxflags"
-    PREFIX="$pkgs/$name"
-    prefix="$PREFIX"
-    DESTDIR=''
-    BINDIR="$PREFIX/bin"
-    INCLUDEDIR="$PREFIX/include"
-    LIBDIR="$PREFIX/lib"
-    LIBEXECDIR="$PREFIX/libexec"
-    MANDIR="$PREFIX/share/man"
+    DESTDIR="$pkgs/$name"
+    PREFIX=/
+    prefix=/
     DOCDIR="$PREFIX/sucks"
-    PRESERVEDIR="$root/var/preserve"
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
     HOSTCC="$CC"
-    SHELL=/bin/sh
     MAKEINFO=false
-    if [ "$USE_HOST_PATH" ] ; then
-        PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig:\
-/share/pkgconfig:/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/pkgconfig"
-    else
-        PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
-    fi
+    SHELL=/bin/sh
+    PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
     export TARGET HOST BUILD CC cc HOSTCC SHELL \
            LIBRARY_PATH CPATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-           AM_LDFLAGS PREFIX prefix DESTDIR BINDIR INCLUDEDIR \
-           LIBDIR LIBEXECDIR MANDIR DOCDIR PRESERVEDIR MAKEINFO \
+           AM_LDFLAGS PREFIX prefix DOCDIR MAKEINFO \
            PKG_CONFIG_PATH
 }
 
@@ -183,9 +167,6 @@ bonsai_configure() {
     done
     #
     # flags that change based on what is in the --help
-    addflag --target= --target="$TARGET"
-    addflag --host= --host="$HOST"
-    addflag --build= --build="$BUILD"
     addflag --enable-shared --disable-shared
     addflag --with-shared --without-shared
     addflag --disable-static --enable-static
@@ -200,12 +181,6 @@ bonsai_configure() {
     addflag --with-fop --without-fop
     addflag --with-xsltproc --without-xsltproc
     addflag --prefix= --prefix="$PREFIX"
-    addflag --bindir= --bindir="$BINDIR"
-    addflag --sbindir= --sbindir="$BINDIR"
-    addflag --libdir= --libdir="$LIBDIR"
-    addflag --libexecdir= --libexecdir="$LIBEXECDIR"
-    addflag --includedir= --includedir="$INCLUDEDIR"
-    addflag --mandir= --mandir="$MANDIR"
     addflag --infodir= --infodir="$PREFIX"/sucks
     addflag --docdir= --docdir="$PREFIX"/sucks
     addflag --htmldir= --htmldir="$PREFIX"/sucks
@@ -236,22 +211,16 @@ bonsai_make() {
         DESTDIR="$DESTDIR" \
         PREFIX="$PREFIX" \
         prefix="$PREFIX" \
-        BINDIR="$BINDIR" \
-        INCLUDEDIR="$INCLUDEDIR" \
-        LIBDIR="$LIBDIR" \
-        LIBEXECDIR="$LIBEXECDIR" \
-        MANDIR="$MANDIR" \
-        DOCDIR="$DOCDIR" \
-        PRESERVEDIR="$PRESERVEDIR" "$@" || die "make $* failed for $name"
-
-    unset _quiet
+        BINDIR="$PREFIX"/bin \
+        MANDIR="$PREFIX"/share/man \
+        DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
 }
 
 # run if pkgfile doesn't define a custom build()
 generic_build() {
-    if [ -s configure ] ; then
+    if [ -f configure ] ; then
         bonsai_configure || return 1
-    elif [ -s autogen.sh ] ; then
+    elif [ -f autogen.sh ] ; then
         bonsai_autogen || return 1
         bonsai_configure || return 1
     fi

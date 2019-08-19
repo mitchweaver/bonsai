@@ -1,9 +1,11 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
-# downloads, builds, and installs a port
-# params: $name
+# 1. downloads, builds, and installs a port
+# 2. --quiet can be provided to silence some messages
+# params: [--quiet] $name
 addpkg() {
+    [ "$1" = --quiet ] && { nowarn=true ; shift ; }
     [ "$1" ] || die "addpkg(): no pkg given"
     is_empty "$ports" && die "addpkg(): no ports found"
 
@@ -36,8 +38,10 @@ addpkg() {
         unload_pkgfile
     done
 
-    warn "these packages will be installed:"
-    printf "\n  %s\n\n" "$*"
+    if [ "$nowarn" != true ] ; then
+        warn "these packages will be installed:"
+        printf "\n  %s\n\n" "$*"
+    fi
 
     # prompt user for confirmation before continuing
     confirm || return 1
@@ -61,7 +65,7 @@ addpkg() {
         fi
 
         # download / checksum / extract the package
-        get "$pkg_to_add"
+        get "$pkg_to_add" || die "failed to get() to tarball"
 
         # continue if we've been instructed only to download the tarball
         [ "$DLONLY" ] && { unload_pkgfile ; continue ; }
@@ -79,8 +83,7 @@ addpkg() {
         unload_pkgfile
     done || die "failed to install $port"
 
-    unset main_packages pkg dep
-    unset -f load_pkgfile unload_pkgfile prompt_user
+    unset main_packages pkg dep nowarn
 }
 
 # 1) create the $pkgdir if needed with given $name

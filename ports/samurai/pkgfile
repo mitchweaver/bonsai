@@ -5,6 +5,5 @@ sha256=e079e8de3b07ba0f1fffe2dff31c1fcb3be357c523abc6937108635a081a11f0
 postbuild() {
     ln -sf samu "$pkg"/bin/ninja
     ln -sf samu "$pkg"/bin/samurai
-
     ln -sf samu.1 "$pkg"/share/man/man1/samurai.1
 }

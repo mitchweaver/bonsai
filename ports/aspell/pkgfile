@@ -9,11 +9,3 @@ build() {
     bonsai_make
     bonsai_make install
 }
-postbuild() {
-    cd "$pkg"/bin
-    # fix bin names with target prepended
-    for file in * ; do
-        mv -f "$file" "${file#$TARGET-}"
-    done
-    unset file
-}

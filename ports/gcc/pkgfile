@@ -102,7 +102,7 @@ postbuild() {
     chmod +x "$pkg"/bin/c99 "$pkg"/bin/c89
 
     # remove triplet directory, (we will not be using it, save 20MB)
-    rm -r "${pkg:?}/$TARGET"
+    rm -r "${pkg:?}/$TARGET" 2>/dev/null ||:
 
     # remove java libs
     # (soon to be deprecated and nobody uses them anyway, save 30MB)

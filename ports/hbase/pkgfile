@@ -4,6 +4,6 @@ source=http://github.com/bonsai-linux/$name/archive/$version.tar.gz
 deps=zlib
 sha256=4fe5576cf30f1f5dabf679fc5a293555a20296e05d6fa335f3c815f3a928a143
 build() {
-    ./build.sh
-    ./build.sh install
+    PREFIX="$DESTDIR" ./build.sh
+    PREFIX="$DESTDIR" ./build.sh install
 }

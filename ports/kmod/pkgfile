@@ -26,6 +26,10 @@ build() {
         --with-rootlibdir=/lib \
         --with-bashcompletiondir="$pkg"/sucks
 
+    # fix unneeded if statement causing build to fail
+    sed 's|if test "\$(libdir)" != .*|if false ; then \\|' Makefile > tmp
+    mv -f tmp Makefile
+
     # do not use our cflags/ldflags, which conflict with kmod
     bonsai_make \
         CFLAGS="-s -Os -pipe -fstack-protector-strong" \

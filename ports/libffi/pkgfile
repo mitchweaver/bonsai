@@ -6,12 +6,12 @@ sha256=d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37
 build() {
     bonsai_configure
 	[ -e "$root"/bin/libtool ] && 
-        cp -f "$root"/bin/libtool ${BUILD:-.}/
+        cp -f "$root"/bin/libtool x86_64-*/
     bonsai_make
     bonsai_make install
 }
 postbuild() {
-    # fix man page names
+    # fix man page names if using a $TARGET
     for man in "$pkg"/share/man/man3/* ; do
         man=$(basename "$man")
         mv -f "$pkg"/share/man/man3/"$man" "$pkg"/share/man/man3/"${man#$TARGET-}"

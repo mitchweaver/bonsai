@@ -66,6 +66,7 @@ The tools script comes highly recommended, however if you wish do so manually:
 mount -o bind -t devtmpfs /dev     $chroot/dev
 mount -o bind -t proc     /proc    $chroot/proc
 mount -o bind -t sysfs    /sys     $chroot/sys
+chroot $path /bin/sh
 ```
 
 6. **exit**

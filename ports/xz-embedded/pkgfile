@@ -5,7 +5,7 @@ sha256=19577e9f68a2d4e08bb5564e3946e35c6323276cb6749c101c86e26505e3bf0e
 build() {
     cd userspace
     bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
-    install -Dm0755 xzminidec "$pkg"/bin/xzminidec
+    install -D -m 0755 xzminidec "$pkg"/bin/xzminidec
 }
 postbuild() {
     cd "$pkg"/bin

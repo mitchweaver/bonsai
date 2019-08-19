@@ -4,7 +4,6 @@ source=https://download.oracle.com/berkeley-$name/$name-$version.tar.gz
 sha256=e0a992d740709892e81f9d93f06daf305cf73fb81b545afe72478043172c3628
 deps=libtool
 build() {
-	unset BUILD TARGET HOST
 	cd build_unix
 	bonsai_configure --path=../dist
 	[ -e "$root"/bin/libtool ] && cp -f "$root"/bin/libtool .

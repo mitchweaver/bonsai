@@ -51,6 +51,9 @@ get() {
 # downloads given url to $sources
 # params: $source $name $version
 dlcurl() {
+    type curl >/dev/null ||
+        die "curl does not seem to be installed. Please install it first."
+
     _dldir="$work"/dl
     _source="$1"
     _name="$2"

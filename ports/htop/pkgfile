@@ -25,11 +25,6 @@ build() {
     bonsai_make install
 }
 postbuild() {
-    # junk
     rm -r "${pkg:?}"/share/applications \
           "${pkg:?}"/share/pixmaps
-
-    # fix weird names
-    mv -f "$pkg"/bin/*$name "$pkg"/bin/$name
-    mv -f "$pkg"/share/man/man1/*$name.1 "$pkg"/share/man/man1/$name.1
 }

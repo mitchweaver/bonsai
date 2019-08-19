@@ -28,7 +28,7 @@ build() {
 #    cp -f Setup Modules/
 
     # wipe our flags until we can get the above to work...
-    unset CFLAGS LDFLAGS CPPFLAGS CXXFLAGS HOST TARGET BUILD
+    unset CFLAGS LDFLAGS CPPFLAGS CXXFLAGS
     export CFLAGS="-O2 -s -fstack-protector-strong"
 
     bonsai_configure \

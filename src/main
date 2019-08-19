@@ -42,7 +42,15 @@ main() {
             export BOOTSTRAP USE_HOST_PATH
             loadconfig
             initglobals
-            set -- add @core
+            addpkg @core || exit 1
+            # download libressl and curl so they can be 
+            # installed later within chroot
+            msg 'downloading additional sources...'
+            for pkg in libressl curl ; do
+                DLONLY=true NO_PROMPT=true addpkg --quiet $pkg || exit 1
+            done
+            msg 'System has been bootstrapped! You may now chroot in...'
+            exit
             ;;
         *relink*world)
             loadconfig
