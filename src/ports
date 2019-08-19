@@ -5,11 +5,10 @@
 search() {
     set -- $(find "$ports" ! -path "$ports" -type d -name "*$1*" | sort)
     [ "$1" ] || die "port $1 not found"
-    for path in $@ ; do
-        path="${path##*/}"
-        echo "${path%.*}"
+    for _p in $@ ; do
+        _p="${_p##*/}"
+        echo "${_p%.*}"
     done
-    unset results path
 }
 
 # loads pkgfile for given $name
@@ -18,7 +17,7 @@ load_pkgfile() {
     pkg="$pkgs"/"$name"
     pkgfile="$ports/$name/pkgfile"
     export pkg name pkgfile
-    [ -s "$pkgfile" ] || die "failed to load $name's pkgfile"
+    [ -f "$pkgfile" ] || die "failed to load $name's pkgfile"
     . "$pkgfile"
     ismetapkg "$name" && version=metapkg
     pkgid="${name}${delim:=#}${version:=unknown}"
@@ -29,7 +28,7 @@ load_pkgfile() {
 # unsets vars as not to persist from pkg to pkg
 unload_pkgfile() {
     unset name pkgfile pkgid version source depends deps \
-            md5 sha1 sha256 sha512 pkgworkdir nolink nostrip
+          md5 sha1 sha256 sha512 pkgworkdir nolink nostrip
     unset -f prebuild build postbuild
 }
 
@@ -62,11 +61,8 @@ pkgdeps() {
 
     # remove multiple whitespaces
     set -- $pkgdeps
-    pkgdeps="$*"
+    export pkgdeps="$*"
 
-    export pkgdeps
-
-    unset -f dep_recurse
     unset dep deps arg
 }
 
@@ -97,10 +93,8 @@ rdeps() {
             printf '%s\n' $(basename $(dirname $dep)) $@
         done | sort -u \
     )
-
     msg "$*"
 
-    unset -f depends
     unset deps dep
 }
 
