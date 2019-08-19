@@ -84,7 +84,6 @@ linkpkg() {
 #   can specify --chroot as an alias for --pkgs=/src/pkgs
 relink_world() {
     [ "$2" ] && die "relink_all(): invalid number of arguments"
-    sanity_check
 
     # if no args, use the $pkgs variable from the bonsai.rc
     if [ -z "$1" ] ; then

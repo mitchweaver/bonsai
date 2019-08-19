@@ -12,9 +12,6 @@ delpkg() {
         die "$1 is not installed"
     fi
 
-    # ensure we're sane before doing anything damaging
-    sanity_check
-
     # todo: here we will also add any orphaned 
     # sub-deps instead of just "$name"
     # --- still up for debate if this should be implemented

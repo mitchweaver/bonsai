@@ -138,9 +138,6 @@ validate_gcc() {
     fi
 }
 
-# check variables are still sane before operations
-sanity_check() { : ; }
-
 print_logo() {
 printf "%b\n" \
 "

@@ -13,17 +13,14 @@ initglobals() {
         # If bootstrapping, relinking the world
         # use the host's userland. When bootstraping, programs
         # will take preference in the $PATH as they install.
-        PATH=".:$root/bin:$PATH"
+        export PATH=".:$root/bin:$PATH"
     else
         # otherwise if not bootstrapping, ONLY use the chroot's tools
-        PATH=".:$root/bin"
+        export PATH=".:$root/bin"
     fi
 
     # can offer significant speedup
-    LC_ALL=C
-    LANG=C
-
-    export PATH PKG_CONFIG_PATH LC_ALL LANG
+    export LC_ALL=C LANG=C
 }
 
 main() {
@@ -38,8 +35,7 @@ main() {
     # special arguments
     case "$1" in
         --bootstrap)
-            BOOTSTRAP=true ; USE_HOST_PATH=true
-            export BOOTSTRAP USE_HOST_PATH
+            export BOOTSTRAP=true USE_HOST_PATH=true
             loadconfig
             initglobals
             addpkg @core || exit 1
@@ -54,8 +50,7 @@ main() {
             ;;
         *relink*world)
             loadconfig
-            USE_HOST_PATH=true
-            export USE_HOST_PATH
+            export USE_HOST_PATH=true
             initglobals
             ;;
         unpack)
@@ -63,15 +58,13 @@ main() {
             if isinst sbase >/dev/null ; then
                 initglobals
             else
-                USE_HOST_PATH=true
-                export USE_HOST_PATH
+                export USE_HOST_PATH=true
                 initglobals
             fi
             ;;
         --hosts-path) # force usage of host's path
             loadconfig
-            USE_HOST_PATH=true
-            export USE_HOST_PATH
+            export USE_HOST_PATH=true
             initglobals
             shift
             ;;
@@ -86,17 +79,16 @@ main() {
 
     # check if our package symlinks are valid -- if not, error out
     case " $1 $2 " in
-        *relink*world)
-            # if relinking the world we know our symlinks will be currently incorrect
-            ;;
+        # if relinking the world we know our symlinks will be currently incorrect
+        *relink*world) ;;
         *) check_links 
     esac
     
     while [ "$1" ] ; do
         case "$1" in
             # ---- variable setting -------
-            *dlonly) DLONLY=true ; export DLONLY ; shift ;;
-            -y) NO_PROMPT=true ; export NO_PROMPT ; shift ;;
+            *dlonly) export DLONLY=true ; shift ;;
+            -y) expor NO_PROMPT=true ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;

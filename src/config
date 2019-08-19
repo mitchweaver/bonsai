@@ -20,7 +20,6 @@ loadconfig() {
       "${delim:='#'}"
 
     update_db
-    sanity_check
 }
 
 create_skeleton_config() {
