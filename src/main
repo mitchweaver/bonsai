@@ -88,7 +88,7 @@ main() {
         case "$1" in
             # ---- variable setting -------
             *dlonly) export DLONLY=true ; shift ;;
-            -y) expor NO_PROMPT=true ; shift ;;
+            -y) export NO_PROMPT=true ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;
