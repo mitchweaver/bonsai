@@ -101,7 +101,7 @@ getflags() {
     PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
 
     # commonly used variables for programs
-    : "${GREP:=grep}" "${FGREP:=grep -f}" "${EGREP:=grep -e}"
+    : "${GREP:=grep}" "${FGREP:=grep -f}" "${EGREP:=grep -e}" \
       "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}" \
       "${YACC:=yacc}"
 
