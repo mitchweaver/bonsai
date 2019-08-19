@@ -17,8 +17,15 @@ pack() {
 }
 
 # untar a downloaded binary package and install it.
-# params: name-version.tar.xz
+# params: $pack
 unpack() {
+    # lint tarball - must conform to name-version.tar.xz
+    echo "$*" | grep -E -- '.*.-.*.tar.xz' >/dev/null ||
+        die "incorrect pack format"
+    # must also not contain any spaces
+    echo "$*" | grep -F -- ' ' >/dev/null &&
+        die "incorrect pack format"
+
     pkgid="${1%.tar.xz}"
     name="${pkgid%-*}"
     version="${pkgid#$name-}"
