@@ -20,17 +20,11 @@ linkpkg() {
         *) die "linkpkg(): invalid number of arguments"
     esac
 
-    # if told not to link, return
-    if [ "$nolink" = true ] ; then
-        return
-    # if pkgdir does not exist, check if metapkg -- if so return
-    #                                            -- if not, error out
-    elif [ ! -d "$pkgs/$name" ] ; then
-        if ismetapkg "$name" ; then
-            return
-        else
-            die "linkpkg(): $name doesn't appear to be in $pkgs"
-        fi
+    [ "$nolink" = true ] && return
+
+    if [ ! -d "$pkgs/$name" ] ; then
+        ismetapkg "$name" && return
+        die "linkpkg(): $name doesn't appear to be in $pkgs"
     fi
 
     cd "$root" || die "linkpkg(): unable to cd to $root"
@@ -66,7 +60,6 @@ linkpkg() {
             done
         done
     fi
-    unset dir subdir file manX man _pkgs
 }
 
 # relinks every package installed
@@ -120,10 +113,7 @@ relink_world() {
     done || die "relink_world(): linking failed"
 
     printf '\n'
-
     msg 'done!'
-
-    unset relink_pkgs
 }
 
 # checks if links are still sane, (pointing to $pkgs on the correct root)
@@ -140,7 +130,6 @@ check_links() {
         [ -e "$root"/bin/$prog ] || die 'no coreutils yet installed?'
         test_link "$root"/bin/$prog || err_bad_links
     done
-    unset prog
 }
 
 err_bad_links() {
