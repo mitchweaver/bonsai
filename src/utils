@@ -2,7 +2,7 @@
 # shellcheck shell=sh
 
 msg()  {
-    [ -z "$1" ] && read -r input && set -- "$input"
+    [ "$1" ] || { set -f ; read -r inp && set $inp ; set +f ; }
     printf "%s\n" "$prompt $*"
 }
 msg_no_nl() { printf "%s" "$prompt $*" ; }
@@ -32,52 +32,34 @@ relink-world"
 # checks if a function is defined
 # params: $func_name(s)
 defined() {
-    for _arg ; do
-        case "$(type "$_arg")" in
+    for _a ; do
+        case "$(type "$_a")" in
             *" function"*) ;;
             *) return 1
         esac
     done
-    unset _arg
 }
 # checks if a command exists
 # params: $command_name(s)
-has() { 
-    for _arg ; do
-        type "$_arg" >/dev/null || return 1
-    done
-    unset _arg
-}
+has() { for _a ; do type "$_a" >/dev/null || return 1 ; done ; }
+
 # checks if command exists, exiting if not found
 # params: caller func, progs to check
 requires() {
-    func="$1"
+    f="$1"
     shift
-    for _prog ; do
-        has $_prog || die "$_prog not found in \$PATH but is required for $func"
+    for _p ; do
+        has $_p || die "$_p not found in \$PATH but is required for $f"
     done
-    unset _prog
 }
 
 # check if dir is empty
-# params: dir
-# return: 0 if true, 1 if false or not a dir
-is_empty() {
-    if rmdir "$1" 2>/dev/null ; then
-        mkdir "$1"
-        return
-    else
-        return 1
-    fi
-}
+# returns: 0 if true, 1 if false or not a dir
+is_empty() { rmdir "$1" 2>/dev/null && mkdir -p "$1" || return 1 ; }
 
 # params: $path
-# return: 0 if path is a symlink and target exists
-test_link() {
-    if [ ! -L "$1" ] || [ ! -e "$1" ]; then
-        return 1
-    fi
-}
+# returns: 0 if path is a symlink and target exists
+test_link() { if [ ! -L "$1" ] || [ ! -e "$1" ] ; then return 1 ; fi }
 
 # --- some coreutils in posix sh builtins ---
 basename() { printf "%s\n" "${1##*/}" ; }
@@ -85,20 +67,11 @@ dirname()  { printf "%s\n" "${1%/*}"  ; }
 
 # print out a file
 # 200%+ speed increase on small files
-shellcat() {
-    while IFS="" read -r _line ; do
-        printf "%s\n" "$_line"
-    done < "$1"
-    unset _line
-}
+shellcat() { while IFS="" read -r _l ; do printf "%s\n" "$_l" ; done < "$1" ; }
 
 # print first line of a file
 # 3000%+ speed increase on small files
-headn1() {
-    read -r _line < "$1"
-    printf "%s\n" "$_line"
-    unset _line
-}
+headn1() { read -r _l < "$1" ; printf "%s\n" "$_l" ; }
 # -------------------------------------------
 
 # checks if a given string contains another
@@ -116,7 +89,6 @@ confirm() {
             y|"") ;; # "" is equivalent to user pressing enter
             *) return 1
         esac
-        unset ans
     fi
 }
 
@@ -126,14 +98,10 @@ confirm() {
 # params: $name we're trying to add
 validate_gcc() {
     if ! test_link "$root"/bin/gcc ; then
-        case $1 in
+        case "$1" in
             *gcc*|@core|@fs|bonsai) ;;
-            *) 
-                if [ -e "$gcc" ] ; then
-                    die "No compiler toolchain has yet been installed."
-                else
-                    err_bad_links
-                fi
+            *) [ -e "$gcc" ] && die "No compiler toolchain installed."
+               err_bad_links
         esac
     fi
 }
