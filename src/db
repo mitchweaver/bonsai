@@ -14,11 +14,8 @@ isinst() {
     fi
 }
 
-# list packages currently installed
 listpkgs() { shellcat "$bonsaidb" ; }
-
-# count packages installed
-countpkgs() { listpkgs | wc -l ; }
+countpkgs() { wc -l < "$bonsaidb" ; }
 
 sort_db() { [ -s "$bonsaidb" ] && sort -o "$bonsaidb" "$bonsaidb" ; }
 
@@ -32,15 +29,12 @@ update_db() {
 
 # add entry to database
 # params: $pkgname $pkgversion
-add_db() {
-    echo "${1}${delim}${2}" >> "$bonsaidb"
-    update_db
-}
+add_db() { echo "${1}${delim}${2}" >> "$bonsaidb" ; update_db ; }
 
 # remove entry from database
 # param: $pkgname
 del_db() {
-    sed -e "s/${1}${delim}.*//" -e '/^$/d' "$bonsaidb" > "$bonsaidb".tmp
+    sed -e "s/$1$delim.*//" -e '/^$/d' "$bonsaidb" > "$bonsaidb".tmp
     mv -f "$bonsaidb".tmp "$bonsaidb"
     update_db
 }
