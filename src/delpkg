@@ -5,16 +5,11 @@
 delpkg() {
     [ "$1" ] || die "delpkg(): no pkg given"
 
-    # if we are only installing one package, 
-    # make sure it is installed -- die otherwise
+    # if we are only installing one package, make sure it is installed
     # -- (if installing multiple packages, we'll warn instead of exiting)
-    if [ -z "$2" ] && ! isinst "$1" >/dev/null ; then
-        die "$1 is not installed"
-    fi
+    [ -z "$2" ] && isinst "$1" >/dev/null || die "$1 is not installed"
 
-    # todo: here we will also add any orphaned 
-    # sub-deps instead of just "$name"
-    # --- still up for debate if this should be implemented
+    # todo: here we will also add any orphaned sub-deps instead of just "$name"
     warn "these packages will be deleted:"
     printf "\n  %s\n\n" "$*"
 
@@ -23,49 +18,44 @@ delpkg() {
 
     # delete the packages, one at a time
     while [ "$1" ] ; do
-
-        name="$1"
-
-        # only proceed if $name is installed
-        if ! isinst "$name" >/dev/null ; then
-            warn "$name is not installed"
+        # only proceed if $1 is installed
+        if ! isinst "$1" >/dev/null ; then
+            warn "$1 is not installed"
             shift
             continue
         fi
 
         cd "$root" || die "delpkg(): unable to cd to $root"
 
-        if [ -d "$pkgs/$name" ] ; then
-            # go through $pkgs/name, deleting files as we go
+        if [ -d "$pkgs/$1" ] ; then
+            # go through $pkgs/$1, deleting files as we go
             # afterwards, remove its symlink in the root
-            find "$pkgs/$name" -type f -o -type l | while read -r file ; do
+            find "${pkgs:?}/$1" -type f -o -type l | while read -r file ; do
                 rm -f "$file"
-                root_file="${file#$pkgs/$name}"
-                test_link "$root/$root_file" || rm -f "$root/$root_file"
+                test_link "$root/${file#$pkgs/$1}" || 
+                    rm -f "$root/${file#$pkgs/$1}"
             done
             # recurse through dirs in reverse, removing empty dirs as we go
             # afterwards, remove its equivalent dir in the root, if empty
             # note: the sed command here is to emulte 'tac' which is not portable
-            find "$pkgs/$name" -type d | sed '1!G;h;$!d' | while read -r dir ; do
+            find "${pkgs:?}/$1" -type d | sed '1!G;h;$!d' | while read -r dir ; do
                 rmdir "$dir" 2>/dev/null ||:
 
                 # check that $dir contains at least one slash before removing
                 # (so we don't remove any top level dirs i.e. bin,etc,lib...)
-                case "${dir#$pkgs/$name}" in
-                    *'/'*) rmdir "$root/${dir#$pkgs/$name}" 2>/dev/null ||: ;;
+                case "${dir#$pkgs/$1}" in
+                    *'/'*) rmdir "$root/${dir#$pkgs/$1}" 2>/dev/null ||: ;;
                     *)
                 esac
             done
         else
-            ismetapkg "$name" || warn "$name was not found in \$pkgs"
+            ismetapkg "$1" || warn "$1 was not found in \$pkgs"
         fi
 
-        del_db "$name"
+        del_db "$1"
         clean
 
-        msg "$name deleted"
-        unset name file dir root_file
-
+        msg "$1 deleted"
         shift
     done
 }
