@@ -115,7 +115,13 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
 **Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk)
 
-## Special thanks to
+# Installation
+
+For installation instructions, see [INSTALL.md](INSTALL.md)
+
+### Special thanks to
+
+----
 
 * [Alpine Linux](https://alpinelinux.org/)
 * [Sabotage Linux](https://github.com/sabotage-linux/sabotage)

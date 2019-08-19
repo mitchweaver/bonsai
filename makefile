@@ -1,19 +1,19 @@
-name=bonsai
-PREFIX=build
+root ?= build
+PREFIX = $(root)
 
-$(name): FORCE
+bonsai: FORCE
 .PHONY: FORCE
 FORCE:
 
-all: $(name)
+all: bonsai
 
-$(name):
-	:> $(name)
+bonsai:
+	:> bonsai
 	@echo '[*] collating sources into executable...'
 	find src -type f | while read -r file ; do \
-		cat $$file >> $(name) ; \
+		cat $$file >> bonsai ; \
 	done
-	echo 'main "$$@"' >> $(name)
+	echo 'main "$$@"' >> bonsai
 	@echo '[*] removing comments and blank lines from executable...'
 	# note: lines prefixed by '#_' remain blank lines
 	#       '##' are preserved as comments
@@ -21,21 +21,21 @@ $(name):
 	    -e 's:^\s*# .*$$::g' \
 	    -e 's:_TEMP_:## :g' \
 	    -e '/^$$/d' \
-	    -e 's:#_::g' $(name) > $(name).tmp
-	echo '#!/bin/sh -e' > $(name)
-	cat $(name).tmp >> $(name)
-	rm $(name).tmp
-	chmod +x $(name)
+	    -e 's:#_::g' bonsai > bonsai.tmp
+	echo '#!/bin/sh -e' > bonsai
+	cat bonsai.tmp >> bonsai
+	rm bonsai.tmp
+	chmod +x bonsai
 
 install:
-	install -Dm755 $(name) ${PREFIX}/src/$(name)
+	install -Dm755 bonsai ${PREFIX}/src/bonsai
 	cp -rf ports ${PREFIX}/src
 	if [ ! -f ${PREFIX}/src/bonsai.rc ] ; then \
-		root=${PREFIX} ./bonsai --skeleton ; \
+		root="$(root)" ./bonsai --skeleton ; \
 	fi
 
 clean:
-	rm -f $(name)
+	rm -f bonsai
 
 uninstall:
 	@echo "Unsafe. Please do this manually."
@@ -55,6 +55,6 @@ ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086 -e SC2119 -e SC2120
 #		  When words are split, they are done so intentionally.
 # SC2119 + SC2120: arguments supplied but not forwarded/used
 #		  Shellcheck cannot see arguments given from pkgfiles.
-test: $(name)
-	shellcheck -s sh -x -a $(name) $(ignores)
+test: bonsai
+	shellcheck -s sh -x -a bonsai $(ignores)
 	@echo "All checks passed!"
