@@ -5,9 +5,7 @@
 This is because throughout `bonsai` we use a `"$root"` variable so
 it can function seamlessly either inside or outside of a chroot.  
 
-When outside the chroot, `"$root"` is how it is set in your `bonsai.rc`.  
-<sub>**Example:**</sub>  
-`root="~/.local/bonsai"`
+When outside the chroot, `"$root"` is defined by your environment.
 
 However when inside the chroot, `"$root"` gets equated to `/`, so now paths listed
 as `"$root"/some/path` become `//some/path`.
