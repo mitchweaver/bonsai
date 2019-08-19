@@ -12,16 +12,6 @@ sucks() {
     [ -f build-aux/missing ] && :> build-aux/missing
     [ -f missing ] && :> missing
 
-    # Configure scripts often try to run programs with certain flags
-    # to see if they support different things.
-    # They often don't even use those flags in the end...
-    # If they do, they can be patched on a per-port basis.
-    # Usually to avoid these checks all you need to is have their name
-    # in the environment in all caps like so:
-    : "${GREP:=grep}" "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" \
-      "${FIND:=find}" "${YACC:=yacc}"
-    export GREP SED AWK TAR FIND YACC
-
     # musl-libc does not have ldconfig. To stop some makefiles from 
     # exiting if its not found, add a bogus script to $PATH to avoid errors.
     mkdir -p .bogus

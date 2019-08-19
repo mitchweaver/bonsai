@@ -14,20 +14,16 @@ run_build() {
     # workarounds for packaging that sucks
     sucks
 
-    # run user defined prebuild(), if exists
     if defined prebuild ; then
         prebuild || die "$name prebuild() failed"
-    # else, try to apply any patches (convenience)
     elif ! ismetapkg $name ; then
         bonsai_patch || die "$name generic prebuild() failed"
     fi
 
     cd "$pkgworkdir"
 
-    # run user defined build(), if exists
     if defined build ; then
         build || die "$name build() failed"
-    # otherwise run our automagic generic_build
     elif ! ismetapkg $name ; then
         case "$name" in
             *-bin) ;; # do not try to compile if binary package
@@ -35,7 +31,6 @@ run_build() {
         esac
     fi
 
-    # run user defined postbuild(), if exists
     cd "$pkgworkdir"
     if defined postbuild ; then
         postbuild || die "$name postbuild() failed"
@@ -44,21 +39,18 @@ run_build() {
     # strip bins/libs, making sure its not disabled in
     # either the pkgfile or the user's config
     if [ "$nostrip" != true ] && [ "$strip_bins" = true ] ; then
-        if [ -d "$pkg"/bin ] || [ -d "$pkg"/lib ] ; then
-            msg 'stripping binaries...'
-            find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
-                strip --strip-all "$file" 2>/dev/null ||:
-            done &
-            find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
-                strip --strip-unneeded "$file" 2>/dev/null ||:
-            done &
-            wait
-        fi
+        msg 'stripping binaries...'
+        find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
+            strip --strip-all "$file" 2>/dev/null ||:
+        done &
+        find "$pkg"/lib -type f 2>/dev/null | while read -r file ; do
+            strip --strip-unneeded "$file" 2>/dev/null ||:
+        done &
+        wait
     fi
 
     # unset in case we are adding multiple packages
     unset -f prebuild build postbuild
-    unset dir file
 }
 
 # * export all compilation related flags to environment
@@ -68,7 +60,6 @@ run_build() {
 #
 # params: [--no-static]
 getflags() {
-
     # 1. users config flags
     CFLAGS="$cflags"
     LDFLAGS="$ldflags"
@@ -88,8 +79,9 @@ getflags() {
     case "$1" in
         --no-static) ;; # do not add static flags
         *)
-            CFLAGS="$CFLAGS -static --static -Wl,-Bstatic -static-libgcc -no-pie -fpic \
--static-libstdc++ -static-libasan -static-libtsan -static-liblsan -static-libubsan"
+            CFLAGS="$CFLAGS -static --static -Wl,-Bstatic -static-libgcc \
+-no-pie -fpic -static-libstdc++ -static-libasan -static-libtsan \
+-static-liblsan -static-libubsan"
             LDFLAGS="$LDFLAGS -static --static"
     esac
 
@@ -100,17 +92,22 @@ getflags() {
     DESTDIR="$pkgs/$name"
     PREFIX=/
     prefix=/
-    DOCDIR="$PREFIX/sucks"
+    DOCDIR="$pkg"/sucks
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
     HOSTCC="$CC"
     MAKEINFO=false
     SHELL=/bin/sh
     PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
-    export TARGET HOST BUILD CC cc HOSTCC SHELL \
-           LIBRARY_PATH CPATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-           AM_LDFLAGS PREFIX prefix DOCDIR MAKEINFO \
-           PKG_CONFIG_PATH
+
+    # commonly used variables for programs
+    : "${GREP:=grep}" "${FGREP:=grep -f}" "${EGREP:=grep -e}"
+      "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}" \
+      "${YACC:=yacc}"
+
+    export TARGET HOST BUILD CC cc HOSTCC SHELL LIBRARY_PATH CPATH \
+           PKG_CONFIG_PATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PREFIX prefix \
+           DOCDIR MAKEINFO GREP FGREP EGREP SED AWK TAR FIND YACC
 }
 
 # convenience function, tries to find all *.patch
@@ -119,7 +116,6 @@ bonsai_patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
         { patch -p0 < "$patch" || return 1 ; } | msg
     done
-    unset patch
 }
 
 bonsai_autogen() { ./autogen.sh "$@" || die "autogen.sh failed for $name" ; }
@@ -128,6 +124,7 @@ bonsai_autogen() { ./autogen.sh "$@" || die "autogen.sh failed for $name" ; }
 # instead of assumed "./configure" (ie ./"$PWD"/configure)
 # possible params: --path=""
 bonsai_configure() {
+    # set path to the configure script, if provided
     case "$1" in
         --path=*) configure_path="${1#--path=}" ; shift ;;
         *) configure_path="$PWD"
@@ -143,8 +140,8 @@ bonsai_configure() {
 
     # params: flag_to_check flag_to_add
     addflag() {
-        grep -F -- "$1" $tmp_help >/dev/null && 
-            echo "$2" >> $tmp_flags
+        grep -F -- "$1" "$tmp_help" >/dev/null && 
+            echo "$2" >> "$tmp_flags"
     }
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -155,18 +152,18 @@ bonsai_configure() {
     ${quiet:=false} && _quiet='--silent --quiet'   
     #
     # flags that are the same as what we check for
-    for flag in --static --enable-static --enable-static-link --disable-shared \
-                --without-shared --disable-rpath --disable-option-checking  \
-                --enable-fast-install --disable-dependency-tracking --without-ada \
-                --disable-libtool-lock --disable-largefile \
+    for flag in --static --enable-static --enable-static-link --all-static \
+                --disable-shared --without-shared --disable-rpath \
+                --disable-option-checking --disable-dependency-tracking \
+                --enable-fast-install --disable-largefile --disable-libtool-lock \
                 --disable-docs --disable-gtk-docs --disable-gtk-docs-html \
-                --disable-documentation --without-tests --disable-debug \
-                --disable-debugger \
-                $_quiet $_nls ; do
+                --disable-documentation --without-tests --disable-tests \
+                --without-debug --disable-debug --disable-debugger \
+                --without-ada $_quiet $_nls ; do
         addflag $flag $flag
     done
     #
-    # flags that change based on what is in the --help
+    # flags that are dynamic
     addflag --enable-shared --disable-shared
     addflag --with-shared --without-shared
     addflag --disable-static --enable-static
@@ -181,9 +178,9 @@ bonsai_configure() {
     addflag --with-fop --without-fop
     addflag --with-xsltproc --without-xsltproc
     addflag --prefix= --prefix="$PREFIX"
-    addflag --infodir= --infodir="$PREFIX"/sucks
-    addflag --docdir= --docdir="$PREFIX"/sucks
-    addflag --htmldir= --htmldir="$PREFIX"/sucks
+    addflag --infodir= --infodir="$pkg"/sucks
+    addflag --docdir= --docdir="$pkg"/sucks
+    addflag --htmldir= --htmldir="$pkg"/sucks
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     # add a new line to denote separation between global flags
@@ -195,24 +192,15 @@ bonsai_configure() {
 
     "$configure_path"/configure $(shellcat "$tmp_flags") || 
         die "configure failed for $name"
-
-    unset -f addflag
-    unset flag tmp_help _nls _quiet
 }
 
 bonsai_make() {
     # set in bonsai.rc:
-    $mans   || _mans="MANDIR=$pkg/sucks"
-    $quiet  && _quiet='-s'
+    [ "$mans"  = false ] && _mans="MANDIR=$pkg/sucks"
+    [ "$quiet" = true  ] && _quiet='-s'
 
-    make $makeflags -j${jobs:=1} $_mans $_quiet \
-        CC="$CC" \
-        cc="$CC" \
-        DESTDIR="$DESTDIR" \
-        PREFIX="$PREFIX" \
-        prefix="$PREFIX" \
-        BINDIR="$PREFIX"/bin \
-        MANDIR="$PREFIX"/share/man \
+    make $makeflags -j${jobs:=1} $_mans $_quiet CC="$CC" cc="$CC" \
+        DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" \
         DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
 }
 
