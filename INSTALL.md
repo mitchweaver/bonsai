@@ -64,8 +64,11 @@ The tools script comes highly recommended, however if you wish do so manually:
 mount -o bind -t devtmpfs /dev  $root/dev
 mount -o bind -t proc     /proc $root/proc
 mount -o bind -t sysfs    /sys  $root/sys
-chroot $root /bin/sh
+root= chroot $root /bin/sh
 ```
+
+Notice that we unset the `$root` here for the `chroot` command.  
+This is because when inside the chroot, we want root to be `/` not `$root`.
 
 8. **exit**
 
