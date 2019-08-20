@@ -1,0 +1,36 @@
+info='An unfortunately widespread bloated build tool'
+version=3.15.2
+source=http://github.com/Kitware/CMake/releases/download/v$version/$name-$version.tar.gz
+deps='netbsd-curses expat libressl zlib bzip2'
+sha256=539088cb29a68e6d6a8fba5c00951e5e5b1a92c68fa38a83e1ed2f355933f768
+prebuild() {
+    # apply isystem patch
+    bonsai_patch
+
+    # fix bugged libcrypto check
+    sed 's|defined(HAVE_LIBCRYPTO)|0|' Utilities/cmlibarchive/libarchive/archive_hmac.c > tmp
+    mv -f tmp Utilities/cmlibarchive/libarchive/archive_hmac.c
+}
+build() {
+    CFLAGS="$CFLAGS -D_GNU_SOURCE" \
+
+    # system's libs errors out during linking, to look into later
+    bonsai_configure \
+        --no-system-curl \
+        --no-system-expat \
+        --no-system-zlib \
+        --no-system-bzip2 \
+        --no-system-libarchive \
+        --no-system-librhash \
+        --parallel=${jobs:-1}
+
+    # do not build tests
+    sed 's|.*Tests.*||g' Makefile > tmp
+    mv -f tmp Makefile
+    
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    find "${pkg:-?}" -name Help -o help -exec rm "{}" 2>/dev/null ||: \;
+}
