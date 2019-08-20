@@ -1,0 +1,14 @@
+info='Interface library for kernel DRM services'
+version=2.4.99
+source=http://dri.freedesktop.org/$name/$name-$version.tar.bz2
+deps='xorg-libpciaccess pkgconf'
+sha256=4dbf539c7ed25dbb2055090b77ab87508fc46be39a9379d15fed4b5517e1da5e
+build() {
+    bonsai_configure \
+        --disable-manpages \
+        --disable-valgrind \
+        --disable-cairo-tests \
+        --disable-install-test-programs
+    bonsai_make
+    bonsai_make install
+}
