@@ -1,0 +1,11 @@
+info='X Render extension client library'
+version=0.9.10
+source=http://x.org/releases/individual/lib/libXrender-$version.tar.bz2
+deps='xorg-libx11 xorg-xorgproto libtool'
+sha256=c06d5979f86e64cabbde57c223938db0b939dff49fdb5a793a1d3d0396650949
+build() {
+    bonsai_configure
+    cp -f /bin/libtool .
+    bonsai_make
+    bonsai_make install
+}
