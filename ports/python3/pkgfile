@@ -25,36 +25,25 @@ build() {
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     # copy our Setup included copied from the port dir
-#    cp -f Setup Modules/
+	# cp -f Setup Modules/
 
     # wipe our flags until we can get the above to work...
     unset CFLAGS LDFLAGS CPPFLAGS CXXFLAGS
     export CFLAGS="-O2 -s -fstack-protector-strong"
 
     bonsai_configure \
-        --enable-optimizations \
         --without-ensurepip \
         --with-system-libffi \
         --with-system-expat \
-        --without-valgrind
+        --without-valgrind \
+		--enable-optimizations
 
     # use our provided script to fix makesetup's bugged generated makefile
     sh fix_bad_makefile.sh
 
-    # nuke all instances of -shared from generated makefile
-#    sed 's| -shared| -static|g' Makefile > tmp
-#    mv -f tmp Makefile
-
-    bonsai_make \
-        altinstall \
-        maninstall
+    bonsai_make altinstall maninstall
 }
 postbuild() {
-    # Compile all .pyc files so they will be in the $pkg dir to be linked.
-    # Otherwise they'll get created later and be in the root.
-    # note: some of the dynamic modules may fail, this is fine, nop error code
-    ./python -E Lib/compileall.py "${pkg:?}"/lib/$name${version%.*} 2>/dev/null ||:
-
     # create symlinks without full version numbers, (ie 3.7->3)
     ln -sf python${version%.*}         "$pkg"/bin/$name
     ln -sf python-${version%.*}.pc     "$pkg"/lib/pkgconfig/$name.pc
@@ -64,8 +53,13 @@ postbuild() {
     # NOTE: This links the CURRENT $root, if you relink you world 
     #       to a different root you will need to fix this / reinstall.
     mkdir -p "$root"/lib/python${version%.*}/site-packages
-    rm -r "${pkg:?}"/lib/python${version%.*}/site-packages 2>/dev/null ||:
+    rm -rf "${pkg:?}"/lib/python${version%.*}/site-packages 2>/dev/null ||:
     ln -sf "$root"/lib/python${version%.*}/site-packages "${pkg:?}"/lib/python${version%.*}/site-packages
+
+    # Compile all .pyc files so they will be in the $pkg dir to be linked.
+    # Otherwise they'll get created later and be in the root.
+    # note: some of the dynamic modules may fail, this is fine, nop the error code
+    ./python -E Lib/compileall.py "${pkg:?}"/lib/$name${version%.*} 2>/dev/null ||:
 
     # remove tests, readmes
     find "${pkg:?}" -type f -name 'test*' -o -name 'README*' -exec rm "{}" \;
