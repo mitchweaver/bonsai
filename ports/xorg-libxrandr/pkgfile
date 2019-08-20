@@ -1,0 +1,5 @@
+info='X11 Resize and Rotate extension client library'
+version=1.5.2
+source=http://x.org/releases/individual/lib/libXrandr-$version.tar.bz2
+deps='xorg-libxrender xorg-libxext xorg-xorgproto'
+sha256=8aea0ebe403d62330bb741ed595b53741acf45033d3bda1792f1d4cc3daee023
