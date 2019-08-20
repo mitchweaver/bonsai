@@ -1,0 +1,12 @@
+info='Python3 Template library'
+version=1.1.0
+source=https://files.pythonhosted.org/packages/source/M/Mako/Mako-$version.tar.gz
+deps=python3-setuptools
+sha256=a36919599a9b7dc5d86a7a8988f23a9a3a3d083070023bab23d64f7f1d1e0a4b
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
