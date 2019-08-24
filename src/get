@@ -85,7 +85,7 @@ get_ext() {
 
 # verifies hash of $tarball against hash in the pkgfile
 # params: $tarball
-# assumes: one of the following: sha{512,256,1} or md5 in the environment
+# assumes: one of the following: $sha{512,256,1} or $md5 in the environment
 verify_checksum() {
     [ "$1" ] || die "verify_checksum(): no tarball provided"
     msg_no_nl "comparing checksum for $(basename "$1" | sed "s|$delim.*||")... "
@@ -115,7 +115,7 @@ verify_checksum() {
 }
 
 # decompresses a given tarball to stdout
-# params: tarball
+# params: $tarball
 decompress() {
     case "${1##*.}" in
         xz|txz) 
@@ -132,7 +132,7 @@ decompress() {
 }
 
 # compares checksum for given tarball and extracts to $pkgworkdir
-# params: tarball
+# params: $tarball
 # assumes: $name, $ext, $dldir, $pkgworkdir
 extract() {
     msg "extracting $name..."
