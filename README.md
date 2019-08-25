@@ -110,7 +110,7 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/bonsai-linux/hbase)   
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
 **Build Automation**: [pkgconf](http://pkgconf.org/) [mk](http://9fans.github.io/plan9port/unix) [samurai](http://github.com/michaelforney/samurai)  
-**Networking**: [sdhcp](http://core.suckless.org/sdhcp) [dropbear](http://matt.ucc.asn.au/dropbear/dropbear.html)  
+**Networking**: [dropbear](http://matt.ucc.asn.au/dropbear/dropbear.html)  
 **Compression**: [libarchive](http://libarchive.org/) [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
 **Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk)

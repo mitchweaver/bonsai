@@ -4,9 +4,6 @@ source=http://github.com/Kitware/CMake/releases/download/v$version/$name-$versio
 deps='netbsd-curses expat libressl zlib bzip2'
 sha256=539088cb29a68e6d6a8fba5c00951e5e5b1a92c68fa38a83e1ed2f355933f768
 prebuild() {
-    # apply isystem patch
-    bonsai_patch
-
     # fix bugged libcrypto check
     sed 's|defined(HAVE_LIBCRYPTO)|0|' Utilities/cmlibarchive/libarchive/archive_hmac.c > tmp
     mv -f tmp Utilities/cmlibarchive/libarchive/archive_hmac.c
