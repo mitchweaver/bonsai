@@ -2,7 +2,7 @@
 # shellcheck shell=sh
 
 loadconfig() {
-    : ${root:=/} "${bonsairc="$root/src/bonsai.rc"}"
+    : "${root:=/}" "${bonsairc="$root/src/bonsai.rc"}"
 
     # dont try to load config if we're creating the skeleton
     if [ "$1" != --skeleton ] ; then

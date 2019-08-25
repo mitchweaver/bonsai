@@ -80,7 +80,7 @@ main() {
     # check if our package symlinks are valid -- if not, error out
     case " $1 $2 " in
         # if relinking the world we know our symlinks will be currently incorrect
-        *relink*world) ;;
+        *relink*world*) ;;
         *) check_links 
     esac
     
