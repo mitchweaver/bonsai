@@ -3,6 +3,13 @@ info="Python${version%%.*} interpreter"
 source=http://github.com/python/cpython/archive/v$version.tar.gz
 deps='netbsd-curses libedit libressl libffi expat zlib bzip2'
 sha256=aaea286c4458f22125e1a08aa59359ebc32232eda50c98f013be49367e5d8b6a
+prebuild() {
+     rm -rf "${pkg:?}"/lib/python${version%.*} 2>/dev/null
+     mkdir -p "$root"/lib/python${version%.*} \
+              "$pkg"/lib
+     ln -sf "$root"/lib/python${version%.*} \
+            "${pkg:?}"/lib/python${version%.*}
+}
 build() {
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -48,19 +55,11 @@ postbuild() {
     ln -sf python${version%.*}         "$pkg"/bin/$name
     ln -sf python-${version%.*}.pc     "$pkg"/lib/pkgconfig/$name.pc
 
-    # add symlink for site-packages to $root/lib/site-packages
-    # (/src/pkgs/python3/lib/site-packages -> $root/lib/python3.7/site-packages)
-    # NOTE: This links the CURRENT $root, if you relink you world 
-    #       to a different root you will need to fix this / reinstall.
-    mkdir -p "$root"/lib/python${version%.*}/site-packages
-    rm -rf "${pkg:?}"/lib/python${version%.*}/site-packages 2>/dev/null ||:
-    ln -sf "$root"/lib/python${version%.*}/site-packages "${pkg:?}"/lib/python${version%.*}/site-packages
-
     # Compile all .pyc files so they will be in the $pkg dir to be linked.
     # Otherwise they'll get created later and be in the root.
     # note: some of the dynamic modules may fail, this is fine, nop the error code
     ./python -E Lib/compileall.py "${pkg:?}"/lib/$name${version%.*} 2>/dev/null ||:
 
     # remove tests, readmes
-    find "${pkg:?}" -type f -name 'test*' -o -name 'README*' -exec rm "{}" \;
+    find "${pkg:?}" -type f -name '*test*' -o -name 'README*' -exec rm -rf "{}" \;
 }
