@@ -1,0 +1,23 @@
+info='X11 Toolkit library'
+version=1.2.0
+source=http://x.org/releases/individual/lib/libXt-$version.tar.bz2
+deps='xorg-libx11 xorg-libice xorg-libsm xorg-xorgproto'
+sha256=b31df531dabed9f4611fc8980bc51d7782967e2aff44c4105251a1acb5a77831
+prebuild() {
+    # do not build specs
+    rm -r specs
+    sed -E 's|(( +")?specs/.*./Makefile(in)?)(.*.(;;))?||g' configure > tmp
+    mv -f tmp configure
+    chmod +x configure
+}
+build() {
+    bonsai_configure \
+        --disable-specs \ 
+        --without-glib \
+        --enable-malloc0returnsnull
+    bonsai_make \
+        SUBDIRS="util src include man"
+    bonsai_make \
+        SUBDIRS="util src include man" \
+        install
+}
