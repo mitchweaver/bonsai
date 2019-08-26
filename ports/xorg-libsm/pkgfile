@@ -1,0 +1,5 @@
+info='X11 Session Management library'
+version=1.2.3
+source=http://x.org/releases/individual/lib/libSM-$version.tar.bz2
+deps=xorg-libice
+sha256=2d264499dcb05f56438dee12a1b4b71d76736ce7ba7aa6efbf15ebb113769cbb
