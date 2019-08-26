@@ -1,9 +1,9 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 info='GNU C Compiler x64 musl-libc toolchain'
-version=9.1.0
+version=9.2.0
 deps='musl kernel-headers bison flex libgmp'
 source=http://mirrors.kernel.org/gnu/$name/$name-$version/$name-$version.tar.xz
-sha512=b6134df027e734cee5395afd739fcfa4ea319a6017d662e54e89df927dea19d3fff7a6e35d676685383034e3db01c9d0b653f63574c274eeb15a2cb0bc7a1f28
+sha512=a12dff52af876aee0fd89a8d09cdc455f35ec46845e154023202392adc164848faf8ee881b59b681b696e27c69fd143a214014db4214db62f9891a1c8365c040
 nostrip=true
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 binutils_version=2.32
@@ -49,46 +49,51 @@ prebuild() {
     for i in ../res/binutils-$binutils_version/* ; do
         ln -s "$i" 2>/dev/null ||: # nop exit code if already exists
     done
-    unset i
+
+    # swap DESTDIR and PREFIX
+    export PREFIX="$DESTDIR"
+    export DESTDIR=""
 }
 build() {
     # build gcc in a separate, clean dir
     mkdir build
     cd build
-    ln -s ../configure
 
-#    GCC_FLAGS="-fno-align-functions -fno-align-jumps -fno-align-loops -fno-align-labels"
+    GCC_FLAGS="-fno-align-functions -fno-align-jumps -fno-align-loops -fno-align-labels"
+    export CFLAGS="$CFLAGS $GCC_FLAGS"
+    export CPPFLAGS="$CPPFLAGS $GCC_FLAGS"
+#    --disable-libstdcxx-pch \
     
     LIBRARY_PATH="$root/lib:$root/libexec" \
-    bonsai_configure \
+    bonsai_configure --path=.. \
         --prefix="$PREFIX" \
-        --mandir="$MANDIR" \
         --disable-multilib \
         --disable-symvers \
         --disable-libmpx \
         --disable-libmudflap \
         --disable-libsanitizer \
+        --disable-libgomp \
         --disable-fixed-point \
-        --disable-libstdcxx-pch \
+        --enable-static \
         --disable-shared \
         --disable-host-shared \
-        --enable-static \
         --enable-host-static \
+        --enable-default-pie \
+        --enable-default-ssp \
         --with-system-zlib \
-        --disable-werror \
         --enable-checking=release \
         --enable-__cxa_atexit \
-        --enable-threads \
+        --enable-threads=posix \
+        --enable-clocale=gnu \
         --enable-tls \
         --enable-languages=c,c++ \
-        --disable-libgomp \
-        --disable-bootstrap
+        --disable-werror \
+        --disable-bootstrap \
+        --with-x=no
 
-    msg 'configure finished, building...'
     LIBRARY_PATH="$root/lib:$root/libexec" \
     bonsai_make
 
-    msg 'gcc build finished, installing...'
     LIBRARY_PATH="$root/lib:$root/libexec" \
     bonsai_make install
 }
@@ -102,7 +107,7 @@ postbuild() {
     chmod +x "$pkg"/bin/c99 "$pkg"/bin/c89
 
     # remove triplet directory, (we will not be using it, save 20MB)
-    rm -r "${pkg:?}/$TARGET" 2>/dev/null ||:
+    rm -r "${pkg:?}/x86_64-*linux*" 2>/dev/null ||:
 
     # remove java libs
     # (soon to be deprecated and nobody uses them anyway, save 30MB)
