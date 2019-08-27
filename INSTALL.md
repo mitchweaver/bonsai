@@ -80,3 +80,9 @@ Exit the chroot. If you used the `chroot.sh` script, drives will be unmounted au
 
 If the above all completed successfully, **congratulations**!  
 You have just installed your `bonsai` chroot!
+
+9. **post-install**
+
+If you need to install ports, you should first do `bonsai add curl`.
+This is so that `bonsai` can download the sources for packages.
+The source for `curl` is already included in the chroot, but it's not built.
