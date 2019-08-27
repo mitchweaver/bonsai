@@ -21,7 +21,6 @@ run_build() {
     fi
 
     cd "$pkgworkdir"
-
     if defined build ; then
         build || die "$name build() failed"
     elif ! ismetapkg $name ; then
@@ -69,20 +68,20 @@ getflags() {
     LDFLAGS="$LDFLAGS -fdata-sections -ffunction-sections"
 
     # 3. security flags
-    CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -Wformat \
+    CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS \
 -fexceptions -fstack-protector-strong -fstack-clash-protection \
 -fasynchronous-unwind-tables -fcf-protection \
 -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack \
--Wl,-z,nodlopen -Wl,-z,nodump"
+-Wl,-z,nodump"
 
     # 4. static related flags
     case "$1" in
         --no-static) ;; # do not add static flags
         *)
-            CFLAGS="$CFLAGS -static --static -Wl,-Bstatic -static-libgcc \
--no-pie -fpic -static-libstdc++ -static-libasan -static-libtsan \
--static-liblsan -static-libubsan"
+            CFLAGS="$CFLAGS -static --static -static-libgcc -static-libstdc++ \
+-Wl,-Bstatic -fpic -Wl,-z,nodlopen"
             LDFLAGS="$LDFLAGS -static --static"
+            AM_LDFLAGS="$AM_LDFLAGS -static --static"
     esac
 
     LIBRARY_PATH=".:$root/lib:$root/libexec"
@@ -99,6 +98,7 @@ getflags() {
     MAKEINFO=false
     SHELL=/bin/sh
     PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
+    PKG_CONFIG='pkgconf --static'
 
     # commonly used variables for programs
     : "${GREP:=grep}" "${FGREP:=grep -f}" "${EGREP:=grep -e}" \
@@ -154,10 +154,12 @@ bonsai_configure() {
     # flags that are the same as what we check for
     for flag in --static --enable-static --enable-static-link --all-static \
                 --disable-shared --without-shared --disable-rpath \
+                --with-pic --enable-pic \
                 --disable-option-checking --disable-dependency-tracking \
                 --enable-fast-install --disable-largefile --disable-libtool-lock \
                 --disable-docs --disable-gtk-docs --disable-gtk-docs-html \
-                --disable-documentation --without-tests --disable-tests \
+                --disable-documentation --disable-devel-docs --disable-build-docs \
+                --without-tests --disable-tests \
                 --without-debug --disable-debug --disable-debugger \
                 --without-ada $_quiet $_nls ; do
         addflag $flag $flag
