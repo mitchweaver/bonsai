@@ -1,7 +1,7 @@
 info='X11 Inter-Client Exchange library'
 version=1.0.8
 source=http://x.org/releases/X11R7.7/src/lib/libICE-$version.tar.bz2
-deps='xorg-xorgproto xorg-xtrans libtool'
+deps='xorg-xorgproto xorg-xtrans libtool pkgconf'
 sha256=24a991284d02ff0c789bc8d11ad2e4dffe144cb70f24e28f9ce3e8b1ee08b71e
 prebuild() {
     # do not build specs
