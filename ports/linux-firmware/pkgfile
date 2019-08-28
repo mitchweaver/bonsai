@@ -10,9 +10,8 @@ prebuild() {
     mv -f tmp Makefile
 }
 build() {
-    bonsai_make FIRMWAREDIR="$root"/lib/firmware install
-    for junk in GPL-2 GPL-3 Makefile configure README ; do
-        rm "$root"/lib/firmware/$junk
+    bonsai_make DESTDIR="" FIRMWAREDIR=/lib/firmware install
+    for junk in Makefile configure README ; do
+        rm -f "$root"/lib/firmware/$junk
     done
-    unset junk
 }
