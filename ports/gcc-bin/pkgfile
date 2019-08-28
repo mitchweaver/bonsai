@@ -1,8 +1,16 @@
 info='GNU C Compiler x64 musl-libc toolchain (binary)'
-version=9.2.0
 source=http://bonsai-linux.org/pkgs/${name%-bin}-$version.tar.xz
-sha512=5c35cf9cd4515392ec8c421a7182f858af48a7c76b807f163883694e5208ad8ab18d50b473e2361203472fa037e99f835a3bd12f048b5a7e84c4e001c3af0ec8
 nostrip=true
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+version=9.1.0
+sha512=048834ae9293d8146b51811a02bec69347690e041082063831c7528c7eb75858c937700e6912293a5ee0a5542ea22947689493eb4e5706433dfe4a774c0aed7e
+# -*-* version 9.2.0 is not considered stable yet -*-*-*-*-*-*
+# version=9.2.0
+# sha512=5c35cf9cd4515392ec8c421a7182f858af48a7c76b807f163883694e5208ad8ab18d50b473e2361203472fa037e99f835a3bd12f048b5a7e84c4e001c3af0ec8
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
 build() {
     rm -rf "${pkgs:?}"/${name:?} 2>/dev/null ||:
     cd ..
