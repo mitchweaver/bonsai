@@ -16,11 +16,6 @@ build() {
 postbuild() {
 	cd "$pkg"
 
-	# programs already existing between sbase/ubase
-	for prog in su passwd ; do
-		rm bin/$prog
-	done
-
 	# store all in bin
 	if [ -d sbin ] ; then
 		mv -f sbin/* bin/
