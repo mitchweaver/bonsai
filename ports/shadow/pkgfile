@@ -1,0 +1,38 @@
+info='Shadow password file utilities'
+version=4.7
+source=http://github.com/$name-maint/$name/releases/download/$version/$name-$version.tar.xz
+deps=acl
+sha256=e5e196a4a7e3b228c812f3163d368be3e932e6eaa4e616677a148d9ec921e16c
+build() {
+	bonsai_configure \
+		--disable-shadowgrp \
+		--without-selinux \
+		--without-audit \
+		--without-libpam \
+		--without-btrfs
+	bonsai_make
+	bonsai_make install
+}
+postbuild() {
+	cd "$pkg"
+
+	# programs already existing between sbase/ubase
+	for prog in su passwd ; do
+		rm bin/$prog
+	done
+
+	# store all in bin
+	if [ -d sbin ] ; then
+		mv -f sbin/* bin/
+		rmdir sbin
+	fi
+
+	# only file useful is defs
+	[ ! -f /etc/login.defs ] && mv -f etc/login.defs /etc/
+	rm -rf etc
+
+	# only keep man1
+	for i in 3 5 8 ; do
+		rm -rf share/man/man$i
+	done
+}
