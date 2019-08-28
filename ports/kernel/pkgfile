@@ -33,6 +33,7 @@ prebuild() {
         else
             die "$ans is not a valid file"
         fi
+        bonsai_make olddefconfig
     else
         msg "Ok. Creating defconfig instead..."
         bonsai_make defconfig
