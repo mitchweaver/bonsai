@@ -13,8 +13,7 @@ build() {
 }
 postbuild() {
     # clean up awkward installation directories
-    mv -f "${pkg:?}"/src/pkgs/syslinux/share "${pkg:?}"/
-    mv -f "${pkg:?}"/src/pkgs/syslinux/bin "${pkg:?}"/
+    mkdir -p "$pkg"/bin "$pkg"/share
     mv -f "${pkg:?}"/usr/share/* "${pkg:?}"/share/
     mv -f "${pkg:?}"/sbin/* "${pkg:?}"/bin/
     rmdir -p "$pkg"/src/pkgs/syslinux \
