@@ -38,14 +38,13 @@ main() {
             export BOOTSTRAP=true USE_HOST_PATH=true
             loadconfig
             initglobals
-            addpkg @core || exit 1
-            # download libressl and curl so they can be 
-            # installed later within chroot
+            addpkg @stage0 || exit 1
+            # download stage1 so it may be installed once chrooted in
             msg 'downloading additional sources...'
-            for pkg in libressl curl ; do
-                DLONLY=true NO_PROMPT=true addpkg --quiet $pkg || exit 1
-            done
-            msg 'System has been bootstrapped! You may now chroot in...'
+            DLONLY=true NO_PROMPT=true addpkg --quiet @stage1 || 
+                die 'WARNING: failed to download @stage1!'
+            msg 'System has been bootstrapped! You may now chroot in...
+  Remember to install @stage1 once inside.'
             exit
             ;;
         *relink*world)

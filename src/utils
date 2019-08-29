@@ -99,7 +99,7 @@ confirm() {
 validate_gcc() {
     if ! test_link "$root"/bin/gcc ; then
         case "$1" in
-            *gcc*|@core|@fs|bonsai) ;;
+            *gcc*|@stage0|@fs|bonsai) ;;
             *) [ -e "$gcc" ] && die "No compiler toolchain installed."
                err_bad_links
         esac

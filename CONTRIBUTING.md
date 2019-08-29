@@ -121,7 +121,7 @@ With that said, make sure you use an official, trusted mirror.
 
 If you want to use `git` to get *"bleeding edge"* updates of your programs -- that's fine.  
 However use tarballs for official ports.  
-This is to not require `git` be in `@core` as a dependency, as well as of course, 
+This is to not require `git` be in `@stage1` as a dependency, as well as of course, 
 not break things.
 
 Can't find a hosted tarball? Have no fear! GitHub can generate you one from any commit hash.
@@ -138,7 +138,7 @@ sha256=58db744a9198327f185355c6c9b3ee2bc7e55af4f5b02bba7b2f7de12c4088ed
 ### List dependencies
 
 Triple check to make sure you have all of the dependencies listed.  
-It's wise to test your port in a new chroot with only `@core` installed to make sure that it compiles.
+It's wise to test your port in a new chroot with only `@stage0` and `@stage1` installed to make sure that it compiles.
 
 ### Do not list sub-dependencies
 

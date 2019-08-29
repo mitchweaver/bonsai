@@ -1,0 +1,3 @@
+info='the bonsai core system - stage1'
+metapkg=true
+deps='slibtool hbase pkgconf libressl curl'
