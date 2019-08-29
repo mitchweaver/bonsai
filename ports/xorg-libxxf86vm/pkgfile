@@ -1,11 +1,5 @@
 info='X11 XFree86 library'
 version=1.1.4
 source=http://x.org/releases/individual/lib/libXxf86vm-$version.tar.bz2
-deps='xorg-libxext xorg-xorgproto libtool'
+deps='xorg-libxext xorg-xorgproto'
 sha256=afee27f93c5f31c0ad582852c0fb36d50e4de7cd585fcf655e278a633d85cd57
-build() {
-    bonsai_configure
-    cp -f /bin/libtool .
-    bonsai_make
-    bonsai_make install
-}

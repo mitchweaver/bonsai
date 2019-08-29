@@ -1,11 +1,4 @@
 info='GNU spell checker'
 version=0.60.7
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
-deps=libtool
 sha256=5ca8fc8cb0370cc6c9eb5b64c6d1bc5d57b3750dbf17887726c3407d833b70e4
-build() {
-    bonsai_configure
-    [ -e "$root"/bin/libtool ] && cp -f "$root"/bin/libtool .
-    bonsai_make
-    bonsai_make install
-}

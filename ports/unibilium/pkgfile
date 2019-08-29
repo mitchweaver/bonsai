@@ -1,5 +1,4 @@
 info='A terminfo parsing library'
 version=2.0.0
 source=http://github.com/neovim/$name/archive/v$version.tar.gz
-deps=libtool
 sha256=78997d38d4c8177c60d3d0c1aa8c53fd0806eb21825b7b335b1768d7116bc1c1

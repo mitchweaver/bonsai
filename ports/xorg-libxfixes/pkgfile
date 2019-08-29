@@ -1,11 +1,5 @@
 info='Fixes for the X11 library'
 version=5.0.3
 source=http://x.org/releases/individual/lib/libXfixes-$version.tar.bz2
-deps='xorg-libx11 libtool'
+deps=xorg-libx11
 sha256=de1cd33aff226e08cefd0e6759341c2c8e8c9faf8ce9ac6ec38d43e287b22ad6
-build() {
-    bonsai_configure
-    cp -f /bin/libtool .
-    bonsai_make
-    bonsai_make install
-}

@@ -5,11 +5,9 @@ deps='libedit zlib'
 sha256=8e7c1e2950b5b04c5944a981cb31fffbf9d2ddda939d536838ebc854481afd5b
 build() {
     bonsai_configure --enable-readline
-
     CFLAGS="-DSQLITE_SECURE_DELETE=1 -DSQLITE_ENABLE_COLUMN_METADATA=1 \
             -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 -DSQLITE_ENABLE_DBSTAT_VTAB=1 \
             -DSQLITE_ENABLE_FTS3=1  $CFLAGS" \
     bonsai_make
-
     bonsai_make install
 }

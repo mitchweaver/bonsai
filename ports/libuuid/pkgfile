@@ -1,11 +1,4 @@
 info='Portable uuid C library'
 version=1.0.3
 source=http://downloads.sourceforge.net/sourceforge/$name/$version/$name-$version.tar.gz
-deps=libtool
 sha256=46af3275291091009ad7f1b899de3d0cea0252737550e7919d17237997db5644
-build() {
-    bonsai_configure
-	[ -e "$root"/bin/libtool ] && cp -f "$root"/bin/libtool .
-    bonsai_make
-    bonsai_make install
-}

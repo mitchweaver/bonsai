@@ -1,11 +1,6 @@
 info='linux kernel module utilities'
 version=26
 source=http://mirrors.edge.kernel.org/pub/linux/utils/kernel/$name/$name-$version.tar.xz
-
-# kmod's libtool annoyingly depends on bash
-# if you can help with patches to remove this, please PR -- thanks.
-deps=bash
-
 sha256=57bb22c8bb56435991f6b0810a042b0a65e2f1e217551efa58235b7034cdbb9d
 prebuild() {
     # kmod's configure fails if given --disable-largefile.

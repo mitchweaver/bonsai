@@ -100,6 +100,13 @@ getflags() {
     PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
     PKG_CONFIG='pkgconf --static'
 
+    # only export libtool if we're not bootstrapping 
+    # (stage0 will not have this installed)
+    if type slibtool >/dev/null 2>&1 ; then
+        export LIBTOOL=/bin/slibtool-static
+        export MAKE="make LIBTOOL='$LIBTOOL'"
+    fi
+
     # commonly used variables for programs
     : "${GREP:=grep}" "${FGREP:=grep -f}" "${EGREP:=grep -e}" \
       "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}" \
@@ -201,7 +208,8 @@ bonsai_make() {
     [ "$mans"  = false ] && _mans="MANDIR=$pkg/sucks"
     [ "$quiet" = true  ] && _quiet='-s'
 
-    make $makeflags -j${jobs:=1} $_mans $_quiet CC="$CC" cc="$CC" \
+    make $makeflags -j${jobs:=1} $_mans $_quiet \
+        CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="$MAKE" \
         DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" \
         DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
 }
