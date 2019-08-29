@@ -105,6 +105,9 @@ getflags() {
     if type slibtool >/dev/null 2>&1 ; then
         export LIBTOOL=/bin/slibtool-static
         export MAKE="make LIBTOOL='$LIBTOOL'"
+    else
+        export LIBTOOL="$(which libtool)"
+        export MAKE="make LIBTOOL='$LIBTOOL'"
     fi
 
     # commonly used variables for programs

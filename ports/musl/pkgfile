@@ -20,6 +20,11 @@ postbuild() {
     mkdir -p "$pkg"/bin
     ln -sf ../lib/libc.so "$pkg"/bin/ldd
 
+    # we do not use ldconfig in bonsai as we are static linking
+    # however, many configure scripts error out if its not found in $PATH
+    echo '#!/bin/true' > "$pkg"/bin/ldconfig
+    chmod +x "$pkg"/bin/ldconfig
+
     # add some symlinks for compatibility
     ln -sf libc.so "$pkg"/lib/ld-musl-x86_64.so
     ln -sf libc.so "$pkg"/lib/ld-musl-x86_64.so.1
