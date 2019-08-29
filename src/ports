@@ -19,10 +19,13 @@ load_pkgfile() {
     export pkg name pkgfile
     [ -f "$pkgfile" ] || die "failed to load $name's pkgfile"
     . "$pkgfile"
-    ismetapkg "$name" && version=metapkg
+    if ismetapkg "$name" ; then
+        version=metapkg
+        nostrip=true
+    fi
     pkgid="${name}${delim:=#}${version:=unknown}"
     pkgworkdir="$work/$name"
-    export version source pkgid pkgworkdir
+    export version source pkgid pkgworkdir nostrip
 }
 
 # unsets vars as not to persist from pkg to pkg

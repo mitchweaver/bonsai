@@ -35,8 +35,8 @@ run_build() {
         postbuild || die "$name postbuild() failed"
     fi
 
-    # strip bins/libs, making sure its not disabled in
-    # either the pkgfile or the user's config
+    # strip bins/libs, making sure its not disabled 
+    # in either the pkgfile or the user's config
     if [ "$nostrip" != true ] && [ "$strip_bins" = true ] ; then
         msg 'stripping binaries...'
         find "$pkg"/bin -type f 2>/dev/null | while read -r file ; do
