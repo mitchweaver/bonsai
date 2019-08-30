@@ -1,0 +1,17 @@
+info='interface for the X Window System protocol'
+version=1.13.1
+source=http://xcb.freedesktop.org/dist/${name#xorg-}-$version.tar.bz2
+deps='python3 xorg-libxau xorg-xcb-proto libpthread-stubs automake'
+sha256=a89fb7af7a11f43d2ce84a844a4b38df688c092bf4b67683aef179cdf2a647c4
+# prebuild() {
+    # remove libpthread-stubs dependency
+    # sed 's|pthread-stubs||' configure.ac > tmp
+    # mv -f tmp configure.ac
+    # autoreconf -fi
+# }
+postbuild() {
+    # xcb comes with a ton of man3 manpages (9MB)
+    # they are not used except by xcb developers
+    rm -r "${pkg:?}"/share/man 2>/dev/null ||:
+    rmdir "$pkg"/share 2>/dev/null ||:
+}
