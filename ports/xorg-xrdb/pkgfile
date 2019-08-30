@@ -1,0 +1,8 @@
+info='X11 Resource Database utility'
+version=1.2.0
+source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps='xorg-libxmu xorg-libx11 xorg-util-macros pkgconf'
+sha256=f23a65cfa1f7126040d68b6cf1e4567523edac10f8dc06f23d840d330c7c6946
+prebuild() {
+    export LIBS='-lxcb -lXau'
+}
