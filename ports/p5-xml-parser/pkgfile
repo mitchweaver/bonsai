@@ -5,9 +5,7 @@ deps='expat perl'
 sha256=5310ea5c8c707f387589bba8934ab9112463a452f828adf2755792d968b9ac7e
 prebuild() {
     export OPTIMIZE="$CFLAGS"
-    # determine perl version
-    set -- $(perl --version | grep 'v' | sed -e 's|.*v||' -e 's|).*||')
-    export PERL_VERSION="$1"
+    export PERL_VERSION="$(perl -e 'print substr($^V,1)')"
 }
 build() {
     perl Makefile.PL
