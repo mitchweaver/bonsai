@@ -21,6 +21,7 @@ addpkg() {
     [ "$1" ] || die "addpkg(): no pkg given"
     is_empty "$ports" && die "addpkg(): no ports found"
 
+    [ "$UPDATE" ] ||
     for pkg in $@ ; do
         isinst "$pkg" > /dev/null &&
             die "port $pkg is already installed"
@@ -70,13 +71,6 @@ addpkg() {
         # load all pkgfile variables into environment
         load_pkgfile "$pkg_to_add"
 
-        # check if is already installed
-        if isinst "$name" >/dev/null ; then
-            msg "port $name is already installed"
-            unload_pkgfile
-            continue
-        fi
-
         # download / checksum / extract the package
         get "$pkg_to_add" || die "failed to get() to tarball"
 
@@ -96,7 +90,7 @@ addpkg() {
         unload_pkgfile
     done || die "failed to install $port"
 
-    unset main_packages pkg dep nowarn
+    unset main_packages pkg dep nowarn UPDATE
 }
 
 # 1) create the $pkgdir if needed with given $name
@@ -117,7 +111,7 @@ createpkgdir() {
 # assumes: all pkgfile vars in the environment
 installpkg() {
     # check again incase we weren't called via addpkg()
-    if isinst "$1" >/dev/null ; then
+    if [ -z "$UPDATE" ] && isinst "$1" >/dev/null ; then
         msg "port $1 is already installed"
         unload_pkgfile
         return 1

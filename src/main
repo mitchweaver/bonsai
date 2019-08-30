@@ -100,6 +100,7 @@ main() {
             rdeps)     rdeps  "$2"   ; exit $? ;;
             add|-a) shift ; addpkg "$@" ; exit $? ;;
             del|-d) shift ; delpkg "$@" ; exit $? ;;
+            update|-u) shift ; export UPDATE=true ; addpkg "$@" ; exit $? ;;
             *help|-h) usage ; exit ;;
             relink|-r)
                 shift

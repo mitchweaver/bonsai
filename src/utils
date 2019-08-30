@@ -18,15 +18,16 @@ commands:
 add    | -a
 del    | -d
 relink | -r
+update | -u
 search | -s
 info   | -i
 list   | -l
 print  | -p
 count  | -c
-deps isinst
+deps rdeps
 pack unpack
-chroot skel
-relink-world"
+isinst
+"
 }
 
 # checks if a function is defined
