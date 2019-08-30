@@ -27,6 +27,13 @@ prebuild() {
     # remove gdbm / db dependencies
     sed 's/gdbm dbm db//g' Configure > tmp ; mv -f tmp Configure
     sed '/\(gdbm\|GDBM\)/d' MANIFEST > tmp ; mv -f tmp MANIFEST
+
+# --- useful if dynamic linking:
+# isinst perl >/dev/null && export PERL5LIB="$PERL5LIB:.:\
+# /lib/${name}${version%%.*}/$version:\
+# /lib/${name}${version%%.*}/$version/x86_64-linux-thread-multi:\
+# /lib/${name}${version%%.*}/site_perl/$version:\
+# /lib/${name}${version%%.*}/site_perl/$version/x86_64-linux-thread-multi"
 }
 build() {
     # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
@@ -41,6 +48,11 @@ build() {
         -Aldflags="$LDFLAGS" \
         -Dprefix="$PREFIX" \
         -Dvendorprefix="$PREFIX" \
+        -Dotherlibdirs=".:\
+/lib/${name}${version%%.*}/$version:\
+/lib/${name}${version%%.*}/$version/x86_64-linux-thread-multi:\
+/lib/${name}${version%%.*}/site_perl/$version:\
+/lib/${name}${version%%.*}/site_perl/$version/x86_64-linux-thread-multi" \
         -Dusethreads \
         -Dusedevel \
         -Uusedl \
