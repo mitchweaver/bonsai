@@ -1,12 +1,12 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
-# downloads url and extracts to $work/$pkg
+# downloads url and extracts to $workdir/$pkg
 # params: none
 # assumes: $version $source $pkgid $pkgfile $pkgworkdir in environment
 get() {
     name="$1"
-    dldir="$work/dl"
+    dldir="$workdir/dl"
     mkdir -p "$pkgworkdir" "$dldir" "$sources"
 
     # get file extension
@@ -52,7 +52,7 @@ get() {
 dlcurl() {
     type curl >/dev/null || die "curl does not seem to be installed."
 
-    _dldir="$work"/dl
+    _dldir="$workdir"/dl
     _source="$1"
     _name="$2"
     _version="$3"

@@ -4,6 +4,18 @@
 # 1. downloads, builds, and installs a port
 # 2. --quiet can be provided to silence some messages
 # params: [--quiet] $name
+#
+#
+# To help with confusion, here are the $work variables:
+#-----------------------------------------------------------
+# $work - /src/work
+#
+# $workdir - /src/work/$name/$name          (actual build dir)
+#                           /$name.cfhelp   (./configure --help)
+#                           /$name.cfflags  (./configure flags used)
+#                           /dl             (downloaded source)
+#
+# $pkgworkdir - /src/work/$name/$name
 addpkg() {
     [ "$1" = --quiet ] && { nowarn=true ; shift ; }
     [ "$1" ] || die "addpkg(): no pkg given"
@@ -48,8 +60,9 @@ addpkg() {
 
     # main loop
     for pkg_to_add in $@ ; do
+        export workdir="$work"/$pkg_to_add
         # clear any work from previous build
-        rm -rf "${work:?}" 2>/dev/null ||:
+        rm -rf "${workdir:?}" 2>/dev/null ||:
 
         # sanity check if not meta pkg
         ismetapkg "$pkg_to_add" || validate_gcc "$pkg_to_add"
@@ -118,7 +131,7 @@ installpkg() {
     add_db "$1" "$version"
     msg "$1 installed!"
 
-    # clear $pkgs tree of empty dirs and removes $work
+    # clear $pkgs tree of empty dirs and removes $workdir
     clean
     trap - INT TERM
 }

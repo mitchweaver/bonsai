@@ -28,6 +28,7 @@ unpack() {
     version="${pkgid#$name-}"
 
     # clear any work from possible existing build
+    # TODO: should this be $work?
     rm -rf "${work:?}" 2>/dev/null ||:
 
     # check if is already installed
@@ -60,10 +61,12 @@ ismetapkg() {
     return $?
 }
 
-# cleans $pkgs tree of empty dirs and clears $work
+# cleans $pkgs tree of empty dirs and clears $workdir
 # params: none
 clean() {
-    rm -rf "${work:?}" 2>/dev/null ||:
+    rm -rf "${workdir:-?}" 2>/dev/null ||:
+    # attempt to remove $work if it is empty
+    rmdir "$work" 2>/dev/null ||:
     find "$pkgs" -type d ! -path "$pkgs" -prune | while read -r dir ; do
         rmdir "$dir" 2> /dev/null ||:
     done
