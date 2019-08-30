@@ -1,0 +1,25 @@
+info='X11 client library'
+version=1.6.8
+source=http://x.org/releases/individual/lib/libX11-$version.tar.bz2
+deps='xorg-libxcb xorg-libxau xorg-xorgproto xorg-xtrans automake'
+sha256=b289a845c189e251e0e884cc0f9269bbe97c238df3741e854ec4c17c21e473d5
+prebuild() {
+    # do not build specs or nls
+    rm -r specs
+    sed 's|.*specs.*||g' configure.ac > tmp        ; mv -f tmp configure.ac
+    sed -E 's/(specs|nls)/ /g' Makefile.am  > tmp  ; mv -f tmp Makefile.am
+    autoreconf -fi
+}
+build() {
+    bonsai_configure \
+        --disable-specs \
+        --disable-lint-library \
+        --without-lint \
+        --enable-malloc0returnsnull
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    # large, unnecessary man pages
+    rm -r "${pkg:?}"/share/man >/dev/null ||:
+}
