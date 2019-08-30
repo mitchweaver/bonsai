@@ -17,3 +17,6 @@ build() {
         --without-xsltproc
     bonsai_make SUBDIRS="" install
 }
+postbuild() {
+    rm -rf "${pkg:?}"/share/man
+}
