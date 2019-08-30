@@ -14,7 +14,7 @@ search() {
 # loads pkgfile for given $name
 load_pkgfile() {
     name="$1"
-    pkg="$pkgs"/"$name"
+    pkg="$pkgs/$name"
     pkgfile="$ports/$name/pkgfile"
     export pkg name pkgfile
     [ -f "$pkgfile" ] || die "failed to load $name's pkgfile"

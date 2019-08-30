@@ -104,10 +104,8 @@ getflags() {
     # (stage0 will not have this installed)
     if type slibtool >/dev/null 2>&1 ; then
         export LIBTOOL=/bin/slibtool-static
-        export MAKE="make LIBTOOL='$LIBTOOL'"
     else
         export LIBTOOL="$(which libtool)"
-        export MAKE="make LIBTOOL='$LIBTOOL'"
     fi
 
     # commonly used variables for programs
@@ -212,7 +210,7 @@ bonsai_make() {
     [ "$quiet" = true  ] && _quiet='-s'
 
     make $makeflags -j${jobs:=1} $_mans $_quiet \
-        CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="$MAKE" \
+        CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" \
         DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" \
         DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
 }
