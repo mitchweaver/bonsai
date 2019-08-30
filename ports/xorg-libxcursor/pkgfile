@@ -1,0 +1,5 @@
+info='X11 cursor library'
+version=1.2.0
+source=http://x.org/releases/individual/lib/libXcursor-$version.tar.bz2
+deps='xorg-libxrender xorg-libxfixes xorg-xorgproto'
+sha256=3ad3e9f8251094af6fe8cb4afcf63e28df504d46bfa5a5529db74a505d628782
