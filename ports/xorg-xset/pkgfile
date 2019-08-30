@@ -1,0 +1,8 @@
+info='X11 xset utility'
+version=1.2.4
+source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps='xorg-libxmu xorg-libx11 xorg-libxext xorg-util-macros'
+sha256=e4fd95280df52a88e9b0abc1fee11dcf0f34fc24041b9f45a247e52df941c957
+prebuild() {
+    export LIBS='-lxcb -lXau'
+}
