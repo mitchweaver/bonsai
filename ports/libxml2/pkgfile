@@ -1,0 +1,17 @@
+info='standard XML library, version 2'
+version=2.9.9
+source=http://xmlsoft.org/sources/$name-$version.tar.gz
+sha256=94fb70890143e3c6549f265cee93ec064c80a84c42ad0f23e85ee1fd6540a871
+build() {
+    bonsai_configure \
+        --with-threads \
+        --with-history \
+        --without-python \
+        --without-icu
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    rm -rf "${pkg:?}"/share/gtk-doc \
+           "${pkg:?}"/share/man/man3
+}
