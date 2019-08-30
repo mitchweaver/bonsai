@@ -4,5 +4,6 @@ source=ftp://mama.indstate.edu/linux/$name/$name-$version.tgz
 sha256=715d5d4b434321ce74706d0dd067505bb60c5ea83b5f0b3655dae40aa6f9b7c2
 build() {
     bonsai_make USER_CFLAGS="$CFLAGS"
-    bonsai_make USER_CFLAGS="$CFLAGS" install
+    install -D -m 0755 tree "$pkg"/bin/tree
+    install -D -m 0644 doc/tree.1 "$pkg"/share/man/man1/tree.1
 }
