@@ -188,9 +188,9 @@ bonsai_configure() {
     addflag --with-fop --without-fop
     addflag --with-xsltproc --without-xsltproc
     addflag --prefix= --prefix="$PREFIX"
-    addflag --infodir= --infodir="$pkg"/sucks
-    addflag --docdir= --docdir="$pkg"/sucks
-    addflag --htmldir= --htmldir="$pkg"/sucks
+    addflag --infodir= --infodir="$PREFIX"/sucks
+    addflag --docdir= --docdir="$PREFIX"/sucks
+    addflag --htmldir= --htmldir="$PREFIX"/sucks
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     # add a new line to denote separation between global flags
