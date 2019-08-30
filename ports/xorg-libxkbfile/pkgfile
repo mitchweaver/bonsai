@@ -1,0 +1,5 @@
+info='X11 libxkbfile'
+version=1.1.0
+source=http://x.org/releases/individual/lib/${name#xorg-}-$version.tar.bz2
+deps='xorg-libx11 xorg-xorgproto'
+sha256=758dbdaa20add2db4902df0b1b7c936564b7376c02a0acd1f2a331bd334b38c7
