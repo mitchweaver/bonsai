@@ -3,7 +3,6 @@ version=5.30.0
 source=http://cpan.org/src/${version%%.*}.0/$name-$version.tar.xz
 deps='zlib bzip2'
 sha512=68a295eccd64debd9d6a10f0d5577f872a19ad8c2d702798f6b0f45b8c3af6ab3230768056e2131e9e2e2506d1035b27cfd627c845e32263fe448649c4b98ae9
-nostrip=true
 prebuild() {
     # locale.c needs made writable before can be patched
     chmod +w locale.c
@@ -20,24 +19,20 @@ prebuild() {
     rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
     sed '/\(bzip2\|zlib\|Bzip2\|Zlib\)/d' MANIFEST > tmp
     mv -f tmp MANIFEST
-    BUILD_ZLIB=0
-    BUILD_BZIP2=0
-    BZIP2_LIB="$root"/lib
-    BZIP2_INCLUDE="$root"/include
-    export BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
+    export BUILD_ZLIB=0 \
+           BUILD_BZIP2=0 \
+           BZIP2_LIB=/lib \
+           BZIP2_INCLUDE=/include
 
     # remove gdbm / db dependencies
     sed 's/gdbm dbm db//g' Configure > tmp ; mv -f tmp Configure
     sed '/\(gdbm\|GDBM\)/d' MANIFEST > tmp ; mv -f tmp MANIFEST
 }
 build() {
-    # perl bugs out with our standard DESTDIR / PREFIX, swap them around
-    export PREFIX="$pkg" DESTDIR=""
-
     # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
     # its own poll.h over <sys/poll.h> -- (overwrite ".:$root/include")
     # see: http://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
-    CPATH="$root/include" C_INCLUDE_PATH="$CPATH" \
+    CPATH=/include C_INCLUDE_PATH="$CPATH" \
     sh Configure -des \
         -Dcf_by=bonsai \
         -Dcc="$CC $CFLAGS" \
@@ -52,36 +47,31 @@ build() {
         -Ui_gdbm \
         -Ui_db
 
-#        -Dprivlib="$pkg"/lib/${name}${version%%.*}/${version%.*} \
-#        -Dsitelib="$pkg"/lib/${name}${version%%.*}/site_${name}/${version%.*} \
-#        -Dvendorlib="$pkg"/lib/${name}${version%%.*}/site_${name}/${version%.*} \
+# -Dprivlib="$PREFIX"/lib/${name}${version%%.*}/${version%.*} \
+# -Dsitelib="$PREFIX"/lib/${name}${version%%.*}/site_${name}/${version%.*} \
+# -Dvendorlib="$PREFIX"/lib/${name}${version%%.*}/site_${name}/${version%.*} \
 
-    CPATH="$root/include" C_INCLUDE_PATH="$CPATH" CC="$CC $CFLAGS" \
+    CPATH=/include C_INCLUDE_PATH="$CPATH" \
     bonsai_make
     bonsai_make install
 }
 postbuild() {
-    # Perl naturally installs mans to $perl/man
-    # rather than $perl/share/man. (why!)
-    #
-    # They are also huge, more than 20MB -- (why!?)
-    #
-    # 1.) To fix both of these problems we will create the share dir:
-    mkdir -p "$pkg"/share/man/man1
-    # 2.) Only copy perl.1 and cpan.1, (the two that are important):
-    cp -f "$pkg"/man/man1/$name.1 "$pkg"/share/man/man1/$name.1
-    cp -f "$pkg"/man/man1/cpan.1 "$pkg"/share/man/man1/cpan.1
-    # 3.) And then remove the rest:
-    rm -rf "${pkg:?}"/man
+    # nuke docs and mans ~20MB
+    find "${pkg:?}" -type f -name '*.0' \
+        ! -path '*/bin/*' \
+        ! -path '*/lib/*' \
+        -exec rm "{}" \;
 
-    # more junk
-    find "$pkg" \
-         -name 'TODO*' -o \
-         -name 'Change*' -o \
-         -name 'README*' -o \
-         -name '*.bs' -o \
-         -name '.packlist' -o \
-         -name 'perllocal.pod' -exec rm "{}" \;
+    for dir in site_perl $version ; do
+        find "$pkg"/lib/${name}${version%%.*}/$dir \
+            -name 'TODO*' -o \
+            -name 'Change*' -o \
+            -name 'README*' -o \
+            -name '*.bs' -o \
+            -name '.packlist' -o \
+            -name 'perllocal.pod' -exec rm "{}" \;
+    done
+    find "$pkg" -type d -exec rmdir "{}" 2>/dev/null ||: \;
 
     # create symlinks without version numbers
     # ex: perl -> perl5.30.0
@@ -89,6 +79,4 @@ postbuild() {
     find . -name "*$version" | while read -r bin ; do
         ln -sf "$bin" "${bin%$version}"
     done
-
-    unset bin junk BUILD_ZLIB BUILD_BZIP2 BZIP2_LIB BZIP2_INCLUDE
 }
