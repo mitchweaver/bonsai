@@ -29,7 +29,12 @@ update_db() {
 
 # add entry to database
 # params: $pkgname $pkgversion
-add_db() { echo "${1}${delim}${2}" >> "$bonsaidb" ; update_db ; }
+add_db() {
+    if ! grep "${1}${delim}${2}" "$bonsaidb" >/dev/null ; then
+        echo "${1}${delim}${2}" >> "$bonsaidb"
+        update_db
+    fi
+}
 
 # remove entry from database
 # param: $pkgname
