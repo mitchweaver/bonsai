@@ -1,0 +1,13 @@
+info='X11 keyboard configuration utility'
+version=2.27
+source=http://x.org/releases/individual/data/${name#xorg-}/${name#xorg-}-$version.tar.bz2
+deps='xorg-libx11 xorg-xkbcomp'
+sha256=690daec8fea63526c07620c90e6f3f10aae34e94b6db6e30906173480721901f
+build() {
+    bonsai_configure \
+        --with-xkb-rules-symlink=xfree86,xorg \
+        --enable-compat-rules \
+        --enable-runtime-deps
+    bonsai_make
+    bonsai_make install
+}
