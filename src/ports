@@ -24,6 +24,7 @@ load_pkgfile() {
         version=metapkg
         nostrip=true
     fi
+    : "${source:=none}"
     pkgid="${name}${delim:=#}${version:=unknown}"
     pkgworkdir="$workdir/$name"
     export version source pkgid pkgworkdir nostrip
