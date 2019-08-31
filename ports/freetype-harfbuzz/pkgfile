@@ -1,0 +1,97 @@
+info='FreeType and HarfBuzz font rendering libraries'
+version='2.5.3+2.10.1'
+deps='bzip2 expat glib zlib bzip2 xorg-libx11 xorg-libxau xorg-libxdamage \
+xorg-libxext xorg-libxfixes xorg-libxrender xorg-libxxf86vm 
+xorg-libxcb xorg-libxshmfence xorg-libpixman libdrm' # mesa
+freetype_source=http://download-mirror.savannah.gnu.org/releases/freetype/freetype-${version#*+}.tar.xz
+harfbuzz_source=http://freedesktop.org/software/harfbuzz/release/harfbuzz-${version%+*}.tar.xz
+freetype_sha256=16dbfa488a21fe827dc27eaf708f42f7aa3bb997d745d31a19781628c36ba26f
+harfbuzz_sha256=fed00dc797b7ba3ca943225f0a854baaed4c1640fff8a31d455cd3b5caec855c
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Harfbuzz is a text shaping library that FreeType can use.
+#
+# However, Harfbuzz needs FreeType itself to compile.
+# So we will build FreeType twice, once without Harfbuzz
+# in order to bootstrap Harfbuzz, then again against it.
+#
+# Idea for this process thanks to the KISS project.
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+prebuild() {
+    export SEP="=====> [*] "
+    msg "$SEP downloading sources..."
+
+    [ -f "$sources/freetype$delim${version#*+}.tar.xz" ] || 
+        dlcurl "$freetype_source" freetype "${version#*+}"
+    sha256="$freetype_sha256" \
+    verify_checksum "$sources/freetype$delim${version#*+}.tar.xz"
+
+    [ -f "$sources/harfbuzz$delim${version%+*}.tar.xz" ] || 
+        dlcurl "$harfbuzz_source" harfbuzz "${version%+*}"
+    sha256="$harfbuzz_sha256" \
+    verify_checksum "$sources/harfbuzz$delim${version%+*}.tar.xz"
+
+    msg "$SEP extracting sources..."
+    decompress "$sources/freetype$delim${version#*+}.tar.xz" | tar -xf -
+    decompress "$sources/harfbuzz$delim${version%+*}.tar.xz" | tar -xf -
+}
+build() {
+    msg "$SEP building freetype - PASS 1"
+    build_freetype no || return 1
+
+    # Point Harfbuzz to the Freetype files.
+    export FREETYPE_CFLAGS="-I$PWD/freetype/include"
+    export FREETYPE_LIBS="-L$1/lib -lfreetype"
+
+    msg "$SEP building harfbuzz"
+    build_harfbuzz || return 1
+
+    # Point Freetype to the Harfbuzz files.
+    export HARFBUZZ_CFLAGS="-I$PWD/harfbuzz/src"
+    export HARFBUZZ_LIBS="-L$PWD/harfbuzz/src/.libs -lharfbuzz"
+
+    msg "$SEP building freetype - PASS 2"
+    build_freetype yes || return 1
+}
+
+postbuild() {
+    rm -rf "${pkg:?}"/share/gtk-doc
+}
+
+build_freetype() (
+    cd freetype-${version#*+}
+    bonsai_configure \
+        --with-harfbuzz="$1" \
+        --with-zlib=yes \
+        --with-bzip2=yes \
+        --with-png=no \
+        --enable-freetype-config
+    # libtool fails if using bonsai_make, unknown why
+    make -j${jobs:-1} LIBTOOL=slibtool-static
+    bonsai_make install
+
+    # add toplevel includes for compatibility
+    ln -sf freetype2/ft2build.h "$pkg"/include/ft2build.h
+    ln -sf freetype2/freetype "$pkg"/include/freetype
+
+    bonsai relink freetype-harfbuzz
+)
+
+build_harfbuzz() (
+    cd harfbuzz-${version%+*}
+    export LDFLAGS="$LDFLAGS -lz -lbz2 -lfreetype"
+    bonsai_configure \
+        --with-glib \
+        --with-icu=no
+    bonsai_make
+    bonsai_make install
+
+    # add toplevel includes for compatibility
+    cd "$pkg"/include
+    find harfbuzz -type f | while read -r inc ; do
+        ln -sf "$inc" "${inc#*harfbuzz/}"
+    done
+
+    bonsai relink freetype-harfbuzz
+)
