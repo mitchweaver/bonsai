@@ -1,4 +1,4 @@
-info="suckless unportable base (box form)"
+info='suckless unportable base (box form)'
 version=3c88778c6c85d97fb63c41c05304519e0484b07c
 source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 sha256=27851e241a991f43c478cc4473fb9c7587056c0127236ca5958185291c5acc48
@@ -9,7 +9,6 @@ prebuild() {
         sed 's|.*<sys/types.h>|#include <sys/types.h>\n#include <sys/sysmacros.h>|' $file > tmp
         mv -f tmp $file
     done
-    unset file
 }
 build() {
     bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box

@@ -18,5 +18,19 @@ prebuild() {
 }
 build() {
     bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box
+
+    # xinstall bugs out if install already exists
+    rm -f "$pkg"/bin/install 2>/dev/null
+
     bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
+}
+postbuild() {
+    >"$pkg"/bin/egrep printf '%s\n%s' \
+        '#!/bin/sh' \
+        'grep -E "$@"'
+    >"$pkg"/bin/fgrep printf '%s\n%s' \
+        '#!/bin/sh' \
+        'grep -F "$@"'
+    chmod +x "$pkg"/bin/egrep
+    chmod +x "$pkg"/bin/fgrep
 }

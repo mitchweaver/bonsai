@@ -109,7 +109,7 @@ getflags() {
     fi
 
     # commonly used variables for programs
-    : "${GREP:=grep}" "${FGREP:=grep -f}" "${EGREP:=grep -e}" \
+    : "${GREP:=grep}" "${FGREP:=fgrep}" "${EGREP:=egrep}" \
       "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}" \
       "${YACC:=yacc}"
 
