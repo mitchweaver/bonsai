@@ -1,0 +1,8 @@
+info='suckless FIFO and filesystem-based IRC client'
+version=1.8
+source=http://dl.suckless.org/tools/$name-$version.tar.gz
+sha256=b9d9e1eae25e63071960e921af8b217ab1abe64210bd290994aca178a8dc68d2
+build() {
+    bonsai_make LDFLAGS="$LDFLAGS" CFLAGS="$CFLAGS"
+    bonsai_make install
+}
