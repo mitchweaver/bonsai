@@ -1,0 +1,5 @@
+info='X11 font handling library v2'
+version=2.0.3
+source=http://x.org/releases/individual/lib/libXfont2-$version.tar.bz2
+deps='freetype-harfbuzz xorg-libfontenc xorg-xorgproto xorg-xtrans bzip2'
+sha256=0e8ab7fd737ccdfe87e1f02b55f221f0bd4503a1c5f28be4ed6a54586bac9c4e
