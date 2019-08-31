@@ -1,0 +1,13 @@
+info='Perl Compatible Regular Expressions library'
+version=10.33
+source="https://ftp.pcre.org/pub/pcre/pcre2-${version}.tar.gz"
+
+build() {
+    bonsai_configure \
+        --enable-pcre2-16 \
+        --enable-pcre2-32 \
+        --with-match-limit-recursion=8192 \
+        --enable-jit
+    bonsai_make
+    bonsai_make install
+}
