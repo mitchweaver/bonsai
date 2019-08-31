@@ -169,7 +169,7 @@ bonsai_configure() {
                 --disable-documentation --disable-devel-docs --disable-build-docs \
                 --without-asciidoc --without-tests --disable-tests \
                 --without-debug --disable-debug --disable-debugger \
-                --without-ada $_quiet $_nls ; do
+                --without-gettext --without-ada $_quiet $_nls ; do
         addflag $flag $flag
     done
     #
@@ -183,6 +183,7 @@ bonsai_configure() {
     addflag --with-tests --without-tests
     addflag --with-doc= --with-doc=no
     addflag --with-doxygen --without-doxygen
+    addflag --with-gettext --without-gettext
     addflag --enable-documentation --disable-documentation
     addflag --with-xmlto --without-xmlto
     addflag --with-fop --without-fop
