@@ -1,0 +1,5 @@
+info='X11 font rendering library'
+version=2.3.3
+source=http://x.org/releases/individual/lib/libXft-$version.tar.bz2
+deps='fontconfig freetype-harfbuzz xorg-libxrender xorg-xorgproto'
+sha256=225c68e616dd29dbb27809e45e9eadf18e4d74c50be43020ef20015274529216
