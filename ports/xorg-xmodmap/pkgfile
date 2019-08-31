@@ -1,0 +1,8 @@
+info='X11 tool for modifying keymaps and mouse buttons'
+version=1.0.10
+source=https://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps='xorg-libx11 xorg-libxcb xorg-libxau'
+sha256=473f0941d7439d501bb895ff358832b936ec34c749b9704c37a15e11c318487c
+prebuild() {
+    export LIBS='-lX11 -lxcb -lXau'
+}
