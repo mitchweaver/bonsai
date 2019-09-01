@@ -3,3 +3,9 @@ version=2.3
 source=http://humdi.net/$name/$name-$version.tar.gz
 deps=sqlite
 sha256=280af973a7c54b84ef254c69808a9ef2ff894d80ac0b2d584fa5e68e5b3a1a8d
+postbuild() {
+    mv -f "$pkg"/etc/* /etc/
+    mv -f "$pkg"/sbin/* "$pkg"/bin/
+    rmdir "$pkg"/etc "$pkg"/sbin
+    rm -r "$pkg"/share/man/man5
+}
