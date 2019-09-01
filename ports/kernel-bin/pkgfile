@@ -1,7 +1,7 @@
 info='the bonsai linux kernel (binary)'
 version=5.2.8
 source=http://bonsai-linux.org/pkgs/${name%-bin}-$version.tar.xz
-deps=@core
+deps='@stage0 @stage1 @init'
 nolink=true
 nostrip=true
 sha512=6bca5d93f4688f1ed87452315ca9760401225de091e96ac3b1ea60bcf0b3e7c414677747d3af81bf2e3dec923a57873d01482aa32b870e9f2140202e7ded01b3

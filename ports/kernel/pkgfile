@@ -4,7 +4,7 @@ source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$
 # note: it should be able to remove posix-bc dep and use
 #       the one included in hbase, (todo)
 # note: curses is only dep for menuconfig
-deps='@core kmod bison flex posix-bc netbsd-curses'
+deps='@stage0 @stage1 @init kmod bison flex posix-bc netbsd-curses'
 nolink=true
 nostrip=true
 sha512=89d1b8d5aff901ee86211e1c03adfa912fbbe221e63f54cc7894eea1ff1a10c49dc359a4f097054be43041bec01dcf119af2967cf9ac6eb2198c2af7d0d18a46
