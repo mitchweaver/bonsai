@@ -4,10 +4,7 @@ source=http://releases.pagure.org/$name/$name-$version.tar.xz
 deps=shadow
 sha256=3063df79fe198fb9618e180c54baf3105b33d88fe602ff2d8570aaf944f1263e
 postbuild() {
-    # mlocate creates var/mlocate in PREFIX, but not in FS
-    mkdir -p /var/mlocate
-    # delete it in pkgdir
-    rmdir -p "$pkg"/var/mlocate
-    # needs a group called mlocate
-    groupadd -rf mlocate
+    mkdir -p /var/$name
+    rmdir -p "$pkg"/var/$name
+    groupadd -rf $name
 }
