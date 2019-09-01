@@ -1,11 +1,12 @@
 # vi:syntax=sh
 # shellcheck shell=sh
 
+# all system messages, outputted with user's $prompt in green
 msg()  {
     [ "$1" ] || { set -f ; read -r inp && set $inp ; set +f ; }
-    printf "%s\n" "$prompt $*"
+    echo "\033[32;1m${prompt}\033[m $*"
 }
-msg_no_nl() { printf "%s" "$prompt $*" ; }
+msg_no_nl() { echo -n "\033[32;1m${prompt}\033[m $*" ; }
 die()  { >&2 msg "error: $*" ; exit 1 ; }
 warn() { >&2 msg "warning: $*" ; }
 
