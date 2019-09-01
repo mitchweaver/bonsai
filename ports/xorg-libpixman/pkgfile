@@ -13,3 +13,7 @@ build() {
     bonsai_make
     bonsai_make install
 }
+postbuild() {
+    # add symlink for compatibility
+    ln -sf ${name#xorg-}-1.a "$pkg"/lib/${name#xorg-}.a
+}
