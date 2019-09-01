@@ -40,16 +40,8 @@ build() {
     msg "$SEP building freetype - PASS 1"
     build_freetype no || return 1
 
-    # Point Harfbuzz to the Freetype files.
-    export FREETYPE_CFLAGS="-I$PWD/freetype/include"
-    export FREETYPE_LIBS="-L$1/lib -lfreetype"
-
     msg "$SEP building harfbuzz"
     build_harfbuzz || return 1
-
-    # Point Freetype to the Harfbuzz files.
-    export HARFBUZZ_CFLAGS="-I$PWD/harfbuzz/src"
-    export HARFBUZZ_LIBS="-L$PWD/harfbuzz/src/.libs -lharfbuzz"
 
     msg "$SEP building freetype - PASS 2"
     build_freetype yes || return 1
@@ -80,11 +72,11 @@ build_freetype() (
 
 build_harfbuzz() (
     cd harfbuzz-${version%+*}
-    export LDFLAGS="$LDFLAGS -lz -lbz2 -lfreetype"
+    LDFLAGS="$LDFLAGS -lz -lbz2 -lfreetype" \
     bonsai_configure \
         --with-glib \
         --with-icu=no
-    bonsai_make
+    bonsai_make LDFLAGS="$LDFLAGS -lz -lbz2 -lfreetype"
     bonsai_make install
 
     # add toplevel includes for compatibility
