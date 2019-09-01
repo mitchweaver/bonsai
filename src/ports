@@ -3,11 +3,10 @@
 
 # search ports for given $name
 search() {
-    set -- $(find "$ports" ! -path "$ports" -type d -name "*$1*" | sort)
-    [ "$1" ] || die "port $1 not found"
-    for _p in $@ ; do
-        _p="${_p##*/}"
-        echo "${_p%.*}"
+    find "$ports" -type d ! -path "$ports" -name "*$1*" | sort | \
+    while read -r p ; do
+        p="${p#"$ports/"}"
+        echo "${p%/*}"
     done
 }
 
