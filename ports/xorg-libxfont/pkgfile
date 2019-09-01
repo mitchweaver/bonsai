@@ -1,0 +1,5 @@
+info='X11 font handling library v1'
+version=1.5.4
+source=http://x.org/releases/individual/lib/libXfont-$version.tar.bz2
+deps='freetype-harfbuzz xorg-libfontenc xorg-xorgproto xorg-xtrans bzip2'
+sha256=1a7f7490774c87f2052d146d1e0e64518d32e6848184a18654e8d0bb57883242
