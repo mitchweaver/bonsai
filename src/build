@@ -207,10 +207,11 @@ bonsai_configure() {
 
 bonsai_make() {
     # set in bonsai.rc:
-    [ "$mans"  = false ] && _mans="MANDIR=$pkg/sucks"
-    [ "$quiet" = true  ] && _quiet='-s'
+    [ "$mans"  = false  ] && _mans="MANDIR=$pkg/sucks"
+    [ "$quiet" = true   ] && _quiet='-s'
+    [ "$verbose" = true ] && _verbose='V=1'
 
-    make $makeflags -j${jobs:=1} $_mans $_quiet \
+    make $_verbose $_quiet $makeflags -j${jobs:=1} $_mans  \
         CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" \
         DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" \
         DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"

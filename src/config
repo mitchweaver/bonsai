@@ -49,9 +49,10 @@ prompt='→'
 confirm_prompt='continue? (y/n): '
 #_
 ## configure/make silently?
-## note: this enables as much silencing as allowed,
-##       but does NOT send everything to /dev/null
 quiet=false
+#_
+## verbose build output? (V=1)
+verbose=false
 #_
 ## package/version delimiter
 ## can be any character or series of characters, however:

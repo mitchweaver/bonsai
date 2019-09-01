@@ -102,6 +102,7 @@ main() {
             del|-d) shift ; delpkg "$@" ; exit $? ;;
             update|-u) shift ; export UPDATE=true ; addpkg "$@" ; exit $? ;;
             *help|-h) usage ; exit ;;
+            *verbose|V=1) shift ; export verbose=true ;;
             relink|-r)
                 shift
                 while [ "$1" ] ; do
