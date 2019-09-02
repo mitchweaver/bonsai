@@ -3,9 +3,11 @@ version=2.4.0
 source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
 deps=xorg-server
 sha256=bf443c94d7bf6cd4e248f8a3147f4647be04dc4c80250d9405006263bbdee38c
-prebuild() {
-    getflags --no-static
-}
 postbuild() {
     rm -r "${pkg:?}"/share
+
+    # convert static lib to dynamic so it can be loaded by xorg-server
+    cd "$pkg"/lib/xorg/modules/drivers
+    gcc -shared -o vesa_drv.so -Wl,--whole-archive vesa_drv.a -Wl,--no-whole-archive
+    rm -f vesa_drv.a
 }

@@ -25,15 +25,25 @@ build() {
     # REQUIRES MESA + EPOXY:
     # --enable-glamor
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
+    getflags --no-static
+
     export XCFLAGS='-fno-align-functions -fno-align-jumps -fno-align-loops -fno-align-labels'
     export CFLAGS="$CFLAGS $XCFLAGS"
     export CPPFLAGS="$CPPFLAGS $XCFLAGS -D_GNU_SOURCE"
-    export XSERVERLIBS_CFLAGS="$CFLAGS"
-    export XSERVERLIBS_LIBS='-lxcb -lXau -lpthread -lpixman -ldrm \
--lpciaccess -lXdmcp -lxshmfence -lXfont2 -lfontenc -lfreetype -lharfbuzz \
--lglib-2.0 -lbz2 -lz'
+    export LDFLAGS="$LDFLAGS \
+-Wl,--whole-archive \
+\
+-lxcb -lXau -lpthread -lpixman -ldrm \
+-lpciaccess -lXdmcp -lxshmfence -lbz2 -lz \
+\
+-Wl,--no-whole-archive \
+-lXfont2 -lfontenc -lfreetype -lharfbuzz -lglib-2.0 -lbz2 -lz"
 
     bonsai_configure \
+        --enable-shared \
+        --with-shared \
+        --disable-static \
+        --without-static \
         --enable-xorg \
         --enable-composite \
         --enable-xres \

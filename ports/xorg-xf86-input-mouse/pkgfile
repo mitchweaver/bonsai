@@ -3,9 +3,11 @@ version=1.9.3
 source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
 deps=xorg-server
 sha256=93ecb350604d05be98b7d4e5db3b8155a44890069a7d8d6b800c0bea79c85cc5
-prebuild() {
-    getflags --no-static
-}
 postbuild() {
     rm -r "${pkg:?}"/share
+
+    # convert static lib to dynamic so it can be loaded by xorg-server
+    cd "$pkg"/lib/xorg/modules/input
+    gcc -shared -o mouse_drv.so -Wl,--whole-archive mouse_drv.a -Wl,--no-whole-archive
+    rm -f mouse_drv.a
 }
