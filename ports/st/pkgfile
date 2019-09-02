@@ -1,0 +1,8 @@
+info='Simple Terminal'
+version=0.8.2
+source=http://dl.suckless.org/$name/$name-$version.tar.gz
+deps='xorg-libxext xorg-libxft xorg-libxcb freetype-harfbuzz'
+sha256=aeb74e10aa11ed364e1bcc635a81a523119093e63befd2f231f8b0705b15bf35
+prebuild() {
+    export LDFLAGS="$LDFLAGS $(pkgconf --static --libs xft harfbuzz)"
+}
