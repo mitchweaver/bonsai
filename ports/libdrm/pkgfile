@@ -12,3 +12,11 @@ build() {
     bonsai_make
     bonsai_make install
 }
+postbuild() {
+    # make top level symlinks for compatibility
+    # (syms to syms will fail; ignore this)
+    cd "$pkg"/include
+    find libdrm -type f | while read -r inc ; do
+        ln -sf "$inc" "${inc#*libdrm/}" 2>/dev/null ||:
+    done
+}
