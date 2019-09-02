@@ -1,0 +1,11 @@
+info='X11 synaptics input driver'
+version=1.9.1
+source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
+deps='xorg-server xorg-libevdev xorg-libxi'
+sha256=7af83526eff1c76e8b9e1553b34245c203d029028d8044dd9dcf71eef1001576
+prebuild() {
+    export LDFLAGS="$LDFLAGS $(pkgconf --static --libs xi)"
+}
+postbuild() {
+    rm -r "${pkg:?}"/share
+}
