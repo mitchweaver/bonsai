@@ -26,7 +26,7 @@ prebuild() {
     printf "%s" "Would you like to provide your own config? (y\n): "
     read -r ans
     if [ "$ans" = y ] ; then
-        pritnf "%s" "Path to config: "
+        printf "%s" "Path to config: "
         read -r ans
         if [ -f "$ans" ] ; then
             cp -f "$ans" .config
