@@ -4,11 +4,12 @@
 # check db if pkg is installed
 # params: $pkgname
 isinst() {
-    case "$(shellcat $bonsaidb)" in
-        *"$1"*) msg "port $1 is installed" ;;
-        *) msg "port $1 is not installed"
-           return 1
-    esac
+    if grep -E -- "^$1${delim}.*$" "$bonsaidb" >/dev/null ; then
+        msg "port $1 is installed"
+    else
+        msg "port $1 is not installed"
+        return 1
+    fi
 }
 
 listpkgs() { shellcat "$bonsaidb" ; }
