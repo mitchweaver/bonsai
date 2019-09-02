@@ -23,22 +23,29 @@ prebuild() {
     # prompt use for their own custom config
     # if not provided, then we will use 'defconfig' followed
     # by 'menuconfig' to edit it.
-    printf "%s" "Would you like to provide your own config? (y\n): "
+    msg_no_nl "Would you like to provide your own config? (y\\n): "
     read -r ans
-    if [ "$ans" = y ] ; then
-        printf "%s" "Path to config: "
-        read -r ans
-        if [ -f "$ans" ] ; then
-            cp -f "$ans" .config
-        else
-            die "$ans is not a valid file"
-        fi
-        bonsai_make olddefconfig
-    else
-        msg "Ok. Creating defconfig instead..."
-        bonsai_make defconfig
-        bonsai_make menuconfig
-    fi
+    case "$ans" in
+        y|yes|"")
+            msg_no_nl "Path to config: "
+            read -r ans
+            if [ -f "$ans" ] ; then
+                cp -f "$ans" .config
+            else
+                die "$ans is not a valid file!"
+            fi
+            bonsai_make olddefconfig
+            ;;
+        *)
+            msg "Ok. Creating defconfig instead..."
+            bonsai_make defconfig
+    esac
+
+    msg_no_nl "Would you like to edit the config? (y\\n): "
+    read -r ans
+    case "$ans" in
+        y|yes|"") bonsai_make menuconfig
+    esac
 
     # set default hostname as distro name
     echo CONFIG_DEFAULT_HOSTNAME=bonsai >> .config
