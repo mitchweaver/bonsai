@@ -6,8 +6,7 @@ sha256=690daec8fea63526c07620c90e6f3f10aae34e94b6db6e30906173480721901f
 build() {
     bonsai_configure \
         --with-xkb-rules-symlink=xfree86,xorg \
-        --enable-compat-rules \
-        --enable-runtime-deps
+        --enable-compat-rules
     bonsai_make
     bonsai_make install
 }
