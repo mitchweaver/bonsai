@@ -1,0 +1,4 @@
+info='default fallback used by the icon theme specification'
+version=0.17
+source=http://icon-theme.freedesktop.org/releases/$name-$version.tar.xz
+sha256=317484352271d18cbbcfac3868eab798d67fff1b8402e740baa6ff41d588a9d8
