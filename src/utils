@@ -3,7 +3,7 @@
 
 # all system messages, outputted with user's $prompt in green
 msg()  {
-    [ "$1" ] || { set -f ; read -r inp && set $inp ; set +f ; }
+    [ "$1" ] || { set -f ; read -r inp && set -- $inp ; set +f ; }
     echo "\033[32;1m${prompt}\033[m $*"
 }
 msg_no_nl() { echo -n "\033[32;1m${prompt}\033[m $*" ; }
