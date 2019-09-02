@@ -1,0 +1,9 @@
+info='Dynamic Menu, from Suckless'
+version=4.9
+source=http://dl.suckless.org/tools/$name-$version.tar.gz
+deps='xorg-libxinerama xorg-libxft'
+sha256=b3971f4f354476a37b2afb498693649009b201550b0c7c88e866af8132b64945
+build() {
+    bonsai_make LDFLAGS="$LDFLAGS $(pkgconf --static --libs xft harfbuzz xinerama)"
+    bonsai_make install
+}
