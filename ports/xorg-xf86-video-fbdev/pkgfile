@@ -1,0 +1,8 @@
+info='X11 fbdev video driver'
+version=0.5.0
+source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
+deps=xorg-server
+sha256=dcc3d85f378022180e437a9ec00a59b6cb7680ff79c40394d695060af2374699
+postbuild() {
+    rm -r "${pkg:?}"/share
+}
