@@ -7,7 +7,6 @@ prebuild() {
     # sbase does not have '-v' flag
     sed 's|mkdir -pv|mkdir -p|' configure > tmp
     mv -f tmp configure
-    chmod +x configure
 
     # fix def->ifdef regex for sbase sed
     # Goal: Wrap all "#define X Y" with a #ifndef X...#endif"

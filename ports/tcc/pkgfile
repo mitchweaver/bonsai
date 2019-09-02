@@ -7,7 +7,6 @@ prebuild() {
     # this call isn't actually needed
     sed 's|.*ln -sfn \$tgt.*|:|g' configure > tmp
     mv -f tmp configure
-    chmod +x configure
 }
 build() {
     bonsai_configure \

@@ -11,7 +11,6 @@ prebuild() {
     # the above isn't catching this case, not sure why -- look into later
     sed 's|specs/Makefile||g' configure > tmp
     mv -f tmp configure
-    chmod +x configure
 }
 build() {
     bonsai_configure \

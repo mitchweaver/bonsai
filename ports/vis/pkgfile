@@ -7,7 +7,6 @@ prebuild() {
     # workaround for varying libtermkey versions
     sed '/.*TERMKEY_CHECK_VERSION;.*/d' configure > tmp
     mv -f tmp configure
-    chmod +x configure
 }
 build() {
     LDFLAGS="$LDFLAGS -lncursesw -lterminfo -ltermkey -lunibilium" \

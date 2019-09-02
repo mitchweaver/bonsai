@@ -7,7 +7,6 @@ prebuild() {
     # we are only targeting x64 so this does not apply to us, force it
     sed 's|test "x$enable_largefile" = "xno"|false|' configure > tmp
     mv -f tmp configure
-    chmod +x configure
 }
 build() {
     # kmod cannot be configured statically, 

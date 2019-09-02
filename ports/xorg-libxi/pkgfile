@@ -8,7 +8,6 @@ prebuild() {
     rm -r specs
     sed 's|specs/Makefile||' configure > tmp
     mv -f tmp configure
-    chmod +x configure
 }
 build() {
     bonsai_configure \
