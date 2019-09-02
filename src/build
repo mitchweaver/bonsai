@@ -76,12 +76,17 @@ getflags() {
 
     # 4. static related flags
     case "$1" in
-        --no-static) ;; # do not add static flags
+        --no-static)
+            LIBTOOL=/bin/slibtool
+            PKG_CONFIG=/bin/pkgconf
+            ;;
         *)
             CFLAGS="$CFLAGS -static --static -static-libgcc -static-libstdc++ \
 -Wl,-Bstatic -fpic -Wl,-z,nodlopen"
             LDFLAGS="$LDFLAGS -static --static"
             AM_LDFLAGS="$AM_LDFLAGS -static --static"
+            LIBTOOL=/bin/slibtool-static
+            PKG_CONFIG='/bin/pkgconf --static'
     esac
 
     LIBRARY_PATH=".:$root/lib:$root/libexec"
@@ -96,22 +101,17 @@ getflags() {
     CC="${cc:=$cc}"
     HOSTCC="$CC"
     MAKEINFO=false
-    SHELL=/bin/sh
     PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
-    PKG_CONFIG='pkgconf --static'
+    SHELL=/bin/sh
 
     # only export libtool if we're not bootstrapping 
     # (stage0 will not have this installed)
-    if type slibtool >/dev/null 2>&1 ; then
-        export LIBTOOL=/bin/slibtool-static
-    else
-        export LIBTOOL="$(which libtool)"
-    fi
+    type slibtool >/dev/null 2>&1 || export LIBTOOL="$(which libtool)"
 
-    # commonly used variables for programs
-    : "${GREP:=grep}" "${FGREP:=fgrep}" "${EGREP:=egrep}" \
-      "${SED:=sed}" "${AWK:=awk}" "${TAR:=tar}" "${FIND:=find}" \
-      "${YACC:=yacc}"
+    # commonly needed variables
+    : ${GREP:=/bin/grep} ${FGREP:=/bin/fgrep} ${EGREP:=/bin/egrep} \
+      ${SED:=/bin/sed} ${AWK:=/bin/awk} ${TAR:=/bin/tar} ${FIND:=/bin/find} \
+      ${YACC:=/bin/yacc}
 
     export TARGET HOST BUILD CC cc HOSTCC SHELL LIBRARY_PATH CPATH \
            PKG_CONFIG_PATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PREFIX prefix \
@@ -134,30 +134,31 @@ bonsai_autogen() { ./autogen.sh "$@" || die "autogen.sh failed for $name" ; }
 bonsai_configure() {
     # set path to the configure script, if provided
     case "$1" in
-        --path=*) configure_path="${1#--path=}" ; shift ;;
-        *) configure_path="$PWD"
+        --path=*) cfpath="${1#--path=}" ; shift ;;
+        *) cfpath="$PWD"
     esac
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
-    tmp_help="$workdir/$name.cfhelp"
-    tmp_flags="$workdir/$name.cfflags"
-
-    "$configure_path"/configure --help > "$tmp_help"
-    :> "$tmp_flags"
+    cfflags="$workdir"/cfflags
+    cfhelp="$(sh "$cfpath"/configure --help | tee "$workdir"/cfhelp)"
+    :> "$cfflags"
 
     # params: flag_to_check flag_to_add
     addflag() {
-        grep -F -- "$1" "$tmp_help" >/dev/null && 
-            echo "$2" >> "$tmp_flags"
+        case "$cfhelp" in
+            *"$1"*)
+                echo "$2" >> "$cfflags"
+                msg "adding flag: $2"
+        esac
     }
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     # Global configure flags. These are applied to all packages.
     #
     # set in bonsai.rc:
-    ${nls:=false}   || _nls=--disable-nls
-    ${quiet:=false} && _quiet='--silent --quiet'   
+    [ "${nls:=false}" = false ] && _nls=--disable-nls
+    [ "${quiet:=false}" = true ] && _quiet='--silent --quiet'
     #
     # flags that are the same as what we check for
     for flag in --static --enable-static --enable-static-link --all-static \
@@ -196,20 +197,20 @@ bonsai_configure() {
 
     # add a new line to denote separation between global flags
     # and argument-supplied flags
-    echo >> "$tmp_flags"
+    echo >> "$cfflags"
 
     # add all argument-supplied flags to the flag file
-    for flag in "$@" ; do echo "$flag" ; done >> "$tmp_flags"
+    for flag in "$@" ; do echo "$flag" ; done >> "$cfflags"
 
-    "$configure_path"/configure $(shellcat "$tmp_flags") || 
+    sh "$cfpath"/configure $(shellcat "$cfflags") || 
         die "configure failed for $name"
 }
 
 bonsai_make() {
     # set in bonsai.rc:
-    [ "$mans"  = false  ] && _mans="MANDIR=$pkg/sucks"
-    [ "$quiet" = true   ] && _quiet='-s'
-    [ "$verbose" = true ] && _verbose='V=1'
+    [ "${mans:=true}"     = false ] && _mans="MANDIR=$pkg/sucks"
+    [ "${quiet:=false}"   = true  ] && _quiet='-s'
+    [ "${verbose:=false}" = true  ] && _verbose='V=1'
 
     make $_verbose $_quiet $makeflags -j${jobs:=1} $_mans  \
         CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" \
