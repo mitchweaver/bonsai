@@ -6,16 +6,16 @@ sha256=b289a845c189e251e0e884cc0f9269bbe97c238df3741e854ec4c17c21e473d5
 prebuild() {
     # do not build specs or nls
     rm -r specs
-    sed 's|.*specs.*||g' configure.ac > tmp        ; mv -f tmp configure.ac
-    sed -E 's/(specs|nls)/ /g' Makefile.am  > tmp  ; mv -f tmp Makefile.am
+    sed 's|.*specs.*||g' configure.ac > tmp  ; mv -f tmp configure.ac
+    sed -E 's/specs/ /g' Makefile.am  > tmp  ; mv -f tmp Makefile.am
     autoreconf -fi
 }
 build() {
     bonsai_configure \
+        --enable-malloc0returnsnull \
         --disable-specs \
         --disable-lint-library \
-        --without-lint \
-        --enable-malloc0returnsnull
+        --without-lint
     bonsai_make
     bonsai_make install
 }
