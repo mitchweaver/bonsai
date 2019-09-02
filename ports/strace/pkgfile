@@ -1,0 +1,11 @@
+info='System call tracing utility'
+version=5.2
+source=http://github.com/$name/$name/releases/download/v$version/$name-$version.tar.xz
+sha256=d513bc085609a9afd64faf2ce71deb95b96faf46cd7bc86048bc655e4e4c24d2
+build() {
+    bonsai_configure \
+        --disable-valgrind \
+        --enable-mpers=no
+    bonsai_make
+    bonsai_make install
+}
