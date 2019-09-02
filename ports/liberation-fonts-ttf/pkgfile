@@ -1,0 +1,12 @@
+info='Liberation TTF Fonts'
+version=2.00.5
+source=http://github.com/liberationfonts/${name%-ttf}/files/2926169/$name-$version.tar.gz
+sha256=f14ff0a0be87b5aeb672e669363b5a699db76feb1144b06798261c0fdcd2b24d
+build() {
+    find . -name '*.ttf' | while read -r ttf ; do
+        install -D -m 0644 "$ttf" "$pkg"/share/fonts/TTF/"$ttf"
+    done
+    install -D -m 0644 30-0-liberation-mono.conf  "$pkg"/etc/fonts/conf.avail
+    install -D -m 0644 30-0-liberation-sans.conf  "$pkg"/etc/fonts/conf.avail
+    install -D -m 0644 30-0-liberation-serif.conf "$pkg"/etc/fonts/conf.avail
+}
