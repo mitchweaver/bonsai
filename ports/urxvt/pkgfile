@@ -1,0 +1,27 @@
+info='a rxvt fork with unicode support'
+version=9.22
+source=http://dist.schmorp.de/rxvt-unicode/Attic/rxvt-unicode-$version.tar.bz2
+deps='xorg-libx11 xorg-libxft xorg-libxpm xorg-xorgproto'
+sha256=e94628e9bcfa0adb1115d83649f898d6edb4baced44f5d5b769c2eeb8b95addd
+build() {
+    export LIBS="$(pkgconf --static --libs x11 xft xpm zlib)"
+    CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE" \
+    bonsai_configure \
+        --enable-transparency \
+        --enable-fading \
+        --enable-mousewheel \
+        --enable-256-color \
+        --enable-xft \
+        --enable-unicode3 \
+        --disable-perl \
+        --disable-wtmp \
+        --disable-utmp \
+        --disable-pixbuf \
+        --disable-startup-notification \
+        --disable-font-styles
+    bonsai_make
+    bonsai_make TERMINFO="$pkg"/share/terminfo install
+}
+postbuild() {
+    rm -r "$pkg"/share/man/man7
+}
