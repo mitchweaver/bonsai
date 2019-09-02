@@ -12,7 +12,7 @@ prebuild() {
     printf "all:\n\ttrue\n\ninstall:\n\ttrue\n\n" > test/Makefile.in
 }
 build() {
-    export LDFLAGS="$LDFLAGS -lz -lbz2 -lfreetype -lharfbuzz"
+    export LDFLAGS="$LDFLAGS -lz -lbz2 -lfreetype -lharfbuzz -lglib-2.0"
     bonsai_configure \
         --with-xmldir=/etc/fonts \
         --with-templatedir=/etc/fonts/conf.avail
