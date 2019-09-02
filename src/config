@@ -10,15 +10,15 @@ loadconfig() {
         . "$bonsairc"
     fi
 
-    : "${src:="$root/src"}"
-    : "${pkgs:="$src/pkgs"}" \
+    : "${src:="$root/src"}" \
+      "${pkgs:="$src/pkgs"}" \
       "${ports:="$src/ports"}" \
       "${sources:="$src/sources"}" \
       "${work:="$src/work"}" \
       "${bonsaidb:="$src/bonsai.db"}" \
       "${confirm_prompt:="continue? (y/n): "}" \
       "${prompt=→}" \
-      "${delim:='#'}"
+      "${delim:=#}"
 
     update_db
 }
