@@ -71,8 +71,7 @@ getflags() {
     CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS \
 -fexceptions -fstack-protector-strong -fstack-clash-protection \
 -fasynchronous-unwind-tables -fcf-protection \
--Wl,-z,defs -Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack \
--Wl,-z,nodump"
+-Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack -Wl,-z,nodump"
 
     # 4. static related flags
     case "$1" in
