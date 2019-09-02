@@ -50,7 +50,7 @@ get() {
 # downloads given url to $sources
 # params: $source $name $version
 dlcurl() {
-    type curl >/dev/null || die "curl does not seem to be installed."
+    type curl >/dev/null 2>&1 || die "curl does not seem to be installed."
 
     _dldir="$workdir"/dl
     _source="$1"
@@ -59,18 +59,15 @@ dlcurl() {
     _pkgid="$_name$delim$_version"
     _ext="$(get_ext "$_source")"
     mkdir -p "$_dldir"
-
     msg "downloading $_source..."
 
-    # --- notes on curl:
-    #    1. curl bugs out with certain delimiters, as a fix
-    #       have curl output to a temporary file, then rename.
+    # curl bugs out with certain delimiters, as a fix
+    # have curl output to a temporary file, then rename.
     curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
-
     mv -f "$_dldir/curl-$_name-dl$_ext" "$_dldir/$_pkgid$_ext"
-    ${keep_tarballs:=true} && cp -f "$_dldir/$_pkgid$_ext" "$sources"/
 
-    unset _dldir _ext _source _name _version _pkgid
+    [ "${keep_tarballs:=true}" = true ] && 
+        cp -f "$_dldir/$_pkgid$_ext" "$sources"/
 }
 
 # returns the extension from given url
@@ -119,7 +116,7 @@ verify_checksum() {
 decompress() {
     case "${1##*.}" in
         xz|txz) 
-            if type xz-embedded >/dev/null ; then
+            if type xz-embedded >/dev/null 2>&1 ; then
                 xz-embedded < "$1"
             else
                 xz -qdc "$1"
