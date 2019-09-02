@@ -1,0 +1,9 @@
+info='Dynamic Window Manager'
+version=6.2
+source=http://dl.suckless.org/$name/$name-$version.tar.gz
+deps='xorg-libxft xorg-libxinerama freetype-harfbuzz'
+sha256=97902e2e007aaeaa3c6e3bed1f81785b817b7413947f1db1d3b62b8da4cd110e
+build() {
+    bonsai_make LDFLAGS="$LDFLAGS $(pkgconf --static --libs xft harfbuzz xinerama)"
+    bonsai_make install
+}

@@ -56,7 +56,7 @@ build() {
     build_harfbuzz || return 1
 
     export HARFBUZZ_CFLAGS="-I$PWD/harfbuzz-${version%+*}/src"
-    export HARFBUZZ_LIBS="-L$PWD/harfbuzz-${version%+*}/src/.libs -lharfbuzz -lglib-2.0 -lz"
+    export HARFBUZZ_LIBS="-L$PWD/harfbuzz-${version%+*}/src/.libs -lharfbuzz" 
 
     msg "$SEP building freetype - PASS 2"
     build_freetype yes || return 1
