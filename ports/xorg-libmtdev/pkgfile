@@ -1,0 +1,4 @@
+info='Kernel multi-touch library'
+version=1.1.5
+source=http://launchpad.net/${name#xorg-lib}/trunk/$version/+download/${name#xorg-lib}-$version.tar.gz
+sha256=a662924dd09cf538c8df66514da345e40c3cbfa880cc7262bc3b55ee46d0c1f4
