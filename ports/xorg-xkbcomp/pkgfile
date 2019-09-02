@@ -4,10 +4,5 @@ source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
 deps='xorg-libxkbfile xorg-libx11'
 sha256=6dd8bcb9be7e85bd7294abe261b8c7b0539d2fc93e41b80fb8bd013767ce8424
 prebuild() {
-    export LIBS='-lX11 -lxcb -lXau -lxkbfile'
-}
-build() {
-    bonsai_configure
-    bonsai_make
-    bonsai_make install
+    export LIBS='-lX11 -lxcb -lXau'
 }
