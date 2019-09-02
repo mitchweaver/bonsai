@@ -4,33 +4,27 @@
 # check db if pkg is installed
 # params: $pkgname
 isinst() {
-    [ "$1" ] || die 'isinst(): no argument given'
-    set -- "$1" "$(grep -i -x -- "$1$delim.*" "$bonsaidb")"
-    if [ "$2" ] ; then
-        msg "port $2 is installed"
-    else
-        msg "port $1 is not installed"
-        return 1
-    fi
+    case "$(shellcat $bonsaidb)" in
+        *"$1"*) msg "port $1 is installed" ;;
+        *) msg "port $1 is not installed"
+           return 1
+    esac
 }
 
 listpkgs() { shellcat "$bonsaidb" ; }
 countpkgs() { wc -l < "$bonsaidb" ; }
 
-sort_db() { [ -s "$bonsaidb" ] && sort -o "$bonsaidb" "$bonsaidb" ; }
+sort_db() { sort -o "$bonsaidb" "$bonsaidb" ; }
 
 update_db() {
-    if [ -s "$bonsaidb" ] ; then
-        sort_db
-    else
-        :> "$bonsaidb"
-    fi
+    [ -f "$bonsaidb" ] || :> "$bonsaidb"
+    sort_db
 }
 
 # add entry to database
 # params: $pkgname $pkgversion
 add_db() {
-    if ! grep "${1}${delim}${2}" "$bonsaidb" >/dev/null ; then
+    if ! grep -F -- "${1}${delim}${2}" "$bonsaidb" >/dev/null ; then
         echo "${1}${delim}${2}" >> "$bonsaidb"
         update_db
     fi
