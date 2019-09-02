@@ -3,7 +3,9 @@ version=2.4.0
 source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
 deps=xorg-server
 sha256=bf443c94d7bf6cd4e248f8a3147f4647be04dc4c80250d9405006263bbdee38c
+prebuild() {
+    getflags --no-static
+}
 postbuild() {
-    # remove manpage
     rm -r "${pkg:?}"/share
 }

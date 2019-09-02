@@ -3,6 +3,9 @@ version=1.9.0
 source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
 deps=xorg-server
 sha256=f7c900f21752683402992b288d5a2826de7a6c0c0abac2aadd7e8a409e170388
+prebuild() {
+    getflags --no-static
+}
 postbuild() {
     rm -r "${pkg:?}"/share
 }
