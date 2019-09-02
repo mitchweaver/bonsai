@@ -44,7 +44,9 @@ addpkg() {
             # if deps is unset or empty string, there are no deps
             ""|"* *") ;;
             *) for dep in $pkgdeps ; do
-                   isinst "$dep" > /dev/null || set -- "$* $dep"
+                   if ! isinst "$dep" >/dev/null ; then
+                       contains "$*" " $dep " || set -- "$* $dep"
+                   fi
                done
         esac
         set -- "$* $mainpkg"
