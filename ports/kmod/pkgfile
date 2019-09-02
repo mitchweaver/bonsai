@@ -34,17 +34,15 @@ build() {
 postbuild() {
     mkdir -p "$pkg"/etc/modprobe.d \
              "$pkg"/etc/depmod.d \
-             "$pkg"/bin \
-             "$pkg"/share/man/man5 \
-             "$pkg"/share/man/man8
+             "$pkg"/bin
 
-    install -m 0644 man/*.5 "$pkg"/share/man/man5
-    install -m 0644 man/*.8 "$pkg"/share/man/man8
+    install -D -m 0644 man/*.5 "$pkg"/share/man/man5
+    install -D -m 0644 man/*.8 "$pkg"/share/man/man8
 
-    ln -s kmod "$pkg"/bin/modinfo
-    ln -s kmod "$pkg"/bin/depmod
-    ln -s kmod "$pkg"/bin/insmod
-    ln -s kmod "$pkg"/bin/rmmod
-    ln -s kmod "$pkg"/bin/modprobe
-    ln -s kmod "$pkg"/bin/lsmod
+    ln -sf kmod "$pkg"/bin/modinfo
+    ln -sf kmod "$pkg"/bin/depmod
+    ln -sf kmod "$pkg"/bin/insmod
+    ln -sf kmod "$pkg"/bin/rmmod
+    ln -sf kmod "$pkg"/bin/modprobe
+    ln -sf kmod "$pkg"/bin/lsmod
 }
