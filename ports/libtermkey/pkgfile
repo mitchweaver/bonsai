@@ -1,5 +1,8 @@
 info='Library allowing easy processing of keyboard entry for terminal programs'
-deps='netbsd-curses unibilium'
+deps='netbsd-curses unibilium gnu-libtool'
+prebuild() {
+    export LIBTOOL=glibtool
+}
 build() {
     bonsai_make \
         CFLAGS="$CFLAGS" \
