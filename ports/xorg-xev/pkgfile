@@ -1,0 +1,5 @@
+info='X11 Input Event monitoring utility'
+version=1.2.3
+source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps=xorg-xrandr
+sha256=66bc4f1cfa1946d62612737815c34164e4ce40fcebd2c9e1d7e7a1117ad3ad09
