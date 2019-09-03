@@ -1,0 +1,25 @@
+info='Library for manipulating GIF images'
+version=5.2.1
+source=http://download.sourceforge.net/$name/$name-$version.tar.gz
+deps=zlib
+sha256=31da5562f44c5f15d63340a09a4fd62b48c45620cd302f77a6d9acf0077879bd
+prebuild() {
+    # do not build shared libs
+    sed -E 's/(libgif.so|libutil.so)//g' Makefile > tmp
+    mv -f tmp Makefile
+
+    # do not build docs
+    echo 'all:' > doc/Makefile
+}
+build() {
+    bonsai_make \
+        CFLAGS="$CFLAGS" \
+        LDFLAGS="$LDFLAGS"
+    bonsai_make \
+        install-bin \
+        install-include
+    install -D -m 0755 libgif.a "$pkg"/lib/libgif.a
+}
+postbuild() {
+    rm -rf "${pkg:?}"/share
+}
