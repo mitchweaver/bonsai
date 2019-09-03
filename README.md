@@ -113,7 +113,7 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 **Networking**: [dropbear](http://matt.ucc.asn.au/dropbear/dropbear.html)  
 **Compression**: [libarchive](http://libarchive.org/) [xz-embedded](http://tukaani.org/xz/embedded.html)  
 **Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
-**Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk)
+**Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk) [posix-bc](http://github.com/gavinhoward/bc)
 
 # Installation
 
