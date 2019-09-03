@@ -1,0 +1,5 @@
+info='X11 backlight setting utility'
+version=1.2.3
+source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps='xorg-libx11 xorg-xcb-util'
+sha256=3a27f324777ae99fee476cfb2f064576fb8cba4eb77f97cda37adda1c1d39ade
