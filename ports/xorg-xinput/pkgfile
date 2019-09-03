@@ -1,0 +1,5 @@
+info='X11 xinput utility'
+version=1.6.2
+source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps='xorg-libxi xorg-libxinerama xorg-libxrandr'
+sha256=3694d29b4180952fbf13c6d4e59541310cbb11eef5bf888ff3d8b7f4e3aee5c4
