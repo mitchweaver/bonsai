@@ -103,14 +103,13 @@ getflags() {
     PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
     SHELL=/bin/sh
 
-    # only export libtool if we're not bootstrapping 
-    # (stage0 will not have this installed)
+    # fix tool vars if we're bootstrapping 
     type slibtool >/dev/null 2>&1 || export LIBTOOL="$(which libtool)"
+    type pkgconf  >/dev/null 2>&1 || export PKG_CONFIG="$(which pkg-config)"
 
     # commonly needed variables
-    : ${GREP:=/bin/grep} ${FGREP:=/bin/fgrep} ${EGREP:=/bin/egrep} \
-      ${SED:=/bin/sed} ${AWK:=/bin/awk} ${TAR:=/bin/tar} ${FIND:=/bin/find} \
-      ${YACC:=/bin/yacc}
+    : ${GREP:=grep} ${FGREP:=fgrep} ${EGREP:=egrep} ${SED:=sed} ${AWK:=awk} \
+      ${TAR:=tar} ${FIND:=find} ${YACC:=yacc}
 
     export TARGET HOST BUILD CC cc HOSTCC SHELL LIBRARY_PATH CPATH \
            PKG_CONFIG_PATH PKG_CONFIG CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
