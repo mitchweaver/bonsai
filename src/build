@@ -113,8 +113,8 @@ getflags() {
       ${YACC:=/bin/yacc}
 
     export TARGET HOST BUILD CC cc HOSTCC SHELL LIBRARY_PATH CPATH \
-           PKG_CONFIG_PATH CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PREFIX prefix \
-           DOCDIR MAKEINFO GREP FGREP EGREP SED AWK TAR FIND YACC
+           PKG_CONFIG_PATH PKG_CONFIG CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+           PREFIX prefix DOCDIR MAKEINFO GREP FGREP EGREP SED AWK TAR FIND YACC
 }
 
 # convenience function, tries to find all *.patch
@@ -213,8 +213,8 @@ bonsai_make() {
 
     make $_verbose $_quiet $makeflags -j${jobs:=1} $_mans  \
         CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" \
-        DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" \
-        DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
+        PKG_CONFIG="$PKG_CONFIG" DESTDIR="$DESTDIR" PREFIX="$PREFIX" \
+        prefix="$PREFIX" DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
 }
 
 # run if pkgfile doesn't define a custom build()
