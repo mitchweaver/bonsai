@@ -1,0 +1,24 @@
+--- Makefile
++++ Makefile
+@@ -248,11 +248,19 @@
+ 	chmod 755 $(DESTDIR)$(PREFIX)/bin/sbase-box
+ 	for f in $(BIN); do ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/"$$f"; done
+ 	ln -sf sbase-box $(DESTDIR)$(PREFIX)/bin/[
+-	mv -f $(DESTDIR)$(PREFIX)/bin/xinstall $(DESTDIR)$(PREFIX)/bin/install
++	if [ ! -f $(DESTDIR)$(PREFIX)/bin/install ] ; then \
++		mv -f $(DESTDIR)$(PREFIX)/bin/xinstall $(DESTDIR)$(PREFIX)/bin/install ; \
++	else \
++		rm -f $(DESTDIR)$(PREFIX)/bin/xinstall ; \
++	fi
+ 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+ 	for m in $(MAN); do sed "s/^\.Os sbase/.Os sbase $(VERSION)/g" < "$$m" > $(DESTDIR)$(MANPREFIX)/man1/"$$m"; done
+ 	cd $(DESTDIR)$(MANPREFIX)/man1 && chmod 644 $(MAN)
+-	mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1
++	if [ ! -f $(DESTDIR)$(MANPREFIX)/man1/install.1 ] ; then \
++		mv -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 $(DESTDIR)$(MANPREFIX)/man1/install.1 ; \
++	else \
++		rm -f $(DESTDIR)$(MANPREFIX)/man1/xinstall.1 ; \
++	fi
+ 
+ sbase-box-uninstall: uninstall
+ 	cd $(DESTDIR)$(PREFIX)/bin && rm -f sbase-box

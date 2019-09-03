@@ -17,20 +17,21 @@ prebuild() {
     sed '/.*sha512-256/d' Makefile > tmp ; mv -f tmp Makefile
 }
 build() {
-    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box
-
-    # xinstall bugs out if install already exists
-    rm -f "$pkg"/bin/install 2>/dev/null
-
-    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
+    bonsai_make \
+        CFLAGS="$CFLAGS -std=c99" \
+        LDFLAGS="$LDFLAGS" \
+        $name-box-install
 }
 postbuild() {
-    >"$pkg"/bin/egrep printf '%s\n%s' \
-        '#!/bin/sh' \
-        'grep -E "$@"'
-    >"$pkg"/bin/fgrep printf '%s\n%s' \
-        '#!/bin/sh' \
-        'grep -F "$@"'
-    chmod +x "$pkg"/bin/egrep
-    chmod +x "$pkg"/bin/fgrep
+    cd "$pkg"/bin || exit 1
+
+    for file in egrep fgrep poweroff reboot ; do
+        echo '#!/bin/sh' >"$file"
+        chmod +x "$file"
+    done
+
+    echo '/bin/grep -E -- "$@"' >>egrep
+    echo '/bin/grep -F -- "$@"' >>fgrep
+    echo '/bin/kill -s USR1 1'  >>poweroff
+    echo '/bin/kill -s INT 1'   >>reboot
 }
