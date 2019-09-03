@@ -1,0 +1,18 @@
+info='GNU Unifont Glyphs'
+version=12.1.03
+source=http://ftp.gnu.org/gnu/$name/$name-$version/$name-$version.tar.gz
+sha256=c1d56e1d2f6952a45fc2d38c5c2c52d715328714d385749451b7ec14ba1ab982
+prebuild() {
+    find . -name Makefile | while read -r file ; do
+        sed 's|-m0644 -p|-m 0644|g' "$file" > tmp
+        mv -f tmp "$file"
+    done
+}
+postbuild () {
+    cd "$pkg"
+    if [ -d usr ] ; then
+        [ -d share ] && rm -r share
+        mv -f usr/share .
+        rmdir usr
+    fi
+}
