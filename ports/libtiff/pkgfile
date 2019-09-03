@@ -1,0 +1,8 @@
+info='TIFF image file manipulation library'
+version=4.0.9
+source=http://download.osgeo.org/$name/${name#lib}-$version.tar.gz
+deps=zlib
+sha256=6e7bdeec2c310734e734d19aae3a71ebe37a4d842e0e23dbb1b8921c0026cfcd
+postbuild() {
+    rm -r "${pkg:?}"/share
+}
