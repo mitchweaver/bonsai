@@ -120,7 +120,7 @@ getflags() {
 # in the top-level $workdir/$name directory and apply them
 bonsai_patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
-        { patch -p0 < "$patch" || return 1 ; } | msg
+        msg "$(patch -u -f -l -p0 < "$patch")" || die "$patch failed"
     done
 }
 
@@ -178,6 +178,7 @@ bonsai_configure() {
     addflag --disable-static --enable-static
     addflag --with-gnu-ld --without-gnu-ld
     addflag --with-debug --without-debug
+    addflag --enable-debug --disable-debug
     addflag --enable-tests --disable-tests
     addflag --with-tests --without-tests
     addflag --with-doc= --with-doc=no
