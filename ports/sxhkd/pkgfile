@@ -1,0 +1,9 @@
+info='Simple X hotkey daemon'
+version=0.6.1
+source=http://github.com/baskerville/$name/archive/$version.tar.gz
+deps='xorg-libxcb xorg-xcb-util-keysyms'
+sha256=5f44d623ef6fda01062dcfe8d5d0b75efad9a38114a28983ae895dbcbf43323e
+build() {
+    bonsai_make LDFLAGS="$LDFLAGS -lxcb -lxcb-keysyms -lXau"
+    bonsai_make install
+}
