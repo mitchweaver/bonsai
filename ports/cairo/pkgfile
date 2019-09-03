@@ -2,7 +2,7 @@ info='A 2D graphics library with support for multiple output devices'
 version=1.16.0
 source=http://cairographics.org/releases/$name-$version.tar.xz
 deps='fontconfig xorg-libxext xorg-libxrender xorg-libpixman \
-xorg-xcb-util glib libffi libpng zlib'
+xorg-xcb-util glib libffi libpng'
 sha256=5e7b29b3f113ef870d1e3ecf8adf21f923396401604bda16d44be45e66052331
 # mesa
 prebuild() {

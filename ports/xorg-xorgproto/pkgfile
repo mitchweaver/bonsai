@@ -1,7 +1,6 @@
 info='headers for core functions of the X Window System'
 version=2019.1
 source=http://xorg.freedesktop.org/archive/individual/proto/${name#xorg-}-$version.tar.bz2
-deps=bzip2
 sha256=a6daaa7a6cbc8e374032d83ff7f47d41be98f1e0f4475d66a4da3aa766a0d49b
 prebuild() {
     # do not build specs

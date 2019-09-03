@@ -1,9 +1,7 @@
 info='the bonsai linux kernel'
 version=5.2.8
 source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$version.tar.xz
-# note: it should be able to remove posix-bc dep and use
-#       the one included in hbase, (todo)
-# note: curses is only dep for menuconfig
+# note: curses is dep for menuconfig
 deps='@stage0 @stage1 @init kmod bison flex posix-bc netbsd-curses'
 nolink=true
 nostrip=true

@@ -1,22 +1,13 @@
 info='GNU pico editor clone'
 version=4.3
 source=http://nano-editor.org/dist/v4/$name-$version.tar.xz
-deps='netbsd-curses kernel-headers pkgconf'
+deps=netbsd-curses
 sha256=00d3ad1a287a85b4bf83e5f06cedd0a9f880413682bebd52b4b1e2af8cfc0d81
 build() {
-#    NCURSESW_LIBS="$LDFLAGS -lncursesw -lterminfo" \
-#    NCURSES_LIBS="$LDFLAGS -lncurses -lterminfo" \
-#    NCURSESW_CFLAGS="$CFLAGS -D_GNU_SOURCE" \
-#    NCURSES_CFLAGS="$CFLAGS -D_GNU_SOURCE" \
-#    LDFLAGS="$LDFLAGS -lncursesw -lcurses -lterminfo" \
-#    LIBS="-lncursesw -lcurses -lterminfo" \
-
-    # for whatever reason, I cannot get nano
-    # to read the libs above from the environment.
-    # for now, it will have pkgconf as a dependency
-    # until this is figured out.
     CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \
-        bonsai_configure --enable-utf8 --enable-tiny
+    bonsai_configure \
+        --enable-utf8 \
+        --enable-tiny
     bonsai_make
     bonsai_make install
 }

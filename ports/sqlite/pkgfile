@@ -1,7 +1,7 @@
 info='Small and fast SQL database'
 version=3.29.0
 source=http://sqlite.org/2019/$name-autoconf-$(echo $version | sed 's|\.||g')000.tar.gz
-deps='libedit zlib'
+deps=libedit
 sha256=8e7c1e2950b5b04c5944a981cb31fffbf9d2ddda939d536838ebc854481afd5b
 build() {
     bonsai_configure --enable-readline

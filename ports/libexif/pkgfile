@@ -1,7 +1,6 @@
 info='EXIF info parsing library'
 version=0.6.21
 source=http://downloads.sourceforge.net/$name/$name-$version.tar.bz2
-deps=bzip2
 sha256=16cdaeb62eb3e6dfab2435f7d7bccd2f37438d21c5218ec4e58efa9157d4d41a
 postbuild() {
     rm -r "$pkg"/share

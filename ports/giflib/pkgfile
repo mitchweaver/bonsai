@@ -1,7 +1,6 @@
 info='Library for manipulating GIF images'
 version=5.2.1
 source=http://download.sourceforge.net/$name/$name-$version.tar.gz
-deps=zlib
 sha256=31da5562f44c5f15d63340a09a4fd62b48c45620cd302f77a6d9acf0077879bd
 prebuild() {
     # do not build shared libs

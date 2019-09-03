@@ -1,7 +1,7 @@
 info="A vi-like editor based on Plan 9's structural regular expressions"
 version=0.5
 source=http://github.com/martanne/$name/archive/v$version.tar.gz
-deps='netbsd-curses libtermkey lua pkgconf'
+deps='netbsd-curses libtermkey lua'
 sha256=77ea70ebc9c811d88e32199ef5b3ee9b834ac1e880fb61b6d2460f93f0587df5
 prebuild() {
     # workaround for varying libtermkey versions

@@ -1,5 +1,5 @@
 info='X11 shared memory fences'
 version=1.3
 source=http://x.org/releases/individual/lib/${name#xorg-}-$version.tar.bz2
-deps='xorg-xorgproto bzip2'
+deps=xorg-xorgproto
 sha256=b884300d26a14961a076fbebc762a39831cb75f92bed5ccf9836345b459220c7

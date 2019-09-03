@@ -1,7 +1,7 @@
 version=3.7.4
 info="Python${version%%.*} interpreter"
 source=http://github.com/python/cpython/archive/v$version.tar.gz
-deps='netbsd-curses libedit libressl libffi expat zlib bzip2'
+deps='netbsd-curses libedit libressl libffi expat'
 sha256=aaea286c4458f22125e1a08aa59359ebc32232eda50c98f013be49367e5d8b6a
 prebuild() {
      rm -rf "${pkg:?}"/lib/python${version%.*} 2>/dev/null

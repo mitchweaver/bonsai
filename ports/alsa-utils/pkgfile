@@ -1,7 +1,7 @@
 info="ALSA utilities"
 version=1.1.9
 source=ftp://ftp.alsa-project.org/pub/${name#alsa-}/$name-$version.tar.bz2
-deps='alsa-lib netbsd-curses pkgconf bzip2'
+deps='alsa-lib netbsd-curses'
 sha256=5ddf2cbddb4bd1a4a2a6492a09c25898b08c3ad64893c3655be14194cf0a213a
 build() {
     bonsai_configure \

@@ -1,7 +1,7 @@
 info='command line online file transfer and download tool'
 version=7.65.3
 source=http://curl.haxx.se/download/$name-$version.tar.xz
-deps='libressl zlib'
+deps=libressl
 sha256=f2d98854813948d157f6a91236ae34ca4a1b4cb302617cebad263d79b0235fea
 build() {
     CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \

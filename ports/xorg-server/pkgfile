@@ -5,7 +5,7 @@ deps='xorg-libx11 xorg-libxau xorg-libxdamage xorg-libxext xorg-libxfixes \
 xorg-libxxf86vm libdrm xorg-libfontenc xorg-libxinerama \
 xorg-libpciaccess xorg-libxcb xorg-libxkbfile xorg-libxshmfence \
 xorg-libpixman xorg-xinit xorg-libxft xorg-xkeyboard-config \
-xorg-libxfont2 xorg-libxdmcp xorg-xorgproto libressl bzip2 zlib'
+xorg-libxfont2 xorg-libxdmcp xorg-xorgproto libressl'
 #xorg-libxfont 
 #mesa
 #xorg-libepoxy 

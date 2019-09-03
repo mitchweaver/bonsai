@@ -1,8 +1,7 @@
 info='FreeType and HarfBuzz font rendering libraries'
 version='1.3.4+2.10.1'
-deps='expat glib bzip2 zlib libdrm \
-xorg-libx11 xorg-libxau xorg-libxdamage xorg-libxext xorg-libxfixes \
-xorg-libxrender xorg-libxxf86vm xorg-libxcb xorg-libxshmfence xorg-libpixman'
+deps='expat libdrm xorg-libx11 xorg-libxdamage xorg-libxext xorg-libxfixes \
+xorg-libxrender xorg-libxxf86vm xorg-libxshmfence xorg-libpixman'
 freetype_source=http://download-mirror.savannah.gnu.org/releases/freetype/freetype-${version#*+}.tar.xz
 harfbuzz_source=http://github.com/harfbuzz/harfbuzz/releases/download/1.3.4/harfbuzz-1.3.4.tar.bz2
 freetype_sha256=16dbfa488a21fe827dc27eaf708f42f7aa3bb997d745d31a19781628c36ba26f
