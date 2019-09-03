@@ -1,7 +1,0 @@
-notice:
-
-`bc` is included with `hbase`. 
-
-You shouldn't need to install this unless you explicitly need extra functionality.
-
-... if you do, there is `posix-bc` which you probably should use instead.

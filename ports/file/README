@@ -1,6 +1,0 @@
-note:
-
-'file' is included in hbase from heirloom.
-
-you shouldn't need to install this unless 
-you require extra functionality
