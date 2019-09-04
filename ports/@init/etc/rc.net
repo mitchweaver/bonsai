@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -f /etc/rc.conf ] && . /etc/rc.conf
+
 if [ "$HOSTNAME" ] ; then
     echo "$HOSTNAME" >/etc/hostname
     echo "$HOSTNAME" >/proc/sys/kernel/hostname

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -f /etc/rc.conf ] && . /etc/rc.conf
+
 case "${devmgr:-eudev}" in
     eudev)
         eudevd --daemon
