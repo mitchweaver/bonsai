@@ -13,10 +13,20 @@ build() {
     bonsai_make install
 }
 postbuild() {
-    cd "$pkgs"/$name/bin
+    cd "$pkg"/bin || exit 1
+
+    # create symlink for compatibility
     ln -sf pkgconf pkg-config
-    PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
-    export PKG_CONFIG_PATH
+
+    # create wrapper for --static, some configure scripts break
+    # as they don't quote $PKG_CONFIG...
+    >pkgconf-static printf '%s\n%s' \
+        '#!/bin/sh' \
+        'pkgconf --static "$@"'
+    chmod +x pkgconf-static
+
+    # ensure paths work during bootstrap
+    export PKG_CONFIG_PATH="$root/lib/pkgconfig:/lib/pkgconfig"
     echo "export PKG_CONFIG_PATH=\"$root/lib/pkgconfig:/lib/pkgconfig\"" \
         >> "$root"/etc/profile
 }

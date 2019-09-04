@@ -85,7 +85,7 @@ getflags() {
             LDFLAGS="$LDFLAGS -static --static"
             AM_LDFLAGS="$AM_LDFLAGS -static --static"
             LIBTOOL=/bin/slibtool-static
-            PKG_CONFIG='/bin/pkgconf-static --static'
+            PKG_CONFIG=/bin/pkgconf-static
     esac
 
     LIBRARY_PATH=".:$root/lib:$root/libexec"
