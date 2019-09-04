@@ -20,9 +20,16 @@ postbuild() {
 
     # create wrapper for --static, some configure scripts break
     # as they don't quote $PKG_CONFIG...
-    >pkgconf-static printf '%s\n%s' \
-        '#!/bin/sh' \
-        'pkgconf --static "$@"'
+cat >pkgconf-static <<'EOF'
+#!/bin/sh
+case "$1" in
+    --libs|--cflags)
+        pkgconf --static "$@"
+        ;;
+    *)
+        pkgconf "$@"
+esac
+EOF
     chmod +x pkgconf-static
 
     # ensure paths work during bootstrap
