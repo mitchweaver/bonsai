@@ -16,6 +16,6 @@ sucks() {
 # remove junk files from given package
 # params: $name
 clear_junk() {
-    cd "$pkg/$1" || exit 1
+    cd "$pkgs/$1" || exit 1
     rm -rf share/info share/doc sucks /sucks 2>/dev/null
 }
