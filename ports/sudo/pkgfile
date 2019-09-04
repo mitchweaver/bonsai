@@ -19,7 +19,5 @@ build() {
     bonsai_make INSTALL=install install
 }
 postbuild() {
-    mv -f "$pkg"/sbin/* bin/ 2>/dev/null ||:
-    rmdir "$pkg"/sbin 2>/dev/null || :
     chmod +s "$pkg"/bin/sudo
 }

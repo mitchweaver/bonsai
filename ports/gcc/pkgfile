@@ -53,6 +53,7 @@ prebuild() {
     # swap DESTDIR and PREFIX
     export PREFIX="$DESTDIR"
     export DESTDIR=""
+    export BINDIR="$PREFIX"/bin
 }
 build() {
     # build gcc in a separate, clean dir

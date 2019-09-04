@@ -28,7 +28,5 @@ build() {
     bonsai_make base-install lib-install
 }
 postbuild() {
-    mv -f "$pkg"/sbin/* "$pkg"/bin/
-    rmdir "$pkg"/sbin
     rm -rf "$pkg"/share/examples
 }
