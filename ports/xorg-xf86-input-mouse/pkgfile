@@ -3,9 +3,19 @@ version=1.9.3
 source=http://x.org/releases/individual/driver/${name#xorg-}-$version.tar.bz2
 deps=xorg-server
 sha256=93ecb350604d05be98b7d4e5db3b8155a44890069a7d8d6b800c0bea79c85cc5
-prebuild() {
-    getflags --no-static
-}
 postbuild() {
     rm -r "${pkg:?}"/share
+
+    cd "$pkg"/lib/xorg/modules/input
+
+    set -- "${name#xorg-xf86-*-}"
+    set -x
+    # convert static lib to dynamic so it can be loaded by xorg-server
+    gcc -shared -o $1_drv.so \
+    -Wl,--whole-archive \
+        ./$1_drv.a \
+        /lib/libpixman.a \
+        /lib/libpciaccess.a \
+    -Wl,--no-whole-archive || exit 1
+    set +x
 }
