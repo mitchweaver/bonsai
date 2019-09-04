@@ -22,7 +22,7 @@ postbuild() {
     # as they don't quote $PKG_CONFIG...
     >pkgconf-static printf '%s\n%s' \
         '#!/bin/sh' \
-        'pkgconf --static "$@"'
+        'pkgconf-static "$@"'
     chmod +x pkgconf-static
 
     # ensure paths work during bootstrap

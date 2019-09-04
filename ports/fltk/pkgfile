@@ -8,7 +8,7 @@ sha256=2933c72400f9e7c0f4c3a81a1ce98bc9582b2a3edc44b8597ccd26e240e32c3c
 build() {
     # NEEDS MESA:
     # --enable-gl
-    export LIBS="$LIBS $(pkgconf --static --libs xft harfbuzz)"
+    export LIBS="$LIBS $(pkgconf-static --libs xft harfbuzz)"
     bonsai_configure \
         --disable-gl \
         --disable-cairo \

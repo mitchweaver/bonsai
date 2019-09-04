@@ -6,5 +6,5 @@ sha256=fd6a6de3da48de8d1bb738ab6be4ad67f7cb0986c39bd3f7d51dd24f7854bdec
 prebuild() {
     sed 's|USE_GETTEXT="yes"|USE_GETTEXT="no"|' configure > tmp
     mv -f tmp configure
-    export XPM_LIBS="$(pkgconf --static --libs x11 xt)"
+    export XPM_LIBS="$(pkgconf-static --libs x11 xt)"
 }

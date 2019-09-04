@@ -4,7 +4,7 @@ source=http://downloads.sourceforge.net/enlightenment/$name-src/$name-$version.t
 deps='libjpeg-turbo libpng giflib xorg-libxext freetype-harfbuzz'
 sha256=b25df9347648cf3dfb784c099139ab24157b1dbd1baa9428f103b683b8a78c61
 build() {
-    export LIBS="$(pkgconf --static --libs xext harfbuzz) -lbz2 -lz"
+    export LIBS="$(pkgconf-static --libs xext harfbuzz) -lbz2 -lz"
     bonsai_configure \
         --without-tiff \
         --without-id3 \

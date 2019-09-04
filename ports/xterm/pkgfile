@@ -4,7 +4,7 @@ source=http://invisible-mirror.net/archives/$name/$name-$version.tgz
 deps='xorg-libxaw xorg-libxinerama netbsd-curses xorg-libxft'
 sha256=8b1f5121dbf3690de9d85a3b9329e3357021705dd7c21da192e47542769275be
 build() {
-    # xterm doesn't understand 'pkgconf --static'
+    # xterm doesn't understand 'pkgconf-static'
     PKG_CONFIG=pkgconf \
     bonsai_configure \
 		--enable-ansi-color \
@@ -35,6 +35,6 @@ build() {
     sed 's|$(SHELL).*plink.sh ||g' Makefile > tmp
     mv -f tmp Makefile
 
-    bonsai_make LIBS="$(pkgconf --static --libs xaw7 xft xinerama ncurses)"
+    bonsai_make LIBS="$(pkgconf-static --libs xaw7 xft xinerama ncurses)"
     bonsai_make install
 }

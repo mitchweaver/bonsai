@@ -16,7 +16,7 @@ build() {
     # --- NEEDS MESA:
     # --enable-gl \
     # --enable-egl \
-    export LIBS="$(pkgconf --static --libs harfbuzz)"
+    export LIBS="$(pkgconf-static --libs harfbuzz)"
     bonsai_configure \
         ax_cv_c_float_words_bigendian=no \
         --enable-tee \

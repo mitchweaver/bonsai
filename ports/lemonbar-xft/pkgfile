@@ -4,5 +4,5 @@ source=http://github.com/krypt-n/bar/archive/$version.tar.gz
 deps='xorg-libxcb xorg-libxft freetype-harfbuzz'
 sha256=c0dcf7be5237edd1d8880fd98345883c3443b3197a04577a9d82ae1b38c303de
 prebuild() {
-    export LDFLAGS="$LDFLAGS $(pkgconf --static --libs xcb xft harfbuzz)"
+    export LDFLAGS="$LDFLAGS $(pkgconf-static --libs xcb xft harfbuzz)"
 }

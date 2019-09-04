@@ -4,7 +4,7 @@ source=http://dillo.org/download/$name-$version.tar.bz2
 deps='fltk libjpeg-turbo giflib libpng libressl'
 sha256=db1be16c1c5842ebe07b419aa7c6ef11a45603a75df2877f99635f4f8345148b
 build() {
-    export LIBS="$(pkgconf --static --libs openssl)"
+    export LIBS="$(pkgconf-static --libs openssl)"
     bonsai_configure \
         --enable-ssl \
         --enable-ipv6 \

@@ -4,7 +4,7 @@ source=http://$name.finalrewind.org/$name-$version.tar.bz2
 deps='imlib2 libexif xorg-libxt xorg-libxinerama curl'
 sha256=8f9741399b4b184ba28698c0fd7722638e79abac8e6c27eb526cc52b11ee0a1c
 prebuild() {
-    echo "LDLIBS += $(pkgconf --static --libs \
+    echo "LDLIBS += $(pkgconf-static --libs \
 x11-xcb xcb-shm xinerama freetype2 harfbuzz libcurl)" >> config.mk
 }
 build() {

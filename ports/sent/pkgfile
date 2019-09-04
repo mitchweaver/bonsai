@@ -10,6 +10,6 @@ prebuild() {
 build() {
     bonsai_make \
         CFLAGS="$CFLAGS $(grep ^CFLAGS config.mk | sed 's|CFLAGS +=||')" \
-        LDFLAGS="$LDFLAGS $(pkgconf --static --libs xft harfbuzz)"
+        LDFLAGS="$LDFLAGS $(pkgconf-static --libs xft harfbuzz)"
     bonsai_make install
 }

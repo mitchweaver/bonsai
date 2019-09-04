@@ -4,5 +4,5 @@ source=http://github.com/jhawthorn/meh/archive/$version.tar.gz
 deps='xorg-libxext libjpeg-turbo libpng giflib'
 sha256=df2056963c014e96edaba53820da26e5fd57f018ace9e8edd28d21e42125001f
 prebuild() {
-    export LIBS="$(pkgconf --static --libs xext libturbojpeg libpng) -lgif"
+    export LIBS="$(pkgconf-static --libs xext libturbojpeg libpng) -lgif"
 }

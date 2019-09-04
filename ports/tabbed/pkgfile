@@ -6,6 +6,6 @@ sha256=7651ea3acbec5d6a25469e8665da7fc70aba2b4fa61a2a6a5449eafdfd641c42
 build() {
     bonsai_make \
         CFLAGS="$CFLAGS $(grep ^CFLAGS config.mk | sed 's|CFLAGS =||')" \
-        LDFLAGS="$LDFLAGS $(pkgconf --static --libs xft)"
+        LDFLAGS="$LDFLAGS $(pkgconf-static --libs xft)"
     bonsai_make install
 }

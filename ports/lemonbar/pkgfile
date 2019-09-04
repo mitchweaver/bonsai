@@ -4,5 +4,5 @@ source=http://github.com/LemonBoy/bar/archive/v$version.tar.gz
 deps=xorg-libxcb
 sha256=eae784c5e375b2d0b12138be1a9902beb4b5eeb807f3512f30f14ba23ddaa37d
 prebuild() {
-    export LDFLAGS="$LDFLAGS $(pkgconf --static --libs xcb)"
+    export LDFLAGS="$LDFLAGS $(pkgconf-static --libs xcb)"
 }
