@@ -1,0 +1,8 @@
+info='A simple, minimalist, super fast image viewer using raw XLib'
+version=69f653a1f16d11b12e5b600e808a740898f3223e
+source=http://github.com/jhawthorn/meh/archive/$version.tar.gz
+deps='xorg-libxext libjpeg-turbo libpng giflib'
+sha256=df2056963c014e96edaba53820da26e5fd57f018ace9e8edd28d21e42125001f
+prebuild() {
+    export LIBS="$(pkgconf --static --libs xext libturbojpeg libpng) -lgif"
+}
