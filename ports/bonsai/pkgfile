@@ -1,13 +1,4 @@
 info='a tiny package manager based on musl-libc and static compilation'
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# NOTE: As bonsai is still in rapid early development,
-#       this package is mostly a placeholder.
-#
-#       In the future this will install/update 
-#           bpm and the ports tree.
-#version=?
-#source=http://github.com/mitchweaver/bonsai/?
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 version=metapkg
 build() {
     mkdir -p "$pkg"/bin
@@ -23,5 +14,20 @@ build() {
     ln -sf /src/bonsai "$pkg"/bin/bpm
     ln -sf /src/bonsai "$pkg"/bin/bpk
     ln -sf /src/bonsai "$pkg"/bin/bpkg
-    ln -sf /src/bonsai "$pkg"/bin/bkg
+}
+postbuild() {
+    if isinst git >/dev/null ; then
+        cd "$pkg"
+        if [ -d $name ] ; then
+            cd $name
+            git pull
+        else
+            git clone http://github.com/bonsai-linux/bonsai
+            cd $name
+        fi
+        make
+        root="${root:-/}" make install
+    else
+        warn "git is needed to update bonsai and its ports"
+    fi
 }
