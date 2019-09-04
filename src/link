@@ -50,7 +50,6 @@ linkpkg() {
         done
     done
 
-    $mans && # only link mans if config boolean is true
     if [ -d "$pkgs/$name/share/man" ] ; then
         for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
             find "$pkgs/$name/share/man/$manX" \

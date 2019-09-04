@@ -37,7 +37,6 @@ jobs="$(($(grep -c 'cpu cores' /proc/cpuinfo 2>/dev/null ||:) + 1))"
 #_
 ## general options
 makeflags=''        ## custom make flags (NOT cflags!)
-mans=true           ## install man pages?
 nls=false           ## provide native-language-support?
 keep_tarballs=true  ## save tarballs in /src/sources?
 strip_bins=true     ## strip compiled bins/libs?
