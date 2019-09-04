@@ -19,11 +19,4 @@ build() {
         msg "installing etc/rc.local with mode 755..."
         install -m 0755 rc.local "$root"/etc/rc.local
     fi
-
-    for file in poweroff reboot ; do
-        msg "installing bin/$file..."
-        install -D -m 0755 $file "$pkg"/bin/$file
-    done
-
-    unset file
 }
