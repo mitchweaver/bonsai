@@ -1,0 +1,78 @@
+// adds region selection support
+--- xscreenshot.c
++++ xscreenshot.c
+@@ -19,10 +19,11 @@ main(int argc, char *argv[])
+ 	Display *dpy;
+ 	Window win;
+ 	XWindowAttributes attr;
+-	uint32_t tmp, w, h;
++	uint32_t tmp;
+ 	uint16_t rgba[4];
+-	int sr, sg, fr, fg, fb;
+-	char *ep;
++	int sr, sg, fr, fg, fb, x, w, y, h;
++	char *ep, *geometry;
++    int isgeo = 0;
+ 
+ 	if (!(dpy = XOpenDisplay(NULL)))
+ 		errx(1, "XOpenDisplay");
+@@ -30,29 +31,48 @@ main(int argc, char *argv[])
+ 	/* identify window */
+ 	if (argc > 1) {
+ 		if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-v")) {
+-			fprintf(stderr, "usage: %s [winid]\n", argv[0]);
++			fprintf(stderr, "usage: %s [-w winid] [-g geometry]\n", argv[0]);
+ 			return 1;
+ 		}
+ 		errno = 0;
+ 
+-		win = (Window)strtol(argv[1], &ep, 0);
+-		if (errno || argv[1] == ep || *ep != '\0') {
+-			fprintf(stderr, "strtol: invalid number: \"%s\"%s%s\n",
+-				argv[1],
+-			        errno ? ": " : "",
+-			        errno ? strerror(errno) : "");
+-			exit(1);
+-		}
++        if (!strcmp(argv[1], "-g")) {
++            geometry = argv[2];
++            isgeo = 1;
++            win = RootWindow(dpy, 0);
++        } else if (!strcmp(argv[1], "-w")) {
++            win = (Window)strtol(argv[2], &ep, 0);
++
++            if (errno || argv[2] == ep || *ep != '\0') {
++                fprintf(stderr, "strtol: invalid number: \"%s\"%s%s\n",
++                        argv[2],
++                        errno ? ": " : "",
++                        errno ? strerror(errno) : "");
++                exit(1);
++            }
++        }
+ 	} else {
+ 		win = RootWindow(dpy, 0);
+ 	}
+ 
+-	XGrabServer(dpy);
+-	XGetWindowAttributes(dpy, win, &attr);
+-	img = XGetImage(dpy, win, 0, 0, attr.width, attr.height, 0xffffffff,
++    XGrabServer(dpy);
++
++    if (isgeo) {
++        x = y = w = h = 0;
++        XParseGeometry(geometry, &x, &y, (unsigned *)&w, (unsigned *)&h);
++    } else {
++        x = y = 0;
++        XGetWindowAttributes(dpy, win, &attr);
++        w = attr.width;
++        h = attr.height;
++    }
++
++	img = XGetImage(dpy, win, x, y, w, h, 0xffffffff,
+ 	                ZPixmap);
++
+ 	XUngrabServer(dpy);
+ 	XCloseDisplay(dpy);
++
+ 	if (!img)
+ 		errx(1, "XGetImage");
