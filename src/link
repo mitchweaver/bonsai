@@ -31,34 +31,35 @@ linkpkg() {
     msg "creating symlinks for $name..."
 
     for dir in bin sbin share include etc lib libexec ; do
-        [ -d "$pkgs/$name/$dir" ] || continue
+        if [ -d "$pkgs/$name/$dir" ] ; then
+            # recursively create pkg subdirectories in
+            # equivalent $root subdirectories
+            # example: $name/lib/pkgconfig -> $root/lib/pkgconfig
+            find "$pkgs/$name/$dir" ! -path "*$dir" \
+                    -type d 2> /dev/null | while read -r subdir ; do
+                mkdir -p "${subdir#$pkgs/$name/}"
+            done
 
-        # recursively create pkg subdirectories in
-        # equivalent $root subdirectories
-        # example: $name/lib/pkgconfig -> $root/lib/pkgconfig
-        find "$pkgs/$name/$dir" ! -path "*$dir" \
-                -type d 2> /dev/null | while read -r subdir ; do
-            mkdir -p "${subdir#$pkgs/$name/}"
-        done
-
-        # recursively link all files
-        # example: $name/include/asm/*.h -> $root/include/asm/*.h
-        find "$pkgs/$name/$dir" ! -path "*share/*man*" \
-                -type f -o -type l 2> /dev/null | while read -r file ; do
-            file="${file#$pkgs/$name/}"
-            ln -sf "$_pkgs/$name/$file" "$file" 2>/dev/null
-        done
+            # recursively link all files
+            # example: $name/include/asm/*.h -> $root/include/asm/*.h
+            find "$pkgs/$name/$dir" ! -path "*share/*man*" \
+                    -type f -o -type l 2> /dev/null | while read -r file ; do
+                file="${file#$pkgs/$name/}"
+                ln -sf "$_pkgs/$name/$file" "$file" 2>/dev/null
+            done
+        fi &
     done
 
-    if [ -d "$pkgs/$name/share/man" ] ; then
-        for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
+    for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
+        if [ -d "$pkgs/$name/share/man/$manX" ] ; then
             find "$pkgs/$name/share/man/$manX" \
                     ! -path "*/$manX" 2> /dev/null | while read -r man ; do
                 ln -sf "$_pkgs/$name/share/man/$manX/${man##*/}" \
                     "${man#$pkgs/$name/}" 2>/dev/null
             done
-        done
-    fi
+        fi &
+    done
+    wait
 }
 
 # relinks every package installed
