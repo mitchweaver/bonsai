@@ -27,7 +27,7 @@ build() {
 postbuild() {
     cd "$pkg"/bin || exit 1
 
-    for file in egrep fgrep poweroff reboot ; do
+    for file in egrep fgrep poweroff reboot tac ; do
         echo '#!/bin/sh' >"$file"
         chmod +x "$file"
     done
@@ -36,4 +36,12 @@ postbuild() {
     echo '/bin/grep -F -- "$@"' >>fgrep
     echo '/bin/kill -s USR1 1'  >>poweroff
     echo '/bin/kill -s INT 1'   >>reboot
+    
+cat >>tac <<'EOF'
+if [ -f "$1" ] ; then
+    /bin/sed '1!G;h;$!d' "$1"
+else
+    /bin/sed '1!G;h;$!d'
+fi
+EOF
 }
