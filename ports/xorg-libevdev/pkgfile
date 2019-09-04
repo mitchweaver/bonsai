@@ -1,7 +1,7 @@
 info='X11 evdev bindings'
 version=1.8.0
 source=http://freedesktop.org/software/${name#xorg-}/${name#xorg-}-$version.tar.xz
-deps='python3 kernel-headers'
+deps='python3 kernel-headers eudev'
 sha256=20d3cae4efd277f485abdf8f2a7c46588e539998b5a08c2c4d368218379d4211
 postbuild() {
     # remove unused manpages
