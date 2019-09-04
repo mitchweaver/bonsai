@@ -1,0 +1,13 @@
+info='a suckless lossless image format'
+version=4
+source=http://dl.suckless.org/$name/$name-$version.tar.gz
+deps='libpng libjpeg-turbo'
+sha256=c7df5921edd121ca5d5b1cf6fb01e430aff9b31242262e4f690d3af72ccbe72a
+build() {
+    bonsai_make \
+        CFLAGS="$CFLAGS -std=c99" \
+        LDFLAGS="$LDFLAGS" \
+        PNG-LDLIBS="$(pkgconf --static --libs libpng)" \
+        JPG-LDLIBS="$(pkgconf --static --libs libturbojpeg)"
+    bonsai_make install
+}
