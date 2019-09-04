@@ -85,7 +85,7 @@ getflags() {
             LDFLAGS="$LDFLAGS -static --static"
             AM_LDFLAGS="$AM_LDFLAGS -static --static"
             LIBTOOL=/bin/slibtool-static
-            PKG_CONFIG='/bin/pkgconf --static'
+            PKG_CONFIG='/bin/pkgconf-static --static'
     esac
 
     LIBRARY_PATH=".:$root/lib:$root/libexec"
@@ -95,7 +95,8 @@ getflags() {
     DESTDIR="$pkgs/$name"
     PREFIX=/
     prefix=/
-    DOCDIR="$pkg"/sucks
+    BINDIR="$PREFIX"/bin
+    DOCDIR="$PREFIX"/sucks
     cc="${cc:=$gcc}"
     CC="${cc:=$cc}"
     HOSTCC="$CC"
@@ -113,7 +114,8 @@ getflags() {
 
     export TARGET HOST BUILD CC cc HOSTCC SHELL LIBRARY_PATH CPATH \
            PKG_CONFIG_PATH PKG_CONFIG CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-           PREFIX prefix DOCDIR MAKEINFO GREP FGREP EGREP SED AWK TAR FIND YACC
+           PREFIX prefix DOCDIR BINDIR MAKEINFO \
+           GREP FGREP EGREP SED AWK TAR FIND YACC
 }
 
 # convenience function, tries to find all *.patch
@@ -124,7 +126,7 @@ bonsai_patch() {
     done
 }
 
-bonsai_autogen() { ./autogen.sh "$@" || die "autogen.sh failed for $name" ; }
+bonsai_autogen() { sh autogen.sh "$@" || die "autogen.sh failed for $name" ; }
 
 # if --path= param is provided, use ./"$path"/configure
 # instead of assumed "./configure" (ie ./"$PWD"/configure)
@@ -189,6 +191,7 @@ bonsai_configure() {
     addflag --with-fop --without-fop
     addflag --with-xsltproc --without-xsltproc
     addflag --prefix= --prefix="$PREFIX"
+    addflag --sysconfdir= --sysconfdir=/etc
     addflag --infodir= --infodir="$PREFIX"/sucks
     addflag --docdir= --docdir="$PREFIX"/sucks
     addflag --htmldir= --htmldir="$PREFIX"/sucks
@@ -207,14 +210,14 @@ bonsai_configure() {
 
 bonsai_make() {
     # set in bonsai.rc:
-    [ "${mans:=true}"     = false ] && _mans="MANDIR=$pkg/sucks"
     [ "${quiet:=false}"   = true  ] && _quiet='-s'
     [ "${verbose:=false}" = true  ] && _verbose='V=1'
 
-    make $_verbose $_quiet $makeflags -j${jobs:=1} $_mans  \
-        CC="$CC" cc="$CC" LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" \
-        PKG_CONFIG="$PKG_CONFIG" DESTDIR="$DESTDIR" PREFIX="$PREFIX" \
-        prefix="$PREFIX" DOCDIR="$DOCDIR" "$@" || die "make $* failed for $name"
+    make $_verbose $_quiet $makeflags -j${jobs:=1} CC="$CC" cc="$CC" \
+        LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" PKG_CONFIG="$PKG_CONFIG" \
+        DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" DOCDIR="$DOCDIR" \
+        BINDIR="$BINDIR" SBINDIR="$BINDIR" bindir="$BINDIR" sbindir="$BINDIR" \
+        "$@" || die "make $* failed for $name"
 }
 
 # run if pkgfile doesn't define a custom build()
