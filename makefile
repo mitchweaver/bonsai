@@ -28,7 +28,7 @@ bonsai:
 	chmod +x bonsai
 
 install:
-	install -Dm755 bonsai ${PREFIX}/src/bonsai
+	install -D -m 0755 bonsai ${PREFIX}/src/bonsai
 	cp -rf ports ${PREFIX}/src
 	if [ ! -f ${PREFIX}/src/bonsai.rc ] ; then \
 		root="$(root)" ./bonsai --skeleton ; \
