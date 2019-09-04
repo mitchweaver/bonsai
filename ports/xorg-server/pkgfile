@@ -5,8 +5,7 @@ deps='xorg-libx11 xorg-libxau xorg-libxdamage xorg-libxext xorg-libxfixes \
 xorg-libxxf86vm libdrm xorg-libfontenc xorg-libxinerama \
 xorg-libpciaccess xorg-libxcb xorg-libxkbfile xorg-libxshmfence \
 xorg-libpixman xorg-xinit xorg-libxft xorg-xkeyboard-config \
-xorg-libxfont2 xorg-libxdmcp xorg-xorgproto libressl'
-#xorg-libxfont 
+xorg-libxfont2 xorg-libxdmcp xorg-xorgproto eudev libressl'
 #mesa
 #xorg-libepoxy 
 sha256=a81d8243f37e75a03d4f8c55f96d0bc25802be6ec45c3bfa5cb614c6d01bac9d
@@ -53,6 +52,8 @@ build() {
         --enable-pciaccess \
         --enable-install-setuid \
         --enable-xdmcp \
+        --enable-config-udev \
+        --enable-config-udev-kms \
         --disable-glx \
         --disable-dri \
         --disable-dri2 \
@@ -63,13 +64,12 @@ build() {
         --disable-unit-tests \
         --disable-xephyr \
         --disable-libunwind \
-        --disable-config-udev \
-        --disable-config-udev-kms \
         --disable-xnest \
         --with-systemd-daemon=off \
         --without-systemd-daemon \
         --with-sha1=libcrypto \
         --with-vendor-name=bonsai \
+        --with-vendor-website=http://bonsai-linux.org \
         --with-default-font-path="\
 $PREFIX/share/fonts/X11/misc/,$PREFIX/share/fonts/X11/TTF/,\
 $PREFIX/share/fonts/X11/OTF/,$PREFIX/share/fonts/X11/Type1/"
