@@ -1,30 +1,42 @@
 #!/bin/sh
 
-smdev -s
-echo /bin/smdev > /proc/sys/kernel/hotplug
+case "${devmgr:-eudev}" in
+    eudev)
+        eudevd --daemon
+        eudevadm trigger --action=add --type=subsystems
+        eudevadm trigger --action=add --type=devices
+        eudevadm settle
+        ;;
+    smdev)
+        smdev -s
+        echo /bin/smdev > /proc/sys/kernel/hotplug
 
-# setup net events
-for device in /sys/class/net/*/uevent ; do
-    [ -f "$device" ] && echo add > "$device"
-done
+        # setup net events
+        for device in /sys/class/net/*/uevent ; do
+            [ -f "$device" ] && echo add > "$device"
+        done
 
-# setup usb events
-for device in /sys/bus/usb/devices/* ; do
-    case "${device##*/}" in
-        [0-9]*-[0-9]*) echo add > "$device/uevent"
-    esac
-done
+        # setup usb events
+        for device in /sys/bus/usb/devices/* ; do
+            case "${device##*/}" in
+                [0-9]*-[0-9]*) echo add > "$device/uevent"
+            esac
+        done
 
-# load kernel modules
-load_modules() {
-    find /sys -name modalias -type f -exec cat '{}' + | sort -u |
-    while read -r module; do
-        modprobe -ba "$module" 2>/dev/null
-    done
-}
-# note: run twice, in case things fell through
-load_modules
-load_modules
+        # load kernel modules
+        load_modules() {
+            find /sys -name modalias -type f -exec cat '{}' + | sort -u |
+            while read -r module; do
+                modprobe -ba "$module" 2>/dev/null
+            done
+        }
+        # note: run twice, in case things fell through
+        load_modules
+        load_modules
 
-unset device module
-unset -f load_modules
+        unset device module
+        unset -f load_modules
+        ;;
+    *)
+        >&2 echo "WARNING: no rc.dev could be found for $devmgr!"
+esac

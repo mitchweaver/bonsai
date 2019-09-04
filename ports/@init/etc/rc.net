@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ "$HOSTNAME" ] ; then
-    echo "$HOSTNAME" > /etc/hostname
-    echo "$HOSTNAME" > /proc/sys/kernel/hostname
+    echo "$HOSTNAME" >/etc/hostname
+    echo "$HOSTNAME" >/proc/sys/kernel/hostname
     hostname "$(cat /etc/hostname)"
     export HOSTNAME
 fi
@@ -14,7 +14,7 @@ if [ "$dns" ] ; then
     set -- $dns
     IFS="$OLDIFS"
     while [ "$1" ] ; do
-        echo "nameserver $1" >> /etc/resolv.conf
+        echo "nameserver $1" >>/etc/resolv.conf
         shift
     done
 fi
@@ -26,7 +26,7 @@ if [ "$interface" ] ; then
 
     [ "$wpa_sup" != false ] && command -v wpa_supplicant >/dev/null &&
     wpa_supplicant -i "$interface" -c /etc/wpa_supplicant.conf \
-        > /var/log/wpa_supplicant.log 2>&1 &
+        >/var/log/wpa_supplicant.log 2>&1 &
 
-    dhcpcd -d -C resolv.conf "$interface" > /var/log/dhcpcd.log 2>&1 &
+    dhcpcd -d -C resolv.conf "$interface" >/var/log/dhcpcd.log 2>&1 &
 fi

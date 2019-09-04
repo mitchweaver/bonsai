@@ -3,18 +3,18 @@
 dmesg -n 1
 umask 022
 [ -f /etc/rc.conf ] && . /etc/rc.conf
-: "${PATH:="/bin:/local/bin"}"
+: "${PATH:=/bin:/local/bin}"
 export PATH
 
-echo '* Mounting necessary folders' ; /etc/rc.mnt   > /dev/null
+echo '* Mounting necessary folders' ; /etc/rc.mnt   >/dev/null
 [ "$fsck" != false ] &&
-echo '* Checking filesystems'       ; /etc/rc.fsck  > /dev/null
-echo '* Setting up devices'         ; /etc/rc.dev   > /dev/null
-echo '* Configuring net'            ; /etc/rc.net   > /dev/null
-echo '* Running rc.local'           ; /etc/rc.local > /dev/null
+echo '* Checking filesystems'       ; /etc/rc.fsck  >/dev/null
+echo '* Setting up devices'         ; /etc/rc.dev   >/dev/null
+echo '* Configuring net'            ; /etc/rc.net   >/dev/null
+echo '* Running rc.local'           ; /etc/rc.local >/dev/null
 
 # save boot messages
-dmesg > /var/log/dmesg.log
+dmesg >/var/log/dmesg.log
 if [ -e /proc/sys/kernel/dmesg_restrict ] && 
     [ "$(cat /proc/sys/kernel/dmesg_restrict)" = 1 ] ; then
     chmod 0600 /var/log/dmesg.log
@@ -52,10 +52,6 @@ printf "%b\n\n" \
 # # #  # #''# #,,  # #   #
 '#' '##' #  #  ,,# '##;, #"
 
-# ensure bonsai.rc's root= variable is pointing to '/'
-sed 's|^root=.*|root=/|' /src/bonsai.rc > /src/bonsai.rc.tmp
-mv -f /src/bonsai.rc.tmp /src/bonsai.rc
-
-for i in $(seq ${num_ttys:=4}) ; do
-    respawn getty /dev/tty$i linux &> /dev/null &
+for i in $(seq ${num_ttys:-4}) ; do
+    respawn getty /dev/tty$i linux >/dev/null 2>&1 &
 done

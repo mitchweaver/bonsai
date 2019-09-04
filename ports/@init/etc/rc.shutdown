@@ -1,15 +1,12 @@
 #!/bin/sh
 
-umask 022
-
 case "$1" in
     reboot|poweroff) ;;
-    *) >&2 echo 'invalid argument' ; exit 1
+    *) >&2 echo 'usage: reboot, poweroff'
+       exit 1
 esac
 
-echo ; stty /bin/onlcr
-
-echo 'Shutting down'
+/bin/printf "\n%s\n" 'Shutting down'
 
 /bin/killall5 -s TERM
 /bin/sleep 1
