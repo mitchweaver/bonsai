@@ -8,37 +8,21 @@ Linux done differently.
 
 For the idealists, for the hobbyists.
 
+# NOTICE: Sep 05
+
+### **bonsai is undergoing a total rewrite, information below may no longer be accurate!**
+
+Join the discord for more information.
+
 # Core Philosophy
 
-### *"Software shouldn't come with compromise."*
+%% ### *"Software shouldn't come with compromise."*
 
-1. **Static Linking**
- 
-All programs should be statically linked.  
-No [dependency hell](http://en.wikipedia.org/wiki/Dependency_hell), no searching through the filesystem.  
-Minimize moving parts. Simpler is better.
+1. (?)
 
-2. **Sandboxing**
+2. (?)
 
-Chroot sandboxes should be *dead simple* to 
-setup simply by copying statically-linked binaries.
-
-Running a chrooted service can be as easy as `chroot /src/pkgs/myapp /bin/myapp`
-
-3. **A Better C Library**
-
-GNU's [glibc](http://www.gnu.org/software/libc) is massively bloated and a poor choice for static linking.  
-[musl-libc](http://musl-libc.org) is a fresh lightweight alternative 
-that was [designed from the ground up](https://www.musl-libc.org/intro.html) 
-to be used with static linking. 
-
-Just take a look at this [hello world](http://bonsai-linux.org/uploads/hello_world.png) comparison.
-
-Applications statically-linked with musl carefully avoid pulling 
-in large amounts of code or data that the application will not 
-use and have no runtime dependencies. Many programs need 
-patching to compile under musl-libc, however this 
-*almost always* makes their code [better](http://wiki.musl-libc.org/bugs-found-by-musl.html).
+3. (?)
 
 4. **Simplicity**
 
