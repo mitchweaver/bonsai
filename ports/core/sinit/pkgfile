@@ -7,6 +7,9 @@ prebuild() {
     # change rc script dir from /bin to /etc
     sed 's|/bin|/etc|g' config.h > config.h.tmp
     mv -f config.h.tmp config.h
+
+    sed "s|^CFLAGS.*|CFLAGS = $CFLAGS|"    config.mk >tmp ; mv -f tmp config.mk
+    sed "s|^LDFLAGS.*|LDFLAGS = $LDFLAGS|" config.mk >tmp ; mv -f tmp config.mk
 }
 postbuild() {
     warn "overwriting /bin/init to point to \$pkgs/sinit/bin/sinit"
