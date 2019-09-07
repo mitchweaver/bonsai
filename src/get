@@ -93,6 +93,7 @@ extract() {
     esac || die "extract: failed to extract $1"
 }
 
+# verify checksum of $2 against tarball $1
 verify_checksum() {
     msg_no_nl "verifying checksums... "
     case "${#2}" in
