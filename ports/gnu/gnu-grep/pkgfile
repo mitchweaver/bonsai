@@ -1,0 +1,7 @@
+info='GNU grep, egrep, fgrep'
+version=3.3
+source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.xz
+sha256=b960541c499619efd6afe1fa795402e4733c8e11ebf9fafccc0bb4bccdc5b514
+prebuild() {
+    export CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
+}

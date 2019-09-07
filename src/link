@@ -1,138 +1,108 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# link                   http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 # create symlinks for a port
 # params: $name [$pkgs]
-# assumes: all pkgfile variables in environment
-#
-# * If $pkgs is not provided, use the config's
+# * If $pkgs is not provided, use the config's $PKGS
 #
 # * If it is provided, symlink targets using this value.
 #   This is useful for bootstrapping, as after chrooting in
 #   if you had not done this all of your symlinks would be broken.
 linkpkg() {
-    [ "$1" ] || die "linkpkg(): invalid number of arguments"
-    name="$1" 
+    [ "$nolink" = true ] && return
 
+    name="$1" 
     case $# in
-        1) _pkgs="$pkgs" ;;
-        2) _pkgs="$2" ;;
+        1) pkgs="$PKGS" ;;
+        2) pkgs="$2" ;;
         *) die "linkpkg(): invalid number of arguments"
     esac
 
-    [ "$nolink" = true ] && return
-
-    if [ ! -d "$pkgs/$name" ] ; then
+    if [ ! -d "$PKGS/$name" ] ; then
         ismetapkg "$name" && return
-        die "linkpkg(): $name doesn't appear to be in $pkgs"
+        die "linkpkg(): $name doesn't appear to be in \$PKGS"
     fi
 
-    cd "$root" || die "linkpkg(): unable to cd to $root"
+    cd "$ROOT" || die "linkpkg(): unable to cd to $ROOT"
     msg "creating symlinks for $name..."
 
     for dir in bin sbin share include etc lib libexec ; do
-        if [ -d "$pkgs/$name/$dir" ] ; then
+        if [ -d "$PKGS/$name/$dir" ] ; then
             # recursively create pkg subdirectories in
-            # equivalent $root subdirectories
-            # example: $name/lib/pkgconfig -> $root/lib/pkgconfig
-            find "$pkgs/$name/$dir" ! -path "*$dir" \
-                    -type d 2> /dev/null | while read -r subdir ; do
-                mkdir -p "${subdir#$pkgs/$name/}"
+            # equivalent $ROOT subdirectories
+            # example: $name/lib/pkgconfig -> $ROOT/lib/pkgconfig
+            find "$PKGS/$name/$dir" ! -path "*$dir" \
+                    -type d 2>/dev/null | while read -r subdir ; do
+                mkdir -p -- "${subdir#$PKGS/$name/}"
             done
 
             # recursively link all files
-            # example: $name/include/asm/*.h -> $root/include/asm/*.h
-            find "$pkgs/$name/$dir" ! -path "*share/*man*" \
-                    -type f -o -type l 2> /dev/null | while read -r file ; do
-                file="${file#$pkgs/$name/}"
-                ln -sf "$_pkgs/$name/$file" "$file" 2>/dev/null
+            # example: $name/include/asm/*.h -> $ROOT/include/asm/*.h
+            find "$PKGS/$name/$dir" ! -path "*share/*man*" \
+                    -type f -o -type l 2>/dev/null | while read -r file ; do
+                file="${file#$PKGS/$name/}"
+                ln -sf "$pkgs/$name/$file" "$file" 2>/dev/null
             done
         fi &
     done
 
     for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
-        if [ -d "$pkgs/$name/share/man/$manX" ] ; then
-            find "$pkgs/$name/share/man/$manX" \
-                    ! -path "*/$manX" 2> /dev/null | while read -r man ; do
-                ln -sf "$_pkgs/$name/share/man/$manX/${man##*/}" \
-                    "${man#$pkgs/$name/}" 2>/dev/null
+        if [ -d "$PKGS/$name/share/man/$manX" ] ; then
+            find "$PKGS/$name/share/man/$manX" \
+                    ! -path "*/$manX" 2>/dev/null | while read -r man ; do
+                ln -sf "$pkgs/$name/share/man/$manX/${man##*/}" \
+                    "${man#$PKGS/$name/}" 2>/dev/null
             done
         fi &
     done
     wait
 }
 
-# relinks every package installed
-# used to fix broken / inconsistent symlinks
-# 
-# also is used to bootstrap systems under a different $root
-# 
-# params: [--pkgs=]
-# 
-# * If param is not provided, simply relink all using the config's $pkgs
-# 
-# * If param is provided, relink the world using the given $pkgs location
-#   See comment heading of linkpkg() for details.
-#   Alternatively, if using the standard /src/pkgs location you
-#   can specify --chroot as an alias for --pkgs=/src/pkgs
+# * relinks every package installed, used to fix broken / inconsistent symlinks
+# * also used to bootstrap systems under a different $ROOT
+# params: [--chroot]
 relink_world() {
-    [ "$2" ] && die "relink_all(): invalid number of arguments"
-
-    # if no args, use the $pkgs variable from the bonsai.rc
-    if [ -z "$1" ] ; then
-        relink_pkgs="$pkgs"
-        msg 'relinking world...'
-    else
-        # helper for the default location
-        [ "$1" = --chroot ] && set -- '--pkgs=/src/pkgs'
-
-        # check if $1 contains '--pkgs='
-        if [ "${1#*--pkgs=}" != "$1" ] ; then
-            # note: sed here to remove the double '//' incase
-            #       user appended a slash onto their argument
-            relink_pkgs="$(echo ${1#--pkgs=} | sed 's|\/$|\/|')"
-        else
-            die 'bad argument given to --relink-world'
-        fi
-        msg "relinking world with \$pkgs=$relink_pkgs..."
-    fi
-
-    printf '\n'
+    # if no args, use the $PKGS variable from the bonsai.rc
+    case "$1" in
+        --chroot) relink_pkgs=/src/pkgs ;;
+               *) relink_pkgs="$PKGS"
+    esac
+    msg "relinking world with \$PKGS=$relink_pkgs..."
+    echo
 
     listpkgs | while read -r pkgid ; do
         pkg="$(pkgid2pkg "$pkgid")"
-        if ! grep '^nolink=true$' "$ports/$pkg/pkgfile" >/dev/null ; then
+        if ! grep '^nolink=true$' "$(getpkgfile $pkg)" >/dev/null ; then
             # if its a metapkg, only link if it has a pkgdir
-            if ismetapkg "$pkg" && [ ! -d "$pkgs/$pkg" ] ; then
-                continue
-            else
-                linkpkg "$pkg" "$relink_pkgs"
-            fi
+            ismetapkg "$pkg" && [ ! -d "$PKGS/$pkg" ] && continue
+            linkpkg "$pkg" "$relink_pkgs"
         fi
-        unset pkg
     done || die "relink_world(): linking failed"
 
-    printf '\n'
+    echo
     msg 'done!'
 }
 
 # checks if links are still sane, (pointing to $pkgs on the correct root)
 # * if chrooted, they should point to the /src/pkgs/$name/bin/$name
 # * if NOT chrooted, they should point to the $root/src/pkgs/$name/bin/$name
-# params: none
-check_links() {
-    [ "$USE_HOST_PATH" ] && return
+# check_links() {
+#     [ "$USE_HOST_PATH" ] && return
 
-    # Test symlinks for a few coreutils to ensure links are valid.
-    # This will fail should they not exist, but if you don't 
-    # have coreutils, then your system is borked anyway.
-    for prog in cp grep printf ; do
-        [ -e "$root"/bin/$prog ] || die 'no coreutils yet installed?'
-        test_link "$root"/bin/$prog || err_bad_links
-    done
-}
+#     # Test symlinks for a few coreutils to ensure links are valid.
+#     # This will fail should they not exist, but if you don't 
+#     # have coreutils, then your system is borked anyway.
+#     for prog in cp grep printf ; do
+#         [ -e "$root"/bin/$prog ] || die 'no coreutils yet installed?'
+#         test_link "$root"/bin/$prog || err_bad_links
+#     done
+# }
 
-err_bad_links() {
-        die "World appears to still be linked as a chroot.
-         Use --relink-world without arguments to relink externally."
-}
+# err_bad_links() {
+#         die "World appears to still be linked as a chroot.
+#          Use --relink-world without arguments to relink externally."
+# }

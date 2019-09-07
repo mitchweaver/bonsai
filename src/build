@@ -1,18 +1,20 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# build                  http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# runs build() method inside a pkgfile! -name readme 
-# params: none
-# asssumes: $pkgworkdir $name and all pkgfile vars in the environment
+# runs build() method inside a pkgfile
 run_build() { 
     cd "$pkgworkdir" || die "build(): unable to cd to $pkgworkdir"
     msg "building $name..."
 
-    # export all our flags to the environment
     getflags
 
-    # workarounds for packaging that sucks
-    sucks
+    # manually track configure dependencies
+    [ -f missing ] && :>missing
+    [ -f build-aux/missing ] && :>build-aux/missing
 
     if defined prebuild ; then
         prebuild || die "$name prebuild() failed"
@@ -52,174 +54,91 @@ run_build() {
     unset -f prebuild build postbuild
 }
 
-# * export all compilation related flags to environment
-#
-# * if given '--no-static' as an argument, will omit
-#   all static-compilation related CFLAGS and LDFLAGS
-#
-# params: [--no-static]
-getflags() {
-    # 1. users config flags
-    CFLAGS="$cflags"
-    LDFLAGS="$ldflags"
-
-    # 2. performance / general flags
-    CFLAGS="$CFLAGS -Wl,--gc-sections -pipe"
-    LDFLAGS="$LDFLAGS -fdata-sections -ffunction-sections"
-
-    # 3. security flags
-    CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS \
--fexceptions -fstack-protector-strong -fstack-clash-protection \
--fasynchronous-unwind-tables -fcf-protection \
--Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack -Wl,-z,nodump"
-
-    # 4. static related flags
-    case "$1" in
-        --no-static)
-            LIBTOOL=/bin/slibtool
-            PKG_CONFIG=/bin/pkgconf
-            ;;
-        *)
-            CFLAGS="$CFLAGS -static --static -static-libgcc -static-libstdc++ \
--Wl,-Bstatic -fpic -Wl,-z,nodlopen"
-            LDFLAGS="$LDFLAGS -static --static"
-            AM_LDFLAGS="$AM_LDFLAGS -static --static"
-            LIBTOOL=/bin/slibtool-static
-            PKG_CONFIG=/bin/pkgconf-static
-    esac
-
-    LIBRARY_PATH=".:$root/lib:$root/libexec"
-    CPATH=".:$root/include"
-    CPPFLAGS="$CPPFLAGS $cppflags"
-    CXXFLAGS="$CXXFLAGS $cxxflags"
-    DESTDIR="$pkgs/$name"
-    PREFIX=/
-    prefix=/
-    BINDIR="$PREFIX"/bin
-    DOCDIR="$PREFIX"/sucks
-    cc="${cc:=$gcc}"
-    CC="${cc:=$cc}"
-    HOSTCC="$CC"
-    MAKEINFO=false
-    PKG_CONFIG_PATH="$root/lib/pkgconfig:$root/share/pkgconfig"
-    SHELL=/bin/sh
-
-    # fix tool vars if we're bootstrapping 
-    type slibtool >/dev/null 2>&1 || export LIBTOOL="$(which libtool)"
-    type pkgconf  >/dev/null 2>&1 || export PKG_CONFIG="$(which pkg-config)"
-
-    # commonly needed variables
-    : ${GREP:=grep} ${FGREP:=fgrep} ${EGREP:=egrep} ${SED:=sed} ${AWK:=awk} \
-      ${TAR:=tar} ${FIND:=find} ${YACC:=yacc}
-
-    export TARGET HOST BUILD CC cc HOSTCC SHELL LIBRARY_PATH CPATH \
-           PKG_CONFIG_PATH PKG_CONFIG CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-           PREFIX prefix DOCDIR BINDIR MAKEINFO \
-           GREP FGREP EGREP SED AWK TAR FIND YACC
-}
-
 # convenience function, tries to find all *.patch
-# in the top-level $workdir/$name directory and apply them
+# in the top-level $WORK/$name directory and apply them
 bonsai_patch() {
     find . ! -name . -prune -name "*.patch" | while read -r patch ; do
-        msg "$(patch -u -f -l -p0 < "$patch")" || die "$patch failed"
+        patch -u -f -l -p0 <"$patch" || die "$patch failed"
     done
 }
-
-bonsai_autogen() { sh autogen.sh "$@" || die "autogen.sh failed for $name" ; }
 
 # if --path= param is provided, use ./"$path"/configure
 # instead of assumed "./configure" (ie ./"$PWD"/configure)
 # possible params: --path=""
 bonsai_configure() {
-    # set path to the configure script, if provided
     case "$1" in
-        --path=*) cfpath="${1#--path=}" ; shift ;;
-        *) cfpath="$PWD"
+        --path=*) cfpath="${1#--path=*}" ; shift ;;
+               *) cfpath="$PWD"
     esac
 
     # try to enable as many options as possible
     # if they are allowed in the configure script
-    cfflags="$workdir"/cfflags
-    cfhelp="$(sh "$cfpath"/configure --help | tee "$workdir"/cfhelp)"
-    :> "$cfflags"
+    cfhelp="$(sh "$cfpath"/configure --help | tee "$WORK"/$name/cfhelp)"
+    cfflags=
 
-    # params: flag_to_check flag_to_add
-    addflag() {
+    # save flags from pkgfile so they don't get overwritten by set
+    pkg_cfflags="$@"
+
+    YES() {
         case "$cfhelp" in
-            *"$1"*)
-                echo "$2" >> "$cfflags"
-                msg "adding flag: $2"
+            *" --enable-$1 "*|*" --disable-$1 "*)
+                cfflags="$cfflags --enable-$1 "
+                msg "adding flag: --enable-$1 "
+                ;;
+            *" --with-$1 "*|*" --without-$1 "*)
+                cfflags="$cfflags --with-$1 "
+                msg "adding flag: --with-$1 "
+        esac
+    }
+    NO() {
+        case "$cfhelp" in
+            *" --disable-$1 "*|*" --enable-$1 "*)
+                cfflags="$cfflags --disable-$1 "
+                msg "adding flag: --disable-$1 "
+                ;;
+            *" --without-$1 "*|*" --with-$1 "*)
+                cfflags="$cfflags --without-$1 "
+                msg "adding flag: --without-$1 "
+        esac
+    }
+    SET() {
+        case "$cfhelp" in
+            *" --$1="*)
+                cfflags="$cfflags --$1=$2 "
+                msg "adding flag: --$1=$2 "
+                ;;
+            *" --$1 "*)
+                cfflags="$cfflags --$1 "
+                msg "adding flag: --$1 "
         esac
     }
 
-    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-    # Global configure flags. These are applied to all packages.
-    #
-    # set in bonsai.rc:
-    [ "${nls:=false}" = false ] && _nls=--disable-nls
-    [ "${quiet:=false}" = true ] && _quiet='--silent --quiet'
-    #
-    # flags that are the same as what we check for
-    for flag in --static --enable-static --enable-static-link --all-static \
-                --disable-shared --without-shared --disable-rpath \
-                --with-pic --enable-pic \
-                --disable-option-checking --disable-dependency-tracking \
-                --enable-fast-install --disable-largefile --disable-libtool-lock \
-                --disable-docs --disable-gtk-docs --disable-gtk-docs-html \
-                --disable-documentation --disable-devel-docs --disable-build-docs \
-                --without-asciidoc --without-tests --disable-tests \
-                --without-debug --disable-debug --disable-debugger \
-                --without-gettext --without-ada $_quiet $_nls ; do
-        addflag $flag $flag
+    while read -r line ; do
+        set -- $line
+        case $1 in
+            SET) SET $2 $3 ;;
+            YES) YES $2 ;;
+            NO)  NO  $2 ;;
+        esac
+    done <"$CONFIG"/autotools.cfg
+
+    # store flags used to a file for convenience
+    for flag in $cfflags $pkg_cfflags ; do
+        echo "$flag" >>"$WORK"/$name/cfflags
     done
-    #
-    # flags that are dynamic
-    addflag --enable-shared --disable-shared
-    addflag --with-shared --without-shared
-    addflag --disable-static --enable-static
-    addflag --with-gnu-ld --without-gnu-ld
-    addflag --with-debug --without-debug
-    addflag --enable-debug --disable-debug
-    addflag --enable-tests --disable-tests
-    addflag --with-tests --without-tests
-    addflag --with-doc= --with-doc=no
-    addflag --with-doxygen --without-doxygen
-    addflag --with-gettext --without-gettext
-    addflag --enable-documentation --disable-documentation
-    addflag --with-xmlto --without-xmlto
-    addflag --with-fop --without-fop
-    addflag --with-xsltproc --without-xsltproc
-    addflag --prefix= --prefix=/
-    addflag --sysconfdir= --sysconfdir=/etc
-    addflag --libdir= --libdir=/lib
-    addflag --libexecdir= --libexecdir=/lib
-    addflag --infodir= --infodir=/sucks
-    addflag --docdir= --docdir=/sucks
-    addflag --htmldir= --htmldir=/sucks
-    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-    # add a new line to denote separation between global flags
-    # and argument-supplied flags
-    echo >> "$cfflags"
-
-    # add all argument-supplied flags to the flag file
-    for flag in "$@" ; do echo "$flag" ; done >> "$cfflags"
-
-    sh "$cfpath"/configure $(shellcat "$cfflags") || 
+    sh "$cfpath"/configure $cfflags $pkg_cfflags || 
         die "configure failed for $name"
 }
 
 bonsai_make() {
-    # set in bonsai.rc:
-    [ "${quiet:=false}"   = true  ] && _quiet='-s'
-    [ "${verbose:=false}" = true  ] && _verbose='V=1'
-
-    make $_verbose $_quiet $makeflags -j${jobs:=1} CC="$CC" cc="$CC" \
-        LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" PKG_CONFIG="$PKG_CONFIG" \
-        DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" DOCDIR="$DOCDIR" \
-        BINDIR="$BINDIR" SBINDIR="$BINDIR" bindir="$BINDIR" sbindir="$BINDIR" \
-        "$@" || die "make $* failed for $name"
+    make -j${JOBS:-1} $([ "$VERBOSE" ] && echo V=1) \
+    CC="$CC" cc="$CC" CXX="$CXX" cxx="$CXX" \
+    LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" PKG_CONFIG="$PKG_CONFIG" \
+    DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" DOCDIR="$DOCDIR" \
+    BINDIR="$BINDIR" SBINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" \
+    libdir="$LIBDIR" bindir="$BINDIR" sbindir="$BINDIR" libexecdir="$LIBEXECDIR" \
+    MAKEINFO=false MKDIR_P="$MKDIR_P" "$@" || die "make $* failed for $name"
 }
 
 # run if pkgfile doesn't define a custom build()
@@ -227,9 +146,40 @@ generic_build() {
     if [ -f configure ] ; then
         bonsai_configure || return 1
     elif [ -f autogen.sh ] ; then
-        bonsai_autogen || return 1
+        sh autogen.sh || return 1
         bonsai_configure || return 1
     fi
     bonsai_make || return 1
     bonsai_make install || return 1
+}
+
+getflags() {
+    # import user's flags and export them
+    isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
+
+    case "$1" in
+        --no-static)
+            LIBTOOL=/bin/slibtool
+            PKG_CONFIG=/bin/pkgconf
+            ;;
+        *)
+            CFLAGS="$CFLAGS $STATIC_CFLAGS"
+            LDFLAGS="$LDFLAGS $STATIC_LDFLAGS"
+            LIBTOOL=/bin/slibtool-static
+            PKG_CONFIG=/bin/pkgconf-static
+    esac
+
+    # fix slibtool/pkgconf if we're bootstrapping
+    test -x /bin/slibtool >/dev/null 2>&1 || LIBTOOL=libtool
+    test -x /bin/pkgconf  >/dev/null 2>&1 || PKG_CONFIG=pkg-config
+
+    # system flags
+    export DESTDIR="$PKGS/$name" PREFIX=/ prefix=/ DOCDIR="$PREFIX"/sucks \
+    SHELL=/bin/sh HOSTCC="$CC" cc="$CC" GREP=grep FGREP=fgrep EGREP=egrep \
+    SED=sed FIND=find AWK=awk TAR=tar YACC=yacc MKDIR_P='install -d'
+
+    # user cfg flags
+    export CC CXX AR AS RANLIB STRIP LIBTOOL PKG_CONFIG JOBS \
+           CFLAGS LDFLAGS JOBS LIBRARY_PATH LD_LIBRARY_PATH CPATH \
+           PKG_CONFIG_PATH BINDIR LIBDIR SBINDIR LIBEXECDIR MANDIR 
 }

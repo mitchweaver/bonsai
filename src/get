@@ -1,123 +1,60 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# get                    http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# downloads url and extracts to $workdir/$pkg
+# downloads url and extracts to $pkgworkdir
 # params: none
-# assumes: $version $source $pkgid $pkgfile $pkgworkdir in environment
+# assumes: $name $version $source $pkgid $pkgfile $pkgworkdir in environment
 get() {
-    name="$1"
-    dldir="$workdir/dl"
-    mkdir -p "$pkgworkdir" "$dldir" "$sources"
-
-    # get file extension
-    # if is a metapkg or using git, there will be no extension
-    case "$version" in
-        git|metapkg|none) ext="" ;;
-        *) ext="$(get_ext "$source")"
-    esac
+    mkdir -p "$SOURCES" "$pkgworkdir"
+    get_ext "$source"
 
     # do not try to dl / extract if metapkg or source=none
-    if [ "$version" != metapkg ] && [ "$source" != none ] ; then
-        # download tarball only if not in $sources
-        if [ ! -e "$sources/$pkgid$ext" ] ; then
-            dlcurl "$source" "$name" "$version" || 
-                die "get(): could not download $name"
-            verify_checksum "$dldir/$pkgid$ext"
-            [ "$DLONLY" ] || extract "$dldir/$pkgid$ext"
-        else
-            verify_checksum "$sources/$pkgid$ext"
-            [ "$DLONLY" ] || extract "$sources/$pkgid$ext"
+    [ ! -f "$SOURCES/$pkgid$ext" ] && \
+    [ "$source" ] && [ "$source" != none ] && \
+    dlcurl "$source" "$SOURCES" "$pkgid$ext"
+
+    if [ ! "$DL_ONLY" ] ; then
+        if ! ismetapkg $name ; then
+            [ "$sha512" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha512"
+            [ "$sha256" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha256"
+            extract "$SOURCES/$pkgid$ext" "$pkgworkdir"
         fi
+        # copy all port's files, except its pkgfile -- (ex: patches)
+        find "$(getportdir $name)" -type f ! -name pkgfile ! -name $name | \
+        while read -r file ; do
+            cp -f "$file" "$pkgworkdir"/
+        done
     fi
-
-    # copy all port's files, except its pkgfile -- (ex: patches)
-    [ "$DLONLY" ] ||
-    find "$ports/$name" -type f ! -name pkgfile ! -name $name | while read -r file ; do
-        cp -f "$file" "$pkgworkdir"/
-    done
 }
 
-# NOTE: Downloading via git comes highly unrecommended.
-#       This makes packages depend on git, which is
-#       a rather large dependency for otherwise small programs.
-#       Instead, download a tarball from a commit hash using this format:
-#       version=<SHA_HASH>
-#       source=http://github.com/<GITHUB_USER>/$name/archive/$version.tar.gz
-# dlgit() {
-    # todo - see issue #6
-# }
-
-# downloads given url to $sources
-# params: $source $name $version
+# params: $url $outdir $filename
 dlcurl() {
-    type curl >/dev/null 2>&1 || die "curl does not seem to be installed."
-
-    _dldir="$workdir"/dl
-    _source="$1"
-    _name="$2"
-    _version="$3"
-    _pkgid="$_name$delim$_version"
-    _ext="$(get_ext "$_source")"
-    mkdir -p "$_dldir"
-    msg "downloading $_source..."
-
-    # curl bugs out with certain delimiters, as a fix
+    msg "downloading $3..."
+    # curl bugs out with certain characters in filenames, as a fix
     # have curl output to a temporary file, then rename.
-    curl -q -L -C - -# --url "$_source" -o "$_dldir/curl-$_name-dl$_ext"
-    mv -f "$_dldir/curl-$_name-dl$_ext" "$_dldir/$_pkgid$_ext"
-
-    [ "${keep_tarballs:=true}" = true ] && 
-        cp -f "$_dldir/$_pkgid$_ext" "$sources"/
+    curl -q -L -C - -# --url "$1" -o "$2/$$.dlcurl" || die "failed to download $3"
+    mv -f -- "$2/$$.dlcurl" "$2/$3"
 }
 
-# returns the extension from given url
 # params: $source
 get_ext() {
-    set -- "$1" ".${1##*.}"
     case "$1" in
-        *.tar.*) echo ".tar$2" ;;
-        *) echo "$2"
+        *.tar.*) ext=".tar.${1##*.}" ;;
+              *) ext=".${1##*.}"
     esac
 }
 
-# verifies hash of $tarball against hash in the pkgfile
-# params: $tarball
-# assumes: one of the following: $sha{512,256,1} or $md5 in the environment
-verify_checksum() {
-    [ "$1" ] || die "verify_checksum(): no tarball provided"
-    msg_no_nl "comparing checksum for $(basename "$1" | sed "s|$delim.*||")... "
-
-    if   [ "$sha512" ] ; then set -- "$sha512" $(sha512sum "$1") "$1"
-    elif [ "$sha256" ] ; then set -- "$sha256" $(sha256sum "$1") "$1"
-    elif [ "$sha1"   ] ; then set -- "$sha1"   $(sha1sum "$1")   "$1"
-    elif [ "$md5"    ] ; then set -- "$md5"    $(md5sum "$1")    "$1"
-    else
-        # if unable to validate checksum, prompt user to confirm to continue
-        printf "\n"
-        warn "no checksum defined for $1"
-        confirm
-        case $? in
-            0) return ;;
-            *) die 'exiting'
-        esac
-    fi
-
-    # compare the hashes
-    if [ "$1" = "$2" ] ; then
-        printf "%s\n" "matched!"
-    else
-        printf "\n"
-        die "checksum mismatch for $3"
-    fi
-}
-
-# decompresses a given tarball to stdout
-# params: $tarball
+# decompress a given tarball to stdout
 decompress() {
+    [ -f "$1" ] || die "decompress: no such file $1"
     case "${1##*.}" in
         xz|txz) 
             if type xz-embedded >/dev/null 2>&1 ; then
-                xz-embedded < "$1"
+                xz-embedded <"$1"
             else
                 xz -qdc "$1"
             fi
@@ -125,29 +62,45 @@ decompress() {
         gz|tgz)  gunzip  -qdc  "$1" ;;
         bz2|tbz) bunzip2 -qdc  "$1" ;;
         zip)     unzip   -qp   "$1" ;;
-    esac || die "get(): failed to decompress $1"
+        *) die "decompress: unsupported filetype"
+    esac || die "decompress: failed to decompress $1"
 }
 
-# compares checksum for given tarball and extracts to $pkgworkdir
-# params: $tarball
-# assumes: $name, $ext, $dldir, $pkgworkdir
+# decompress and extract a given tarball "$1" to folder "$2"
 extract() {
-    msg "extracting $name..."
-    mkdir -p "$dldir" "$pkgworkdir"
+    [ -f "$1" ] || die "extract: no such file $1"
+    get_ext "$1"
+    mkdir -p -- "$2"
     case "$ext" in
-        .tar.*|.tgz)
-            { decompress "$1" | tar -C "$dldir" -xf - ; } || 
-                die "failed to decompress $1"
+        .tar.*|.tgz|.tbz|.txz)
+            { decompress "$1" | tar -C "$2" -xf - ; } || 
+                die "extract: failed to decompress $1"
+
+            dldir="$2/$(ls "$2")"
+
             # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
-            mv -f "${dldir:?}"/*/* "${pkgworkdir:?}"/
+            mv -f -- "$dldir"/* "$2"/ 2>/dev/null
+
             # copy any hidden files
-            find "$dldir" -name ".*" ! -name '.' | while read -r file ; do
-                mv "$file" "${pkgworkdir:?}"/
-            done
+            find "$dldir" -name ".*" ! -name . -exec mv -f "{}" "$2"/ 2>/dev/null \;
+
             # try to remove possible empty dirs
-            rmdir "$dldir"/* "$dldir" 2>/dev/null ||:
+            rmdir "$dldir" 2>/dev/null ||:
             ;;
-        # if not a tarball, simply write to $pkgworkdir
-        *) decompress "$1" > "${pkgworkdir:?}/${1%%$ext}"
-    esac || die "get(): failed to extract $1"
+        *)  # if not a tarball, simply write it out
+            file="$(basename "$1")"
+            decompress "$1" >"$2/${file%%$ext}"
+    esac || die "extract: failed to extract $1"
+}
+
+verify_checksum() {
+    msg_no_nl "verifying checksums... "
+    case "${#2}" in
+        128) set -- $@ sha512sum ;;
+         64) set -- $@ sha256sum ;;
+          *) die "bad SHA sum provided"
+    esac
+    set -- "${2:-?}" $($3 "$1" 2>/dev/null)
+    [ "$1" = "$2" ] && echo "matched!" || 
+    { >&2 echo "CHECKSUM MISMATCH" ; exit 1 ; }
 }

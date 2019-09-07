@@ -1,0 +1,11 @@
+info='Utility that provides fast incremental file transfer'
+version=3.1.3
+source=http://download.samba.org/pub/$name/src/$name-$version.tar.gz
+deps=acl
+sha256=55cc554efec5fdaad70de921cd5a5eeb6c29a95524c715f3bbf849235b0800c0
+prebuild() {
+    # remove unnecessary call to perl (removes perl dep)
+    # see: http://lists.samba.org/archive/rsync/2015-November/030439.html
+    sed 's|perl|\:|g' Makefile.in > tmp
+    mv -f tmp Makefile.in
+}

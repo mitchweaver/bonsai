@@ -1,3 +1,0 @@
-info='the bonsai core system - stage0'
-metapkg=true
-deps='@fs bonsai gcc-bin musl kernel-headers sbase make patch dash xz-embedded gzip libarchive'

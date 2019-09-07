@@ -1,6 +1,3 @@
-root ?= build
-PREFIX = $(root)
-
 bonsai: FORCE
 .PHONY: FORCE
 FORCE:
@@ -8,37 +5,38 @@ FORCE:
 all: bonsai
 
 bonsai:
-	:> bonsai
+	@:> bonsai
 	@echo '[*] collating sources into executable...'
-	find src -type f | while read -r file ; do \
-		cat $$file >> bonsai ; \
+	@find src -type f | while read -r file ; do \
+		cat $$file >>bonsai ; \
 	done
-	echo 'main "$$@"' >> bonsai
+	@echo 'main "$$@"' >>bonsai
 	@echo '[*] removing comments and blank lines from executable...'
-	# note: lines prefixed by '#_' remain blank lines
-	#       '##' are preserved as comments
-	sed -e 's:## :_TEMP_:g' \
+	@# note: lines prefixed by '#_' remain blank lines
+	@#       '##' are preserved as comments
+	@sed -e 's:## :_TEMP_:g' \
 	    -e 's:^\s*# .*$$::g' \
 	    -e 's:_TEMP_:## :g' \
 	    -e '/^$$/d' \
-	    -e 's:#_::g' bonsai > bonsai.tmp
-	echo '#!/bin/sh -e' > bonsai
-	cat bonsai.tmp >> bonsai
-	rm bonsai.tmp
+	    -e 's:#_::g' bonsai >bonsai.tmp
+	@echo '#!/bin/sh' >bonsai
+	@cat bonsai.tmp >>bonsai
+	@rm -f bonsai.tmp
 	chmod +x bonsai
 
-install:
-	install -D -m 0755 bonsai ${PREFIX}/src/bonsai
-	cp -rf ports ${PREFIX}/src
-	if [ ! -f ${PREFIX}/src/bonsai.rc ] ; then \
-		root="$(root)" ./bonsai --skeleton ; \
-	fi
+install: bonsai
+	@[ ${ROOT} ] || \
+	{ >&2 echo "Error: \$$ROOT is not defined. Please export it." ; exit 1 ; }
+	install -D -m 0755 bonsai ${ROOT}/src/pkgs/@bonsai/bin/bonsai
+	@mkdir -p ${ROOT}/bin
+	@[ -L ${ROOT}/bin/bonsai ] || \
+	ln -sf ${ROOT}/src/pkgs/@bonsai/bin/bonsai ${ROOT}/bin/bonsai
+	@rm -rf ${ROOT}/src/ports 2>/dev/null
+	cp -rf ports ${ROOT}/src/
+	@[ -f ${ROOT}/src/bonsai.db ] || :> ${ROOT}/src/bonsai.db
 
 clean:
 	rm -f bonsai
-
-uninstall:
-	@echo "Unsafe. Please do this manually."
 
 ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086 -e SC2119 -e SC2120
 # ----- ShellCheck Explanations --------

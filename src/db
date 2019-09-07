@@ -1,10 +1,12 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# db                     http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# check db if pkg is installed
-# params: $pkgname
 isinst() {
-    if grep -E -- "^$1${delim}.*$" "$bonsaidb" >/dev/null ; then
+    if grep -E -- "^$1${DELIM}.*$" "$PKGDB" >/dev/null ; then
         msg "port $1 is installed"
     else
         msg "port $1 is not installed"
@@ -12,29 +14,20 @@ isinst() {
     fi
 }
 
-listpkgs() { shellcat "$bonsaidb" ; }
-countpkgs() { wc -l < "$bonsaidb" ; }
+listpkgs()  { cat "$PKGDB" 2>/dev/null ; }
+countpkgs() { wc -l <"$PKGDB" 2>/dev/null ; }
+sort_db()   { sort -o "$PKGDB" "$PKGDB" 2>/dev/null ; }
 
-sort_db() { sort -o "$bonsaidb" "$bonsaidb" ; }
-
-update_db() {
-    [ -f "$bonsaidb" ] || :> "$bonsaidb"
-    sort_db
-}
-
-# add entry to database
 # params: $pkgname $pkgversion
 add_db() {
-    if ! grep -F -- "${1}${delim}${2}" "$bonsaidb" >/dev/null ; then
-        echo "${1}${delim}${2}" >> "$bonsaidb"
-        update_db
+    if ! grep -F -- "${1}${DELIM}${2}" "$PKGDB" >/dev/null ; then
+        echo "${1}${DELIM}${2}" >>"$PKGDB"
+        sort_db
     fi
 }
 
-# remove entry from database
 # param: $pkgname
 del_db() {
-    sed -e "s/$1$delim.*//" -e '/^$/d' "$bonsaidb" > "$bonsaidb".tmp
-    mv -f "$bonsaidb".tmp "$bonsaidb"
-    update_db
+    sed -e "s/$1$DELIM.*//" -e '/^$/d' "$PKGDB" >"$PKGDB".tmp
+    mv -f "$PKGDB".tmp "$PKGDB"
 }

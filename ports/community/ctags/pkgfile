@@ -1,0 +1,10 @@
+info='Generates an index of language objects found in source files'
+version=5.8
+source=http://downloads.sourceforge.net/sourceforge/$name/$name-$version.tar.gz
+sha256=0e44b45dcabe969e0bbbb11e30c246f81abe5d32012db37395eb57d66e9e99c7
+build() {
+    bonsai_configure --disable-etags
+    bonsai_make
+    install -D -m 0755 ctags $pkg/bin/ctags
+    install -D -m 0644 ctags.1 $pkg/share/man/man1/ctags.1
+}

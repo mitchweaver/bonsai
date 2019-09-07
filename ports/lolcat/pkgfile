@@ -1,6 +1,0 @@
-info='lolcat, now without ruby! yay!'
-version=1.0
-source=http://github.com/jaseg/$name/archive/v$version.tar.gz
-sha256=77ebfecde6afdf24447dd834507ea8bc550ee89b0e1211e7d3866a4824a6ee1d
-build() { bonsai_make ; }
-postbuild() { install -Dm0755 lolcat "$pkg"/bin/lolcat ; }

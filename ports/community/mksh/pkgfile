@@ -1,0 +1,9 @@
+info='MirBSD Korn Shell'
+version=R57
+source=http://www.mirbsd.org/MirOS/dist/mir/$name/$name-$version.tgz
+sha256=3d101154182d52ae54ef26e1360c95bc89c929d28859d378cc1c84f3439dbe75
+build() {
+    sh Build.sh -r -j -Q
+    install -D -m 0755 mksh   $pkg/bin/mksh
+    install -D -m 0644 mksh.1 $pkg/share/man/man1/mksh.1
+}

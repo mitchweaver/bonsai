@@ -1,93 +1,28 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# main                   http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# unset any env variables that could interfere
-unset cc c99 c89 CC \
-CFLAGS LDFLAGS CPPFLAGS CXXFLAGS PKG_CONFIG \
-LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
-OBJC_INCLUDE_PATH LD_LIBRARY_PATH LIBDIR EXTRALIBDIR \
-LIBS INCLUDE
+[ "$1" = --debug ] && { shift ; set -ex ; }
 
-initglobals() {
-    if [ "$USE_HOST_PATH" = true ] ; then
-        # If bootstrapping, relinking the world
-        # use the host's userland. When bootstraping, programs
-        # will take preference in the $PATH as they install.
-        export PATH=".:$root/bin:$PATH"
-    else
-        # otherwise if not bootstrapping, ONLY use the chroot's tools
-        export PATH=".:$root/bin"
-    fi
-
-    # can offer significant speedup
-    export LC_ALL=C LANG=C
-}
+export LC_ALL=C LANG=C
+if [ "$BOOTSTRAP" ] ; then
+    export PATH=".:$ROOT/bin:$PATH"
+    [ "$ROOT" ] || { >&2 echo "Error: \$ROOT is not defined" ; exit 1 ; }
+else
+    export ROOT=/ PATH=/bin
+    . /src/config/global.cfg
+fi
 
 main() {
-    # if no arguments, just print a pretty tree
-    [ "$1" ] || { print_logo ; exit ; }
-
-    # misc options before real commands
-    case "$1" in
-        --debug) shift ; set -ex ;;
-    esac
-
-    # special arguments
-    case "$1" in
-        --bootstrap)
-            export BOOTSTRAP=true USE_HOST_PATH=true
-            loadconfig
-            initglobals
-            addpkg @stage0 || exit 1
-            # download stage1 so it may be installed once chrooted in
-            msg 'downloading additional sources...'
-            DLONLY=true NO_PROMPT=true addpkg --quiet @stage1 || 
-                die 'WARNING: failed to download @stage1!'
-            msg 'System has been bootstrapped! You may now chroot in...
-  Remember to install @stage1 once inside.'
-            exit
-            ;;
-        *relink*world)
-            loadconfig
-            export USE_HOST_PATH=true
-            initglobals
-            ;;
-        unpack)
-            loadconfig
-            if isinst sbase >/dev/null ; then
-                initglobals
-            else
-                export USE_HOST_PATH=true
-                initglobals
-            fi
-            ;;
-        --hosts-path) # force usage of host's path
-            loadconfig
-            export USE_HOST_PATH=true
-            initglobals
-            shift
-            ;;
-        *skeleton|skel)
-            loadconfig --skeleton
-            create_skeleton_config
-            exit $?
-            ;;
-        *) loadconfig
-           initglobals
-    esac
-
-    # check if our package symlinks are valid -- if not, error out
-    case " $1 $2 " in
-        # if relinking the world we know our symlinks will be currently incorrect
-        *relink*world*) ;;
-        *) check_links 
-    esac
-    
     while [ "$1" ] ; do
         case "$1" in
             # ---- variable setting -------
-            *dlonly) export DLONLY=true ; shift ;;
-            -y) export NO_PROMPT=true ; shift ;;
+            *dlonly|-dl) export DL_ONLY=1 ; shift ;;
+            -y) export NO_PROMPT=1 ; shift ;;
+            -v|V=1) export VERBOSE=1 ; shift ;;
             # -----------------------------
             *relink*world) relink_world "$2" ; exit $? ;;
             list|-l)   listpkgs      ; exit $? ;;
@@ -100,9 +35,8 @@ main() {
             rdeps)     rdeps  "$2"   ; exit $? ;;
             add|-a) shift ; addpkg "$@" ; exit $? ;;
             del|-d) shift ; delpkg "$@" ; exit $? ;;
-            update|-u) shift ; export UPDATE=true ; addpkg "$@" ; exit $? ;;
+            update|-u) shift ; export UPDATE=1 ; addpkg "$@" ; exit $? ;;
             *help|-h) usage ; exit ;;
-            *verbose|V=1) shift ; export verbose=true ;;
             relink|-r)
                 shift
                 while [ "$1" ] ; do
@@ -113,7 +47,7 @@ main() {
             isinst)
                 shift
                 while [ "$1" ] ; do
-                    isinst "$1"
+                    isinst "$1" || exit 1
                     shift
                 done
                 ;;
@@ -127,19 +61,7 @@ main() {
                     exit 1
                 fi
                 ;;
-            *)
-                
-                if [ "$1" ] ; then
-                    # If none matched and there is an argument,
-                    # we must be adding a package
-                    # and omitting the 'add' (convenience).
-                    # recurse again, adding the 'add' argument
-                    set -- add "$@"
-                else
-                    # otherwise must have no arguments
-                    # just print a pretty tree
-                    bonsai
-                fi
+            *) [ "$1" ] && set -- add "$@"
         esac
     done
 }
