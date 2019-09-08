@@ -21,7 +21,7 @@ prebuild() {
     # prompt use for their own custom config
     # if not provided, then we will use 'defconfig' followed
     # by 'menuconfig' to edit it.
-    msg_no_nl "Would you like to provide your own config? (y\\n): "
+    msg_no_nl 'Would you like to provide your own config? (y\n): '
     read -r ans
     case "$ans" in
         y|yes|"")
