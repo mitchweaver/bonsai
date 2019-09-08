@@ -9,10 +9,16 @@ build() {
 }
 postbuild() {
     # symlink '-ltinfo' for compatibility
-    ln -s libterminfo.a "$pkg"/lib/libtinfo.a
-    ln -s libterminfo.so "$pkg"/lib/libtinfo.so
+    ln -s libterminfo.a  $pkg/lib/libtinfo.a
+    ln -s libterminfo.so $pkg/lib/libtinfo.so
 
     # bin/clear collides with clear from other packages
     # (specifically ubase)
-    mv -f "${pkg:?}"/bin/clear "$pkg"/bin/netbsd-curses-clear
+    mv -f $pkg/bin/clear $pkg/bin/netbsd-curses-clear
+
+    # some packages look for example: <ncurses/ncurses.h>
+    cd $pkg/lib
+    ln -sf . ncurses
+    cd $pkg/include
+    ln -sf . ncurses
 }
