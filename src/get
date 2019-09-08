@@ -102,6 +102,10 @@ verify_checksum() {
           *) die "bad SHA sum provided"
     esac
     set -- "${2:-?}" $($3 "$1" 2>/dev/null)
-    [ "$1" = "$2" ] && echo "matched!" || 
-    { >&2 echo "CHECKSUM MISMATCH" ; exit 1 ; }
+    if [ "$1" = "$2" ] ; then
+        echo "matched!"
+    else
+        >&2 echo "CHECKSUM MISMATCH"
+        exit 1
+    fi
 }
