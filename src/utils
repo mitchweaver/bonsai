@@ -5,10 +5,10 @@
 # shellcheck shell=sh
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-msg() { echo "\033[32;1m${PROMPT}\033[m $*" ; }
-msg_no_nl() { echo -n "\033[32;1m${PROMPT}\033[m $*" ; }
-warn() { >&2 echo "\033[33;1m${PROMPT} \033[mwarning: $*" ; }
-die() { >&2 echo "\033[31;1m${PROMPT} \033[merror: $*" ; exit 1 ; }
+msg() { printf "\033[32;1m${PROMPT}\033[m $*\n" ; }
+msg_no_nl() { printf "\033[32;1m${PROMPT}\033[m $*" ; }
+warn() { >&2 printf "\033[33;1m${PROMPT} \033[mwarning: $*\n" ; }
+die() { >&2 printf "\033[31;1m${PROMPT} \033[merror: $*\n" ; exit 1 ; }
 
 usage() {
 cat <<EOF
