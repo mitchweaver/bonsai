@@ -1,0 +1,11 @@
+info='Print / Set window names properties'
+version=0.1
+source=http://dl.suckless.org/tools/$name-$version.tar.gz
+deps=xorg-libx11
+sha256=559ad188b2913167dcbb37ecfbb7ed474a7ec4bbcb0129d8d5d08cb9208d02c5
+prebuild() {
+    sed "s|^CFLAGS.*|CFLAGS = $CFLAGS -DVERSION=\"${VERSION}\"|" config.mk >tmp
+    mv -f tmp config.mk
+    sed "s|^LDFLAGS.*|LDFLAGS = $LDFLAGS $(pkgconf-static --libs x11)|" config.mk >tmp
+    mv -f tmp config.mk
+}
