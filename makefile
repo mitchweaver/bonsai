@@ -38,7 +38,8 @@ install: bonsai
 clean:
 	rm -f bonsai
 
-ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086 -e SC2119 -e SC2120
+ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086 -e SC2119 \
+		  -e SC2120 -e SC2100 -e SC2153 -e SC1092 -e SC1091 -e SC2059
 # ----- ShellCheck Explanations --------
 # SC1090: "at run-time file sourcing" ie '. $pkgfile'
 #         We use this to import each package's variables.
@@ -53,6 +54,15 @@ ignores = -e SC1090 -e SC2154 -e SC2068 -e SC2046 -e SC2086 -e SC2119 -e SC2120
 #		  When words are split, they are done so intentionally.
 # SC2119 + SC2120: arguments supplied but not forwarded/used
 #		  Shellcheck cannot see arguments given from pkgfiles.
+# SC2100: Arithmetic
+# 		  Broken in shellcheck. Variables containing '-' cause error.
+# SC2153: Possible misspelling
+#         Some vars are capital in the config file while lower in the script.
+#         Manually manage this.
+# SC1092 + SC1091: Cannot source non-existant path
+#         Config file paths won't exist when outside the chroot.
+# SC2059: Variable in printf strings
+#         We use this to print color escape codes in messages.
 test: bonsai
 	shellcheck -s sh -x -a bonsai $(ignores)
 	@echo "All checks passed!"

@@ -83,6 +83,6 @@ clean() {
         done
     fi
     rm -rf "${ROOT:?}"/sucks 2>/dev/null
-    find "$WORK" -type d ! -name "$WORK" -exec rmdir "{}" 2>/dev/null ||: \;
-    find "$PKGS" -type d ! -name "$PKGS" -exec rmdir "{}" 2>/dev/null ||: \;
+    find "$WORK" -type d ! -name "$WORK" -exec rmdir "{}"  \; 2>/dev/null
+    find "$PKGS" -type d ! -name "$PKGS" -exec rmdir "{}"  \; 2>/dev/null
 }
