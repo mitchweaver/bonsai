@@ -11,6 +11,10 @@ tmp
 scripts/build
 build
 
+ports/testing
+ports/staging
+ports/TESTING
+
 *rootfs.gz
 *isolinux.bin
 *isolinux.cfg
