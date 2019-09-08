@@ -82,7 +82,7 @@ extract() {
             mv -f -- "$dldir"/* "$2"/ 2>/dev/null
 
             # copy any hidden files
-            find "$dldir" -name ".*" ! -name . -exec mv -f "{}" "$2"/ 2>/dev/null \;
+            find "$dldir" -name ".*" ! -name . -exec mv -f "{}" "$2"/ \; 2>/dev/null
 
             # try to remove possible empty dirs
             rmdir "$dldir" 2>/dev/null ||:
