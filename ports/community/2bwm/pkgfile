@@ -1,0 +1,5 @@
+info='A fast floating WM written over the XCB library and derived from mcwm'
+version=0.3
+source=http://github.com/venam/$name/archive/v$version.tar.gz
+deps='xorg-xcb-util-wm xorg-xcb-proto xorg-xcb-util xorg-xcb-util-xrm'
+sha256=a4889ea4b01b1a3d4a508daa034b9d86676913cbbca1f977858df692a6e2af95
