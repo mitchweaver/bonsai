@@ -1,0 +1,17 @@
+info='GNU moe 8-bit text editor'
+version=1.10
+source=http://mirrors.kernel.org/gnu/$name/$name-$version.tar.lz
+deps='lzip netbsd-curses'
+sha256=8cfd44ab5623ed4185ee53962b879fd9bdd18eab47bf5dd9bdb8271f1bf7d53b
+build() {
+    bonsai_configure
+    sed "s|^CPPFLAGS.*|CPPFLAGS = $CPPFLAGS $CFLAGS|" Makefile >tmp ; mv -f tmp Makefile
+    sed "s|^CXXFLAGS.*|CXXFLAGS = $CXXFLAGS $CFLAGS|" Makefile >tmp ; mv -f tmp Makefile
+    sed "s|^LIBS.*|LIBS = -lncurses -lterminfo|" Makefile >tmp ; mv -f tmp Makefile
+    bonsai_make install
+}
+postbuild() {
+    cd $pkg || exit 1
+    mv -f etc/* /etc/ 2>/dev/null
+    rm -rf etc 2>/dev/null
+}
