@@ -1,5 +1,5 @@
 info='Tab Window Manager, the default for X11'
 version=1.0.10
 source=http://x.org/releases/individual/app/$name-$version.tar.bz2
-deps=xorg-server
+deps='xorg-server xorg-libxt xorg-libxmu'
 sha256=6449eadca16ce0f0d900605b0cc020b95f40619261b7beccfb46bcc1836445d7
