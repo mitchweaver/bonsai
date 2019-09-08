@@ -36,7 +36,7 @@ dlcurl() {
     msg "downloading $3..."
     # curl bugs out with certain characters in filenames, as a fix
     # have curl output to a temporary file, then rename.
-    curl -q -L -C - -# --url "$1" -o "$2/$$.dlcurl" || die "failed to download $3"
+    curl -q -L -C - -# --retry 5 --url "$1" -o "$2/$$.dlcurl" || die "failed to download $3"
     mv -f -- "$2/$$.dlcurl" "$2/$3"
 }
 
