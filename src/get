@@ -59,9 +59,10 @@ decompress() {
                 xz -qdc "$1"
             fi
             ;;
-        gz|tgz)  gunzip  -qdc  "$1" ;;
-        bz2|tbz) bunzip2 -qdc  "$1" ;;
-        zip)     unzip   -qp   "$1" ;;
+        gz|tgz)  gunzip  -qdc "$1" ;;
+        bz2|tbz) bunzip2 -qdc "$1" ;;
+        lz|tlz)  lzip    -qdc "$1" ;;
+        zip)     unzip   -qp  "$1" ;;
         *) die "decompress: unsupported filetype"
     esac || die "decompress: failed to decompress $1"
 }
