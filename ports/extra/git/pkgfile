@@ -1,7 +1,7 @@
 info='git version control system'
 version=2.23.0
 source=http://mirrors.edge.kernel.org/pub/software/scm/$name/$name-$version.tar.xz
-deps=curl
+deps='curl expat'
 sha512=c0bb29b3689ec2e157f90df849599ca149a08fc0c69f6a68b1f3219b6335d521983e6ed58cd364b86398e4dcf9e84892fb9eded79a1c97b74150edca299cf671
 prebuild() {
 cat > config.mak << EOF
@@ -9,23 +9,19 @@ NO_TCLTK=YesPlease
 NO_PYTHON=YesPlease
 NO_PERL=YesPlease
 NO_GETTEXT=YesPlease
-NO_EXPAT=YesPlease
 NO_SVN_TESTS=YesPlease
 NO_NSEC=YesPlease
-NO_SYS_POLL_H=YesPlease
 NO_CROSS_DIRECTORY_HARDLINKS=YesPlease
 NO_INSTALL_HARDLINKS=YesPlease
 NO_REGEX=YesPlease
+NO_SYS_POLL_H=YesPlease
 EOF
     # add hyphen to tar commands for more portability
     # and remove '-o' option (specifically for sbase tar)
     sed -e 's|(TAR) |(TAR) -|' \
         -e 's|(TAR) -xof|(TAR) -xf|'\
-        templates/Makefile >templates/Makefile.tmp
-    mv -f templates/Makefile.tmp templates/Makefile
-}
-build() {
-    bonsai_configure
+        templates/Makefile >tmp
+    mv -f tmp templates/Makefile
 
     # use provided regex.h over system's regex.h
     # as musl does not support glibc's REG_STARTEND
@@ -35,9 +31,12 @@ build() {
     #
     # for some Rich Felker humor on the change:
     # http://public-inbox.org/git/20161004150848.GA7949@brightrain.aerifal.cx
-    bonsai_make CFLAGS="-Icompat/regex $CFLAGS" \
-                CPPFLAGS="-Icompat/regex $CPPFLAGS" install
+    export CFLAGS="-Icompat/regex $CFLAGS"
+    export CPPFLAGS="-Icompat/regex $CPPFLAGS"
+}
+build() {
+    bonsai_make install
 }
 postbuild() {
-    rm -f $pkg/lib/perl5/core_perl/perllocal.pod
+    rm -f $pkg/lib/perl5/core_perl/perllocal.pod 2>/dev/null
 }
