@@ -1,0 +1,13 @@
+info='GNU ed'
+version=1.15
+source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.lz
+# why the hell is GNU only shipping releases in lzip nowadays...
+deps=lzip
+sha256=ad4489c0ad7a108c514262da28e6c2a426946fb408a3977ef1ed34308bdfd174
+build() {
+    bonsai_configure
+    sed "s|^CFLAGS.*|CFLAGS = $CFLAGS $CPPFLAGS|" Makefile >tmp ; mv -f tmp Makefile
+    sed "s|^LDFLAGS.*|LDFLAGS = $LDFLAGS|"        Makefile >tmp ; mv -f tmp Makefile
+    bonsai_make
+    bonsai_make install-bin install-man
+}
