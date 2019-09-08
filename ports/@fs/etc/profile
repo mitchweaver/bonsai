@@ -1,3 +1,0 @@
-umask 022
-PATH="/bin:/local/bin:${HOME}/bin:${HOME}/.local/bin"
-export PATH

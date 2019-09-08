@@ -1,4 +1,0 @@
-info='mk from plan9port'
-version=1.0
-source=http://9fans.github.io/plan9port/unix/mk-with-libs.tgz
-sha256=175bce64c6841c30b0dd996dc65c080fb974738fd53b8aabf0643a0c0ebffd54

@@ -1,0 +1,11 @@
+info='Simple Presentation Tool, by suckless'
+version=1
+source=http://dl.suckless.org/tools/$name-1.tar.gz
+deps='xorg-libx11 xorg-libxft freetype-harfbuzz'
+sha256=7bf3de9311ce291ff36adf5315b78fa72373e3ab80ca71387fb5884bcbd7be33
+build() {
+    bonsai_make \
+        CFLAGS="$CFLAGS $(grep ^CFLAGS config.mk | sed 's|CFLAGS +=||')" \
+        LDFLAGS="$LDFLAGS $(pkgconf-static --libs xft harfbuzz)"
+    bonsai_make install
+}

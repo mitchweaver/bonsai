@@ -1,0 +1,8 @@
+info="a suckless IPv4 dhcp client"
+version=5f9956c8706215f8b8887c0beb77ed7d1810ec7a
+source=http://github.com/michaelforney/$name/archive/$version.tar.gz
+sha256=28613e15975df7c990a19aa0d3fd506c832cc229901e81502b0ec353ef34e4f2
+prebuild() {
+    sed "s|^CFLAGS.*|CFLAGS = $CFLAGS|"    config.mk >tmp ; mv -f tmp config.mk
+    sed "s|^LDFLAGS.*|LDFLAGS = $LDFLAGS|" config.mk >tmp ; mv -f tmp config.mk
+}

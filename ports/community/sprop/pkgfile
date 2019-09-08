@@ -1,0 +1,11 @@
+info='Simple X Property utility'
+version=0.1
+source=http://dl.suckless.org/tools/$name-$version.tar.gz
+deps=xorg-libx11
+sha256=c1b786d9fbd81a57addd7e21a34c5a121543cbf9f38fe309e7b452ba94b69ab5
+build() {
+    bonsai_make \
+        CFLAGS="$CFLAGS $(grep ^CFLAGS config.mk | sed 's|CFLAGS =||')" \
+        LDFLAGS="$LDFLAGS $(pkgconf-static --libs x11)"
+    bonsai_make install
+}

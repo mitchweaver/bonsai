@@ -1,0 +1,14 @@
+info='bonsai configuration files'
+metapkg=true
+nolink=true
+build() {
+    mkdir -p "$CONFIG"
+    for file in *.cfg ; do
+        if [ -f "$ROOT"/etc/$file ] ; then
+            warn "$ROOT/etc/$file exists, refusing to overwrite"
+            continue
+        fi
+        msg "installing src/config/$file with mode 0744..."
+        install -m 0744 $file "$CONFIG"/$file
+    done
+}

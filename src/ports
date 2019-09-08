@@ -1,21 +1,22 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# ports                  http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# search ports for given $name
 search() {
-    find "$ports" -type d ! -path "$ports" -name "*$1*" | sort | \
-    while read -r p ; do
-        p="${p#"$ports/"}"
-        echo "${p%/*}"
-    done
+    find "$PORTS" -type f -path "*/*$1*/pkgfile" | while read -r pkgfile ; do
+        dir="${pkgfile%/*}"
+        echo "${dir##*/}"
+    done | sort
 }
 
-# loads pkgfile for given $name
-# assumes: $workdir in environment
+# loads pkgfile for given $1, and assigns $name=$1
 load_pkgfile() {
     name="$1"
-    pkg="$pkgs/$name"
-    pkgfile="$ports/$name/pkgfile"
+    pkg="$PKGS/$name"
+    pkgfile="$(getpkgfile $name)"
     export pkg name pkgfile
     [ -f "$pkgfile" ] || die "failed to load $name's pkgfile"
     . "$pkgfile"
@@ -23,34 +24,36 @@ load_pkgfile() {
         version=metapkg
         nostrip=true
     fi
-    : "${source:=none}"
-    pkgid="${name}${delim:=#}${version:=unknown}"
-    pkgworkdir="$workdir/$name"
-    export version source pkgid pkgworkdir nostrip
+    : "${source:=none}" "${version:=unknown}"
+    pkgid="$name$DELIM$version"
+    pkgworkdir="$WORK/$name"
+    export version source pkgid pkgworkdir nostrip sha512 sha256
 }
 
-# unsets vars as not to persist from pkg to pkg
 unload_pkgfile() {
-    unset name pkgfile pkgid version source depends deps \
-          md5 sha1 sha256 sha512 pkgworkdir workdir nolink nostrip
+    unset name pkgfile pkgid version source depends pkgdeps deps makedeps \
+          pkgworkdir nolink nostrip sha512 sha256 LIBS
     unset -f prebuild build postbuild
 }
 
-# calculate dependencies and store them
-# in $pkgdeps in the correct installation order
-# params: $name
+# returns if given $name is a metapkg
+ismetapkg() {
+    grep -x 'metapkg=true' "$(getpkgfile "$1")" >/dev/null
+    return $?
+}
+
+portcat() {
+    cat "$(getpkgfile "$1")" 2>/dev/null || die "could not find $1's pkgfile"
+}
+
+# calculates dependencies of a $name and stores
+# them in $pkgdeps in the correct installation order
 pkgdeps() {
-    # remember the original package we're checking
     arg=$1
-
     dep_recurse() {
-        # unset as not to carry over deps from previous pkg
         unset deps
-
-        # source the dep's pkgfile
-        [ -s "$ports/$1/pkgfile" ] || 
-            die "pkgdeps(): could not source $1's pkgfile"
-        . "$ports/$1/pkgfile"
+        [ -f "$(getpkgfile "$1")" ] || die "could not source $1's pkgfile"
+        . "$(getpkgfile "$1")"
 
         # recurse and find the dep's deps, skipping if already in list
         for dep in $deps ; do
@@ -58,12 +61,11 @@ pkgdeps() {
         done
 
         # check if dep is not the main package stored in $arg
-        # (do not display a package as a dep of itself)
         [ $1 = $arg ] || pkgdeps=" $pkgdeps $1 "
     }
     dep_recurse "$arg"
 
-    # remove multiple whitespaces
+    # remove extraneous whitespaces
     set -- $pkgdeps
     export pkgdeps="$*"
 
@@ -75,7 +77,7 @@ pkgdeps() {
 rdeps() {
     # echo all packages that list $1 in their $deps
     depends() {
-        find "$ports" -name pkgfile | while read -r _pkgfile ; do
+        find "$PORTS" -name pkgfile | while read -r _pkgfile ; do
             deps=""
             . "$_pkgfile"
             for dep in $deps ; do
@@ -83,7 +85,6 @@ rdeps() {
             done
         done
     }
-
     deps="$(depends "$1")"
 
     for dep in $deps ; do
@@ -98,34 +99,68 @@ rdeps() {
         done | sort -u \
     )
     msg "$*"
-
     unset deps dep
 }
 
-
 # print info about a given $name
 portinfo() {
-    [ "$2" ]    && die "info(): too many arguments"
     [ -z "$1" ] && die "info(): no argument provided"
     name="$1"
-    pkgfile="$ports/$name/pkgfile"
-
-    [ -f "$pkgfile" ] || die "addpkg(): could not source $name's pkgfile"
-    . "$pkgfile"
-
+    [ -f "$(getpkgfile $name)" ] || die "addpkg(): could not source $name's pkgfile"
+    . "$(getpkgfile $name)"
     printf "%s\n%s\n%s\n%s\n%s\n" \
         "name:    $name" \
         "info:    ${info:=?}" \
         "version: ${version:=unknown}" \
         "source:  ${source:=?}" \
         "depends: ${deps:=none}"
-    unset name pkgfile name info version source deps 
+    unset name name info version source deps 
 }
 
-# print out the contents of a given $name's pkgfile
-portcat() {
-    [ "$2" ]    && die "portcat(): too many arguments"
-    [ -z "$1" ] && die "portcat(): no argument provided"
-    [ -f "$ports/$1/pkgfile" ] || die "pkgcat(): could not find $1's pkgfile"
-    shellcat "$ports/$1/pkgfile"
-}
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# currently broken
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+#
+# tar up a package for release / distribution, placing result in $PWD
+# Notes: We force delim to be '-' here, this is to ensure web
+#        compatbility. (Ex: cannot have '#' natively in URLs)
+# params: $name
+# pack() {
+#     requires 'pack()' tar xz
+#     isinst "$1" >/dev/null || die "$1 is not installed"
+#     [ -d "$pkgs/$1" ] || die "$1 was not found in \$pkgs"
+#     file="$(pkg2pkgid "$1" | sed "s/$delim/-/")".tar.xz
+#     { tar -C "$pkgs" -cf - "$1" | xz -T 0 -z - > "$file" ; } || \
+#         die "failed to compress $1"
+#     msg "successfully packed $1 as ./$file"
+# }
+
+# # untar a downloaded binary package and install it.
+# # params: $pack
+# unpack() {
+#     # lint tarball - must conform to name-version.tar.xz
+#     echo "$*" | grep -E -- '.*.-.*.tar.xz' >/dev/null || die "incorrect pack format"
+#     # must also not contain any spaces
+#     echo "$*" | grep -F -- ' ' >/dev/null && die "incorrect pack format"
+
+#     pkgid="${1%.tar.xz}"
+#     name="${pkgid%-*}"
+#     version="${pkgid#$name-}"
+
+#     # clear any work from possible existing build
+#     # todo: should this be $work?
+#     rm -rf "${work:?}" 2>/dev/null ||:
+
+#     # check if is already installed
+#     isinst "$name" >/dev/null && die "port $name is already installed"
+
+#     # unpack
+#     { decompress "$1" | tar -C "$pkgs" -xf - ; } || die "failed to decompress $1"
+
+#     # this is to be fixed later, for now:
+#     case "$name" in kernel|syslinux) nolink=true ; esac
+
+#     # link and install
+#     installpkg "$name" || die "$name failed to install"
+#     unload_pkgfile
+# }

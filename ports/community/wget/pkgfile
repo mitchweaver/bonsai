@@ -1,0 +1,21 @@
+info="GNU network utility for downloading files"
+version=1.20.3
+source=http://mirrors.kernel.org/gnu/$name/$name-$version.tar.gz
+deps=libressl
+sha256=31cccfc6630528db1c8e3a06f6decf2a370060b982841cfab2b8677400a5092e
+prebuild() {
+    # force skipping of tests, taken from Sabotage
+    printf "all:\n\ttrue\n\ninstall:\n\ttrue\n\n" >tests/Makefile.in
+}
+build() { 
+    export CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
+    bonsai_configure \
+        --enable-threads=posix \
+        --disable-pcre \
+        --disable-pcre2 \
+        --with-ssl=openssl \
+        --with-libssl-prefix=/ \
+        --without-libpsl
+    bonsai_make
+    bonsai_make install
+}

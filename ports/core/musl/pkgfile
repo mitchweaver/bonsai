@@ -1,0 +1,25 @@
+info='musl C library'
+version=1.1.23
+source=http://musl-libc.org/releases/$name-$version.tar.gz
+sha512=a2278de9903852b08352d3e734a39d4616caa602496997ba843e8fea0e1c481761776745faf04536a149d1c4af416b68df681b6fbc9ae2de8794e18c2e853b09
+nostrip=true
+build() {
+    getflags --no-static
+    bonsai_configure \
+        --disable-wrapper \
+        --enable-shared
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    if [ -f $pkg/lib/libc.so ] ; then
+        # add ldd, which in musl is baked into the .so
+        mkdir -p $pkg/bin
+        ln -sf ../lib/libc.so $pkg/bin/ldd
+
+        # add some symlinks for compatibility
+        ln -sf libc.so $pkg/lib/ld-musl-x86_64.so
+        ln -sf libc.so $pkg/lib/ld-musl-x86_64.so.1
+        ln -sf libc.so $pkg/lib/libc.so.1
+    fi
+}

@@ -1,0 +1,30 @@
+info='command line online file transfer and download tool'
+version=7.65.3
+source=http://curl.haxx.se/download/$name-$version.tar.xz
+deps=libressl
+sha256=f2d98854813948d157f6a91236ae34ca4a1b4cb302617cebad263d79b0235fea
+build() {
+    export LDFLAGS="$LDFLAGS -lssl -lcrypto -lz"
+    bonsai_configure \
+        --enable-ipv6 --with-ssl \
+        --without-librtmp --without-cyassl \
+        --without-libpsl --without-winidn \
+        --without-libidn2 --without-gnutls \
+        --without-winssl --without-schannel \
+        --without-darwinssl --without-secure-transport \
+        --without-amissl --without-brotli \
+        --disable-ldap --disable-ldaps \
+        --disable-telnet --without-mbedtls \
+        --disable-file --disable-sspi \
+        --disable-dict --disable-telnet \
+        --disable-ldaps --disable-librtsp \
+        --disable-pop3 --disable-imap \
+        --disable-smtp --disable-gopher \
+        --disable-smb --without-libidn \
+        --disable-curldebug \
+        --without-fish-functions-dir \
+        --without-zsh-functions-dir \
+        --with-ca-bundle=/etc/ssl/cert.pem
+    bonsai_make
+    bonsai_make install
+}

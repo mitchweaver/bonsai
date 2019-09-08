@@ -1,0 +1,37 @@
+info='tiny openssh server and client'
+version=2019.78
+source=http://matt.ucc.asn.au/$name/releases/$name-$version.tar.bz2
+sha256=525965971272270995364a0eb01f35180d793182e63dd0b0c3eb0292291644a4
+prebuild() {
+    # sbase does not have '-v' flag
+    sed 's|mkdir -pv|mkdir -p|' configure > tmp
+    mv -f tmp configure
+
+    # fix def->ifdef regex for sbase sed
+    # Goal: Wrap all "#define X Y" with a #ifndef X...#endif"
+    >ifndef_wrapper.sh printf "%s\n%s" "#!/bin/sh" \
+        "sed 's/^\( *#define \([^ ][^ ]*\) .*\)/#ifndef \2\ \n \1\ \n #endif/'"
+}
+build() {
+    bonsai_configure \
+        --disable-lastlog \
+        --disable-pututline \
+        --disable-pututxline \
+        --disable-syslog \
+        --disable-utmp \
+        --disable-utmpx \
+        --disable-wtmp \
+        --disable-wtmpx
+    bonsai_make \
+        SCPPROGRESS=1 MULTI=1 \
+        PROGRAMS="dropbear scp dbclient dropbearkey dropbearconvert"
+    bonsai_make \
+        SCPPROGRESS=1 MULTI=1 \
+        PROGRAMS="dropbear scp dbclient dropbearkey dropbearconvert" \
+        install
+}
+postbuild() {
+    ln -sf dropbear $pkg/bin/sshd
+    ln -sf dbclient $pkg/bin/ssh
+    ln -sf dropbearkey $pkg/bin/ssh-keygen
+}

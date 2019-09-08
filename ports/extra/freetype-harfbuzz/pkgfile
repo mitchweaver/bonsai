@@ -1,0 +1,112 @@
+info='FreeType and HarfBuzz font rendering libraries'
+version='1.3.4+2.10.1'
+deps='expat glib libdrm xorg-libx11 xorg-libxdamage xorg-libxext xorg-libxfixes \
+xorg-libxrender xorg-libxxf86vm xorg-libxshmfence xorg-libpixman'
+freetype_source=http://download-mirror.savannah.gnu.org/releases/freetype/freetype-${version#*+}.tar.xz
+harfbuzz_source=http://github.com/harfbuzz/harfbuzz/releases/download/1.3.4/harfbuzz-1.3.4.tar.bz2
+freetype_sha256=16dbfa488a21fe827dc27eaf708f42f7aa3bb997d745d31a19781628c36ba26f
+harfbuzz_sha256=718aa6fcadef1a6548315b8cfe42cc27e926256302c337f42df3a443843f6a2b
+
+# --------- harfbuzz version 2.6.1 --------
+# Causes xorg-server to error:
+# ```
+# /lib/libharfbuzz.a(libharfbuzz_la-hb-ft.o): in function `hb_ft_font_changed':
+# (.text+0x1286): undefined reference to `FT_Get_MM_Var'
+# ```
+# 1.3.4 is latest version that stops this from occurring
+#
+# version='2.6.1+2.10.1'
+# harfbuzz_source=http://github.com/harfbuzz/harfbuzz/releases/download/${version%+*}/harfbuzz-${version%+*}.tar.xz
+# harfbuzz_sha256=c651fb3faaa338aeb280726837c2384064cdc17ef40539228d88a1260960844f
+# -----------------------------------------
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Harfbuzz is a text shaping library that FreeType can use.
+#
+# However, Harfbuzz needs FreeType itself to compile.
+# So we will build FreeType twice, once without Harfbuzz
+# in order to bootstrap Harfbuzz, then again against it.
+#
+# Idea for this process thanks to the KISS project.
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+prebuild() {
+    set -e
+    export SEP="=====> [*] "
+    msg "$SEP downloading sources..."
+
+    [ -f "$SOURCES/freetype$DELIM${version#*+}.tar.xz" ] || 
+    dlcurl "$freetype_source" "$SOURCES" "freetype$DELIM${version#*+}.tar.xz" &&
+    verify_checksum "$SOURCES/freetype$DELIM${version#*+}.tar.xz" "$freetype_sha256"
+
+    [ -f "$SOURCES/harfbuzz$DELIM${version%+*}.tar.bz2" ] || 
+    dlcurl "$harfbuzz_source" "$SOURCES" "harfbuzz$DELIM${version%+*}.tar.bz2" &&
+    verify_checksum "$SOURCES/harfbuzz$DELIM${version%+*}.tar.xz" "$harfbuzz_sha256"
+
+    msg "$SEP extracting sources..."
+    decompress "$SOURCES/freetype$DELIM${version#*+}.tar.xz" | tar -xf -
+    decompress "$SOURCES/harfbuzz$DELIM${version%+*}.tar.bz2" | tar -xf -
+}
+build() {
+    msg "$SEP building freetype - PASS 1"
+    build_freetype no || return 1
+
+    export FREETYPE_CFLAGS="-I$PWD/freetype-${version#*+}/include"
+    export FREETYPE_LIBS="-L$PWD/freetype-${version#*+}/objs/.libs -lfreetype -lbz2 -lz"
+
+    msg "$SEP building harfbuzz"
+    build_harfbuzz || return 1
+
+    export HARFBUZZ_CFLAGS="-I$PWD/harfbuzz-${version%+*}/src"
+    export HARFBUZZ_LIBS="-L$PWD/harfbuzz-${version%+*}/src/.libs -lharfbuzz" 
+
+    msg "$SEP building freetype - PASS 2"
+    build_freetype yes || return 1
+}
+postbuild() {
+    set +e
+    rm -rf $pkg/share/gtk-doc* 2>/dev/null
+}
+
+build_freetype() (
+    cd freetype-${version#*+}
+    bonsai_configure \
+        --with-harfbuzz="$1" \
+        --with-zlib=yes \
+        --with-bzip2=yes \
+        --with-png=no \
+        --enable-freetype-config
+
+    # fails if using bonsai_make
+    make -j${JOBS:-1} LIBTOOL="$LIBTOOL"
+
+    if [ "$1" = yes ] ; then
+        bonsai_make install
+
+        # add toplevel includes for compatibility
+        ln -sf freetype2/ft2build.h $pkg/include/ft2build.h
+        ln -sf freetype2/freetype $pkg/include/freetype
+    fi
+)
+
+build_harfbuzz() (
+    cd harfbuzz-${version%+*}
+    bonsai_configure \
+        --with-libstdc++=yes \
+        --with-freetype=yes \
+        --with-glib=yes \
+        --with-icu=no \
+        --with-cairo=no \
+        --with-graphite2=no \
+        --with-uniscribe=no \
+        --with-coretext=no \
+        --with-gobject=no
+    bonsai_make
+    bonsai_make install
+
+    # add toplevel includes for compatibility
+    cd $pkg/include
+    find harfbuzz -type f | while read -r inc ; do
+        ln -sf "$inc" "${inc#*harfbuzz/}"
+    done
+)

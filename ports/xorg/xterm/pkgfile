@@ -1,0 +1,39 @@
+info='Default Terminal Emulator for X11'
+version=348
+source=http://invisible-mirror.net/archives/$name/$name-$version.tgz
+deps='xorg-libxaw xorg-libxinerama netbsd-curses xorg-libxft'
+sha256=8b1f5121dbf3690de9d85a3b9329e3357021705dd7c21da192e47542769275be
+build() {
+    bonsai_configure \
+		--enable-ansi-color \
+		--enable-88-color \
+        --enable-256-color \
+		--enable-doublechars \
+        --enable-freetype \
+        --enable-boxchars \
+        --enable-highlighting \
+        --enable-bold-color \
+		--enable-broken-osc \
+		--enable-broken-st \
+		--enable-load-vt-fonts \
+		--enable-sixel-graphics \
+		--enable-i18n \
+        --disable-ziconbeep \
+        --disable-rpath-hack \
+		--disable-full-tgetent \
+		--with-utempter
+
+    # don't use xterm's provided dynamic linking script
+    sed 's|$(SHELL).*plink.sh ||g' Makefile > tmp
+    mv -f tmp Makefile
+
+    bonsai_make LIBS="$(pkgconf-static --libs xaw7 xft xinerama ncurses)"
+    bonsai_make install
+}
+postbuild() {
+    # sometimes xterm's bin ends up not in $pkg?
+    if [ ! -d $pkg/bin ] && [ ! -L /bin/xterm ] ; then
+        mkdir -p $pkg/bin
+        mv -f /bin/xterm $pkg/bin/
+    fi
+}

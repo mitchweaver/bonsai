@@ -1,0 +1,9 @@
+info='X11 Composite extension client library'
+version=0.4.5
+source=http://x.org/releases/individual/lib/libXcomposite-$version.tar.bz2
+deps='xorg-libxfixes xorg-xorgproto'
+sha256=b3218a2c15bab8035d16810df5b8251ffc7132ff3aa70651a1fba0bfe9634e8f
+postbuild() {
+    # remove unused manpages
+    rm -rf $pkg/share
+}

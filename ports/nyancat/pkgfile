@@ -1,9 +1,0 @@
-info='Nyancat in your terminal'
-version=1.5.2
-source=http://github.com/klange/$name/archive/$version.tar.gz
-sha256=88cdcaa9c7134503dd0364a97fa860da3381a09cb555c3aae9918360827c2032
-build() {
-    bonsai_make
-    install -D -m 0755 src/$name "$pkg"/bin/$name
-    install -D -m 0644 $name.1 "$pkg"/share/man/man1/$name.1
-}

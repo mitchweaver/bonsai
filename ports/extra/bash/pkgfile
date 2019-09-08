@@ -1,0 +1,24 @@
+info="GNU Bourne Again Shell"
+version=5.0
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
+deps=libedit
+sha256=b4a80f2ac66170b2913efbfb9f2594f1f76c7b1afd11f799e22035d63077fb4d
+build() {
+    bonsai_configure \
+        --without-bash-malloc \
+        --with-installed-readline
+
+    # don't build docs
+    printf "all:\n\ninstalldirs:\n\ninstall:\n\n" >doc/Makefile
+    printf "all:\n\ninstalldirs:\n\ninstall:\n\n" >po/Makefile
+
+    bonsai_make install
+}
+postbuild() {
+    # for some reason bash.1 isn't in makefile's install...
+    install -D -m 0644 doc/bash.1 "$pkg"/share/man/man1/bash.1
+
+    # bug reporting utility, useless
+    rm -f "$pkg"/bin/bashbug
+    rm -f "$pkg"/share/man/man1/bashbug.1
+}

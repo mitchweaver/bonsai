@@ -1,0 +1,5 @@
+info='Garbage collector for C and C++'
+version=8.0.4
+source=http://hboehm.info/$name/${name}_source/$name-$version.tar.gz
+deps=automake
+sha256=436a0ddc67b1ac0b0405b61a9675bca9e075c8156f4debd1d06f3a56c7cd289d

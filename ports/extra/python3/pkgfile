@@ -1,0 +1,62 @@
+version=3.7.4
+info="Python${version%%.*} interpreter"
+source=http://github.com/python/cpython/archive/v$version.tar.gz
+deps='netbsd-curses libedit libressl libffi expat'
+sha256=aaea286c4458f22125e1a08aa59359ebc32232eda50c98f013be49367e5d8b6a
+prebuild() {
+     rm -rf "${pkg:?}"/lib/python${version%.*} 2>/dev/null
+     mkdir -p "$root"/lib/python${version%.*} \
+              "$pkg"/lib
+     ln -sf "$root"/lib/python${version%.*} \
+            "${pkg:?}"/lib/python${version%.*}
+}
+build() {
+
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    # NOTE: Python is currently not compiled statically. 
+    #
+    # I have spent too many days on this. Giving up.
+    # The python devs *really* do not want this statically compiled.
+    #
+    # Static Progress:
+    #
+    # [x] Interpreter
+    # [x] Extra modules
+    # [ ] Core modules
+    #
+    # The core modules that are normally built dynamically fail.
+    # This includes 'ctypes' which is needed for many applications.
+    #
+    # Because of this, for now we are leaving python to be dynamic.
+    #
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+    # copy our Setup included copied from the port dir
+	# cp -f Setup Modules/
+
+    getflags --no-static
+
+    bonsai_configure \
+        --without-ensurepip \
+        --with-system-libffi \
+        --with-system-expat \
+		--enable-optimizations
+
+    # use our provided script to fix makesetup's bugged generated makefile
+    sh fix_bad_makefile.sh
+
+    bonsai_make altinstall maninstall
+}
+postbuild() {
+    # create symlinks without full version numbers, (ie 3.7->3)
+    ln -sf python${version%.*}         "$pkg"/bin/$name
+    ln -sf python-${version%.*}.pc     "$pkg"/lib/pkgconfig/$name.pc
+
+    # Compile all .pyc files so they will be in the $pkg dir to be linked.
+    # Otherwise they'll get created later and be in the root.
+    # note: some of the dynamic modules may fail, this is fine, nop the error code
+    ./python -E Lib/compileall.py "${pkg:?}"/lib/$name${version%.*} 2>/dev/null ||:
+
+    # remove tests, readmes
+    find "${pkg:?}" -type f -name '*test*' -o -name 'README*' -exec rm -rf "{}" \;
+}

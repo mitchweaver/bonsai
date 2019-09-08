@@ -1,15 +1,18 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# utils                  http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # vi:syntax=sh
 # shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-# all system messages, outputted with user's $prompt in green
-msg() { echo "\033[32;1m${prompt}\033[m $*" ; }
-msg_no_nl() { echo -n "\033[32;1m${prompt}\033[m $*" ; }
-warn() { >&2 echo "\033[33;1m${prompt} \033[mwarning: $*" ; }
-die() { >&2 echo "\033[31;1m${prompt} \033[merror: $*" ; exit 1 ; }
+msg() { echo "\033[32;1m${PROMPT}\033[m $*" ; }
+msg_no_nl() { echo -n "\033[32;1m${PROMPT}\033[m $*" ; }
+warn() { >&2 echo "\033[33;1m${PROMPT} \033[mwarning: $*" ; }
+die() { >&2 echo "\033[31;1m${PROMPT} \033[merror: $*" ; exit 1 ; }
 
 usage() {
-printf "%s\n" \
-"bonsai pkg mgr
+cat <<EOF
+bonsai pkg mgr
  
 commands:
 -----------
@@ -25,64 +28,31 @@ count  | -c
 deps rdeps
 pack unpack
 isinst
-"
+EOF
 }
 
-# checks if a function is defined
-# params: $func_name(s)
-defined() {
-    for _a ; do
-        case "$(type "$_a")" in
-            *" function"*) ;;
-            *) return 1
-        esac
-    done
-}
-# checks if a command exists
-# params: $command_name(s)
-has() { for _a ; do type "$_a" >/dev/null || return 1 ; done ; }
+# converts "bash#4.8" -> "bash"
+pkgid2pkg() { echo "${1%%$DELIM*}" ; }
 
-# checks if command exists, exiting if not found
-# params: caller func, progs to check
-requires() {
-    f="$1"
-    shift
-    for _p ; do
-        has $_p || die "$_p not found in \$PATH but is required for $f"
-    done
-}
+# converts "bash" -> "bash#4.8"
+pkg2pkgid() { echo "$(grep -x -E -- "$1$DELIM.*" "$PKGDB")" ; }
 
-# check if dir is empty
-# returns: 0 if true, 1 if false or not a dir
-is_empty() { rmdir "$1" 2>/dev/null && mkdir -p "$1" || return 1 ; }
-
-# params: $path
-# returns: 0 if path is a symlink and target exists
-test_link() { if [ ! -L "$1" ] || [ ! -e "$1" ] ; then return 1 ; fi }
-
-# --- some coreutils in posix sh builtins ---
-basename() { printf "%s\n" "${1##*/}" ; }
-dirname()  { printf "%s\n" "${1%/*}"  ; }
-
-# print out a file
-# 200%+ speed increase on small files
-shellcat() { while IFS="" read -r _l ; do printf "%s\n" "$_l" ; done < "$1" ; }
-
-# print first line of a file
-# 3000%+ speed increase on small files
-headn1() { read -r _l < "$1" ; printf "%s\n" "$_l" ; }
-# -------------------------------------------
-
-# checks if a given string contains another
 # params: full_string, partial_string
 contains() { [ "${1#*$2}" != "$1" ] || return 1 ; }
 
-# prompts user for confirmation
-# returns 1 on 'n' or bad input
+# checks if a function is defined
+defined() {
+    case "$(type "$1")" in
+        *" function"*) ;;
+        *) return 1
+    esac
+}
+
+# prompts user for confirmation - returns 1 on 'n' or bad input
 # params: message to be printed
 confirm() {
     if [ -z "$NO_PROMPT" ] ; then
-        msg_no_nl "$confirm_prompt"
+        msg_no_nl "$CONFIRM_PROMPT"
         read -r ans
         case "$ans" in
             y|"") ;; # "" is equivalent to user pressing enter
@@ -91,32 +61,28 @@ confirm() {
     fi
 }
 
-# test if our gcc is sane
-# if it isn't, disregard if its one of the following packages
-# otherwise error out appropriately
-# params: $name we're trying to add
-validate_gcc() {
-    if ! test_link "$root"/bin/gcc ; then
-        case "$1" in
-            *gcc*|@stage0|@fs|bonsai) ;;
-            *) [ -e "$gcc" ] && die "No compiler toolchain installed."
-               err_bad_links
-        esac
-    fi
+# retrieves port folder for $name
+getportdir() {
+    find "$PORTS" -type f -path "*/$1/pkgfile" | while read -r pkgfile ; do
+        echo "${pkgfile%/*}"
+    done
+}
+# retrieves pkgfile for $name
+getpkgfile() {
+    echo "$(getportdir "$1")"/pkgfile
 }
 
-print_logo() {
-printf "%b\n" \
-"
-    \033[32m,####,
-   \033[32m#######,  \033[32m,#####,
-   \033[32m#####',#  \033[32m'######
-    \033[32m''###'\033[33m';,,,'\033[32m###'
-   \033[33m       ,;  ''''
-   \033[33m      ;;;   \033[32m,#####,
-   \033[33m     ;;;'  ,,;\033[32m;;###
-   \033[33m     ';;;;''\033[32m'####'
-   \033[33m      ;;;
-   \033[33m   ,.;;';'',,,
-   \033[33m  '     '\033[0m"
+# cleans tree and work of empty packages, removes junk
+# params: [$name]
+clean() {
+    if [ "$1" ] ; then
+        rm -rf "$WORK/$1" 2>/dev/null
+        [ -d "$PKGS/$1" ] && 
+        for dir in share/info share/doc sucks ; do
+            rm -rf "$PKGS"/$1/$dir 2>/dev/null
+        done
+    fi
+    rm -rf "$ROOT"/sucks 2>/dev/null
+    find "$WORK" -type d ! -name "$WORK" -exec rmdir "{}" 2>/dev/null ||: \;
+    find "$PKGS" -type d ! -name "$PKGS" -exec rmdir "{}" 2>/dev/null ||: \;
 }

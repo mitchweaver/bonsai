@@ -1,0 +1,19 @@
+info='mk from plan9port'
+version=1.0
+source=http://9fans.github.io/plan9port/unix/mk-with-libs.tgz
+sha256=175bce64c6841c30b0dd996dc65c080fb974738fd53b8aabf0643a0c0ebffd54
+prebuild() {
+    # fix dirs
+    mv -f mk tmp
+    mv -f tmp/mk .
+}
+build() {
+    bonsai_make CC="$CC $CFLAGS $LDFLAGS" PREFIX=$pkg
+    bonsai_make CC="$CC $CFLAGS $LDFLAGS" PREFIX=$pkg install
+}
+postbuild() {
+    rm -rf $pkg/doc 2>/dev/null
+    mkdir -p $pkg/share/man
+    mv -f $pkg/man/* $pkg/share/man/ 2>/dev/null ||:
+    rmdir $pkg/man 2>/dev/null ||:
+}

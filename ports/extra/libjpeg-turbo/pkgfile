@@ -1,0 +1,21 @@
+info='Fork of libjpg with SIMD acceleration'
+version=2.0.2
+source=http://downloads.sourceforge.net/$name/$name-$version.tar.gz
+deps='cmake nasm samurai'
+sha256=acb8599fe5399af114287ee5907aea4456f8f2c1cc96d26c28aebfdf5ee82fed
+build() {
+    mkdir build ; cd build
+    cmake .. -G Ninja \
+        -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DENABLE_SHARED=FALSE \
+        -DENABLE_STATIC=TRUE \
+        -DWITH_JPEG8=ON &&
+    ninja &&
+    ninja install
+}
+postbuild() {
+    cd $pkg || exit 1
+    mv -f usr/* .
+    mv -f lib64 lib
+    rm -rf share usr
+}

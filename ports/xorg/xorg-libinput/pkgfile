@@ -1,0 +1,23 @@
+info='X11 input handling library'
+version=1.14.1
+source=http://freedesktop.org/software/${name#xorg-}/${name#xorg-}-$version.tar.xz
+deps='meson samurai eudev xorg-libmtdev xorg-libevdev'
+sha256=e333a3242835c019ca37d2cef8b51a87d3138eb47444119c0153dc7a8656ee70
+build() {
+    getflags --no-static
+    meson build \
+        --optimization=s \
+        --buildtype=release \
+        --prefix="$pkg" \
+        -Ddebug-gui=false \
+        -Ddocumentation=false \
+        -Dtests=false \
+        -Dlibwacom=false \
+        -Dudev-dir=/lib/udev \
+        -Dzshcompletiondir=no
+    ninja -C build
+    ninja -C build install
+}
+postbuild() {
+    rm -rf $pkg/share/man
+}

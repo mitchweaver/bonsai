@@ -1,0 +1,15 @@
+info='GNU awk'
+version=5.0.1
+source=http://mirrors.kernel.org/gnu/$name/$name-$version.tar.xz
+sha256=8e4e86f04ed789648b66f757329743a0d6dfb5294c3b91b756a474f1ce05a794
+build() {
+    export CPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
+    bonsai_configure \
+        --without-readline \
+        --disable-mpfr
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    ln -sf gawk $pkg/bin/awk
+}
