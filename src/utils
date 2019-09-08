@@ -8,7 +8,7 @@
 msg() { printf "\033[32;1m${PROMPT}\033[m $*\n" ; }
 msg_no_nl() { printf "\033[32;1m${PROMPT}\033[m $*" ; }
 warn() { >&2 printf "\033[33;1m${PROMPT} \033[mwarning: $*\n" ; }
-die() { >&2 printf "\033[31;1m${PROMPT} \033[merror: $*\n" ; exit 1 ; }
+die() { >&2 printf "\033[31;1m${PROMPT} \033[merror: $*\n" ; clean ; exit 1 ; }
 
 usage() {
 cat <<EOF
@@ -83,6 +83,6 @@ clean() {
         done
     fi
     rm -rf "${ROOT:?}"/sucks 2>/dev/null
-    find "$WORK" -type d ! -name "$WORK" -exec rmdir "{}"  \; 2>/dev/null
-    find "$PKGS" -type d ! -name "$PKGS" -exec rmdir "{}"  \; 2>/dev/null
+    find "${WORK:?}" -type d ! -name "$WORK" -exec rmdir "{}"  \; 2>/dev/null
+    find "${PKGS:?}" -type d ! -name "$PKGS" -exec rmdir "{}"  \; 2>/dev/null
 }
