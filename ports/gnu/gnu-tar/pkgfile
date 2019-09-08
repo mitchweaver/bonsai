@@ -1,0 +1,7 @@
+info='GNU tar'
+version=1.32
+source=http://mirrors.kernel.org/gnu/${name#gnu-}/${name#gnu-}-$version.tar.xz
+sha256=d0d3ae07f103323be809bc3eac0dcc386d52c5262499fe05511ac4788af1fdd8
+prebuild() {
+    export FORCE_UNSAFE_CONFIGURE=1
+}
