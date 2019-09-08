@@ -1,0 +1,16 @@
+--- Makefile
++++ Makefile
+@@ -37,10 +37,9 @@
+ 	${CC} -c ${CFLAGS} ${CPPFLAGS} $<
+ 
+ install: ${PROG}
+-	install -d ${DESTDIR}${PREFIX}/bin ${DESTDIR}${MANPREFIX}/man1 ${DESTDIR}${MANPREFIX}/man5
+-	install -m 755 cwm ${DESTDIR}${PREFIX}/bin
+-	install -m 644 cwm.1 ${DESTDIR}${MANPREFIX}/man1
+-	install -m 644 cwmrc.5 ${DESTDIR}${MANPREFIX}/man5
++	install -D -m 0755 cwm ${DESTDIR}${PREFIX}/bin/cwm
++	install -D -m 0644 cwm.1 ${DESTDIR}${MANPREFIX}/man1/cwm.1
++	install -D -m 0644 cwmrc.5 ${DESTDIR}${MANPREFIX}/man5/cwmrc.5
+ 
+ release:
+ 	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \

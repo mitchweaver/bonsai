@@ -1,0 +1,12 @@
+info='CWM Window Manager from OpenBSD'
+version=6.3
+source=http://github.com/leahneukirchen/$name/archive/v$version.tar.gz
+deps='xorg-libx11 xorg-libxft xorg-libxinerama xorg-libxrandr fontconfig'
+sha256=4cd57ffac72841c128cccaea8ba210679d8913cd841690861d56c0e758baed9e
+prebuild() {
+    bonsai_patch
+    export LDFLAGS="$LDFLAGS $(pkgconf --static --libs x11 xft fontconfig harfbuzz xrandr xinerama)"
+}
+build() {
+    bonsai_make install
+}

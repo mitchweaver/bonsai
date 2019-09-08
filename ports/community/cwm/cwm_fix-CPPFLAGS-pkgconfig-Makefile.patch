@@ -1,0 +1,16 @@
+--- Makefile
++++ Makefile
+@@ -14,11 +14,9 @@
+ 		kbfunc.o strlcpy.o strlcat.o y.tab.o \
+ 		strtonum.o reallocarray.o
+ 
+-CPPFLAGS+=	`pkg-config --cflags x11 xft xrandr`
++CPPFLAGS+=	-D_GNU_SOURCE
+ 
+-CFLAGS?=	-Wall -O2 -g -D_GNU_SOURCE
+-
+-LDFLAGS+=	`pkg-config --libs x11 xft xrandr`
++CFLAGS?=	-Wall -O2 -g
+ 
+ MANPREFIX?=	${PREFIX}/share/man
+ 
