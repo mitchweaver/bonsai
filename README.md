@@ -4,7 +4,7 @@
 
 A tiny Linux distribution focused on simplicity and security.
 
-Linux done differently.
+Linux done right.
 
 For the idealists, for the hobbyists.
 
@@ -32,7 +32,7 @@ GNU's [glibc](http://www.gnu.org/software/libc) is massively bloated and a poor 
 that was [designed from the ground up](https://www.musl-libc.org/intro.html) 
 to be used with static linking. 
 
-Just take a look at this [hello world](http://bonsai-linux.org/uploads/hello_world.png) comparison.
+Just take a look at this [hello world](http://bonsai-linux.org/uploads/hello_world.png) for a size comparison.
 
 Applications statically-linked with musl carefully avoid pulling 
 in large amounts of code or data that the application will not 
@@ -44,11 +44,11 @@ patching to compile under musl-libc, however this
 
 No matter how great, a system is hindered by its ability to be understood.
 
-* A modular automated build system with parts that can overridden simply by defining the given function in the pkgfile
+* A modular automated build system with parts that can overridden simply by defining the given function in the [pkgfile](http://github.com/bonsai-linux/bonsai/blob/master/ports/extra/loksh/pkgfile)
 * Easy-to-understand "3-phase" `prebuild()`, `build()`, and `postbuild()`
-* Automatic detection of required flags, configs, patches, and workarounds
-* Ports can be written with *[just one line](http://ix.io/1QMb)*!
-* Extensive documentation, with unclear or missing manuals considered a bug
+* Automatic detection of required [flags](http://github.com/bonsai-linux/bonsai/blob/master/ports/core/%40cfg/config/build.cfg), [configs](https://github.com/bonsai-linux/bonsai/blob/master/ports/core/%40cfg/config/autotools.cfg), patches, and workarounds  
+* Extensive documentation, with unclear or missing manuals considered a bug *(TODO)*
+* Stay under [1000 SLOC](http://bonsai-linux.org/uploads/under_1000_sloc-Sept-08-19.png)
 
 5. **Sane File System Hierarchy**
 
@@ -70,6 +70,7 @@ A tree of `/src` looks like this:
 
 ```
 /src
+    ├── /config      ←  config files
     ├── /pkgs        ←  packages
     ├── /ports       ←  pkgfiles
     ├── /sources     ←  tarballs
@@ -77,10 +78,11 @@ A tree of `/src` looks like this:
     └── bonsai.db    ←  database file
 ```
 
-Inside each package is its own prefix with given `/bin`, `/lib`, etc
+Inside each package in `pkgs` is its own prefix with given `/bin`, `/lib`, etc
 
-As a side effect of this, each `$pkgdir` is its own chroot filesystem that can
-be used at will. In the future, this process is planned to be automated.
+As a side effect of this, each `$pkg` is its own chroot filesystem that can
+be used at will.  
+In the future, this process is planned to be automated.
 
 Symlinks are created from the package to the outside root for seamless
 integration and standards compatibility.
@@ -111,8 +113,7 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
 **Build Automation**: [pkgconf](http://pkgconf.org/) [slibtool](http://github.com/midipix-project/slibtool) [samurai](http://github.com/michaelforney/samurai)  
 **Networking**: [dropbear](http://matt.ucc.asn.au/dropbear/dropbear.html)  
-**Compression**: [libarchive](http://libarchive.org/) [xz-embedded](http://tukaani.org/xz/embedded.html)  
-**Device Management**: [smdev](http://core.suckless.org/smdev) [nldev](http://git.r-36.net/nldev/)  
+**Compression**: [libarchive](http://libarchive.org/) [xz-embedded](http://tukaani.org/xz/embedded.html) [pigz](http://zlib.net/pigz)  
 **Misc Utilities**: [one-true-awk](http://github.com/onetrueawk/awk) [posix-bc](http://github.com/gavinhoward/bc) [mandoc](http://mandoc.bsd.lv)
 
 # Installation
@@ -155,12 +156,14 @@ It helps get it higher in GitHub's search results and motivates
 us to continue development.
 
 If you would like to contribute, look into submitting a pull request.  
-You can see our contributing guidelines [here](CONTRIBUTING.md).
 
 ### Community 
 
-**discord server**: [discord.gg/qcjRGZv](http://discord.gg/qcjRGZv)  
-**website**: [bonsai-linux.org](http://bonsai-linux.org) <sub>*(under construction)*</sub>  
+Current development is discussed on the [Discord](http://discord.gg/qcjRGZv) server.  
+Contributors and users alike are encouraged to join.
+
 **email**: dev@bonsai-linux.org  
+**website**: [bonsai-linux.org](http://bonsai-linux.org) <sub>*(under construction)*</sub>  
+**discord server**: [discord.gg/qcjRGZv](http://discord.gg/qcjRGZv)  
 **irc**: `coming soon`  
 **mailing list**: `coming soon`
