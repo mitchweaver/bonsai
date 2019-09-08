@@ -67,7 +67,7 @@ addpkg() {
         export workdir="$WORK"/$pkg_to_add
 
         # clear any work from previous build
-        rm -rf "$WORK"/$pkg_to_add 2>/dev/null ||:
+        rm -rf "${WORK:?}"/$pkg_to_add 2>/dev/null ||:
 
         # load all pkgfile variables into environment
         load_pkgfile "$pkg_to_add"

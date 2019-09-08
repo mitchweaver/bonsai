@@ -76,13 +76,13 @@ getpkgfile() {
 # params: [$name]
 clean() {
     if [ "$1" ] ; then
-        rm -rf "$WORK/$1" 2>/dev/null
+        rm -rf "${WORK:?}/$1" 2>/dev/null
         [ -d "$PKGS/$1" ] && 
         for dir in share/info share/doc sucks ; do
-            rm -rf "$PKGS"/$1/$dir 2>/dev/null
+            rm -rf "${PKGS:?}"/$1/$dir 2>/dev/null
         done
     fi
-    rm -rf "$ROOT"/sucks 2>/dev/null
+    rm -rf "${ROOT:?}"/sucks 2>/dev/null
     find "$WORK" -type d ! -name "$WORK" -exec rmdir "{}" 2>/dev/null ||: \;
     find "$PKGS" -type d ! -name "$PKGS" -exec rmdir "{}" 2>/dev/null ||: \;
 }
