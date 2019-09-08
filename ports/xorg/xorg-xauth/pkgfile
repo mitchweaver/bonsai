@@ -1,0 +1,8 @@
+info='X11 authority utility'
+version=1.1
+source=http://x.org/releases/individual/app/${name#xorg-}-$version.tar.bz2
+deps='xorg-libx11 xorg-libxmu'
+sha256=6d1dd1b79dd185107c5b0fdd22d1d791ad749ad6e288d0cdf80964c4ffa7530c
+prebuild() {
+    export XAUTH_LIBS="$(pkgconf-static --libs xmu)"
+}

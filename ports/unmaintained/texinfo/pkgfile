@@ -1,5 +1,0 @@
-info='The GNU documentation system'
-version=6.6
-source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
-deps=perl
-sha256=9bb9ca00da53f26a7e5725eee49689cd4a1e18d25d5b061ac8b2053018d93d66

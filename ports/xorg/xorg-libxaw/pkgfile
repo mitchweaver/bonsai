@@ -1,0 +1,29 @@
+info='X11 Athena Widgets library'
+version=1.0.13
+source=http://x.org/releases/individual/lib/libXaw-$version.tar.bz2
+deps='xorg-libxmu xorg-libxpm'
+sha256=8ef8067312571292ccc2bbe94c41109dcf022ea5a4ec71656a83d8cce9edb0cd
+prebuild() {
+    # do not build specs
+    rm -r specs
+    sed 's/specs\/Makefile/ /g' configure > tmp
+    mv -f tmp configure
+}
+build() {
+    bonsai_configure
+    bonsai_make \
+        CFLAGS="$CFLAGS" \
+        LDFLAGS="$LDFLAGS" \
+        SUBDIRS='include src man'
+    bonsai_make SUBDIRS='include src man' install
+}
+postbuild() {
+    cd $pkg || exit 1
+
+    # remove man pages
+    rm -r share
+
+    # remove .so symlinks, create .a symlink
+    rm -f lib/*.so*
+    ln -sf libXaw7.a lib/libXaw.a
+}

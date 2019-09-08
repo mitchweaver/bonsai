@@ -132,8 +132,8 @@ bonsai_configure() {
 }
 
 bonsai_make() {
-    make -j${JOBS:-1} $([ "$VERBOSE" ] && echo V=1) \
-    CC="$CC" cc="$CC" CXX="$CXX" cxx="$CXX" \
+    make ${JOBS:+-j$JOBS} ${VERBOSE:+V=1} \
+    CC="$CC" CXX="$CXX" cc="$CC" cxx="$CXX" \
     LIBTOOL="$LIBTOOL" MAKE="make LIBTOOL='$LIBTOOL'" PKG_CONFIG="$PKG_CONFIG" \
     DESTDIR="$DESTDIR" PREFIX="$PREFIX" prefix="$PREFIX" DOCDIR="$DOCDIR" \
     BINDIR="$BINDIR" SBINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" \
@@ -143,14 +143,14 @@ bonsai_make() {
 
 # run if pkgfile doesn't define a custom build()
 generic_build() {
-    if [ -f configure ] ; then
+    if [ -f configure  ] ; then
         bonsai_configure || return 1
     elif [ -f autogen.sh ] ; then
-        sh autogen.sh || return 1
+        sh autogen.sh    || return 1
         bonsai_configure || return 1
     fi
-    bonsai_make || return 1
-    bonsai_make install || return 1
+    bonsai_make          || return 1
+    bonsai_make install  || return 1
 }
 
 getflags() {
@@ -174,12 +174,12 @@ getflags() {
     test -x /bin/pkgconf  >/dev/null 2>&1 || PKG_CONFIG=pkg-config
 
     # system flags
-    export DESTDIR="$PKGS/$name" PREFIX=/ prefix=/ DOCDIR="$PREFIX"/sucks \
-    SHELL=/bin/sh HOSTCC="$CC" cc="$CC" GREP=grep FGREP=fgrep EGREP=egrep \
-    SED=sed FIND=find AWK=awk TAR=tar YACC=yacc MKDIR_P='install -d'
+    export DESTDIR="$pkg" PREFIX=/ prefix=/ DOCDIR="$pkg"/sucks \
+    SHELL=/bin/sh CC="${CC:-gcc}" CXX="${CXX:-g++}" HOSTCC="$CC" cc="$CC" \
+    LIBTOOL PKG_CONFIG GREP=grep FGREP=fgrep EGREP=egrep SED=sed FIND=find \
+    AWK=awk TAR=tar YACC=yacc MKDIR_P='mkdir -p'
 
     # user cfg flags
-    export CC CXX AR AS RANLIB STRIP LIBTOOL PKG_CONFIG JOBS \
-           CFLAGS LDFLAGS JOBS LIBRARY_PATH LD_LIBRARY_PATH CPATH \
+    export JOBS=${JOBS:-1} CFLAGS LDFLAGS LIBRARY_PATH LD_LIBRARY_PATH CPATH \
            PKG_CONFIG_PATH BINDIR LIBDIR SBINDIR LIBEXECDIR MANDIR 
 }

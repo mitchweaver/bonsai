@@ -31,8 +31,8 @@ load_pkgfile() {
 }
 
 unload_pkgfile() {
-    unset name pkgfile pkgid version source depends deps makedeps \
-          pkgworkdir nolink nostrip sha512 sha256
+    unset name pkgfile pkgid version source depends pkgdeps deps makedeps \
+          pkgworkdir nolink nostrip sha512 sha256 LIBS
     unset -f prebuild build postbuild
 }
 

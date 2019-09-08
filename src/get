@@ -18,7 +18,7 @@ get() {
     dlcurl "$source" "$SOURCES" "$pkgid$ext"
 
     if [ ! "$DL_ONLY" ] ; then
-        if ! ismetapkg $name ; then
+        if ! ismetapkg $name && [ -e "$SOURCES/$pkgid$ext" ] ; then
             [ "$sha512" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha512"
             [ "$sha256" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha256"
             extract "$SOURCES/$pkgid$ext" "$pkgworkdir"

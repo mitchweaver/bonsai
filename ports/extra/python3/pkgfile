@@ -40,7 +40,6 @@ build() {
         --without-ensurepip \
         --with-system-libffi \
         --with-system-expat \
-        --without-valgrind \
 		--enable-optimizations
 
     # use our provided script to fix makesetup's bugged generated makefile

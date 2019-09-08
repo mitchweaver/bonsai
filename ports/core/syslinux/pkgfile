@@ -1,0 +1,34 @@
+info="Lightweight MBR bootloaders for Linux"
+version=6.03
+source=http://kernel.org/pub/linux/utils/boot/$name/$name-$version.tar.xz
+deps='perl libuuid'
+sha256=26d3986d2bea109d5dc0e4f8c4822a459276cf021125e8c9f23c3cca5d8c850e
+nolink=true
+build() {
+    bonsai_make OPTFLAGS="-D_GNU_SOURCE $CFLAGS" installer
+    bonsai_make OPTFLAGS="-D_GNU_SOURCE $CFLAGS" INSTALLROOT="$pkg" install
+}
+postbuild() {
+    # clean up awkward installation directories
+    mkdir -p $pkg/share
+    mv -f $pkg/usr/share/* $pkg/share/
+    mv -f $pkg/usr/man $pkg/share/
+    rmdir -p $pkg/src/pkgs/syslinux $pkg/usr/share 2>/dev/null ||:
+
+    # copy bootloaders
+    install -m0644 bios/core/isolinux.bin $pkg/share/syslinux/isolinux.bin
+    install -m0644 bios/com32/elflink/ldlinux/ldlinux.c32 $pkg/share/syslinux/ldlinux.c32
+
+    # make links for bin
+    for i in extlinux gethostip isohybrid isohybrid.pl \
+            keytab-lilo lss16toppm md5pass memdiskfind mkdiskimage  \
+            ppmtolss16 pxelinux-options sha1pass syslinux syslinux2ansi ; do
+        ln -sf $pkg/bin/$i /bin/$i
+    done
+
+    # make links for man
+    for i in extlinux gethostip isohybrid lss16toppm \
+             memdiskfind ppmtolss16 syslinux syslinux2ansi ; do
+        ln -sf $pkg/share/man/man1/$i.1 /share/man/man1/$i.1 
+    done
+}

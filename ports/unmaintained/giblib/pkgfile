@@ -1,8 +1,0 @@
-info='Library for doubly linked lists and a wrapper for imlib2'
-version=1.2.4
-source=http://ftp.debian.org/debian/pool/main/g/$name/${name}_$version.orig.tar.gz
-deps=imlib2
-sha256=e437756ce3ded019946fb3d979991cda7604bc345dbb1338b17655caff65a3d3
-postbuild() {
-    rm -rf "${pkg:?}"/doc
-}

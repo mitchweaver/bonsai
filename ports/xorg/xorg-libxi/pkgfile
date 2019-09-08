@@ -1,0 +1,20 @@
+info='X11 Input client library'
+version=1.7.10
+source=http://x.org/releases/individual/lib/libXi-$version.tar.bz2
+deps='xorg-libxext xorg-libxfixes xorg-xorgproto'
+sha256=36a30d8f6383a72e7ce060298b4b181fd298bc3a135c8e201b7ca847f5f81061
+prebuild() {
+    # do not build spece
+    rm -r specs
+    sed 's|specs/Makefile||' configure > tmp
+    mv -f tmp configure
+}
+build() {
+    bonsai_configure
+    bonsai_make SUBDIRS="src man"
+    bonsai_make SUBDIRS="src man" install
+}
+postbuild() {
+    # remove unused manpages
+    rm -rf $pkg/share
+}
