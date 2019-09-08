@@ -77,7 +77,7 @@ bonsai_configure() {
     cfflags=
 
     # save flags from pkgfile so they don't get overwritten by set
-    pkg_cfflags="$@"
+    pkg_cfflags="$*"
 
     YES() {
         case "$cfhelp" in
@@ -170,8 +170,8 @@ getflags() {
     esac
 
     # fix slibtool/pkgconf if we're bootstrapping
-    test -x /bin/slibtool >/dev/null 2>&1 || LIBTOOL=libtool
-    test -x /bin/pkgconf  >/dev/null 2>&1 || PKG_CONFIG=pkg-config
+    test -x /bin/slibtool || LIBTOOL=libtool
+    test -x /bin/pkgconf  || PKG_CONFIG=pkg-config
 
     # system flags
     export DESTDIR="$pkg" PREFIX=/ prefix=/ DOCDIR="$pkg"/sucks \
