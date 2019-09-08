@@ -41,7 +41,7 @@ prebuild() {
 
     [ -f "$SOURCES/harfbuzz$DELIM${version%+*}.tar.bz2" ] || 
     dlcurl "$harfbuzz_source" "$SOURCES" "harfbuzz$DELIM${version%+*}.tar.bz2" &&
-    verify_checksum "$SOURCES/harfbuzz$DELIM${version%+*}.tar.xz" "$harfbuzz_sha256"
+    verify_checksum "$SOURCES/harfbuzz$DELIM${version%+*}.tar.bz2" "$harfbuzz_sha256"
 
     msg "$SEP extracting sources..."
     decompress "$SOURCES/freetype$DELIM${version#*+}.tar.xz" | tar -xf -
