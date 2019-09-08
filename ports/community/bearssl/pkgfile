@@ -1,0 +1,17 @@
+# NOTE: bearssl is not nearly ready to replace libressl
+info='A lightweight SSL implementation'
+version=0.6
+source=http://bearssl.org/$name-$version.tar.gz
+sha512=f9ed25683cfc6c4abe7f1203a2b82ed101ee4c9e0f9ab60755b6a09c8d1e8e4f64d413624e7bb9c4b0033f909a2e4568a1d916cc6ce4736222900691e1f8359a
+prebuild() {
+    sed "s|^CFLAGS.*|CFLAGS = $CFLAGS|"    conf/Unix.mk >tmp ; mv -f tmp conf/Unix.mk
+    sed "s|^LDFLAGS.*|LDFLAGS = $LDFLAGS|" conf/Unix.mk >tmp ; mv -f tmp conf/Unix.mk
+}
+build() {
+    bonsai_make CONF=Unix
+    install -D -m 0755 build/brssl $pkg/bin/brssl
+    install -D -m 0644 build/libbearssl.a $pkg/lib/libbearssl.a
+    find inc -name '*.h' | while read -r header ; do
+        install -D -m 0644 $header $pkg/include/${header##*/}
+    done
+}
