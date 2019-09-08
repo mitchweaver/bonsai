@@ -1,0 +1,10 @@
+info='Read and write data across network connections'
+version=0.7.1
+source=http://download.sourceforge.net/$name/$name-$version.tar.bz2
+sha256=b55af0bbdf5acc02d1eb6ab18da2acd77a400bafd074489003f3df09676332bb
+postbuild() {
+    if [ -d $pkg/man ] ; then
+        mkdir -p $pkg/share
+        mv -f $pkg/man $pkg/share/
+    fi
+}
