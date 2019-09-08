@@ -35,7 +35,7 @@ EOF
 pkgid2pkg() { echo "${1%%$DELIM*}" ; }
 
 # converts "bash" -> "bash#4.8"
-pkg2pkgid() { echo "$(grep -x -E -- "$1$DELIM.*" "$PKGDB")" ; }
+pkg2pkgid() { grep -x -E -- "$1$DELIM.*" "$PKGDB" ; }
 
 # params: full_string, partial_string
 contains() { [ "${1#*$2}" != "$1" ] || return 1 ; }
