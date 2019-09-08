@@ -6,7 +6,10 @@ sha256=f2d98854813948d157f6a91236ae34ca4a1b4cb302617cebad263d79b0235fea
 build() {
     export LDFLAGS="$LDFLAGS -lssl -lcrypto -lz"
     bonsai_configure \
-        --enable-ipv6 --with-ssl \
+        --with-ssl="$PKGS"/libressl \
+        --enable-ipv6 \
+        --with-ca-fallback \
+        --without-ca-bundle \
         --without-librtmp --without-cyassl \
         --without-libpsl --without-winidn \
         --without-libidn2 --without-gnutls \
@@ -23,8 +26,7 @@ build() {
         --disable-smb --without-libidn \
         --disable-curldebug \
         --without-fish-functions-dir \
-        --without-zsh-functions-dir \
-        --with-ca-bundle=/etc/ssl/cert.pem
+        --without-zsh-functions-dir
     bonsai_make
     bonsai_make install
 }
