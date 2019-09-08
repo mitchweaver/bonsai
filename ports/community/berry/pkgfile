@@ -1,0 +1,12 @@
+info='A healthy, bite-sized window manager written over the XLib Library'
+version=0.1.1
+source=http://github.com/JLErvin/$name/archive/$version.tar.gz
+deps='xorg-libx11 xorg-libxft xorg-libxext xorg-libxinerama'
+sha256=64dbe9164d78fbb71938cd11d44dcca0b40c2541d504ce951a6a23bc46b5d021
+build() {
+    bonsai_make LIBS="$(pkgconf-static --libs x11 xext fontconfig xft harfbuzz xinerama)"
+    install -D -m 0755 berry  $pkg/bin/berry
+    install -D -m 0755 berryc $pkg/bin/berryc
+    install -D -m 0644 man/berry.1 $pkg/share/man/man1/berry.1
+    install -D -m 0644 man/berryc.1 $pkg/share/man/man1/berryc.1
+}
