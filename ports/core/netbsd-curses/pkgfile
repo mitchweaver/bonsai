@@ -3,14 +3,20 @@ version=5b0d21692c6c2db31e960961f7a846429e701c30
 source=http://github.com/sabotage-linux/$name/archive/$version.tar.gz
 sha256=ce02869a9e832efacc9252df548388cb455e7a3cca4fee003259b10f29d069cd
 build() {
-    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" all install
+    bonsai_make \
+        CC="$CC $CFLAGS" \
+        HOSTCC="$CC" \
+        CFLAGS="$CFLAGS" \
+        LDFLAGS="$LDFLAGS" \
+        CPPFLAGS="$CPPFLAGS -Ilibterminfo" \
+        all-static install-static
     bonsai_make terminfo/terminfo.cdb
     install -D -m 0655 terminfo/terminfo.cdb "$pkg"/share/terminfo.cdb
 }
 postbuild() {
     # symlink '-ltinfo' for compatibility
-    ln -s libterminfo.a  $pkg/lib/libtinfo.a
-    ln -s libterminfo.so $pkg/lib/libtinfo.so
+    ln -sf libterminfo.a  $pkg/lib/libtinfo.a
+    ln -sf libterminfo.so $pkg/lib/libtinfo.so
 
     # bin/clear collides with clear from other packages
     # (specifically ubase)
@@ -18,7 +24,11 @@ postbuild() {
 
     # some packages look for example: <ncurses/ncurses.h>
     cd $pkg/lib
-    ln -sf . ncurses
+    if [ ! -L ncurses ] ; then
+        ln -sf . ncurses
+    fi
     cd $pkg/include
-    ln -sf . ncurses
+    if [ ! -L ncurses ] ; then
+        ln -sf . ncurses
+    fi
 }
