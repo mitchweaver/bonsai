@@ -59,7 +59,13 @@ decompress() {
                 xz -qdc "$1"
             fi
             ;;
-        gz|tgz)  gunzip  -qdc "$1" ;;
+        gz|tgz)
+            if type unpigz >/dev/null 2>&1 ; then
+                unpigz -qdc "$1"
+            else
+                gunzip -qdc "$1"
+            fi
+            ;;
         bz2|tbz) bunzip2 -qdc "$1" ;;
         lz|tlz)  lzip    -qdc "$1" ;;
         zip)     unzip   -qp  "$1" ;;
