@@ -5,6 +5,7 @@ sha256=c4c78167fae325b47aebd8beb54b6041d6f6a56b3743f4bd5d79b15642f9d5d4
 nostrip=true
 build() {
     bonsai_configure \
+        --disable-nc \
         --disable-hardening \
         --disable-windows-ssp
     bonsai_make
