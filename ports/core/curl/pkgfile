@@ -4,7 +4,7 @@ source=http://curl.haxx.se/download/$name-$version.tar.xz
 deps=libressl
 sha256=f2d98854813948d157f6a91236ae34ca4a1b4cb302617cebad263d79b0235fea
 build() {
-    export LDFLAGS="$LDFLAGS -lssl -lcrypto -lz"
+    export LIBS='-lssl -lcrypto -lz'
     export PATH_SEPARATOR=':'
     bonsai_configure \
         --with-ssl="$PKGS"/libressl \
