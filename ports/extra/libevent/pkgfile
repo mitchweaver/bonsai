@@ -1,0 +1,18 @@
+info='Event notification library'
+version=2.1.11
+source=http://github.com/$name/$name/releases/download/release-$version-stable/$name-$version-stable.tar.gz
+deps='libressl python3'
+sha256=a65bac6202ea8c5609fd5c7e480e6d25de467ea1917c08290c521752f147283d
+build() {
+    bonsai_configure \
+        --disable-samples \
+        --enable-function-sections \
+        --disable-libevent-regress
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    sed 's|#!/usr/bin/env python|#!/bin/python3|' $pkg/bin/event_rpcgen.py >tmp
+    mv -f tmp $pkg/bin/event_rpcgen.py
+    chmod +x $pkg/bin/event_rpcgen.py
+}
