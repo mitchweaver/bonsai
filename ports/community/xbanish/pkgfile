@@ -1,0 +1,16 @@
+info='hides your cursor when not in use'
+version=1.6
+source=https://github.com/jcs/$name/archive/v$version.tar.gz
+deps='xorg-libxi xorg-libxfixes xorg-libxext'
+sha256=6e9bec35720b3d0f047028ad248a758249c7139c62ef140d9d39df6bd382712d
+prebuild() {
+    sed 's|LIBS|LDFLAGS|g' Makefile >tmp
+    mv -f tmp Makefile
+}
+build() {
+    bonsai_make CFLAGS="$CFLAGS" \
+                LDFLAGS="$LDFLAGS $(pkgconf-static --libs xi xfixes xext)"
+
+    install -D -m 0755 $name   $pkg/bin/$name
+    install -D -m 0644 $name.1 $pkg/share/man/man1/$name.1
+}
