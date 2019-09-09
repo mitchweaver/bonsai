@@ -1,0 +1,10 @@
+info="play videos/gifs on X's root window"
+version=ec32e9b72539de7e1553a4f70345166107b431f7
+source=http://github.com/ujjwal96/$name/archive/$version.tar.gz
+deps='xorg-libxrender xorg-libxext'
+sha256=ec1611832bc44ae4be07dfcdac723ac44b40da9fcddbeee1cd10a41fc056879b
+build() {
+    bonsai_make CFLAGS="$CFLAGS" \
+                LIBS="$LDFLAGS $(pkgconf-static --libs xext xrender)"
+    install -D -m 0755 $name $pkg/bin/$name
+}
