@@ -29,7 +29,7 @@ main() {
             search|-s) search "$2"   ; exit $? ;;
             info|-i)   portinfo "$2" ; exit $? ;;
             print|-p)  portcat "$2"  ; exit $? ;;
-            count)     countpkgs     ; exit $? ;;
+            count|-c)  countpkgs     ; exit $? ;;
             pack)      pack "$2"     ; exit $? ;;
             unpack)    unpack "$2"   ; exit $? ;;
             rdeps)     rdeps  "$2"   ; exit $? ;;
