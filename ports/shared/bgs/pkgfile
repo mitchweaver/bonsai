@@ -1,0 +1,13 @@
+info='Simple background setter based on imlib2'
+version=958acea074e5d8f3566289db37a9db236c05d7df
+source=http://github.com/gottox/bgs/archive/$version.tar.gz
+deps='imlib2 xorg-libx11 xorg-libxinerama'
+sha256=fc6aecf7a2fe5a5077fc81e190e992a90ebfdab9a64e8a1fe4146fb3eb03de3b
+prebuild() {
+    getflags --no-static
+    export LDFLAGS="$LDFLAGS -lImlib2 -lbz2 -lz"
+
+    # IF STATIC:
+    # export LDFLAGS="$LDFLAGS $(pkgconf-static --libs \
+    #     imlib2 freetype2 harfbuzz x11-xcb xcb-shm xinerama)"
+}
