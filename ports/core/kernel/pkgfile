@@ -1,11 +1,11 @@
 info='the bonsai linux kernel'
-version=5.2.8
+version=5.2.13
 source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$version.tar.xz
 # note: curses is dep for menuconfig
 deps='@stage0 @stage1 @init kmod bison flex posix-bc netbsd-curses'
 nolink=true
 nostrip=true
-sha512=89d1b8d5aff901ee86211e1c03adfa912fbbe221e63f54cc7894eea1ff1a10c49dc359a4f097054be43041bec01dcf119af2967cf9ac6eb2198c2af7d0d18a46
+sha512=2614fcf9580939c33ada1d6475026d63b021e71f48d1488a31bd9e154f4b2142ae4932d22b7dcbe6ba0ac9cd855ddb74cfa6efc6c3018dd5c9b1063bb3dc5f4d
 
 prebuild() {
     msg 'ensuring that correct build tools are in $PATH'
@@ -21,7 +21,7 @@ prebuild() {
     # prompt use for their own custom config
     # if not provided, then we will use 'defconfig' followed
     # by 'menuconfig' to edit it.
-    msg_no_nl 'Would you like to provide your own config? (y\n): '
+    msg_no_nl 'Would you like to provide your own config? (y/n): '
     read -r ans
     case "$ans" in
         y|yes|"")
@@ -39,7 +39,7 @@ prebuild() {
             bonsai_make defconfig
     esac
 
-    msg_no_nl "Would you like to edit the config? (y\\n): "
+    msg_no_nl 'Would you like to edit the config? (y/n): '
     read -r ans
     case "$ans" in
         y|yes|"") bonsai_make menuconfig
