@@ -11,9 +11,14 @@ prebuild() {
         templates/Makefile >tmp
     mv -f tmp templates/Makefile
 
+    # sbase grep does not have '-a' flag
+    export LC_ALL=C
+    sed 's|grep -a|grep -F|g' configure >tmp
+    mv -f tmp configure
+
     # use provided regex.h over system's regex.h
     # as musl does not support glibc's REG_STARTEND
-    # notice: NO_REGEX=YesPlease above
+    # notice: NO_REGEX=YesPlease below
     #
     # info: http://github.com/git/git.github.io/pull/196
     #
@@ -22,22 +27,44 @@ prebuild() {
     export CFLAGS="-Icompat/regex $CFLAGS"
     export CPPFLAGS="-Icompat/regex $CPPFLAGS"
 
-cat > config.mak << EOF
+cat > config.mak <<EOF
+# do not build GUI
 NO_TCLTK=YesPlease
+
+# do not include perl/python bindings 
 NO_PYTHON=YesPlease
 NO_PERL=YesPlease
+
+# no docs/tests
 NO_GETTEXT=YesPlease
 NO_SVN_TESTS=YesPlease
 NO_NSEC=YesPlease
-NO_CROSS_DIRECTORY_HARDLINKS=YesPlease
-NO_INSTALL_HARDLINKS=YesPlease
+
+# musl compat
 NO_REGEX=YesPlease
 NO_SYS_POLL_H=YesPlease
+
+# static linking compat
+# NEEDS_CRYPTO_WITH_SSL=YesPlease
+# NEEDS_SSL_WITH_CRYPTO=YesPlease
+
+# preference
+DEFAULT_PAGER=/bin/less
+DEFAULT_EDITOR=/bin/vim
+NO_CROSS_DIRECTORY_HARDLINKS=YesPlease
+NO_INSTALL_HARDLINKS=YesPlease
+
+CC="$CC"
 CFLAGS="$CFLAGS"
 CPPFLAGS="$CPPFLAGS"
 CXXFLAGS="$CXXFLAGS"
+
+EXPATDIR="$PKGS"/expat
+CURLDIR="$PKGS"/curl
 EOF
+
+LIBS="-lcurl -lssl -lcrypto libgit.a xdiff/lib.a vcs-svn/lib.a -lz"
 }
-postbuild() {
-    rm -f $pkg/lib/perl5/core_perl/perllocal.pod 2>/dev/null
+build() {
+    bonsai_make LIBS="$LIBS" install
 }
