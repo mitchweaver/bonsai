@@ -1,0 +1,17 @@
+info='utility for getting and setting the X selection'
+version=ef01f3c72a195dbce682184c842b81b17d7d7ad1
+source=http://github.com/kfish/$name/archive/$version.tar.gz
+deps=xorg-libxt
+sha256=f1c87360606903f50991220db0832c39196da4aeea8f8b31de6627bf8c2364a6
+prebuild() {
+    sed 's|-Werror -g||' configure.ac >tmp
+    mv -f tmp configure.ac
+    autoreconf -fi
+}
+build() {
+    export LIBS="$(pkgconf-static --libs x11 xt)"
+    bonsai_configure ac_cv_search_XOpenDisplay=-lX11
+    bonsai_make
+    install -D -m 0755 $name $pkg/bin/$name
+    install -D -m 0644 $name.1x $pkg/share/man/man1/$name.1
+}
