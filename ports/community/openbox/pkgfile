@@ -1,0 +1,19 @@
+info='OpenBox Window Manager'
+version=3.6.1
+source=http://openbox.org/dist/$name/$name-$version.tar.xz
+deps='xorg-libxinerama xorg-libxrandr pango libxml2'
+sha256=abe75855cc5616554ffd47134ad15291fe37ebbebf1a80b69cbde9d670f0e26d
+build() {
+    export LIBS="$(pkgconf-static --libs pango xinerama xrandr)"
+    export ac_cv_lib_X11_XOpenDisplay=yes
+    bonsai_configure \
+        --disable-librsvg \
+        --disable-imlib2 \
+        --disable-session-management
+    bonsai_make install
+}
+postbuild() {
+    for junk in applications gnome gnome-session xsessions ; do
+        rm -rf ${pkg:?}/share/$junk
+    done
+}
