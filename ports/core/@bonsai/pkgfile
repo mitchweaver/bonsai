@@ -8,12 +8,12 @@ build() {
 postbuild() {
     if isinst git >/dev/null ; then
         cd "$pkg"
-        if [ -d $name ] ; then
-            cd $name
+        if [ -d bonsai ] ; then
+            cd bonsai
             git pull
         else
             git clone http://github.com/bonsai-linux/bonsai
-            cd $name
+            cd bonsai
         fi
         make
         make ROOT="${ROOT:-/}" install
