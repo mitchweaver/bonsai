@@ -16,6 +16,9 @@ run_build() {
     [ -f missing ] && :>missing
     [ -f build-aux/missing ] && :>build-aux/missing
 
+    # create dummy files to make autoconf happy
+    :> INSTALL ; :> depcomp ; :> compile
+
     if defined prebuild ; then
         prebuild || die "$name prebuild() failed"
     elif ! ismetapkg $name ; then
