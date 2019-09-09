@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# http://github.com/bonsai-linux/bonsai
+#
 # perform a search of all libraries for a given symbol
 #
 

@@ -1,0 +1,12 @@
+info='status monitor for window managers that use WM_NAME or stdin to fill the status bar'
+version=b14e039639ed28005fbb8bddeb5b5fa0c93475ac
+source=http://github.com/drkhsh/$name/archive/$version.tar.gz
+deps=xorg-libx11
+sha256=d4561a642154ea029d50f31b29de6f69a897d5f1f26ad6becb61cf25effd7ce5
+build() {
+    bonsai_make CFLAGS="$CFLAGS" \
+                LDFLAGS="$LDFLAGS" \
+                LDLIBS="$(pkgconf-static --libs x11)"
+    install -D -m 0755 $name   $pkg/bin/$name
+    install -D -m 0644 $name.1 $pkg/share/man/man1/$name.1
+}
