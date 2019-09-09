@@ -1,0 +1,16 @@
+info='zip file decompressor'
+version=6.0
+source=http://downloads.sourceforge.net/sourceforge/infozip/$name${version%.*}${version#*.}.tar.gz
+sha256=036d96991646d0449ed0aa952e4fbe21b476ce994abc276e49d30e686708bd37
+build() {
+    bonsai_configure --path=./unix
+    bonsai_make -f unix/Makefile CFLAGS="$CFLAGS" LFLAGS1="$LDFLAGS" generic1
+    for prog in funzip unzip unzipsfx zipgrep unzip ; do
+        if [ -x unix/$prog ] ; then
+            install -D -m 0755 unix/$prog $pkg/bin/$prog
+        else
+            install -D -m 0755 $prog $pkg/bin/$prog
+        fi
+        install -D -m 0644 man/$prog.1 $pkg/share/man/man1/$prog.1
+    done
+}
