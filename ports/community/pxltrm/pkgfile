@@ -1,0 +1,8 @@
+info='A pixel art editor in your terminal'
+version=e5143e476519efbb48bd5f69c8969d500c808a9e
+source=http://github.com/dylanaraps/pxltrm/archive/$version.tar.gz
+deps=bash
+sha256=27e284f906af43048086ed8de0efa09b76e0500d0bb0fdf8b771041608e6ba5f
+build() {
+    install -D -m 0755 $name $pkg/bin/$name
+}
