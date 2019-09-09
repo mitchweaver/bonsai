@@ -1,0 +1,14 @@
+info='print selected rectangular region'
+version=0.3.2
+source=http://github.com/lolilolicon/$name/archive/$version.tar.gz
+deps='xorg-libx11 automake'
+sha256=1b4b928bb7270e0531467c1e7f93322c784c7c0dedc13d1d5e53034417fde785
+prebuild() {
+    export LIBS="$(pkgconf-static --libs x11)"
+    ./bootstrap
+}
+build() {
+    bonsai_configure
+    bonsai_make
+    bonsai_make install
+}
