@@ -1,0 +1,22 @@
+info='worse than javascript'
+version=2.6.4
+source=http://cache.$name-lang.org/pub/$name/${version%.*}/$name-$version.tar.gz
+deps='libressl libffi libgmp'
+sha512=3dad0d98695e10ece015933e96114ffd9a10d3c59d1ead8a9ab041df113aabee3f4100aa7ffe7ef5c43b62ac3c7506c3f3ceeb8828b2a800b6d0f4119d5bf926
+build() {
+    bonsai_configure \
+        --enable-install-static-library \
+        --with-static-linked-ext \
+        --with-ruby-version=minor \
+        --with-mantype=man \
+        --disable-pie \
+        --disable-debug-env \
+        --disable-rubygems \
+        --without-git
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    rm -f $pkg/share/man/man1/bundle-*
+    ln -sf libruby-static.a $pkg/lib/libruby.a
+}
