@@ -1,0 +1,12 @@
+info='Utility for interfacing with the X11 clipboard'
+version=040c6afcc49887aa71385d3b68a5e27685c56ea2
+source=http://github.com/astrand/$name/archive/$version.tar.gz
+deps='xorg-libxmu xorg-libxt'
+sha256=90551718ee717a487bb4fa68e00c2cc563439466b508ad33aef4495d356b775d
+build() {
+    ./bootstrap
+    export LDFLAGS="$LDFLAGS $(pkgconf-static --libs xt xmu)"
+    bonsai_configure ac_cv_lib_Xmu_XmuClientWindow=yes
+    bonsai_make
+    bonsai_make install
+}
