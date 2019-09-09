@@ -1,0 +1,23 @@
+info='Yet another font rendering library'
+version=1.44.5
+source=http://download.gnome.org/sources/$name/${version%.*}/$name-$version.tar.xz
+deps='xorg-libsm xorg-libxft fribidi cairo freetype-harfbuzz \
+fontconfig glib meson samurai'
+sha256=8527dfcbeedb4390149b6f94620c0fa64e26046ab85042c2a7556438847d7fc1
+build() {
+    export LDFLAGS="$LDFLAGS $(pkgconf-static --libs cairo)"
+    meson \
+        --prefix="$PREFIX" \
+        --default-library=static \
+        -Dgir=false \
+        -Dgtk_doc=false \
+        -Dintrospection=false \
+        -Dinstall-tests=false \
+        . build
+    ninja -C build
+    ninja -C build install
+}
+postbuild() {
+    rm -rf "${pkg:?}"/share/installed-tests \
+           "${pkg:?}"/libexec/installed-tests
+}
