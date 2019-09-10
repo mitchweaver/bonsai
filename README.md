@@ -4,7 +4,7 @@
 
 A tiny Linux distribution focused on simplicity and security.
 
-Linux done right.
+Linux done differently.
 
 For the idealists, for the hobbyists.
 
@@ -108,7 +108,7 @@ These are lightweight/embedded technologies incorporated into bonsai as to be mo
 
 **C Library**: [musl-libc](http://www.musl-libc.org/)  
 **Libraries**: [libressl](http://www.libressl.org/) [libnl-tiny](http://openwrt.org/docs/techref/libnl#libnl-tiny) [netbsd-curses](http://github.com/sabotage-linux/netbsd-curses) [libedit](http://thrysoee.dk/editline)  
-**Init System**: [sinit](http://core.suckless.org/sinit) [rc](http://github.com/bonsai-linux/bonsai/tree/master/ports/@init)  
+**Init System**: [sinit](http://core.suckless.org/sinit) [rc](http://github.com/bonsai-linux/bonsai/tree/master/ports/core/@init)  
 **Userland**: [sbase](http://core.suckless.org/sbase) [ubase](http://core.suckless.org/ubase) [hbase](http://github.com/bonsai-linux/hbase)   
 **Shell**: [dash](http://gondor.apana.org.au/~herbert/dash)  
 **Build Automation**: [pkgconf](http://pkgconf.org/) [slibtool](http://github.com/midipix-project/slibtool) [samurai](http://github.com/michaelforney/samurai)  
