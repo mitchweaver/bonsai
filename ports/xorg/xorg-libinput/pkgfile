@@ -8,16 +8,21 @@ build() {
     meson build \
         --optimization=s \
         --buildtype=release \
-        --prefix="$pkg" \
+        --prefix="$PREFIX" \
         -Ddebug-gui=false \
         -Ddocumentation=false \
         -Dtests=false \
         -Dlibwacom=false \
         -Dudev-dir=/lib/udev \
-        -Dzshcompletiondir=no
-    ninja -C build
+        -Dzshcompletiondir=no &&
+    ninja -C build &&
     ninja -C build install
+
+    install -D -m 0644 build/meson-private/libinput.pc $pkg/lib/pkgconfig/libinput.pc
+    install -D -m 0644 include/linux/* $pkg/include/linux/
+    install -D -m 0644 src/*.h $pkg/include/
 }
 postbuild() {
     rm -rf $pkg/share/man
+    ln -sf linux/input.h $pkg/include/input.h
 }
