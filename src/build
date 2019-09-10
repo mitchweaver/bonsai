@@ -12,12 +12,12 @@ run_build() {
 
     getflags
 
-    # manually track configure dependencies
+    # create dummy files to make autoconf happy
+    [ ! -f INSTALL ] && :> INSTALL
+    [ ! -f depcomp ] && :> depcomp
+    [ ! -f compile ] && :> compile
     [ -f missing ] && :>missing
     [ -f build-aux/missing ] && :>build-aux/missing
-
-    # create dummy files to make autoconf happy
-    :> INSTALL ; :> depcomp ; :> compile
 
     if defined prebuild ; then
         prebuild || die "$name prebuild() failed"
