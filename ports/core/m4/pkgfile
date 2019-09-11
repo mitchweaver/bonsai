@@ -1,0 +1,4 @@
+info='GNU implementation of the traditional UNIX macro processor'
+version=1.4.18
+source=http://ftp.gnu.org/gnu/m4/m4-$version.tar.xz
+sha256=f2c1e86ca0a404ff281631bdc8377638992744b175afb806e25871a24a934e07
