@@ -60,7 +60,8 @@ run_build() {
 # convenience function, tries to find all *.patch
 # in the top-level $WORK/$name directory and apply them
 bonsai_patch() {
-    find . ! -name . -prune -name "*.patch" | while read -r patch ; do
+    find . ! -name . -prune -name '*.patch' -o -name '*.diff' | sort | \
+    while read -r patch ; do
         patch -u -f -l -p0 <"$patch" || die "$patch failed"
     done
 }
