@@ -24,16 +24,22 @@ bonsai:
 	@rm -f bonsai.tmp
 	chmod +x bonsai
 
-install: bonsai
+check-root:
 	@[ ${ROOT} ] || \
 	{ >&2 echo "Error: \$$ROOT is not defined. Please export it." ; exit 1 ; }
+
+install: check-root bonsai
 	install -D -m 0755 bonsai ${ROOT}/src/pkgs/@bonsai/bin/bonsai
 	@mkdir -p ${ROOT}/bin
 	@[ -L ${ROOT}/bin/bonsai ] || \
 	ln -sf ${ROOT}/src/pkgs/@bonsai/bin/bonsai ${ROOT}/bin/bonsai
-	@rm -rf ${ROOT}/src/ports 2>/dev/null
-	cp -rf ports ${ROOT}/src/
+	@for dir in core extra community xorg gnu shared TESTING ; do \
+		rm -rf ${ROOT}/src/ports/$dir 2>/dev/null ; \
+	done
+	mkdir -p ${ROOT}/src/ports
+	cp -rf ports/* ${ROOT}/src/ports/
 	@[ -f ${ROOT}/src/bonsai.db ] || :> ${ROOT}/src/bonsai.db
+	@install -D -m 0644 ports/core/@cfg/config/ports.cfg ${ROOT}/src/config/ports.cfg
 
 clean:
 	rm -f bonsai

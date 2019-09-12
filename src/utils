@@ -63,9 +63,13 @@ confirm() {
 
 # retrieves port folder for $name
 getportdir() {
-    find "$PORTS" -type f -path "*/$1/pkgfile" | while read -r pkgfile ; do
-        echo "${pkgfile%/*}"
-    done
+    while read -r dir ; do
+        case $dir in '#'*) continue ;; esac
+        if [ -f "$PORTS/$dir/$1/pkgfile" ] ; then
+            echo "$PORTS/$dir/$1"
+            return
+        fi
+    done <"$CONFIG"/ports.cfg
 }
 # retrieves pkgfile for $name
 getpkgfile() {

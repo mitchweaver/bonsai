@@ -4,20 +4,17 @@ source=http://x.org/releases/individual/lib/libX11-$version.tar.bz2
 deps='xorg-libxcb xorg-libxau xorg-xorgproto xorg-xtrans automake'
 sha256=b289a845c189e251e0e884cc0f9269bbe97c238df3741e854ec4c17c21e473d5
 prebuild() {
-    # kill docs and nls
-    rm -rf specs nls
+    # kill specs
+    rm -rf specs
     sed 's|.*specs.*||g' configure.ac >tmp  ; mv -f tmp configure.ac
     sed 's|specs| |g'    Makefile.am  >tmp  ; mv -f tmp Makefile.am
-    sed 's|.*nls.*||g'   configure.ac >tmp  ; mv -f tmp configure.ac
-    sed 's|nls| |g'      Makefile.am  >tmp  ; mv -f tmp Makefile.am
     autoreconf -fi
 }
 build() {
     bonsai_configure
 
-    # kill docs and nls
+    # kill specs
     printf '%s\n\n%s\n\n' 'all:' 'install:' >specs/Makefile
-    printf '%s\n\n%s\n\n' 'all:' 'install:' >nls/Makefile
 
     # make sure we force our flags to be used
     bonsai_make \

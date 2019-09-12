@@ -1,12 +1,9 @@
-info='Simple GNU libtool replacement written in C'
+info='Simple libtool replacement written in C'
 version=ed8832cef6850eb6f6c0e87a149c623fb44a492d
 source=http://github.com/midipix-project/$name/archive/$version.tar.gz
 sha256=e333cf4654071a14d035950dc907f83a0c80ed9d5806873990b2b7b119f23991
 build() {
-    # must unset CC during configure
-    CC= \
     bonsai_configure --all-static
-    bonsai_make
     bonsai_make install
 }
 postbuild() {

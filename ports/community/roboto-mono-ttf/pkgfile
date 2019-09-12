@@ -1,0 +1,25 @@
+info='Roboto Mono font by Google'
+version=2.15
+prebuild() {
+    REPO=http://github.com/google/fonts/raw/master/apache/robotomono
+    for url in \
+        $REPO/RobotoMono-Italic.ttf \
+        $REPO/RobotoMono-BoldItalic.ttf \
+        $REPO/RobotoMono-Bold.ttf \
+        $REPO/RobotoMono-Light.ttf \
+        $REPO/RobotoMono-LightItalic.ttf \
+        $REPO/RobotoMono-Medium.ttf \
+        $REPO/RobotoMono-MediumItalic.ttf \
+        $REPO/RobotoMono-Regular.ttf \
+        $REPO/RobotoMono-Thin.ttf \
+        $REPO/RobotoMono-ThinItalic.ttf
+    do
+        curl -L -O -# --url "$url" || die "failed to download $1"
+    done
+    sha512sum -c checksums || die "CHECKSUM MISMATCH!"
+}
+build() {
+    find . -name '*.ttf' | while read -r ttf ; do
+        install -D -m 0644 "$ttf" $pkg/share/fonts/TTF/"$ttf"
+    done
+}
