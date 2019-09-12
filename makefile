@@ -39,7 +39,7 @@ install: check-root bonsai
 	mkdir -p ${ROOT}/src/ports
 	cp -rf ports/* ${ROOT}/src/ports/
 	@[ -f ${ROOT}/src/bonsai.db ] || :> ${ROOT}/src/bonsai.db
-
+	@install -D -m 0644 ports/core/@cfg/config/ports.cfg ${ROOT}/src/config/ports.cfg
 
 clean:
 	rm -f bonsai
