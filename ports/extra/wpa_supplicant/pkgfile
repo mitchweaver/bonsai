@@ -35,7 +35,7 @@ postbuild() {
     cd wpa_supplicant
     # wpa_supplicant's "make install" sucks.
     # to get around its nonsense just do things manually
-    
+
     install -D -m 0755 wpa_cli        "$pkg"/bin/wpa_cli
     install -D -m 0755 wpa_passphrase "$pkg"/bin/wpa_passphrase
     install -D -m 0755 wpa_supplicant "$pkg"/bin/wpa_supplicant

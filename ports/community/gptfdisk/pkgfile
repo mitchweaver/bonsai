@@ -4,7 +4,7 @@ sha256=b663391a6876f19a3cd901d862423a16e2b5ceaa2f4a3b9bb681e64b9c7ba78d
 deps='netbsd-curses popt libuuid'
 build() {
     bonsai_make LDFLAGS="$LDFLAGS -lncursesw -lterminfo"
-    
+
     install -D -m 0755 gdisk      $pkg/bin/gdisk
     install -D -m 0755 sgdisk     $pkg/bin/sgdisk
     install -D -m 0755 cgdisk     $pkg/bin/cgdisk

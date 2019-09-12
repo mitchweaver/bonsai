@@ -36,7 +36,7 @@ postbuild() {
     echo '/bin/grep -F -- "$@"' >>fgrep
     echo '/bin/kill -s USR1 1'  >>poweroff
     echo '/bin/kill -s INT 1'   >>reboot
-    
+
 cat >>tac <<'EOF'
 if [ -f "$1" ] ; then
     /bin/sed '1!G;h;$!d' "$1"

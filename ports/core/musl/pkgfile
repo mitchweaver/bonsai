@@ -7,7 +7,7 @@ bsdheaders_source=http://bonsai-linux.org/files/bsd-headers-$bsdheaders_version.
 bsdheaders_sha512=f196c5aa7d9a6afa6f1da1f57fd2e5adf47e2c05508cbfaeeeab2d9f1fba02e6b8107a429347426c727865a87b8800a060626078718adbbf604ee49c6584f122
 nostrip=true
 prebuild() {
-    [ -f "$SOURCES/bsd-headers$DELIM$bsdheaders_version.tar.xz" ] || 
+    [ -f "$SOURCES/bsd-headers$DELIM$bsdheaders_version.tar.xz" ] ||
     dlcurl "$bsdheaders_source" "$SOURCES" "bsd-headers$DELIM$bsdheaders_version.tar.xz" &&
     verify_checksum "$SOURCES/bsd-headers$DELIM$bsdheaders_version.tar.xz" "$bsdheaders_sha512" &&
     decompress "$SOURCES/bsd-headers$DELIM$bsdheaders_version.tar.xz" | tar -xf -

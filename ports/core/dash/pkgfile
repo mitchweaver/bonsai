@@ -3,7 +3,7 @@ version=0.5.10
 source=http://gondor.apana.org.au/\~herbert/$name/files/$name-$version.tar.gz
 sha256=ad70e0cc3116b424931c392912b3ebdb8053b21f3fd968c782f0b19fd8ae31ab
 prebuild() {
-# dash mkbuiltins script depends on "nl", 
+# dash mkbuiltins script depends on "nl",
 # which is not included with musl-libc
 cat > nl.c << EOF
 #include <stdio.h>
@@ -19,7 +19,7 @@ build() {
     CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \
     CC="$CC $CFLAGS $LDFLAGS" \
     bonsai_configure
-    bonsai_make CC="$CC $CFLAGS $LDFLAGS" 
+    bonsai_make CC="$CC $CFLAGS $LDFLAGS"
     bonsai_make install
 }
 postbuild() {

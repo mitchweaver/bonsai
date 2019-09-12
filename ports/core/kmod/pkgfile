@@ -10,7 +10,7 @@ prebuild() {
     mv -f tmp configure
 }
 build() {
-    # kmod cannot be configured statically, 
+    # kmod cannot be configured statically,
     # we must force it to be dynamic
     CFLAGS="-s -Os -pipe -fstack-protector-strong" \
     LDFLAGS="-s" \
