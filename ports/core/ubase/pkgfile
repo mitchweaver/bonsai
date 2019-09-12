@@ -4,8 +4,9 @@ source=http://github.com/suckless-mirror/$name/archive/$version.tar.gz
 sha256=27851e241a991f43c478cc4473fb9c7587056c0127236ca5958185291c5acc48
 prebuild() {
     # don't build eject
-    sed '/eject.*.\\/d' Makefile > tmp
-    mv -f tmp Makefile
+    sed '/eject.*.\\/d' Makefile > tmp ; mv -f tmp Makefile
+    # don't build clear, use whats given from netbsd-curses
+    sed '/clear.*.\\/d' Makefile > tmp ; mv -f tmp Makefile
 
     # these attempt to access 'major' / 'minor' which is not defined 
     # in just types.h in musl-libc
@@ -15,8 +16,5 @@ prebuild() {
     done
 }
 build() {
-    bonsai_make \
-        CFLAGS="$CFLAGS -std=c99" \
-        LDFLAGS="$LDFLAGS" \
-        $name-box-install
+    bonsai_make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" $name-box-install
 }

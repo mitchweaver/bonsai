@@ -18,17 +18,7 @@ postbuild() {
     ln -sf libterminfo.a  $pkg/lib/libtinfo.a
     ln -sf libterminfo.so $pkg/lib/libtinfo.so
 
-    # bin/clear collides with clear from other packages
-    # (specifically ubase)
-    mv -f $pkg/bin/clear $pkg/bin/netbsd-curses-clear
-
     # some packages look for example: <ncurses/ncurses.h>
-    cd $pkg/lib
-    if [ ! -L ncurses ] ; then
-        ln -sf . ncurses
-    fi
-    cd $pkg/include
-    if [ ! -L ncurses ] ; then
-        ln -sf . ncurses
-    fi
+    [ -L $pkg/lib/ncurses ]     || ln -sf . $pkg/lib/ncurses
+    [ -L $pkg/include/ncurses ] || ln -sf . $pkg/include/ncurses
 }
