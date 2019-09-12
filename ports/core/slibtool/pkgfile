@@ -14,5 +14,5 @@ postbuild() {
     # many configure scripts will error out if its not found in $PATH
     echo '#!/bin/true' > "$pkg"/bin/slibtoolize
     chmod +x "$pkg"/bin/slibtoolize
-    ln -s slibtoolize "$pkg"/bin/libtoolize
+    ln -sf slibtoolize "$pkg"/bin/libtoolize
 }
