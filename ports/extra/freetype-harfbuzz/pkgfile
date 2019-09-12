@@ -23,11 +23,11 @@ prebuild() {
     export SEP="=====> [*] "
     msg "$SEP downloading sources..."
 
-    [ -f "$SOURCES/freetype$DELIM${version#*+}.tar.xz" ] || 
+    [ -f "$SOURCES/freetype$DELIM${version#*+}.tar.xz" ] ||
     dlcurl "$freetype_source" "$SOURCES" "freetype$DELIM${version#*+}.tar.xz" &&
     verify_checksum "$SOURCES/freetype$DELIM${version#*+}.tar.xz" "$freetype_sha256"
 
-    [ -f "$SOURCES/harfbuzz$DELIM${version%+*}.tar.xz" ] || 
+    [ -f "$SOURCES/harfbuzz$DELIM${version%+*}.tar.xz" ] ||
     dlcurl "$harfbuzz_source" "$SOURCES" "harfbuzz$DELIM${version%+*}.tar.xz" &&
     verify_checksum "$SOURCES/harfbuzz$DELIM${version%+*}.tar.xz" "$harfbuzz_sha256"
 
@@ -46,7 +46,7 @@ build() {
     build_harfbuzz || return 1
 
     export HARFBUZZ_CFLAGS="-I$PWD/harfbuzz-${version%+*}/src"
-    export HARFBUZZ_LIBS="-L$PWD/harfbuzz-${version%+*}/src/.libs -lharfbuzz" 
+    export HARFBUZZ_LIBS="-L$PWD/harfbuzz-${version%+*}/src/.libs -lharfbuzz"
 
     msg "$SEP building freetype - PASS 2"
     build_freetype yes || return 1

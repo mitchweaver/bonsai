@@ -87,7 +87,7 @@ prebuild() {
 
     # sbase's head does not have the -l flag
     # this script checks if the atomic headers have been modified.
-    # bizarre to use head for this.... but as we are checksumming 
+    # bizarre to use head for this.... but as we are checksumming
     # the tarball we don't care anyway, nop the file.
     :> scripts/atomic/check-atomics.sh
 }

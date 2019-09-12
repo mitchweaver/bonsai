@@ -31,7 +31,7 @@ cat > config.mak <<EOF
 # do not build GUI
 NO_TCLTK=YesPlease
 
-# do not include perl/python bindings 
+# do not include perl/python bindings
 NO_PYTHON=YesPlease
 NO_PERL=YesPlease
 

@@ -29,6 +29,6 @@ postbuild() {
     # make links for man
     for i in extlinux gethostip isohybrid lss16toppm \
              memdiskfind ppmtolss16 syslinux syslinux2ansi ; do
-        ln -sf $pkg/share/man/man1/$i.1 /share/man/man1/$i.1 
+        ln -sf $pkg/share/man/man1/$i.1 /share/man/man1/$i.1
     done
 }

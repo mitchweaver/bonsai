@@ -8,7 +8,7 @@ prebuild() {
 }
 postbuild() {
     # startx is not compatible with bonsai
-    # we use this little xinit wrapper 
+    # we use this little xinit wrapper
     # comically called "launchx" instead
     >$pkg/bin/launchx printf '%s\n%s' \
         '#!/bin/sh' \
