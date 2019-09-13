@@ -1,5 +1,5 @@
-info='Library for rendering SSA and ASS subtitles'
+info='Library for rendering ASS/SSA subtitles'
 version=0.14.0
 source=http://github.com/$name/$name/releases/download/$version/$name-$version.tar.xz
 sha256=881f2382af48aead75b7a0e02e65d88c5ebd369fe46bc77d9270a94aa8fd38a2
-deps='nasm freetype-harfbuzz fontconfig glib fribidi'
+deps='nasm fribidi libpng fontconfig'
