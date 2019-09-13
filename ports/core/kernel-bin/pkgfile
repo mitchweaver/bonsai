@@ -8,7 +8,7 @@ sha512=6bca5d93f4688f1ed87452315ca9760401225de091e96ac3b1ea60bcf0b3e7c414677747d
 build() {
     [ -d kernel ] && cd kernel
 
-    rm -f lib/modules/$version/source lib/modules/$version/build 
+    rm -f lib/modules/$version/source lib/modules/$version/build
 
     msg 'copying files to $pkgs/$name...'
     install -m 0644 vmlinuz $pkg/vmlinuz

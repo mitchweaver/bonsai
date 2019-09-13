@@ -22,7 +22,7 @@ build() {
     # do not build tests
     sed 's|.*Tests.*||g' Makefile > tmp
     mv -f tmp Makefile
-    
+
     bonsai_make
     bonsai_make install
 }

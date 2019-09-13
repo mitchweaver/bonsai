@@ -13,7 +13,7 @@ prebuild() {
 build() {
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-    # NOTE: Python is currently not compiled statically. 
+    # NOTE: Python is currently not compiled statically.
     #
     # I have spent too many days on this. Giving up.
     # The python devs *really* do not want this statically compiled.

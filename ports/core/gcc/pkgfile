@@ -36,17 +36,17 @@ prebuild() {
     # download and checksum our binutils/libs
     msg "$SEP downloading binutils, libmpfr, libmpc..."
 
-    [ -f "$SOURCES/binutils$DELIM$binutils_version.tar.xz" ] || 
+    [ -f "$SOURCES/binutils$DELIM$binutils_version.tar.xz" ] ||
     dlcurl "$binutils_source" "$SOURCES" "binutils$DELIM$binutils_version.tar.xz" &&
     verify_checksum "$SOURCES/binutils$DELIM$binutils_version.tar.xz" "$binutils_sha512"
 
-    [ -f "$SOURCES/mpfr$DELIM$mpfr_version.tar.xz" ] || 
+    [ -f "$SOURCES/mpfr$DELIM$mpfr_version.tar.xz" ] ||
     dlcurl "$mpfr_source" "$SOURCES" "mpfr$DELIM$mpfr_version.tar.xz" &&
     verify_checksum "$SOURCES/mpfr$DELIM$mpfr_version.tar.xz" "$mpfr_sha512"
 
-    [ -f "$SOURCES/mpc$DELIM$mpc_version.tar.gz" ] || 
+    [ -f "$SOURCES/mpc$DELIM$mpc_version.tar.gz" ] ||
     dlcurl "$mpc_source" "$SOURCES" "mpc$DELIM$mpc_version.tar.gz" &&
-    verify_checksum "$SOURCES/mpc$DELIM$mpc_version.tar.gz" "$mpc_sha512" 
+    verify_checksum "$SOURCES/mpc$DELIM$mpc_version.tar.gz" "$mpc_sha512"
 
     msg "$SEP extracting all..."
     mkdir -p ../res
@@ -68,7 +68,7 @@ prebuild() {
     # export PREFIX="$DESTDIR"
     # export DESTDIR=""
     # export BINDIR="$PREFIX"/bin
-    
+
     # cannot have '.' in library path
     export LIBRARY_PATH="$ROOT/lib:$ROOT/libexec"
 }
@@ -79,7 +79,7 @@ build() {
     GCC_FLAGS="-fno-align-functions -fno-align-jumps -fno-align-loops -fno-align-labels"
     export CFLAGS="$CFLAGS $GCC_FLAGS"
     export CPPFLAGS="$CPPFLAGS $GCC_FLAGS"
-    
+
     bonsai_configure --path=.. \
         --with-gmp=$PKGS/libgmp \
         --enable-static \
