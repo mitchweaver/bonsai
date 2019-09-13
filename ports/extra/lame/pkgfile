@@ -1,0 +1,4 @@
+info='high quality mp3 encoder'
+version=3.100
+source=http://downloads.sourceforge.net/sourceforge/$name/$name-$version.tar.gz
+sha256=ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e
