@@ -1,0 +1,4 @@
+info='Reference implementation of the OGG format'
+version=1.3.4
+source=http://ftp.osuosl.org/pub/xiph/releases/ogg/$name-$version.tar.xz
+sha256=c163bc12bc300c401b6aa35907ac682671ea376f13ae0969a220f7ddf71893fe
