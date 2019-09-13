@@ -1,0 +1,4 @@
+version=1.3.3
+source=http://downloads.xiph.org/releases/vorbis/$name-$version.tar.gz
+sha256=6d747efe7ac4ad249bf711527882cef79fb61d9194c45b5ca5498aa60f290762
+deps=libogg
