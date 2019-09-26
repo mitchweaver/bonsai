@@ -1,0 +1,12 @@
+info='Python3 ISO 639 library'
+version=0.4.5
+source=http://github.com/noumar/iso639/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=e68347887a438a0c49e6fe053206bf5d40348c4624f5ccffadc8bed2fa5e8ac9
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
