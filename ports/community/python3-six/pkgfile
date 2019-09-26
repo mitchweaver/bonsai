@@ -1,0 +1,12 @@
+info='Python 2 and 3 compatibility library'
+version=1.12.0
+source=http://github.com/benjaminp/six/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=0ce7aef70d066b8dda6425c670d00c25579c3daad8108b3e3d41bef26003c852
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
