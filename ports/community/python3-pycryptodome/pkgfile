@@ -1,0 +1,12 @@
+info='Python3 self-contained cryptographic library'
+version=3.9.0
+source=http://github.com/Legrandin/pycryptodome/archive/v$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=8d92f3c0dd98530bf6e02fa1e31f99cbc8493ee94bd518c6a6838debc06106d9
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
