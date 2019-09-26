@@ -1,0 +1,12 @@
+info='Python3 HTTP library'
+version=2.22.0
+source=http://github.com/psf/requests/archive/v$version.tar.gz
+deps='python3 python3-setuptools python3-chardet python3-urllib3 python3-idna python3-certifi'
+sha256=dcacea1b6a7bfd2cbb6c6a05743606b428f2739f37825e41fbf79af3cc2fd240
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
