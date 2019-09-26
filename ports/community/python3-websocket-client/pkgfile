@@ -1,0 +1,12 @@
+info='Python3 websocket client'
+version=0.56.0
+source=http://github.com/websocket-client/websocket-client/archive/v$version.tar.gz
+deps='python3 python3-setuptools python3-six'
+sha256=b70469fe5823c65f2b9ecb065ea7218598de9b80b72cb142281c4b47fcb87032
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
