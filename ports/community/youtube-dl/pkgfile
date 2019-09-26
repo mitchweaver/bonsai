@@ -1,0 +1,14 @@
+info='Download videos from YouTube (and more sites)'
+version=2019.09.12.1
+source=http://github.com/ytdl-org/$name/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=e4f026da7138134899740edf383d9e0019aeeb17d467e1e376adb6407fcb3cb4
+# we have to use the source release from github because of a bug in bonsai
+# but that doesn't include its manpage
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
