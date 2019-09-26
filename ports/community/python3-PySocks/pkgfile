@@ -1,0 +1,12 @@
+info='Python3 SOCKS proxy client and wrapper'
+version=1.7.0
+source=http://github.com/Anorov/PySocks/archive/$version.tar.gz
+sha256=b6dbd9daf8ebe75c9f76b54c9747d3d1f1d5ac54d540e44b7eb93936ae38b01a
+deps='python3 python3-setuptools'
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
