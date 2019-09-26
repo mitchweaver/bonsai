@@ -1,0 +1,12 @@
+info='Python3 character encoding detection'
+version=3.0.4
+source=http://github.com/chardet/chardet/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=d5620025cfca430f6c2e28ddbc87c3c66a5c82fa65570ae975c92911c2190189
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
