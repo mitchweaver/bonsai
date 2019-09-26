@@ -1,0 +1,12 @@
+info='Python3 HTTP library'
+version=1.25.6
+source=http://github.com/urllib3/urllib3/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=066fa334d4b446ea2b5edf2f8b392c65993de604e18d708b0aca9e34dd2e6836
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
