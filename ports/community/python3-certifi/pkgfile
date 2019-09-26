@@ -1,0 +1,12 @@
+info='Collection of SSL certificates'
+version=2019.09.11
+source=http://github.com/certifi/python-certifi/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=e2201cd93c53e38ff8fd2e7ec6f318137a44285321d2fb832fabe988d0d660db
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
