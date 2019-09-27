@@ -1,0 +1,12 @@
+info='CLI for extracting streams from various websites'
+version=1.2.0
+source=http://github.com/streamlink/$name/releases/download/$version/$name-$version.tar.gz
+deps='python3 python3-setuptools python3-PySocks python3-iso3166 python3-iso639 python3-isodate python3-pycryptodome python3-requests python3-urllib3 python3-websocket-client'
+sha256=7aa6e02d914e29fe2e344afd185760b11e46a6a31f9d99f7f9dc87b808812992
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+} 
