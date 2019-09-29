@@ -1,0 +1,10 @@
+info='Universal markup converter'
+version=2.7.3
+source=http://github.com/jgm/pandoc/releases/download/$version/pandoc-$version-linux.tar.gz
+sha256=eb775fd42ec50329004d00f0c9b13076e707cdd44745517c8ce2581fb8abdb75
+build() {
+    install -D -m 0755 bin/pandoc "$pkg"/bin/pandoc
+    install -D -m 0755 bin/pandoc-citeproc "$pkg"/bin/pandoc-citeproc
+    install -D -m 0644 share/man/man1/pandoc.1.gz "$pkg"/share/man/man1/pandoc.1.gz
+    install -D -m 0644 share/man/man1/pandoc-citeproc.1.gz "$pkg"/share/man/man1/pandoc-citeproc.1.gz
+}
