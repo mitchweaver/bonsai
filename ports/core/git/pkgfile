@@ -63,7 +63,7 @@ EXPATDIR="$PKGS"/expat
 CURLDIR="$PKGS"/curl
 EOF
 
-LIBS="-lcurl -lssl -lcrypto libgit.a xdiff/lib.a vcs-svn/lib.a -lz"
+LIBS="-lcurl -lssl -lcrypto libgit.a xdiff/lib.a -lz"
 }
 build() {
     bonsai_make LIBS="$LIBS" install
