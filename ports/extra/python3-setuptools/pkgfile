@@ -1,8 +1,8 @@
 info='Easily download, build, install, upgrade, and uninstall Python packages.'
-version=41.1.0
+version=41.2.0
 source=http://github.com/pypa/${name#python3-}/archive/v$version.tar.gz
 deps=python3
-sha256=2364c818e65b2cdc11259e71113e69401452b60bbf2ac29b39d33eb671fc3313
+sha256=105a9c7aa14be6b9924c29e8d3892c23d3be1613ef3a55eaafc5cf0fc46cbddc
 prebuild() {
     export SETUPTOOLS_INSTALL_WINDOWS_SPECIFIC_FILES=0
 }
