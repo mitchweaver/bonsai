@@ -22,6 +22,11 @@ build() {
 
     bonsai_make CFLAGS="$CFLAGS -D_GNU_SOURCE"
     bonsai_make install
+    
+    echo '
+    If this command failed,
+    try running it again.'
+     # It happens sometimes and nobody knows how to fix it.
 }
 postbuild() {
     cd $pkg/bin || exit 1
