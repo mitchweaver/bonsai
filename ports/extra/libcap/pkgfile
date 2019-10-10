@@ -1,0 +1,14 @@
+info='POSIX.1e capabilities suite'
+version=2.27
+source=http://mirrors.edge.kernel.org/pub/linux/libs/security/linux-privs/"$name"2/$name-$version.tar.xz
+deps='attr perl gnu-grep'
+sha256=dac1792d0118bee6aae6ba7fb93ff1602c6a9bda812fd63916eee1435b9c486a
+build() {
+    bonsai_make CFLAGS="$CFLAGS"
+    bonsai_make install
+}
+postbuild() {
+    rm "$pkg"/lib/libcap.so
+    rm "$pkg"/lib/libcap.so.2
+    rm "$pkg"/lib/libcap.so.2.27
+}
