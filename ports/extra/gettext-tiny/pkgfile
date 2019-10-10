@@ -1,0 +1,4 @@
+info='Lightweight gnu gettext replacement'
+version=0.3.1
+source=http://ftp.barfooze.de/pub/sabotage/tarballs/$name-$version.tar.xz
+sha256=95fdc541bc7bda2f93d9768533bfa9b82a4d4cd447e059e95450150bdd690e9f
