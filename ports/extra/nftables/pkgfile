@@ -1,0 +1,12 @@
+info='Replacement for {ip,ip6,arp,eb}tables'
+version=0.9.2
+source=http://netfilter.org/projects/$name/files/$name-$version.tar.bz2
+deps='libmnl libnftnl libgmp libjansson gnu-sed'
+sha256=5cb66180143e6bfc774f4eb316206d40ac1cb6df269a90882404cbf7165513f5
+build(){
+    # we have to disable manpages because generating them requires asciidoc which depends on python2
+    # and it does not detect libedit as readline, so we need to disable cli
+    bonsai_configure --with-json --disable-man-doc --without-cli
+    bonsai_make
+    bonsai_make install
+}
