@@ -1,0 +1,5 @@
+info='Utilities that use the proc filesystem'
+version=23.2
+source=http://downloads.sourceforge.net/sourceforge/$name/$name-$version.tar.xz
+deps='autoconf automake libedit'
+sha256=4b7cbffdc9373474da49b85dc3457ae511c43dc7fa7d94513fe06f89dcb87880
