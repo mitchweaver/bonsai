@@ -1,0 +1,4 @@
+info='Minimalistic user-space library oriented to Netlink developers'
+version=1.0.4
+source=http://netfilter.org/projects/$name/files/$name-$version.tar.bz2
+sha256=171f89699f286a5854b72b91d06e8f8e3683064c5901fb09d954a9ab6f551f81
