@@ -1,0 +1,13 @@
+info='Message bus system'
+version=1.13.12
+deps=expat
+source=http://$name.freedesktop.org/releases/$name/$name-$version.tar.xz
+sha256=7588649b56dd257c6a5f85a8c45aa2dfdf9e99f4de3983710f452081ca43eca6
+build() {
+    bonsai_configure --with-x=no \
+        --with-session-socket-dir=/tmp \
+        --enable-inotify \
+        --disable-dnotify
+    bonsai_make
+    bonsai_make install
+}
