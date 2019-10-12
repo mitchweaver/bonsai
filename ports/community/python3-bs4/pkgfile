@@ -1,0 +1,12 @@
+info='Webpage scraping library for python'
+version=4.8.0
+source=http://www.crummy.com/software/BeautifulSoup/${name#python3-}/download/4.8/beautifulsoup4-$version.tar.gz
+deps='python3 python3-setuptools python3-soupsieve'
+sha256=25288c9e176f354bf277c0a10aa96c782a6a18a17122dba2e8cec4a97e03343b
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
