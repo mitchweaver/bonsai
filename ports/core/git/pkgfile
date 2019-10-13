@@ -66,5 +66,5 @@ EOF
 LIBS="-lcurl -lssl -lcrypto libgit.a xdiff/lib.a -lz"
 }
 build() {
-    bonsai_make LIBS="$LIBS" install
+    bonsai_make CFLAGS="$CFLAGS" LIBS="$LIBS" install
 }
