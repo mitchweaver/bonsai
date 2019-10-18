@@ -1,0 +1,10 @@
+--- configure
++++ configure
+@@ -47,6 +47,7 @@
+ 	--host) HOST=$var ;;
+ 	--target) TARGET=$var ;;
+ 	--enable-debug) DEBUG=yes ;;
++	--disable-debug) DEBUG= ;;
+ 	--enable-static) BUILD_STATIC=yes ;;
+ 	--with-pam) WITHOUT_PAM=; WITHOUT_SHADOW=yes ;;
+ 	--with-shadow) WITHOUT_SHADOW=; WITHOUT_PAM=yes ;;
