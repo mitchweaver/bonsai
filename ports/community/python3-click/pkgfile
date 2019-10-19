@@ -1,0 +1,12 @@
+info='Python composable command line interface toolkit'
+version=7.0
+source=http://github.com/pallets/click/archive/$version.tar.gz
+deps='python3 python3-setuptools'
+sha256=7cd752d4b5621bddf6428ca00ef5c2cd9b4b77bc41076a69eff51cbbfd4f8646
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
