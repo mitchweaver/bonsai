@@ -1,0 +1,7 @@
+info='Extremely Fast Compression algorithm'
+version=1.9.2
+source=http://github.com/$name/$name/archive/v$version.tar.gz
+sha256=658ba6191fa44c92280d4aa2c271b0f4fbc0e34d249578dd05e50e76d0e5efcc
+prebuild() {
+    mkdir -p "$pkg"/bin
+}
