@@ -1,0 +1,12 @@
+info='CLI and python library for interfacing with the Google TTS API'
+version=2.0.4
+source=http://github.com/pndurette/$name/archive/v$version.tar.gz
+deps='python3 python3-setuptools python3-bs4 python3-requests python3-gtts-token python3-six python3-click'
+sha256=59f1cf555cf8f1df63b0cb660ddab72af76025a4b8b7bddb0c4c0d3815e03840
+build() {
+    python3 setup.py build
+    python3 setup.py install \
+        --prefix="" \
+        --root="$pkg" \
+        --optimize=1
+}
