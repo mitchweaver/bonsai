@@ -117,50 +117,48 @@ portinfo() {
     unset name name info version source deps 
 }
 
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# currently broken
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-#
 # tar up a package for release / distribution, placing result in $PWD
 # Notes: We force delim to be '-' here, this is to ensure web
 #        compatbility. (Ex: cannot have '#' natively in URLs)
 # params: $name
-# pack() {
-#     requires 'pack()' tar xz
-#     isinst "$1" >/dev/null || die "$1 is not installed"
-#     [ -d "$pkgs/$1" ] || die "$1 was not found in \$pkgs"
-#     file="$(pkg2pkgid "$1" | sed "s/$delim/-/")".tar.xz
-#     { tar -C "$pkgs" -cf - "$1" | xz -T 0 -z - > "$file" ; } || \
-#         die "failed to compress $1"
-#     msg "successfully packed $1 as ./$file"
-# }
+pack() {
+    # requires 'pack()' tar xz
+    isinst xz >/dev/null || die "xz required"
+    isinst "$1" >/dev/null || die "$1 is not installed"
+    [ -d "$PKGS/$1" ] || die "$1 was not found in \$pkgs"
+    file="$(pkg2pkgid "$1" | sed "s/$DELIM/-/")".tar.xz
+    { tar -C "$PKGS" -cf - "$1" | xz -T 0 -z - > "$file" ; } || \
+        die "failed to compress $1"
+    msg "successfully packed $1 as ./$file"
 
-# # untar a downloaded binary package and install it.
-# # params: $pack
-# unpack() {
-#     # lint tarball - must conform to name-version.tar.xz
-#     echo "$*" | grep -E -- '.*.-.*.tar.xz' >/dev/null || die "incorrect pack format"
-#     # must also not contain any spaces
-#     echo "$*" | grep -F -- ' ' >/dev/null && die "incorrect pack format"
+}
 
-#     pkgid="${1%.tar.xz}"
-#     name="${pkgid%-*}"
-#     version="${pkgid#$name-}"
+# untar a downloaded binary package and install it.
+# params: $pack
+unpack() {
+    # lint tarball - must conform to name-version.tar.xz
+    echo "$*" | grep -E -- '.*.-.*.tar.xz' >/dev/null || die "incorrect pack format"
+    # must also not contain any spaces
+    echo "$*" | grep -F -- ' ' >/dev/null && die "incorrect pack format"
 
-#     # clear any work from possible existing build
-#     # todo: should this be $work?
-#     rm -rf "${work:?}" 2>/dev/null ||:
+    pkgid="${1%.tar.xz}"
+    name="${pkgid%-*}"
+    version="${pkgid#$name-}"
 
-#     # check if is already installed
-#     isinst "$name" >/dev/null && die "port $name is already installed"
+    # clear any work from possible existing build
+    # todo: should this be $work?
+    rm -rf "${WORK:?}/${1:?}" 2>/dev/null ||:
 
-#     # unpack
-#     { decompress "$1" | tar -C "$pkgs" -xf - ; } || die "failed to decompress $1"
+    # check if is already installed
+    isinst "$name" >/dev/null && die "port $name is already installed"
 
-#     # this is to be fixed later, for now:
-#     case "$name" in kernel|syslinux) nolink=true ; esac
+    # unpack
+    { decompress "$1" | tar -C "$PKGS" -xf - ; } || die "failed to decompress $1"
 
-#     # link and install
-#     installpkg "$name" || die "$name failed to install"
-#     unload_pkgfile
-# }
+    # this is to be fixed later, for now:
+    case "$name" in kernel|syslinux) nolink=true ; esac
+
+    # link and install
+    installpkg "$name" || die "$name failed to install"
+    unload_pkgfile
+}
