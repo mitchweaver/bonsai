@@ -1,8 +1,8 @@
-version=3.7.4
+version=3.8.0
 info="Python${version%%.*} interpreter"
 source=http://github.com/python/cpython/archive/v$version.tar.gz
 deps='netbsd-curses libedit libressl libffi expat'
-sha256=aaea286c4458f22125e1a08aa59359ebc32232eda50c98f013be49367e5d8b6a
+sha256=fc00204447b553c2dd7495929411f567cc480be00c49b11a14aee7ea18750981
 prebuild() {
      rm -rf "${pkg:?}"/lib/python${version%.*} 2>/dev/null
      mkdir -p "$root"/lib/python${version%.*} \
@@ -36,7 +36,9 @@ build() {
 
     getflags --no-static
 
+    # for ARM and other systems which use bigendian set ax_cv_c_float_words_bigendian correctly
     bonsai_configure \
+        --ax_cv_c_float_words_bigendian=no \
         --without-ensurepip \
         --with-system-libffi \
         --with-system-expat \
