@@ -1,0 +1,14 @@
+info='The Go programming language version 1.4 (last version in C)'
+version=20171003
+deps='bash'
+source=https://dl.google.com/go/go1.4-bootstrap-$version.tar.gz
+sha512=2f65d5035d2b4ae8610c3337e0fcba64692c63953b54bf735f634da3532c6573ed08927865bf068b00a3885663815c5efc7dbd9a1b3d6337c9a0c62168aabca7
+build() {
+    cd src
+    GOROOT_FINAL="$pkg/lib/go1.4" ./make.bash
+    cd ..
+    mkdir -p "$pkg"/lib/go1.4
+    cp -r bin "$pkg"/lib/go1.4/
+    cp -r src "$pkg"/lib/go1.4/
+    cp -r pkg "$pkg"/lib/go1.4/
+}
