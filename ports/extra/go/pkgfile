@@ -1,0 +1,21 @@
+info='The Go programming language'
+version=1.13.3
+source=https://dl.google.com/$name/$name$version.src.tar.gz
+deps='go14 bash'
+sha512=0999876f995a3d9189640ce15b496ab72a6273649d27acdc190c1d50b88ab8b7facaabfc832334911d178f0b9a645ea4169716ed5c593a7540b075e6901d51f2
+prebuild() {
+    export GOROOT_FINAL="$pkg/lib/go"
+    export GOROOT_BOOTSTRAP="/lib/go1.4"
+    export CGO_ENABLED=0
+}
+build() {
+    cd src
+    ./make.bash
+    cd ..
+}
+postbuild() {
+    mkdir -p "$pkg"/lib/go
+    cp -r bin $pkg/
+    cp -r pkg src lib $pkg/lib/go/
+    cp -r doc misc $pkg/lib/go/
+}
