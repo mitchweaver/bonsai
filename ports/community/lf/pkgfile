@@ -1,14 +1,12 @@
-info='Terminal file manager written in Go, replacing Ranger'
+info='Terminal file manager written in Go'
 version=r13
 source=http://github.com/gokcehan/$name/archive/$version.tar.gz
-deps='go'
-sha256='fe99ed9785fbdc606835139c0c52c854b32b1f1449ba83567a115b21d2e882f4'
+deps=go
+sha256=fe99ed9785fbdc606835139c0c52c854b32b1f1449ba83567a115b21d2e882f4
 prebuild() {
     export GOPATH='/src/pkgs/lf/'
 }
 build() {
     go build
-}
-postbuild() {
     go install
 }
