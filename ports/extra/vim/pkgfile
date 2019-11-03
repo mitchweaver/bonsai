@@ -1,8 +1,8 @@
 info='ViM Vi-Improved text editor'
-version=8.1.2100
+version=8.1.2244
 source=http://github.com/$name/$name/archive/v$version.tar.gz
 deps=netbsd-curses
-sha512=57f7c0970f7627ecd56972647d3b0826cd28c800dfaded1b51787bade859420f9c256fb66d589656c7c03a74b836291c84d6dd92157f2327444f575be33efdc0
+sha512=0792e9d105269b7efbe9aecce474305ad43c468702cd1b2ed8b0cec830c003e97411bf15fbca09e158d06d059bf4212ce4c6ea29ff95d564dd03a5695ca34f43
 build() {
     bonsai_configure \
         --enable-multibyte \
