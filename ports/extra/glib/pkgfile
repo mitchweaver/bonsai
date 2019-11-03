@@ -1,8 +1,8 @@
 info='GNOME low level core library'
-version=2.61.2
+version=2.62.2
 source=http://github.com/GNOME/$name/archive/$version.tar.gz
 deps='meson samurai libffi'
-sha256=aee86db44b98b4a9f417d4f2433f0a60e103707b209efd7ced41ae9c7b957673
+sha256=91129ba4d3b68c3c4b975f8b2f36b0bf1223adddb3b5da8e8eaccfed53753e7f
 build() {
     # build still outputs '.a' libs via --defualt-library=static
     # however it still needs .so libs internally while building
