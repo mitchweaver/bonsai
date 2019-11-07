@@ -1,8 +1,8 @@
 info='Download videos from YouTube (and more sites)'
-version=2019.09.12.1
+version=2019.11.05
 source=http://github.com/ytdl-org/$name/archive/$version.tar.gz
 deps='python3 python3-setuptools'
-sha256=e4f026da7138134899740edf383d9e0019aeeb17d467e1e376adb6407fcb3cb4
+sha256=b0868f3209d1d61c92f786c9ac28bc3640c979a39998f3ad7508836b9593ff65
 # we have to use the source release from github because of a bug in bonsai
 # but that doesn't include its manpage
 build() {
