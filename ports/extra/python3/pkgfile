@@ -37,12 +37,13 @@ build() {
     getflags --no-static
 
     # for ARM and other systems which use bigendian set ax_cv_c_float_words_bigendian correctly
+    export ax_cv_c_float_words_bigendian=no
+    
     bonsai_configure \
-        --ax_cv_c_float_words_bigendian=no \
         --without-ensurepip \
         --with-system-libffi \
         --with-system-expat \
-		--enable-optimizations
+	--enable-optimizations
 
     # use our provided script to fix makesetup's bugged generated makefile
     sh fix_bad_makefile.sh
