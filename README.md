@@ -159,11 +159,10 @@ If you would like to contribute, look into submitting a pull request.
 
 ### Community 
 
-Current development is discussed on the [Discord](http://discord.gg/qcjRGZv) server.  
+Current development is discussed on the [IRC](irc://freenode.net/#bonsai-linux) server.  
 Contributors and users alike are encouraged to join.
 
-**email**: dev@bonsai-linux.org  
-**website**: [bonsai-linux.org](http://bonsai-linux.org) <sub>*(under construction)*</sub>  
-**discord server**: [discord.gg/qcjRGZv](http://discord.gg/qcjRGZv)  
-**irc**: `coming soon`  
+**email**: `coming soon`  
+**website**: `coming soon`  
+**IRC**: [#bonsai-linux](irc://freenode.net/#bonsai-linux) on freenode  
 **mailing list**: `coming soon`
