@@ -1,8 +1,8 @@
 info='GNU C Compiler x64 musl-libc toolchain (binary)'
 nostrip=true
 version=9.1.0
-source=http://bonsai-linux.org/pkgs/${name%-bin}-${version}.tar.xz
-sha512=048834ae9293d8146b51811a02bec69347690e041082063831c7528c7eb75858c937700e6912293a5ee0a5542ea22947689493eb4e5706433dfe4a774c0aed7e
+source=http://80.211.158.105/pkgs/$name-$version.tar.xz
+sha512=91a34df7742c150abdfe5cf4118b991962e7ad68c9af2d982ac5ee42083e2e633ee46ec4972b8c7db620a5093f7ca7277ff0f8459d3377501ac8ca1a316dcd48
 build() {
     rm -rf $pkg 2>/dev/null
     rm -f ./usr 2>/dev/null
