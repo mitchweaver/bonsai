@@ -1,8 +1,8 @@
 info='git version control system'
-version=2.24.0
+version=2.25.0
 source=http://mirrors.edge.kernel.org/pub/software/scm/$name/$name-$version.tar.xz
 deps='curl expat'
-sha512=31c8c001fdea3b1e3e732cc42299979f1329d564f76d3950c90a0090afc1fa1ba50bdb7f86da92066843887986cc73a34c13dd651566d1af9036ecbe8aee42c3
+sha512=8bbada0451fe0a3314e1b9a43a74135115449aa41f5b3e7f960279e4a7fe6069c36e78825fc4b60d06806e3a6fa8158f327cb8a3801686ac22a35e3704244191
 prebuild() {
     # add hyphen to tar commands for more portability
     # and remove '-o' option (specifically for sbase tar)
