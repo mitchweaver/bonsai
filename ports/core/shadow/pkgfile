@@ -1,8 +1,8 @@
 info='Shadow password file utilities'
-version=4.7
+version=4.8.1
 source=http://github.com/$name-maint/$name/releases/download/$version/$name-$version.tar.xz
 deps=acl
-sha256=e5e196a4a7e3b228c812f3163d368be3e932e6eaa4e616677a148d9ec921e16c
+sha256=a3ad4630bdc41372f02a647278a8c3514844295d36eefe68ece6c3a641c1ae62
 build() {
 	bonsai_configure \
 		--disable-shadowgrp \
