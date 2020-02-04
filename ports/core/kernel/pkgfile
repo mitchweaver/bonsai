@@ -1,11 +1,11 @@
 info='the bonsai linux kernel'
-version=5.3.10
+version=5.4.17
 source=http://mirrors.edge.kernel.org/pub/linux/kernel/v${version%%.*}.x/linux-$version.tar.xz
 # note: curses is dep for menuconfig
 deps='@stage0 @stage1 @init kmod bison flex posix-bc netbsd-curses'
 nolink=true
 nostrip=true
-sha512=ad01f687b70e1ae670848e484b308907a29b32731832e2fc155c64e56daa9362cae3f1770936056edbebe40c6224303ba32da4af3980e22a3ddc3599a3117139
+sha512=b909cc5fa383ca25496851cd8d0af0efbe1613ee6c3579abb122285fcdcd28f4736fbb26675d741474388a63d1a312cc70a6b0aa8f25c1cd62b9f95b99462628
 
 prebuild() {
     msg 'ensuring that correct build tools are in $PATH'
