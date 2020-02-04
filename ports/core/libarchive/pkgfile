@@ -1,8 +1,8 @@
 info='Multi-format archive and compression library'
-version=3.4.0
+version=3.4.1
 source=http://github.com/$name/$name/releases/download/v$version/$name-$version.tar.gz
 deps=zlib
-sha256=8643d50ed40c759f5412a3af4e353cffbce4fdf3b5cf321cb72cacf06b2d825e
+sha256=fcf87f3ad8db2e4f74f32526dee62dd1fb9894782b0a503a89c9d7a70a235191
 build() {
     CFLAGS="-D_BSD_SOURCE $CFLAGS" \
     bonsai_configure \
