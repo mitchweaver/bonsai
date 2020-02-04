@@ -1,8 +1,8 @@
 info='GNU parser generator, a clone of yacc'
-version=3.4.2
+version=3.5.1
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
 deps='m4 perl'
-sha256=27d05534699735dc69e86add5b808d6cb35900ad3fd63fa82e3eb644336abfa0
+sha256=3e7e097bd9709a2d5e40e69446b74b149733b3de864fadb7a9b54eca7b2a4dd0
 prebuild() {
     # don't compile useless examples
     find examples -name Makefile -exec echo 'all:' > "{}" \;
