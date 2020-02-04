@@ -1,7 +1,7 @@
 info='musl C library'
-version=1.1.23
+version=1.1.24
 source=http://musl-libc.org/releases/$name-$version.tar.gz
-sha512=a2278de9903852b08352d3e734a39d4616caa602496997ba843e8fea0e1c481761776745faf04536a149d1c4af416b68df681b6fbc9ae2de8794e18c2e853b09
+sha512=8987f1e194ea616f34f4f21fe9def28fb7f81d7060e38619206c6349f79db3bbb76bae8b711f5f9b8ed038799c9aea1a4cbec69e0bc4131e246203e133149e77
 bsdheaders_version=1.0
 bsdheaders_source=http://80.211.158.105/bsd-headers-$bsdheaders_version.tar.xz
 bsdheaders_sha512=f196c5aa7d9a6afa6f1da1f57fd2e5adf47e2c05508cbfaeeeab2d9f1fba02e6b8107a429347426c727865a87b8800a060626078718adbbf604ee49c6584f122
