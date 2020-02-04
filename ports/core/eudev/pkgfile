@@ -1,8 +1,8 @@
 info='udev replacement developed by Gentoo'
-version=3.2.8
+version=3.2.9
 source=http://dev.gentoo.org/~blueness/$name/$name-$version.tar.gz
 deps=gperf
-sha256=61e4948e9e51271c3cce2bb5311a30b206dd03ef011062e6c627fb007e43f6b8
+sha256=89618619084a19e1451d373c43f141b469c9fd09767973d73dd268b92074d4fc
 prebuild() {
     # needed for static linking
     # see: http://crux.nu/ports/crux-3.5/core/eudev/Pkgfile
