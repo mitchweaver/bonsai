@@ -21,6 +21,7 @@ get() {
         if ! ismetapkg $name && [ -e "$SOURCES/$pkgid$ext" ] ; then
             [ "$sha512" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha512"
             [ "$sha256" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha256"
+            ! [ "$sha512" ] && ! [ "$sha256" ] && die "no checksum found in the pkgfile"
             extract "$SOURCES/$pkgid$ext" "$pkgworkdir"
         fi
         # copy all port's files, except its pkgfile -- (ex: patches)
