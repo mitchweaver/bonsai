@@ -1,7 +1,7 @@
 info="ext2/3/4 filesystem utilities"
-version=1.45.4
+version=1.45.5
 source=http://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/$name/v$version/$name-$version.tar.xz
-sha256=65faf6b590ca1da97440d6446bd11de9e0914b42553740ba5d9d2a796fa0dc02
+sha256=f9faccc0d90f73556e797dc7cc5979b582bd50d3f8609c0f2ad48c736d44aede
 prebuild() {
     mkdir -p $pkg/share/man/man5 $pkg/etc $pkg/lib/pkgconfig
 }
