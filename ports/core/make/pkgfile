@@ -1,7 +1,7 @@
 info='GNU make build automation tool'
-version=4.2.1
+version=4.3
 source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.gz
-sha256=e40b8f018c1da64edd1cc9a6fce5fa63b2e707e404e20cad91fbae337c98a5b7
+sha256=e05fdde47c5f7ca45cb697e973894ff4f5d79e13b750ed57d7b66d8defc78e19
 build() {
     CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \
     bonsai_configure
