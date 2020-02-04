@@ -42,11 +42,7 @@ if [ $(id -u) -ne 0 ] ; then
     if type sudo >/dev/null 2>&1 ; then
         sudo -E "$0" "$@"
     else
-        >&2 echo "Uh oh... doas hasn't been tested yet..."
-        >&2 echo "If you get it working, please pull request! ~ mitch"
-        # doas does not preserve the environment, (sudo's -E flag)
-        # we need to preserve in order to keep the exported $ROOT variable
-        # doas "$0" "$@"
+        doas sh -c "ROOT=\"$ROOT\"; $0 $@"
     fi
     exit $?
 fi
