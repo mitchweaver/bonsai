@@ -1,0 +1,12 @@
+info='bonsai global configuration files'
+link=false
+build() {
+    for file in cfg/*.cfg ; do
+        if [ -f "$CONFIG"/${file#cfg/} ] ; then
+            warn "$CONFIG/${file#cfg/} exists, refusing to overwrite"
+            continue
+        fi
+        msg "installing ${file#cfg/} with mode 0644..."
+        install -D -m 0644 $file "$CONFIG"/${file#cfg/}
+    done
+}

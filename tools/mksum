@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# tool to quickly generate checksum files for ports
+#
+# http://github.com/bonsai-linux/bonsai
+#
+
+# import bonsai functions
+. "$(which bonsai)"
+
+pkgfile=$(printf '%s\n' ./*.pkgfile)
+
+[ -f "$pkgfile" ] || die "no pkgfile found in \$PWD"
+
+. "$pkgfile"
+
+name=${pkgfile%.pkgfile}
+name=${name#./}
+
+# add checksums of all port's files, ex: patches, omitting leading './'
+find . -type f ! -name . ! -name '*.pkgfile' ! -name '*.sums' | \
+while read -r file ; do
+    set -- $(sha512sum "$file")
+    printf '%s %s\n' "$1" "${2#./}"
+done >"$name".sums
+
+if [ "$url" ] && [ "$ver" ] ; then
+    getext "$url"
+    pkg=$name\#$ver
+
+    trap 'rm "$SOURCES/$pkg$ext" 2>/dev/null' EXIT INT TERM
+
+    get
+
+    # add checksum of tarball, omitting leading path
+    set -- $(sha512sum "$SOURCES/$pkg$ext")
+    printf '%s %s\n' "$1" "${2##*/}" >>"$name".sums
+fi

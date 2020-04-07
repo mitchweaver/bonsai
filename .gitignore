@@ -1,0 +1,15 @@
+bonsai
+bonsai.db
+bonsai.rc
+
+a.out
+*~*
+*bkup*
+*.bk
+
+*rootfs.gz
+*isolinux.bin
+*isolinux.cfg
+
+old
+tmp
