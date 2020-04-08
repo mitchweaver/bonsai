@@ -9,8 +9,9 @@ all:
 install:
 	mkdir -p ${BONSAI_ROOT}/src
 	cp -rf ports ${BONSAI_ROOT}/src/
-	install -D -m 0755 bonsai ${PREFIX}/bin/
 	install -D -m 0755 tools/* ${PREFIX}/bin/
+	install -D -m 0755 bonsai ${PREFIX}/bin/
+	ln -sf ${PREFIX}/bin/bonsai ${PREFIX}/bin/bs
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # SC1090: file sourcing     -  we know, pkgfiles
