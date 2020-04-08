@@ -33,6 +33,7 @@ usage() {
  '#' '##' #  #  ,,# '##;, #
 
       [a]  -  add
+      [c]  -  count
       [i]  -  isinst
       [h]  -  usage
 
@@ -55,6 +56,7 @@ main() {
 
     case $flag in
         a) add "$1" ;;
+        c) printf '%s\n' "$PKGS"/*/ | wc -l ;;
         i) isinst "$1" || die "$1 is not installed" && msg "$1 is installed" ;;
         h) usage
     esac

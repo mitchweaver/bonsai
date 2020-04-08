@@ -11,7 +11,7 @@ linkpkg() {
     isinst "$name" || die "$name is not installed"
 
     cd "$ROOT" || die "could not cd to $ROOT"
-    msg "creating symlinks for $name..."
+    msg "creating symlinks for $name"
 
     for dir in bin sbin share include etc lib libexec ; do
         if [ -d "$PKGS/$pkg/$dir" ] ; then
