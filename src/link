@@ -1,3 +1,49 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Package Linking        http://github.com/bonsai-linux/bonsai
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+# create symlinks for an installed package
+linkpkg() {
+    # if link=false is specified in the pkgfile, return
+    [ "$link" = false ] && return
+
+    # do not attempt to link if pkg is not installed
+    isinst "$name" || die "$name is not installed"
+
+    cd "$ROOT" || die "could not cd to $ROOT"
+    msg "creating symlinks for $name..."
+
+    for dir in bin sbin share include etc lib libexec ; do
+        if [ -d "$PKGS/$pkg/$dir" ] ; then
+            # recursively create pkg subdirectories in
+            # equivalent $ROOT subdirectories
+            # example: $pkg/lib/pkgconfig -> $ROOT/lib/pkgconfig
+            find "$PKGS/$pkg/$dir" ! -path "*$dir" \
+                    -type d 2>/dev/null | while read -r subdir ; do
+                mkdir -p "${subdir#$PKGS/$pkg/}"
+            done
+
+            # recursively link all files
+            # example: $pkg/include/asm/*.h -> $ROOT/include/asm/*.h
+            find "$PKGS/$pkg/$dir" ! -path "*share/*man*" \
+                    -type f -o -type l 2>/dev/null | while read -r file ; do
+                file="${file#$PKGS/$pkg/}"
+                ln -sf "$PKGS/$pkg/$file" "$file" 2>/dev/null
+            done
+        fi
+    done
+
+    # do the same for all possibly existing manpage directories
+    for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
+        if [ -d "$PKGS/$pkg/share/man/$manX" ] ; then
+            find "$PKGS/$pkg/share/man/$manX" ! -path "*/$manX" 2>/dev/null | \
+            while read -r man ; do
+                ln -sf "$PKGS/$pkg/share/man/$manX/${man##*/}" \
+                    "${man#$PKGS/$pkg/}" 2>/dev/null
+            done
+        fi
+    done
+
+    # return whence we were
+    cd - >/dev/null
+}

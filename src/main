@@ -18,6 +18,9 @@ check_env() {
 
 init() {
     mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK" "$CONFIG"
+    for dir in bin sbin share include etc lib libexec ; do
+        mkdir -p "$ROOT/$dir"
+    done
 }
 
 usage() {

@@ -16,13 +16,9 @@ run_build() {
         generic || die "generic build for $name"
     fi
 
-    msg "installing $name"
-
     # create pkg dir if it hasn't been already
     # bonsai uses this directory as a "database"
     mkdir -p "$PKGS/$pkg"
-
-    # link
 }
 
 # Try to automagically build/install if a pkgfile doesn't
@@ -60,6 +56,7 @@ bmk() {
 }
 
 binst() {
+    msg "installing $name"
     [ -f *akefile ] && bmk install
 }
 
