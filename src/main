@@ -9,9 +9,11 @@
 : "${CONFIG:=$ROOT/src/cfg}"
 : "${PROMPT:=→}"
 
+
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# Init
+# Main
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
 check_env() {
     [ "$ROOT" ] || die "\$ROOT is not defined"
 }
@@ -20,23 +22,39 @@ init() {
     mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK"
 }
 
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# Main
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+usage() {
+>&2 cat <<"EOF"
+
+ #
+ #                        O
+ ##, ,##,',##, ,##  ,#,   ,
+ # # #  # #''# #,,  # #   #
+ '#' '##' #  #  ,,# '##;, #
+
+      [a]  -  add
+      [i]  -  isinst
+      [h]  -  usage
+
+EOF
+}
+
 main() {
     check_env
     init
     [ "$1" ] || return
 
-    flag=$1
+    flag=${1#-}
     shift
 
     # validate syntax
     case $flag in
-        a) [ "$1" ] || die 'no argument provided'
+        a|i)
+            [ "$1" ] || die 'no argument provided'
     esac
 
     case $flag in
-        a) add "$1"
+        a) add "$1" ;;
+        i) isinst "$1" || die "$1 is not installed" && msg "$1 is installed" ;;
+        h) usage
     esac
 }

@@ -13,10 +13,11 @@ install:
 	install -D -m 0755 tools/* ${PREFIX}/bin/
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# 1090: file sourcing     -  we know, pkgfiles
-# 2154: undeclared vars   -  vars inside pkgfiles
-# 2046: word splitting    -  this is done sparingly and intentionally
-SHELLCHECK = shellcheck -s sh -e 1090 -e 2154 -e 2046
+# SC1090: file sourcing     -  we know, pkgfiles
+# SC2154: undeclared vars   -  vars inside pkgfiles
+# SC2046: word splitting    -  this is done sparingly and intentionally
+# SC2144: globs with test   -  intentional, it works in this instance
+SHELLCHECK = shellcheck -s sh -e 1090 -e 2154 -e 2046 -e 2144
 
 test:
 	${SHELLCHECK} bonsai

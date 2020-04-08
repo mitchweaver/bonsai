@@ -35,3 +35,5 @@ unloadpkgfile() {
     unset url ver link
     unset -f build
 }
+
+isinst() { [ -d "$PKGS/$1"\#* ] ; return $? ; }
