@@ -1,1 +1,2 @@
 ports/*/*/*.pkgfile linguist-language=shell
+src/* linguist-language=shell
