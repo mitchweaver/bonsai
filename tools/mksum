@@ -6,7 +6,7 @@
 #
 
 # import bonsai functions
-. "$(which bonsai)"
+. "$(command -v bonsai)"
 
 pkgfile=$(printf '%s\n' ./*.pkgfile)
 

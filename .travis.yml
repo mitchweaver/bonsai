@@ -1,0 +1,6 @@
+# 1090: file sourcing     -  we know, pkgfiles
+# 2154: undeclared vars   -  vars inside pkgfiles
+# 2046: word splitting    -  this is done sparingly and intentionally
+script:
+  - shellcheck -s sh -e 1090 -e 2154 -e 2046 bonsai
+  - shellcheck -s sh -e 1090 -e 2154 -e 2046 tools/mksum

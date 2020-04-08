@@ -1,0 +1,219 @@
+#!/bin/sh -e
+# -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
+#                                                         #
+#            #                                            #
+#            #                        O                   #
+#            ##, ,##,',##, ,##  ,#,   ,                   #
+#            # # #  # #''# #,,  # #   #                   #
+#            '#' '##' #  #  ,,# '##;, #                   #
+#                                                         #
+#    A simple Linux distribution based on musl-libc.      #
+#                                                         #
+#        http://github.com/bonsai-linux/bonsai            #
+#                                                         #
+#                   * NOTICE *                            #
+#                                                         #
+#   In active, early development. Not intended for use.   #
+#                                                         #
+# -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
+
+# -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
+#                                                         #
+# Known required utilities:                               #
+#                                                         #
+# 1. cp, mv, rm, ln, mkdir, rmdir                         #
+# 2. tar, xz                                              #
+# 3. curl                                                 #
+# 4. sha512sum                                            #
+#                                                         #
+# -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Vars
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+: "${ROOT:=${HOME}/env/bonsai}"
+: "${PORTS:=$ROOT/src/ports}"
+: "${PKGS:=$ROOT/src/pkgs}"
+: "${SOURCES:=$ROOT/src/sources}"
+: "${WORK:=$ROOT/src/work}"
+: "${CONFIG:=$ROOT/src/cfg}"
+: "${PROMPT:=→}"
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Utility Functions
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+msg() {
+    printf "\033[32;1m%s\033[m %s\n" "$PROMPT" "$*"
+}
+warn() {
+    >&2 printf "\033[33;1m%s \033[mwarning: %s\n" "$PROMPT" "$*"
+}
+die() {
+    >&2 printf "\033[31;1m%s \033[merror: %s\n" "$PROMPT" "$*"
+    exit 1
+}
+getext() {
+    case $1 in
+        *.tar.*) ext=.tar.${1##*.} ;;
+             .*) ext=.${1##*.}
+    esac
+}
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Portfile Handling
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+getportdir() {
+while read -r dir ; do
+    if [ -d "$dir$1" ] ; then
+        portdir=$dir$1
+        return
+    fi
+done <<-EOF
+$(printf '%s\n' "$PORTS"/*/)
+EOF
+die "unable to find portdir for '$1'"
+}
+
+getpkgfile() {
+    [ -f "$portdir/$name".pkgfile ] || die "unable to find pkgfile for '$1'"
+    pkgfile=$portdir/$name.pkgfile
+}
+
+# desc: loads $pkgfile variables into environment
+# arg: $name of pkg
+loadpkgfile() {
+    name=$1
+    getportdir "$name"
+    getpkgfile "$name"
+    . "$pkgfile"
+    pkg=$name\#$ver
+    getext "$url"
+}
+
+unloadpkgfile() {
+    unset name portdir pkgfile pkg ext
+    unset url ver link
+    unset -f build
+}
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Add - Adds a package
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+add() {
+    loadpkgfile "$1"
+    rm -rf -- "${WORK:-?}/$pkg"
+    mkdir -p "$WORK/$pkg"
+    [ "$url" ] && get
+    checksum
+    extract
+    # copy all port's files (ex: patches)
+    cp -rf "$portdir"/*  "$WORK/$pkg"/ 2>/dev/null ||:
+    cp -rf "$portdir"/.* "$WORK/$pkg"/ 2>/dev/null ||:
+    run_build
+    unloadpkgfile
+}
+
+get() {
+    curl -qL#C - --url "$url" -o "$SOURCES/$pkg$ext" ||
+        die "failed to download $name"
+}
+
+checksum() {
+    cd "$portdir"
+    if [ -f "$name".sums ] ; then
+        msg 'comparing checksums'
+        ln -sf "$SOURCES/$pkg$ext" .
+        # we must unlink on both exit 0 and 1 as
+        # the ERR trap is undefined in POSIX sh
+        sha512sum -c "$name".sums ||
+            { unlink "$pkg$ext" ; die "checksum mismatch!" ; }
+        unlink "$pkg$ext"
+    else
+        warn "no checksum file found for '$name'"
+    fi
+    cd - >/dev/null
+}
+
+extract() {
+    case $ext in
+        .tar.xz|.txz)  set xz ;;
+        .tar.gz|.tgz)  set gunzip ;;
+        .tar.bz2|.tbz) set bunzip2 ;;
+        *) return
+    esac
+
+    msg 'extracting'
+
+    $1 -qdc "$SOURCES/$pkg$ext" | tar -C "$WORK/$pkg" -xf - ||
+        die "failed to decompress $pkg$ext"
+
+    # ensure the extracted dir is at the top-level (i.e. remove
+    # variation whether a tarball's files are encapsulated in a dir)
+    {
+        mv -f "$WORK/$pkg"/*/* "$WORK/$pkg"/
+        rm -rf -- "${WORK:-?}/$pkg"/*/.*
+        rmdir "$WORK/$pkg"/*
+    } 2>/dev/null ||:
+}
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Build Functions
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+run_build() {
+    cd "$WORK/$pkg"
+    msg "building $name"
+
+    # if pkgfile has a build() function, run it
+    # otherwise, run a generic build
+    if type build >/dev/null 2>&1 ; then
+        build
+    else
+        generic_build
+    fi
+}
+
+# run if pkgfile doesn't define a custom build()
+generic_build() {
+    if [ -f configure ] ; then
+        bs_cfg || return 1
+    elif [ -f autogen.sh ] ; then
+        sh autogen.sh    || return 1
+        bs_cfg || return 1
+    fi
+    bs_make || return 1
+    bs_inst || return 1
+}
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Init
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+check_env() {
+    [ "$ROOT" ] || die "\$ROOT is not defined"
+}
+
+init() {
+    mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK"
+}
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Main
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+main() {
+    check_env
+    init
+    [ "$1" ] || return
+
+    flag=$1
+    shift
+
+    # validate syntax
+    case $flag in
+        a) [ "$1" ] || die 'no argument provided'
+    esac
+
+    case $flag in
+        a) add "$1"
+    esac
+}
+
+main "$@"
