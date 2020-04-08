@@ -1,6 +1,34 @@
 # bonsai [![Build Status](https://travis-ci.com/bonsai-linux/bonsai.svg?branch=master)](https://travis-ci.com/bonsai-linux/bonsai)
 
-<img align="right" src="https://bonsai-linux.org/res/logo.png">
+```
+# -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
+#                                                         #
+#                ,####,                                   #
+#                #######,  ,#####,                        #
+#                #####',#  '######                        #
+#                 ''###'';,,,'###'                        #
+#                       ,;  ''''                          #
+#                      ;;;   ,#####,                      #
+#                     ;;;'  ,,;;;###                      #
+#                     ';;;;'''####'                       #
+#                      ;;;                                #
+#                   ,.;;';'',,,                           #
+#            #     '     '                                #
+#            #                        O                   #
+#            ##, ,##,',##, ,##  ,#,   ,                   #
+#            # # #  # #''# #,,  # #   #                   #
+#            '#' '##' #  #  ,,# '##;, #                   #
+#                                                         #
+#    A simple Linux distribution based on musl-libc.      #
+#                                                         #
+#        http://github.com/bonsai-linux/bonsai            #
+#                                                         #
+#                   * NOTICE *                            #
+#                                                         #
+#   In active, early development. Not intended for use.   #
+#                                                         #
+# -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
+```
 
 A tiny Linux distribution based on musl-libc focused on simplicity and correctness.
 
