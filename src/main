@@ -1,5 +1,5 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# Vars
+# Variables              http://github.com/bonsai-linux/bonsai
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 : "${ROOT:=${HOME}/env/bonsai}"
 : "${PORTS:=$ROOT/src/ports}"
