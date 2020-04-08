@@ -26,7 +26,7 @@ loadpkgfile() {
     getportdir "$name"
     getpkgfile "$name"
     . "$pkgfile"
-    pkg=$name\#$ver
+    pkg=$name${ver:+\#}$ver
     getext "$url"
 }
 
@@ -36,4 +36,11 @@ unloadpkgfile() {
     unset -f build
 }
 
-isinst() { [ -d "$PKGS/$1"\#* ] ; return $? ; }
+isinst() {
+    # prefixed '@' denotes metapkgs, which do not have versions
+    case $1 in
+        @*) [ -d "$PKGS/$1" ] ;;
+         *) [ -d "$PKGS/$1"\#* ]
+    esac
+    return $?
+}
