@@ -9,17 +9,15 @@
 : "${CONFIG:=$ROOT/src/cfg}"
 : "${PROMPT:=→}"
 
-
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Main
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
 check_env() {
     [ "$ROOT" ] || die "\$ROOT is not defined"
 }
 
 init() {
-    mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK"
+    mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK" "$CONFIG"
 }
 
 usage() {

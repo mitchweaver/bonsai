@@ -7,11 +7,9 @@ add() {
     rm -rf -- "${WORK:-?}/$pkg"
     mkdir -p "$WORK/$pkg"
     [ "$url" ] && get
-    checksum
+    chksum
     extract
-    # copy all port's files (ex: patches)
-    cp -rf "$portdir"/*  "$WORK/$pkg"/ 2>/dev/null ||:
-    cp -rf "$portdir"/.* "$WORK/$pkg"/ 2>/dev/null ||:
+    copy
     run_build
     unloadpkgfile
 }
@@ -21,7 +19,7 @@ get() {
         die "failed to download $name"
 }
 
-checksum() {
+chksum() {
     cd "$portdir"
     if [ -f "$name".sums ] ; then
         msg 'comparing checksums'
@@ -57,4 +55,10 @@ extract() {
         rm -rf -- "${WORK:-?}/$pkg"/*/.*
         rmdir "$WORK/$pkg"/*
     } 2>/dev/null ||:
+}
+
+# copy all port's files (ex: patches)
+copy() {
+    cp -rf "$portdir"/*  "$WORK/$pkg"/ 2>/dev/null ||:
+    cp -rf "$portdir"/.* "$WORK/$pkg"/ 2>/dev/null ||:
 }
