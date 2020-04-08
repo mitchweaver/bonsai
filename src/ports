@@ -1,0 +1,37 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Portfile Handling
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+getportdir() {
+while read -r dir ; do
+    if [ -d "$dir$1" ] ; then
+        portdir=$dir$1
+        return
+    fi
+done <<-EOF
+$(printf '%s\n' "$PORTS"/*/)
+EOF
+die "unable to find portdir for '$1'"
+}
+
+getpkgfile() {
+    [ -f "$portdir/$name".pkgfile ] || die "unable to find pkgfile for '$1'"
+    pkgfile=$portdir/$name.pkgfile
+}
+
+# desc: loads $pkgfile variables into environment
+# arg: $name of pkg
+loadpkgfile() {
+    name=$1
+    getportdir "$name"
+    getpkgfile "$name"
+    . "$pkgfile"
+    pkg=$name\#$ver
+    getext "$url"
+}
+
+unloadpkgfile() {
+    unset name portdir pkgfile pkg ext
+    unset url ver link
+    unset -f build
+}

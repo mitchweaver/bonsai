@@ -1,0 +1,60 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Package Installation
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+add() {
+    loadpkgfile "$1"
+    rm -rf -- "${WORK:-?}/$pkg"
+    mkdir -p "$WORK/$pkg"
+    [ "$url" ] && get
+    checksum
+    extract
+    # copy all port's files (ex: patches)
+    cp -rf "$portdir"/*  "$WORK/$pkg"/ 2>/dev/null ||:
+    cp -rf "$portdir"/.* "$WORK/$pkg"/ 2>/dev/null ||:
+    run_build
+    unloadpkgfile
+}
+
+get() {
+    curl -qL#C - --url "$url" -o "$SOURCES/$pkg$ext" ||
+        die "failed to download $name"
+}
+
+checksum() {
+    cd "$portdir"
+    if [ -f "$name".sums ] ; then
+        msg 'comparing checksums'
+        ln -sf "$SOURCES/$pkg$ext" .
+        # we must unlink on both exit 0 and 1 as
+        # the ERR trap is undefined in POSIX sh
+        sha512sum -c "$name".sums ||
+            { unlink "$pkg$ext" ; die "checksum mismatch!" ; }
+        unlink "$pkg$ext"
+    else
+        warn "no checksum file found for '$name'"
+    fi
+    cd - >/dev/null
+}
+
+extract() {
+    case $ext in
+        .tar.xz|.txz)  set xz ;;
+        .tar.gz|.tgz)  set gunzip ;;
+        .tar.bz2|.tbz) set bunzip2 ;;
+        *) return
+    esac
+
+    msg 'extracting'
+
+    $1 -qdc "$SOURCES/$pkg$ext" | tar -C "$WORK/$pkg" -xf - ||
+        die "failed to decompress $pkg$ext"
+
+    # ensure the extracted dir is at the top-level (i.e. remove
+    # variation whether a tarball's files are encapsulated in a dir)
+    {
+        mv -f "$WORK/$pkg"/*/* "$WORK/$pkg"/
+        rm -rf -- "${WORK:-?}/$pkg"/*/.*
+        rmdir "$WORK/$pkg"/*
+    } 2>/dev/null ||:
+}

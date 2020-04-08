@@ -1,0 +1,28 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Build Functions
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+run_build() {
+    cd "$WORK/$pkg"
+    msg "building $name"
+
+    # if pkgfile has a build() function, run it
+    # otherwise, run a generic build
+    if type build >/dev/null 2>&1 ; then
+        build
+    else
+        generic_build
+    fi
+}
+
+# run if pkgfile doesn't define a custom build()
+generic_build() {
+    if [ -f configure ] ; then
+        bs_cfg || return 1
+    elif [ -f autogen.sh ] ; then
+        sh autogen.sh    || return 1
+        bs_cfg || return 1
+    fi
+    bs_make || return 1
+    bs_inst || return 1
+}

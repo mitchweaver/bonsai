@@ -1,0 +1,42 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Vars
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+: "${ROOT:=${HOME}/env/bonsai}"
+: "${PORTS:=$ROOT/src/ports}"
+: "${PKGS:=$ROOT/src/pkgs}"
+: "${SOURCES:=$ROOT/src/sources}"
+: "${WORK:=$ROOT/src/work}"
+: "${CONFIG:=$ROOT/src/cfg}"
+: "${PROMPT:=→}"
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Init
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+check_env() {
+    [ "$ROOT" ] || die "\$ROOT is not defined"
+}
+
+init() {
+    mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK"
+}
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Main
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+main() {
+    check_env
+    init
+    [ "$1" ] || return
+
+    flag=$1
+    shift
+
+    # validate syntax
+    case $flag in
+        a) [ "$1" ] || die 'no argument provided'
+    esac
+
+    case $flag in
+        a) add "$1"
+    esac
+}
