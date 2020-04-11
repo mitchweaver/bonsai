@@ -3,5 +3,6 @@
 # SC2046: word splitting    -  this is done sparingly and intentionally
 # SC2144: globs with test   -  intentional, it works in this instance
 script:
+  - make
   - shellcheck -s sh -e 1090 -e 2154 -e 2046 -e 2144 bonsai
   - shellcheck -s sh -e 1090 -e 2154 -e 2046 -e 2144 tools/mksum

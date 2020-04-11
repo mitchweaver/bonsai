@@ -1,0 +1,46 @@
+# uninstalls a given $name and removes its symlinks
+del() {
+    isinst "$1" || die "$1 is not installed"
+
+    # prompt user for confirmation before continuing
+    warn "these packages will be deleted:"
+    printf '\n     %s\n\n' "$*"
+    confirm
+
+    # delete the packages, one at a time
+    while [ "$1" ] ; do
+        # skip if package is not installed / already uninstalled
+        if ! isinst "$1" ; then
+            warn "$1 is not installed"
+            shift
+            continue
+        fi
+
+        # load pkg vars into environment to retrieve $pkg name
+        loadpkgfile "$1"
+
+        cd "$ROOT" || die "unable to cd to $ROOT"
+
+        if [ -d "$PKGS/$pkg" ] ; then
+            # go through $PKGS/$pkg, deleting files as we go
+            # afterwards, remove its symlink in the root
+            find "$PKGS/$pkg" -type f -o -type l | \
+            while read -r file ; do
+                rm -f "$file"
+                unlink "$ROOT/${file#$PKGS/$pkg}"
+            done
+            # recurse through dirs in reverse, removing empty dirs as we go
+            # afterwards, remove its equivalent dir in the $ROOT, if empty
+            #
+            # note: sed here is to emulte 'tac', which is not portable
+            find "$PKGS/$pkg" -type d | sed '1!G;h;$!d' | \
+            while read -r dir ; do
+                rmdir "$dir" 2>/dev/null ||:
+                rmdir "$ROOT/${dir#$PKGS/$pkg}" 2>/dev/null ||:
+            done
+        fi
+
+        msg "$pkg deleted"
+        shift
+    done
+}

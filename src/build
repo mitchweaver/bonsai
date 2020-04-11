@@ -6,7 +6,7 @@ run_build() {
     cd "$workdir" || die "couldn't cd to $workdir"
     msg "building $name"
 
-    flags
+    getflags
 
     # if pkgfile has a build() function, execute it
     if type build >/dev/null 2>&1 ; then
@@ -58,7 +58,7 @@ bsmake() {
 }
 
 # Exports flags into the environment to be read by makefiles.
-flags() {
+getflags() {
     # Import user's flags and export them.
     isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
 

@@ -34,6 +34,7 @@ usage() {
  '#' '##' #  #  ,,# '##;, #
 
       [a]  -  add
+      [d]  -  del
       [c]  -  count
       [i]  -  isinst
       [h]  -  usage
@@ -51,12 +52,13 @@ main() {
 
     # validate syntax
     case $flag in
-        a|i)
+        a|d|i)
             [ "$1" ] || die 'no argument provided'
     esac
 
     case $flag in
         a) add "$@" ;;
+        d) del "$@" ;;
         c) printf '%s\n' "$PKGS"/*/ | wc -l ;;
         i) isinst "$1" || die "$1 is not installed" && msg "$1 is installed" ;;
         h) usage

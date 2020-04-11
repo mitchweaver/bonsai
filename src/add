@@ -58,21 +58,22 @@ get() {
     done <"$portdir/$name".sources
 }
 
-# download a given url to stdout with netcat
-# --- todo: remove sed dependency
 dl() {
-    domain=${1#*://}
-    domain=${domain%%/*}
+    curl -#fLC - --retry 3 -o - "$1"
 
-    file=${1#*://}
-    file=${file#$domain}
+# -*-* downloading with netcat currently work in progress -*-*-*
+# domain=${1#*://}
+# domain=${domain%%/*}
+# file=${1#*://}
+# file=${file#$domain}
 
-nc -v -C "$domain" "${2:-80}" <<EOF | sed '/.*\r$/d'
-GET $file HTTP/1.1
-Host: $domain
-Connection: close
+# nc -v -C -w 9999 "$domain" "${2:-80}" <<EOF | sed '/.*\r$/d'
+# GET $file HTTP/1.1
+# Host: $domain
+# Connection: close
 
-EOF
+# EOF
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 }
 
 # args: $file $sum
