@@ -3,43 +3,45 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 run_build() {
-    cd "$WORK/$pkg"
+    cd "$workdir" || die "couldn't cd to $workdir"
     msg "building $name"
 
     flags
 
-    # if pkgfile has a run() function, execute it
-    if type run >/dev/null 2>&1 ; then
-        run
+    # if pkgfile has a build() function, execute it
+    if type build >/dev/null 2>&1 ; then
+        build
     else
         # otherwise, use a generic build
-        generic || die "generic build for $name"
+        generic || die "generic build failed for $name"
     fi
 
-    # create pkg dir if it hasn't been already
-    # bonsai uses this directory as a "database"
+    # create pkg dir in case it hasn't be already
+    # bonsai uses this directory as its pkg "database"
     mkdir -p "$PKGS/$pkg"
 }
 
 # Try to automagically build/install if a pkgfile doesn't
-# define a custom run().  Works for most packages.
+# define a custom build().  Works for most packages.
 generic() {
     if [ -f configure ] ; then
-        bcfg || return 1
+        bscfg || return 1
     elif [ -f autogen.sh ] ; then
         sh autogen.sh || return 1
-        bcfg || return 1
+        bscfg || return 1
     fi
     if [ -f *akefile ] ; then
-        bmk || return 1
-        binst || return 1
+        bsmake || return 1
+        bsmake install || return 1
     else
         return 1
     fi
 }
 
 # bonsai make function
-bmk() {
+bsmake() {
+    [ "$1" = install ] && msg "installing $name"
+
     # * arguments supplied override vars within makefiles should they exist
     # * to enable verbose build output, you can set the $VERBOSE env var
     # * while non-standard, some makefiles use lowercase vars
@@ -53,11 +55,6 @@ bmk() {
         destdir="$DESTDIR" prefix="$PREFIX" bindir="$BINDIR" \
         sbindir="$BINDIR" libdir="$LIBDIR" libexecdir="$LIBEXECDIR" \
         MAKEINFO=false "$@" || die "make $* failed for $name"
-}
-
-binst() {
-    msg "installing $name"
-    [ -f *akefile ] && bmk install
 }
 
 # Exports flags into the environment to be read by makefiles.

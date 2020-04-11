@@ -1,3 +1,5 @@
 info='bonsai global configuration files'
 link=false
-run() { install -D -m 0644 cfg/* "$CONFIG"/ ; }
+build() {
+    install -D -m 0644 *.cfg "$CONFIG"/
+}

@@ -26,13 +26,17 @@ loadpkgfile() {
     getportdir "$name"
     getpkgfile "$name"
     . "$pkgfile"
+
+    # helper variables
     pkg=$name${ver:+\#}$ver
-    getext "$url"
+
+    # dir where all ports files will be stored during build
+    workdir=${WORK:-?}/$pkg
 }
 
 unloadpkgfile() {
-    unset name portdir pkgfile pkg ext
-    unset url ver link
+    unset name portdir pkgfile pkg workdir
+    unset info url ver link
     unset -f build
 }
 

@@ -1,0 +1,8 @@
+info='x86_64 statically linked musl-libc gcc toolchain binary'
+ver=9.3.0
+build() {
+    # remove duplicated triplet, unneeded
+    rm -r x86_64-linux-musl
+    cd ..
+    cp -rf "$workdir" "$PKGS/$pkg"
+}

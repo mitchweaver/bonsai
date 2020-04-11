@@ -14,10 +14,3 @@ die() {
     >&2 printf "\033[31;1m%s \033[merror: %s\n" "$PROMPT" "$*"
     exit 1
 }
-
-getext() {
-    case $1 in
-        *.tar.*) ext=.tar.${1##*.} ;;
-             .*) ext=.${1##*.}
-    esac
-}

@@ -3,63 +3,108 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 add() {
+    # check if pkg is already installed (-f to force)
+    case $1 in
+        -f) isinst "$1" && warn "$1 is already installed" ; shift ;;
+         *) isinst "$1" && die  "$1 is already installed"
+    esac
+
+    # load package variables into the environment
     loadpkgfile "$1"
-    rm -rf -- "${WORK:-?}/$pkg"
-    mkdir -p "$WORK/$pkg"
-    [ "$url" ] && get
-    chksum
-    extract
-    copy
+
+    # clear old working directory should it exist
+    rm -rf -- "$workdir" 2>/dev/null ||:
+    mkdir -p "$workdir"
+
+    # download sources and copy to $workdir
+    if [ -f "$portdir/$name".sources ] ; then
+        mkdir -p "$SOURCES/$pkg"
+        get
+    fi
+
+    # build
     run_build
+
+    # after successful build, create the symlinks in the root
     linkpkg
+
+    # remove our build dir
+    rm -rf -- "$workdir"
+
+    msg "$name installed"
+
+    # remove package variables from the environment
     unloadpkgfile
 }
 
+# 1. downloads all remote files to $SOURCES/$pkg if needed
+# 2. copies files, both local and remote, as specified to $workdir
 get() {
-    curl -qL#C - --url "$url" -o "$SOURCES/$pkg$ext" ||
-        die "failed to download $name"
+    while read -r file sum ; do
+        case $file in
+            *'://'*)
+                # must be a remote file
+                msg "downloading ${file##*/}"
+                outfile=$SOURCES/$pkg/${file##*/}
+                [ -f "$outfile" ] || dl "$file" >"$outfile"
+                chksum "$outfile" "$sum"
+                extract "$outfile" "$workdir"
+                ;;
+            *)
+                # no protocol specified, must be a local file
+                chksum "$portdir/$file" "$sum"
+                extract "$portdir/$file" "$workdir"
+        esac
+    done <"$portdir/$name".sources
 }
 
+# download a given url to stdout with netcat
+# --- todo: remove sed dependency
+dl() {
+    domain=${1#*://}
+    domain=${domain%%/*}
+
+    file=${1#*://}
+    file=${file#$domain}
+
+nc -v -C "$domain" "${2:-80}" <<EOF | sed '/.*\r$/d'
+GET $file HTTP/1.1
+Host: $domain
+Connection: close
+
+EOF
+}
+
+# args: $file $sum
 chksum() {
-    cd "$portdir"
-    if [ -f "$name".sums ] ; then
-        msg 'comparing checksums'
-        ln -sf "$SOURCES/$pkg$ext" .
-        # we must unlink on both exit 0 and 1 as
-        # the ERR trap is undefined in POSIX sh
-        sha512sum -c "$name".sums ||
-            { unlink "$pkg$ext" ; die "checksum mismatch!" ; }
-        unlink "$pkg$ext"
-    else
-        warn "no checksum file found for '$name'"
-    fi
-    cd - >/dev/null
+    msg "comparing checksums for ${1##*/}"
+    sum=$(sha512sum "$1")
+    [ "$2" = "${sum%% *}" ] || die 'checksum mismatch!'
 }
 
 extract() {
-    case $ext in
-        .tar.xz|.txz)  set xz ;;
-        .tar.gz|.tgz)  set gunzip ;;
-        .tar.bz2|.tbz) set bunzip2 ;;
-        *) return
+    case $1 in
+        *.tar.*|*.tgz|*.txz|*.tbz)
+            decompress "$1" | tar -C "$2" -xf -
+            # ensure extracted tar files are in the top level of $2
+            mv "$2"/*/* "$2"/ 2>/dev/null ||:
+            # remove any empty dirs we may have created
+            rmdir "$2"/* 2>/dev/null ||:
+            ;;
+        *.xz|*.gz|*.bz2)
+            out=${1##*/}
+            decompress "$1" >"$2/${out%.*}"
+            ;;
+        *)
+            # not compressed or archived
+            cp -f "$1" "$2/${1##*/}"
     esac
-
-    msg 'extracting'
-
-    $1 -qdc "$SOURCES/$pkg$ext" | tar -C "$WORK/$pkg" -xf - ||
-        die "failed to decompress $pkg$ext"
-
-    # ensure the extracted dir is at the top-level (i.e. remove
-    # variation whether a tarball's files are encapsulated in a dir)
-    {
-        mv -f "$WORK/$pkg"/*/* "$WORK/$pkg"/
-        rm -rf -- "${WORK:-?}/$pkg"/*/.*
-        rmdir "$WORK/$pkg"/*
-    } 2>/dev/null ||:
 }
 
-# copy all port's files (ex: patches)
-copy() {
-    cp -rf "$portdir"/*  "$WORK/$pkg"/ 2>/dev/null ||:
-    cp -rf "$portdir"/.* "$WORK/$pkg"/ 2>/dev/null ||:
+decompress() {
+    case ${1##*.} in
+        xz|txz) xz -qdcT 0 ;;
+        gz|tgz) gunzip -qdc ;;
+        bz2|tbz) bunzip2 -qdc
+    esac <"$1"
 }
