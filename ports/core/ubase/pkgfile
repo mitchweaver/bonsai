@@ -1,0 +1,3 @@
+info='suckless unportable base'
+ver=3c88778c6c85d97fb63c41c05304519e0484b07c
+build() { bsmk ubase-box-install ; }

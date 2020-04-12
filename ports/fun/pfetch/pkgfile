@@ -1,0 +1,3 @@
+info='posix sh system information tool'
+ver=0.6.0
+build() { install -D -m 0755 "$name" "$pkg"/bin/"$name" ; }

@@ -4,5 +4,5 @@ build() {
     # remove duplicated triplet, unneeded
     rm -r x86_64-linux-musl
     cd ..
-    cp -rf "$workdir" "$PKGS/$pkg"
+    cp -rf "$workdir" "$pkg"
 }

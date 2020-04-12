@@ -1,0 +1,42 @@
+/* 'major' / 'minor' are not defined in just types.h on musl-libc */
+--- libutil/tty.c	2020-04-12 00:09:45.462544202 -0500
++++ libutil/tty.c	2020-04-12 00:10:33.059949153 -0500
+@@ -1,5 +1,6 @@
+ /* See LICENSE file for copyright and license details. */
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ #include <sys/stat.h>
+ 
+ #include <fcntl.h>
+--- mknod.c	2020-04-12 00:09:36.006662417 -0500
++++ mknod.c	2020-04-12 00:10:35.057924175 -0500
+@@ -1,6 +1,7 @@
+ /* See LICENSE file for copyright and license details. */
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ 
+ #include <fcntl.h>
+ #include <stdio.h>
+--- mountpoint.c	2020-04-12 00:10:13.529193321 -0500
++++ mountpoint.c	2020-04-12 00:10:35.058924162 -0500
+@@ -1,6 +1,7 @@
+ /* See LICENSE file for copyright and license details. */
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ 
+ #include <mntent.h>
+ #include <stdio.h>
+--- stat.c	2020-04-12 00:10:07.688266342 -0500
++++ stat.c	2020-04-12 00:10:35.058924162 -0500
+@@ -1,7 +1,8 @@
+ /* See LICENSE file for copyright and license details. */
+ #include <sys/stat.h>
+ #include <sys/types.h>
+- 
++#include <sys/sysmacros.h>
++
+ #include <inttypes.h>
+ #include <stdio.h>
+ #include <stdlib.h>

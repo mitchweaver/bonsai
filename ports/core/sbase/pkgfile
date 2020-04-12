@@ -1,0 +1,16 @@
+info='suckless base'
+ver=28063c02f4dd8b1bf8c0b29d9e2b8f575382a047
+build() {
+    bsmk sbase-box-install
+
+    # wrappers for common utilities
+    for file in egrep fgrep poweroff reboot ; do
+        printf '%s\n' '#!/bin/sh' >"$pkg/bin/$file"
+        chmod +x "$pkg/bin/$file"
+    done
+
+    printf '%s\n' '/bin/grep -E -- "$@"' >>"$pkg"/bin/egrep
+    printf '%s\n' '/bin/grep -F -- "$@"' >>"$pkg"/bin/fgrep
+    printf '%s\n' '/bin/kill -s USR1 1'  >>"$pkg"/bin/poweroff
+    printf '%s\n' '/bin/kill -s INT 1'   >>"$pkg"/bin/reboot
+}

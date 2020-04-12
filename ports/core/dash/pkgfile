@@ -1,0 +1,21 @@
+info='Debian Alquist shell (DASH)'
+ver=0.5.10.2
+build() {
+## dash's mkbuiltins script depends on "nl",
+## which is not included in musl-libc
+#cat >nl.c <<EOF
+##include <stdio.h>
+#int main() {
+#    size_t i = 0; char b[4096];
+#    while(fgets(b, sizeof b, stdin)) { printf("%zu %s", i, b); i++; }
+#}
+#EOF
+#$CC nl.c -o nl
+#export PATH="$PWD:$PATH"
+
+    export CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
+    bscfg
+    bsmk install
+
+    ln -sf dash "$pkg"/bin/sh
+}
