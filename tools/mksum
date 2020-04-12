@@ -1,14 +1,12 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # tool to quickly generate checksum files for ports
 #
 # http://github.com/bonsai-linux/bonsai
 #
 
-# find $name.sources file in $PWD
-sources=$(printf '%s\n' ./*.sources)
-[ -f "$sources" ] || die "no sources file found in \$PWD"
-:>"$sources".sums
+[ -f sources ] || die "no sources file found in \$PWD"
+:>sums
 
 # file syntax:
 #
@@ -28,18 +26,29 @@ while read -r line ; do
 
     # download and checksum, appending to temp file
     curl -qL#C - --url "$url" -o "$dl/${url##*/}" || exit 1
-    set -- $(sha512sum "$dl/${url##*/}")
-    printf '%s %s\n' "$url" "$1" >>"$sources".sums
+
+read -r sum _ <<-EOF
+$(sha512sum "$dl/${url##*/}")
+EOF
+
+    printf '%s %s\n' "$url" "$sum" >>sums
 
     # remove the temp dir
     rm -r "$dl"
-done <"$sources"
+done <sources
 
-mv -f "$sources".sums "$sources"
+mv -f sums sources
+
+# sc bug, incorrectly thinks we're blanking 'sources'
+# shellcheck disable=SC2094
 
 # add checksums of all port's files, ex: patches, omitting leading './'
-find . -type f ! -name . ! -name '*.pkgfile' ! -name '*.sources' | \
+find . -type f ! -name . ! -name pkgfile ! -name sources | \
 while read -r file ; do
-    set -- $(sha512sum "$file")
-    printf '%s %s\n' "${2#./}" "$1"
-done >>"$sources"
+
+read -r sum _ <<-EOF
+$(sha512sum "$file")
+EOF
+
+    printf '%s %s\n' "${file#./}" "$sum"
+done >>sources
