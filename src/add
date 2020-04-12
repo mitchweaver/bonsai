@@ -17,8 +17,8 @@ add() {
     mkdir -p "$workdir"
 
     # download sources and copy to $workdir
-    if [ -f "$portdir/$name".sources ] ; then
-        mkdir -p "$SOURCES/$pkg"
+    if [ -f "$portdir"/sources ] ; then
+        mkdir -p "$SOURCES/$pkgstring"
         get
     fi
 
@@ -37,7 +37,7 @@ add() {
     unloadpkgfile
 }
 
-# 1. downloads all remote files to $SOURCES/$pkg if needed
+# 1. downloads all remote files to $SOURCES/$pkgstring if needed
 # 2. copies files, both local and remote, as specified to $workdir
 get() {
     while read -r file sum ; do
@@ -45,17 +45,20 @@ get() {
             *'://'*)
                 # must be a remote file
                 msg "downloading ${file##*/}"
-                outfile=$SOURCES/$pkg/${file##*/}
+                outfile=$SOURCES/$pkgstring/${file##*/}
                 [ -f "$outfile" ] || dl "$file" >"$outfile"
                 chksum "$outfile" "$sum"
                 extract "$outfile" "$workdir"
                 ;;
             *)
-                # no protocol specified, must be a local file
+                # no protocol specified, must be a local file.
+                # checksum it just as we would a remote file, then copy it
                 chksum "$portdir/$file" "$sum"
-                extract "$portdir/$file" "$workdir"
+                # if file is in a dir, first create the dir
+                [ -d "$portdir/${file%%/*}" ] && mkdir -p "$workdir/${file%%/*}"
+                cp -f "$portdir/$file" "$workdir/$file"
         esac
-    done <"$portdir/$name".sources
+    done <"$portdir"/sources
 }
 
 dl() {
@@ -87,18 +90,23 @@ extract() {
     case $1 in
         *.tar.*|*.tgz|*.txz|*.tbz)
             decompress "$1" | tar -C "$2" -xf -
-            # ensure extracted tar files are in the top level of $2
-            mv "$2"/*/* "$2"/ 2>/dev/null ||:
+
+            # Ensure extracted tar files are in the top level of $2.
+            #
+            # note: Ee must use a loop here as glob will match '.'
+            #       in some shells even when not in the directory,
+            #       which will cause 'mv' to prematurely error.
+            for dot in "$2"/*/.* ; do
+                mv "$dot" "$2"/ 2>/dev/null ||:
+            done
+            mv "$2"/*/*  "$2"/ 2>/dev/null ||:
+
             # remove any empty dirs we may have created
             rmdir "$2"/* 2>/dev/null ||:
             ;;
         *.xz|*.gz|*.bz2)
             out=${1##*/}
             decompress "$1" >"$2/${out%.*}"
-            ;;
-        *)
-            # not compressed or archived
-            cp -f "$1" "$2/${1##*/}"
     esac
 }
 
