@@ -1,8 +1,8 @@
-# SC1090: file sourcing     -  we know, pkgfiles
-# SC2154: undeclared vars   -  vars inside pkgfiles
-# SC2046: word splitting    -  this is done sparingly and intentionally
-# SC2144: globs with test   -  intentional, it works in this instance
+# SC1090: file sourcing   - shellcheck is unaware of sourced pkgfiles
+# SC2154: undeclared vars - shellcheck is unaware vars inside pkgfiles
+# SC2034: unused variables - shellcheck is unaware of pkgfile vars use
 script:
   - make
-  - shellcheck -s sh -e 1090 -e 2154 -e 2046 -e 2144 bonsai
-  - shellcheck -s sh -e 1090 -e 2154 -e 2046 -e 2144 tools/mksum
+  - shellcheck -s sh -e 1090 -e 2154 bonsai
+  - shellcheck -s sh -e 1090 -e 2154 tools/*
+  - shellcheck -s sh -e 1090 -e 2154 -e 2034 ports/*/*/pkgfile

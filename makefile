@@ -15,14 +15,15 @@ install:
 	ln -sf ${PREFIX}/bin/bonsai ${PREFIX}/bin/bs
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# SC1090: file sourcing     -  we know, pkgfiles
-# SC2154: undeclared vars   -  vars inside pkgfiles
-# SC2046: word splitting    -  this is done sparingly and intentionally
-# SC2144: globs with test   -  intentional, it works in this instance
-SHELLCHECK = shellcheck -s sh -e 1090 -e 2154 -e 2046 -e 2144
+# SC1090: file sourcing     -  shellcheck is unaware of sourced pkgfiles
+# SC2154: undeclared vars   -  shellcheck is unaware vars inside pkgfiles
+SHELLCHECK = shellcheck -s sh -e 1090 -e 2154
 
 test:
 	${SHELLCHECK} bonsai
 	${SHELLCHECK} tools/*
+	@# SC2034: unused variables - shellcheck is unaware of how vars in
+	@#                            pkgfiles are used
+	${SHELLCHECK} -e 2034 ports/*/*/pkgfile
 	@# count lines of code, excluding comments and blank lines:
 	@echo SLOC: $$(sed '/^\s*#/d;/^\s*$$/d' bonsai  | wc -l)
