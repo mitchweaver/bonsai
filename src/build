@@ -8,6 +8,9 @@ run_build() {
 
     getflags
 
+    # automatically find and apply patches if they exist
+    bspatch
+
     # if pkgfile has a build() function, execute it
     if type build >/dev/null 2>&1 ; then
         build
@@ -18,7 +21,49 @@ run_build() {
 
     # create pkg dir in case it hasn't be already
     # bonsai uses this directory as its pkg "database"
-    mkdir -p "$PKGS/$pkg"
+    mkdir -p "$pkg"
+}
+
+# Exports flags into the environment to be read by makefiles.
+getflags() {
+    # Import user's flags and export them.
+    isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
+
+    # If we're bootstrapping, we most likely will not
+    # yet have slibtool or pkgconf.
+    [ -x /bin/slibtool ] && LIBTOOL=/bin/slibtool
+    [ -x /bin/pkgconf  ] && PKG_CONFIG=/bin/pkgconf
+
+    # User flags
+    export JOBS=${JOBS:-1} CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+           LIBRARY_PATH LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH \
+           BINDIR LIBDIR SBINDIR LIBEXECDIR MANDIR
+
+    # Makefiles have a problem which goes mostly unrecognized.
+    # There is no standard forcing authors to use CFLAGS, CPPFLAGS, etc.
+    #
+    # This leads to packages that compile correctly, but do not include the
+    # security mitigations / performance enhancements we want.
+    #
+    # One way of getting around this is to rewrite or patch all makefiles
+    # by hand. This is too much of a burden and is almost impossible
+    # for large-scale packages using autotools.
+    #
+    # While discouraged, *because you should be writing makefiles correctly!*,
+    # the lesser of evils is to pack our build flags into $CC variable.
+    #
+    # This forces all package makefiles to use them as at the very least
+    # they should use $CC or $cc instead of hardcoding 'gcc', even if they
+    # do not properly include CFLAGS and friends.
+    #
+    # This also prevents overwriting of packages' internal flags should
+    # they be ignorantly overwriting the external $CFLAGS variable
+    # instead of using an internally created one such as $CCFLAGS.
+    export CC="${CC:-gcc} $CFLAGS $CPPFLAGS" CXX="${CXX:-g++} $CFLAGS $CPPFLAGS"
+
+    # System flags
+    export LIBTOOL=${LIBTOOL:-libtool} PKG_CONFIG=${PKG_CONFIG:-pkg-config} \
+           cc="$CC" SHELL=/bin/sh DESTDIR="$pkg" PREFIX=/ prefix=/
 }
 
 # Try to automagically build/install if a pkgfile doesn't
@@ -30,16 +75,17 @@ generic() {
         sh autogen.sh || return 1
         bscfg || return 1
     fi
-    if [ -f *akefile ] ; then
-        bsmake || return 1
-        bsmake install || return 1
+
+    if [ -f Makefile ] || [ -f makefile ] ; then
+        bsmk || return 1
+        bsmk install || return 1
     else
         return 1
     fi
 }
 
 # bonsai make function
-bsmake() {
+bsmk() {
     [ "$1" = install ] && msg "installing $name"
 
     # * arguments supplied override vars within makefiles should they exist
@@ -57,23 +103,75 @@ bsmake() {
         MAKEINFO=false "$@" || die "make $* failed for $name"
 }
 
-# Exports flags into the environment to be read by makefiles.
-getflags() {
-    # Import user's flags and export them.
-    isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
+bscfg() {
+    # Try to enable as many of user's autotools.cfg options as possible.
 
-    # If we're bootstrapping, we most likely will not
-    # yet have slibtool or pkgconf.
-    [ -x /bin/slibtool ] && LIBTOOL=/bin/slibtool
-    [ -x /bin/pkgconf  ] && PKG_CONFIG=/bin/pkgconf
+    # 1. grab --help output from the configure script
+    cfghelp=$(sh ./configure --help)
+    cfgflags=
 
-    # System flags
-    export CC="${CC:-gcc}" CXX="${CXX:-g++}" cc="$CC" \
-           LIBTOOL=${LIBTOOL:-libtool} PKG_CONFIG=${PKG_CONFIG:-pkg-config} \
-           SHELL=/bin/sh DESTDIR="$PKGS/$pkg" PREFIX=/ prefix=/
+    YES() {
+        case $cfghelp in
+            *" --enable-$1 "*|*" --disable-$1 "*)
+                cfgflags="$cfgflags --enable-$1 "
+                msg "adding flag: --enable-$1 "
+                ;;
+            *" --with-$1 "*|*" --without-$1 "*)
+                cfgflags="$cfgflags --with-$1 "
+                msg "adding flag: --with-$1 "
+        esac
+    }
+    NO() {
+        case $cfghelp in
+            *" --disable-$1 "*|*" --enable-$1 "*)
+                cfgflags="$cfgflags --disable-$1 "
+                msg "adding flag: --disable-$1 "
+                ;;
+            *" --without-$1 "*|*" --with-$1 "*)
+                cfgflags="$cfgflags --without-$1 "
+                msg "adding flag: --without-$1 "
+        esac
+    }
+    SET() {
+        case $cfghelp in
+            *" --$1="*)
+                cfgflags="$cfgflags --$1=$2 "
+                msg "adding flag: --$1=$2 "
+                ;;
+            *" --$1 "*)
+                cfgflags="$cfgflags --$1 "
+                msg "adding flag: --$1 "
+        esac
+    }
 
-    # User flags
-    export JOBS=${JOBS:-1} CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
-           LIBRARY_PATH LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH \
-           BINDIR LIBDIR SBINDIR LIBEXECDIR MANDIR
+    # 2. Parse the user's autotools.cfg, using our helper funtions
+    #    to build up the configure script arguments.
+    while read -r func flag arg ; do
+        case $func in
+            SET) SET "$flag" "$arg" ;;
+            YES) YES "$flag" ;;
+            NO)  NO  "$flag" ;;
+        esac
+    done <"$CONFIG"/autotools.cfg
+
+    # 3. Store flags used to a file for convenience.
+    for flag in $cfgflags ; do
+        printf '%s\n' "$flag" >>"$workdir"/cfgflags
+    done
+
+    # 4. Run the script with our argument chain.
+    #
+    #    Disable sc warning for word splitting, this is intentional.
+    #    shellcheck disable=SC2086
+    sh ./configure $cfgflags || die "configure failed for $name"
+}
+
+# convenience function, automatically finds and apply all
+# *.patch or *.diff from a pkg's $portdir
+bspatch() {
+    find . -type f -prune -name '*.patch' -o -name '*.diff' | sort | \
+    while read -r patch ; do
+        msg "applying patch: ${patch##*/}"
+        patch -u -f -l -p0 <"$patch" >/dev/null || die "$patch failed"
+    done
 }
