@@ -15,9 +15,8 @@ run_build() {
     if type build >/dev/null 2>&1 ; then
         build
     else
-        # otherwise, use a generic build
-        generic || die "generic build failed for $name"
-    fi
+        generic_build
+    fi || die "build failed for $name"
 
     # create pkg dir in case it hasn't be already
     # bonsai uses this directory as its pkg "database"
@@ -68,7 +67,7 @@ getflags() {
 
 # Try to automagically build/install if a pkgfile doesn't
 # define a custom build().  Works for most packages.
-generic() {
+generic_build() {
     if [ -f configure ] ; then
         bscfg || return 1
     elif [ -f autogen.sh ] ; then
@@ -108,7 +107,6 @@ bscfg() {
 
     # 1. grab --help output from the configure script
     cfghelp=$(sh ./configure --help)
-    cfgflags=
 
     YES() {
         case $cfghelp in
@@ -156,6 +154,10 @@ bscfg() {
 
     # 3. Store flags used to a file for convenience.
     for flag in $cfgflags ; do
+        printf '%s\n' "$flag" >>"$workdir"/cfgflags
+    done
+    for flag in "$@" ; do
+        msg "adding flag: $flag"
         printf '%s\n' "$flag" >>"$workdir"/cfgflags
     done
 

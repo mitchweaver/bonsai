@@ -1,3 +1,10 @@
 info='suckless unportable base'
 ver=3c88778c6c85d97fb63c41c05304519e0484b07c
-build() { bsmk ubase-box-install ; }
+build() {
+    # don't build eject
+    sed '/eject.*.\\/d' Makefile >tmp ; mv -f tmp Makefile
+    # don't build clear, use whats given from netbsd-curses
+    sed '/clear.*.\\/d' Makefile >tmp ; mv -f tmp Makefile
+
+    bsmk ubase-box-install
+}
