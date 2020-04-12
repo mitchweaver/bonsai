@@ -1,6 +1,4 @@
 info='stage0 metapkg - everything needed to build @stage1 within a chroot'
 build() {
-    bs a sbase ubase
-    # :
-    # dash sed
+    bs a gcc-bin-x86_64 sbase ubase dash
 }

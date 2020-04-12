@@ -7,39 +7,51 @@ linkpkg() {
     # if link=false is specified in the pkgfile, return
     [ "$link" = false ] && return
 
+    # if given a specific $PKGS to link against, use this
+    # (this is done during relink_world)
+    if [ "$2" ] ; then
+        LINK_PKGS=$2/src/pkgs
+        # remove doubled leading slash if given $ROOT was '/'
+        LINK_PKGS=/${LINK_PKGS#//}
+    else
+        # otherwise use $PKGS from the environment as normal
+        LINK_PKGS=$PKGS
+    fi
+
     # do not attempt to link if pkg is not installed
     isinst "$name" || die "$name is not installed"
 
     cd "$ROOT" || die "could not cd to $ROOT"
+
     msg "creating symlinks for $name"
 
     for dir in bin sbin share include etc lib libexec ; do
-        if [ -d "$PKGS/$pkg/$dir" ] ; then
+        if [ -d "$PKGS/$pkgstring/$dir" ] ; then
             # recursively create pkg subdirectories in
             # equivalent $ROOT subdirectories
-            # example: $pkg/lib/pkgconfig -> $ROOT/lib/pkgconfig
-            find "$PKGS/$pkg/$dir" ! -path "*$dir" \
+            # example: $PKGS/$pkgstring/lib/pkgconfig -> $ROOT/lib/pkgconfig
+            find "$PKGS/$pkgstring/$dir" ! -path "*$dir" \
                     -type d 2>/dev/null | while read -r subdir ; do
-                mkdir -p "${subdir#$PKGS/$pkg/}"
+                mkdir -p "${subdir#$PKGS/$pkgstring/}"
             done
 
             # recursively link all files
-            # example: $pkg/include/asm/*.h -> $ROOT/include/asm/*.h
-            find "$PKGS/$pkg/$dir" ! -path "*share/*man*" \
+            # example: $PKGS/$pkgstring/include/asm/*.h -> $ROOT/include/asm/*.h
+            find "$PKGS/$pkgstring/$dir" ! -path "*share/*man*" \
                     -type f -o -type l 2>/dev/null | while read -r file ; do
-                file="${file#$PKGS/$pkg/}"
-                ln -sf "$PKGS/$pkg/$file" "$file" 2>/dev/null
+                file="${file#$PKGS/$pkgstring/}"
+                ln -sf "$LINK_PKGS/$pkgstring/$file" "$file" 2>/dev/null
             done
         fi
     done
 
     # do the same for all possibly existing manpage directories
     for manX in man1 man2 man3 man4 man5 man6 man7 man8 ; do
-        if [ -d "$PKGS/$pkg/share/man/$manX" ] ; then
-            find "$PKGS/$pkg/share/man/$manX" ! -path "*/$manX" 2>/dev/null | \
+        if [ -d "$PKGS/$pkgstring/share/man/$manX" ] ; then
+            find "$PKGS/$pkgstring/share/man/$manX" ! -path "*/$manX" 2>/dev/null | \
             while read -r man ; do
-                ln -sf "$PKGS/$pkg/share/man/$manX/${man##*/}" \
-                    "${man#$PKGS/$pkg/}" 2>/dev/null
+                ln -sf "$LINK_PKGS/$pkgstring/share/man/$manX/${man##*/}" \
+                    "${man#$PKGS/$pkgstring/}" 2>/dev/null
             done
         fi
     done
@@ -47,3 +59,50 @@ linkpkg() {
     # return whence we were
     cd - >/dev/null
 }
+
+# relink a package or list of packages
+relink() {
+    for name in "$@" ; do
+        loadpkgfile "$name"
+        linkpkg "$name"
+        unloadpkgfile
+    done
+}
+
+# relink the world against a given $ROOT location
+# (used to convert a stage0 into a chrooted environment)
+relink_world() {
+    [ -d "$1" ] || die "no such directory $1"
+
+    msg "relinking world with \$ROOT=$1..."
+    for name in $(listpkgs) ; do
+        loadpkgfile "$name"
+        linkpkg "$name" "$1"
+        unloadpkgfile
+    done
+}
+
+# # * relinks every package installed, used to fix broken / inconsistent symlinks
+# # * also used to bootstrap systems under a different $ROOT
+# # params: [--chroot]
+# relink_world() {
+#     # if no args, use the $PKGS variable from the bonsai.rc
+#     case "$1" in
+#         --chroot) relink_pkgs=/src/pkgs ;;
+#                *) relink_pkgs="$PKGS"
+#     esac
+#     msg "relinking world with \$PKGS=$relink_pkgs..."
+#     echo
+
+#     listpkgs | while read -r pkgid ; do
+#         pkg="$(pkgid2pkg "$pkgid")"
+#         if ! grep '^nolink=true$' "$(getpkgfile $pkg)" >/dev/null ; then
+#             # if its a metapkg, only link if it has a pkgdir
+#             ismetapkg "$pkg" && [ ! -d "$PKGS/$pkg" ] && continue
+#             linkpkg "$pkg" "$relink_pkgs"
+#         fi
+#     done || die "relink_world(): linking failed"
+
+#     echo
+#     msg 'done!'
+# }

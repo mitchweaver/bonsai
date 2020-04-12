@@ -10,6 +10,11 @@
 : "${TOOLS:=$ROOT/src/tools}"
 : "${PROMPT:=→}"
 
+# prepend bonsai paths to the running environment's paths
+# programs and libraries inside the chroot will be preferred
+export PATH="$ROOT/bin:$PATH"
+export LD_LIBRARY_PATH="$ROOT/lib:$LD_LIBRARY_PATH:/lib:/usr/lib"
+
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Main
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -35,8 +40,11 @@ usage() {
 
       [a]  -  add
       [d]  -  del
+      [r]  -  relink
+      [l]  -  list
       [c]  -  count
       [i]  -  isinst
+      [s]  -  search
       [h]  -  usage
 
 EOF
@@ -52,15 +60,19 @@ main() {
 
     # validate syntax
     case $flag in
-        a|d|i)
+        a|d|i|r|*d)
             [ "$1" ] || die 'no argument provided'
     esac
 
     case $flag in
         a) add "$@" ;;
         d) del "$@" ;;
+        r) relink "$@" ;;
+        l) listpkgs ;;
         c) printf '%s\n' "$PKGS"/*/ | wc -l ;;
         i) isinst "$1" || die "$1 is not installed" && msg "$1 is installed" ;;
+        s) searchpkg "$1" ;;
+        *relink-world) relink_world "$1" ;;
         h) usage
     esac
 }

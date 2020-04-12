@@ -21,26 +21,26 @@ del() {
 
         cd "$ROOT" || die "unable to cd to $ROOT"
 
-        if [ -d "$PKGS/$pkg" ] ; then
+        if [ -d "$pkg" ] ; then
             # go through $PKGS/$pkg, deleting files as we go
             # afterwards, remove its symlink in the root
-            find "$PKGS/$pkg" -type f -o -type l | \
+            find "$pkg" -type f -o -type l | \
             while read -r file ; do
                 rm -f "$file"
-                unlink "$ROOT/${file#$PKGS/$pkg}"
+                unlink "$ROOT/${file#$pkg}"
             done
             # recurse through dirs in reverse, removing empty dirs as we go
             # afterwards, remove its equivalent dir in the $ROOT, if empty
             #
             # note: sed here is to emulte 'tac', which is not portable
-            find "$PKGS/$pkg" -type d | sed '1!G;h;$!d' | \
+            find "$pkg" -type d | sed '1!G;h;$!d' | \
             while read -r dir ; do
                 rmdir "$dir" 2>/dev/null ||:
-                rmdir "$ROOT/${dir#$PKGS/$pkg}" 2>/dev/null ||:
+                rmdir "$ROOT/${dir#$pkg}" 2>/dev/null ||:
             done
         fi
 
-        msg "$pkg deleted"
+        msg "$pkgstring deleted"
         shift
     done
 }

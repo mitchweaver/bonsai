@@ -3,38 +3,40 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 add() {
-    # check if pkg is already installed (-f to force)
-    case $1 in
-        -f) isinst "$1" && warn "$1 is already installed" ; shift ;;
-         *) isinst "$1" && die  "$1 is already installed"
-    esac
+    for p ; do
+        # check if pkg is already installed (-f to force)
+        case $1 in
+            -f) isinst "$p" && warn "$p is already installed" ; shift ;;
+            *) isinst "$p" && die  "$p is already installed"
+        esac
 
-    # load package variables into the environment
-    loadpkgfile "$1"
+        # load package variables into the environment
+        loadpkgfile "$p"
 
-    # clear old working directory should it exist
-    rm -rf -- "$workdir" 2>/dev/null ||:
-    mkdir -p "$workdir"
+        # clear old working directory should it exist
+        rm -rf -- "$workdir" 2>/dev/null ||:
+        mkdir -p "$workdir"
 
-    # download sources and copy to $workdir
-    if [ -f "$portdir"/sources ] ; then
-        mkdir -p "$SOURCES/$pkgstring"
-        get
-    fi
+        # download sources and copy to $workdir
+        if [ -f "$portdir"/sources ] ; then
+            mkdir -p "$SOURCES/$pkgstring"
+            get
+        fi
 
-    # build
-    run_build
+        # build
+        run_build
 
-    # after successful build, create the symlinks in the root
-    linkpkg
+        # after successful build, create the symlinks in the root
+        linkpkg
 
-    # remove our build dir
-    rm -rf -- "$workdir"
+        # remove our build dir
+        rm -rf -- "$workdir"
 
-    msg "$name installed"
+        msg "$name installed"
 
-    # remove package variables from the environment
-    unloadpkgfile
+        # remove package variables from the environment
+        unloadpkgfile
+    done
 }
 
 # 1. downloads all remote files to $SOURCES/$pkgstring if needed

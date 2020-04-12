@@ -20,9 +20,9 @@ getpkgfile() {
 }
 
 # desc: loads $pkgfile variables into environment
-# arg: $name of pkg
+# arg: $name or $pkgstring of package
 loadpkgfile() {
-    name=$1
+    name=${1%%\#*}
     getportdir "$name"
     getpkgfile "$name"
     . "$pkgfile"
