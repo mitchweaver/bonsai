@@ -15,8 +15,8 @@ die "unable to find portdir for '$1'"
 }
 
 getpkgfile() {
-    [ -f "$portdir/$name".pkgfile ] || die "unable to find pkgfile for '$1'"
-    pkgfile=$portdir/$name.pkgfile
+    [ -f "$portdir"/pkgfile ] || die "unable to find pkgfile for '$1'"
+    pkgfile=$portdir/pkgfile
 }
 
 # desc: loads $pkgfile variables into environment
@@ -28,10 +28,12 @@ loadpkgfile() {
     . "$pkgfile"
 
     # helper variables
-    pkg=$name${ver:+\#}$ver
+    pkgstring=$name${ver:+\#}$ver
 
-    # dir where all ports files will be stored during build
-    workdir=${WORK:-?}/$pkg
+    # dir where port will be built and files copied
+    workdir=${WORK:-?}/$name
+    # dir the package will be installed to
+    pkg=$PKGS/$pkgstring
 }
 
 unloadpkgfile() {
@@ -40,11 +42,38 @@ unloadpkgfile() {
     unset -f build
 }
 
+# checks whether $name is installed
 isinst() {
     # prefixed '@' denotes metapkgs, which do not have versions
     case $1 in
-        @*) [ -d "$PKGS/$1" ] ;;
-         *) [ -d "$PKGS/$1"\#* ]
+        @*)
+            [ -d "$PKGS/$1" ]
+            ;;
+         *)
+            # we use a case statement as globs do not work with test
+            printf '%s\n' "$PKGS"/*/ | \
+            while read -r dir ; do
+                case $dir in */"$1"\#*) break ; esac
+                false
+            done
     esac
     return $?
+}
+
+# list packages installed
+listpkgs() {
+    printf '%s\n' "$PKGS"/* | \
+    while read -r pkg ; do
+        printf '%s\n' "${pkg#$PKGS/}"
+    done
+}
+
+# search for a packaged named $1
+searchpkg() {
+    printf '%s\n' "$PORTS"/*/* | \
+    while read -r dir ; do
+        case $dir in
+            *"$1"*) printf '%s\n' "${dir##*/}"
+        esac
+    done
 }
