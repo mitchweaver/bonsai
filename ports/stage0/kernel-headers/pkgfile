@@ -1,0 +1,17 @@
+info='Linux kernel headers patched for musl-libc'
+ver=4.19.88
+prebuild() {
+    # comes with patches that are already applied
+    rm -r patches
+}
+build() {
+    bsmk ARCH=generic install
+    bsmk ARCH=x86_64 install
+}
+postbuild() {
+    # remove non-x86_64 architectures
+    JUNK='create-dist.sh powerpc or1k openrisc mips microblaze i386 aarch64'
+    for junk in $JUNK ; do
+        rm -rf "${pkg:-?}/$junk"
+    done
+}

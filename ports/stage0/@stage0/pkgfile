@@ -1,0 +1,3 @@
+info='stage0 metapkg - everything needed to build @stage1 within a chroot'
+deps="@fs @cfg gcc-bin-x86_64 musl kernel-headers bsd-headers sbase obase uzlib xz-embedded make dash"
+build() { : ; }

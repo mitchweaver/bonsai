@@ -1,0 +1,10 @@
+info='radically unbloated DEFLATE/zlib/gzip compression/decompression library'
+ver=2.9.4
+build() {
+    bsmk
+    install -D -m 0755 examples/tgzip/tgzip "$pkg"/bin/tgzip
+    install -D -m 0755 examples/tgunzip/tgunzip "$pkg"/bin/tgunzip
+    
+    # uncomment if you want the lib as well:
+    # install -D -m 0755 lib/libtinf.a "$pkg"/lib/libtinf.a
+}

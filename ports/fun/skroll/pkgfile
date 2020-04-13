@@ -1,0 +1,2 @@
+info='read text on stdin and make it scroll on stdout'
+ver=0.6

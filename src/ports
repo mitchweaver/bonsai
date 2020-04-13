@@ -15,6 +15,7 @@ die "unable to find portdir for '$1'"
 }
 
 getpkgfile() {
+    [ "$portdir" ] || getportdir "$1"
     [ -f "$portdir"/pkgfile ] || die "unable to find pkgfile for '$1'"
     pkgfile=$portdir/pkgfile
 }
@@ -37,9 +38,9 @@ loadpkgfile() {
 }
 
 unloadpkgfile() {
-    unset name portdir pkgfile pkg workdir
-    unset info url ver link
-    unset -f build
+    unset name portdir pkgfile pkgstring pkg workdir
+    unset info url ver deps link
+    unset -f build prebuild postbuild
 }
 
 # checks whether $name is installed
@@ -77,3 +78,58 @@ searchpkg() {
         esac
     done
 }
+
+# calculates dependencies of a $name and stores
+# them in $pkgdeps in the correct installation order
+pkgdeps() {
+    # recursively go through the dependency tree appending
+    # unique deps to $pkdeps as we go
+    dep_recurse() {
+        unset deps
+        loadpkgfile "$1"
+        for dep in $deps ; do
+            if ! contains "$pkgdeps" " $dep " ; then
+                pkgdeps=" $pkgdeps $dep "
+                dep_recurse "$dep"
+            fi
+        done
+    }
+
+    # start recursion
+    dep_recurse "$1"
+
+    # remove leading/trailing whitspace
+    # shellcheck disable=SC2086
+    set -- $pkgdeps
+    pkgdeps=$*
+}
+
+# # show what packages depend on given port
+# # params: $name
+# rdeps() {
+#     # echo all packages that list $1 in their $deps
+#     depends() {
+#         find "$PORTS" -name pkgfile | while read -r _pkgfile ; do
+#             deps=""
+#             . "$_pkgfile"
+#             for dep in $deps ; do
+#                 [ "$dep" = "$1" ] && echo "$_pkgfile"
+#             done
+#         done
+#     }
+#     deps="$(depends "$1")"
+
+#     for dep in $deps ; do
+#         deps="$deps $(depends "$dep")"
+#     done
+   
+#     # 1. remove duplicates and white space
+#     # 2. convert $root/src/ports/$name/pkgfile -> $name
+#     set -- $(\
+#         for dep in $deps ; do
+#             printf '%s\n' $(basename $(dirname $dep)) $@
+#         done | sort -u \
+#     )
+#     msg "$*"
+#     unset deps dep
+# }

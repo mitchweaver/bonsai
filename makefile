@@ -17,13 +17,18 @@ install:
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # SC1090: file sourcing     -  shellcheck is unaware of sourced pkgfiles
 # SC2154: undeclared vars   -  shellcheck is unaware vars inside pkgfiles
-SHELLCHECK = shellcheck -s sh -e 1090 -e 2154
+# SC2120: unused arguments   - shellcheck is unaware of pkgfile function calls
+SHELLCHECK = shellcheck -s sh -e 1090 -e 2154 -e 2120
 
 test:
 	${SHELLCHECK} bonsai
 	${SHELLCHECK} tools/*
-	@# SC2034: unused variables - shellcheck is unaware of how vars in
-	@#                            pkgfiles are used
-	${SHELLCHECK} -e 2034 ports/*/*/pkgfile
+	@# SC2034: unused variables
+	@#         shellcheck is unaware of how vars in pkgfiles are used
+	@# SC2016: expressions in single quotes don't expand
+	@#         this is used often in sed calls within pkgfiles
+	@# SC2086: word splitting
+	@#         this is used often, intentionally, in pkgfiles
+	${SHELLCHECK} -e 2034 -e 2016 -e 2086 ports/*/*/pkgfile
 	@# count lines of code, excluding comments and blank lines:
 	@echo SLOC: $$(sed '/^\s*#/d;/^\s*$$/d' bonsai  | wc -l)

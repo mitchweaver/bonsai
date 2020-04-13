@@ -1,0 +1,7 @@
+info='GNU make build automation tool'
+ver=4.3
+build() {
+    CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \
+    bscfg
+    bsmk install
+}

@@ -1,3 +1,7 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# Package Removal        http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
 # uninstalls a given $name and removes its symlinks
 del() {
     isinst "$1" || die "$1 is not installed"
@@ -26,8 +30,8 @@ del() {
             # afterwards, remove its symlink in the root
             find "$pkg" -type f -o -type l | \
             while read -r file ; do
-                rm -f "$file"
-                unlink "$ROOT/${file#$pkg}"
+                rm -f "$file" 2>/dev/null ||:
+                unlink "$ROOT/${file#$pkg}" 2>/dev/null ||:
             done
             # recurse through dirs in reverse, removing empty dirs as we go
             # afterwards, remove its equivalent dir in the $ROOT, if empty

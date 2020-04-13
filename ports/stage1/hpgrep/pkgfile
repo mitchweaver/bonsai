@@ -1,0 +1,7 @@
+info='pgrep from Heirloom Utils'
+ver=26.12.2013
+build() {
+    $CC $CFLAGS -I. pgrep.c -o pgrep
+    install -D -m 0755 pgrep "$pkg"/bin/pgrep
+    install -D -m 0644 pgrep.1 "$pkg"/share/man/man1/pgrep.1
+}

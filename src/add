@@ -3,12 +3,49 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 add() {
-    for p ; do
-        # check if pkg is already installed (-f to force)
-        case $1 in
-            -f) isinst "$p" && warn "$p is already installed" ; shift ;;
-            *) isinst "$p" && die  "$p is already installed"
+    # packages we have been asked to add
+    mainpkgs=$*
+
+    # clear the array, we will use it to build the list
+    set --
+
+    for p in $mainpkgs ; do
+        # grab initial package variables
+        loadpkgfile "$p"
+
+        # search for dependencies, the value is stored in $pkgdeps
+        pkgdeps "$p"
+
+        # add deps to list, before the main package
+        case $pkgdeps in
+            ""|"* *") ;; # if unset or empty string, there are no deps
+            *)
+                for dep in $pkgdeps ; do
+                    # if dep is not installed, schedule it to be added
+                    if ! isinst "$dep" ; then
+                        contains "$*" " $dep " || set -- "$* $dep"
+                    fi
+                done
         esac
+
+        # once all dependencies have been calculated, append the main package
+        set -- "$* $p"
+
+        # remove variables from the environment
+        unloadpkgfile
+    done
+
+    # now that we have the correct dependency-tree calculated,
+    # add all of the arguments
+    #
+    # splitting on '$@' is intentional for the loop
+    # shellcheck disable=SC2068
+    for p in $@ ; do
+        # start back at $WORK directory as $workdir may get deleted
+        cd "$WORK" || die "couldn't cd to $WORK"
+
+        # warn if package is being reinstalled
+        isinst "$p" && die "$p is already installed"
 
         # load package variables into the environment
         loadpkgfile "$p"
@@ -47,15 +84,33 @@ get() {
             *'://'*)
                 # must be a remote file
                 msg "downloading ${file##*/}"
-                outfile=$SOURCES/$pkgstring/${file##*/}
-                [ -f "$outfile" ] || dl "$file" >"$outfile"
-                chksum "$outfile" "$sum"
+
+# curl cannot handle '#' in file paths and I cannot figure
+# out how to fix this without patching it.
+#
+# as a shitty workaround use '-' as the delimitor for $SOURCES dirs
+IFS='#' read -r ppath pver <<EOF
+$SOURCES/$pkgstring
+EOF
+                outfile=$ppath-$pver/${file##*/}
+
+                if [ -f "$outfile" ] ; then
+                    # if file exists, it may be a partial download
+                    # try to continue the download
+                    if ! chksum "$outfile" "$sum" ; then
+                        dl "$file" "$outfile"
+                        chksum "$outfile" "$sum" || die 'checksum mismatch!'
+                    fi
+                else
+                    dl "$file" "$outfile"
+                    chksum "$outfile" "$sum" || die 'checksum mismatch!'
+                fi
                 extract "$outfile" "$workdir"
                 ;;
             *)
                 # no protocol specified, must be a local file.
                 # checksum it just as we would a remote file, then copy it
-                chksum "$portdir/$file" "$sum"
+                chksum "$portdir/$file" "$sum" || die 'checksum mismatch!'
                 # if file is in a dir, first create the dir
                 [ -d "$portdir/${file%%/*}" ] && mkdir -p "$workdir/${file%%/*}"
                 cp -f "$portdir/$file" "$workdir/$file"
@@ -63,9 +118,7 @@ get() {
     done <"$portdir"/sources
 }
 
-dl() {
-    curl -#fLC - --retry 3 -o - "$1"
-
+dl() { curl -#fLC - --retry 3 --create-dirs -o "$2" "$1" ; }
 # -*-* downloading with netcat currently work in progress -*-*-*
 # domain=${1#*://}
 # domain=${domain%%/*}
@@ -79,43 +132,3 @@ dl() {
 
 # EOF
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-}
-
-# args: $file $sum
-chksum() {
-    msg "comparing checksums for ${1##*/}"
-    sum=$(sha512sum "$1")
-    [ "$2" = "${sum%% *}" ] || die 'checksum mismatch!'
-}
-
-extract() {
-    case $1 in
-        *.tar.*|*.tgz|*.txz|*.tbz)
-            decompress "$1" | tar -C "$2" -xf -
-
-            # Ensure extracted tar files are in the top level of $2.
-            #
-            # note: Ee must use a loop here as glob will match '.'
-            #       in some shells even when not in the directory,
-            #       which will cause 'mv' to prematurely error.
-            for dot in "$2"/*/.* ; do
-                mv "$dot" "$2"/ 2>/dev/null ||:
-            done
-            mv "$2"/*/*  "$2"/ 2>/dev/null ||:
-
-            # remove any empty dirs we may have created
-            rmdir "$2"/* 2>/dev/null ||:
-            ;;
-        *.xz|*.gz|*.bz2)
-            out=${1##*/}
-            decompress "$1" >"$2/${out%.*}"
-    esac
-}
-
-decompress() {
-    case ${1##*.} in
-        xz|txz) xz -qdcT 0 ;;
-        gz|tgz) gunzip -qdc ;;
-        bz2|tbz) bunzip2 -qdc
-    esac <"$1"
-}

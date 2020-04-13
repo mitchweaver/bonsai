@@ -2,13 +2,20 @@ info='suckless base'
 ver=28063c02f4dd8b1bf8c0b29d9e2b8f575382a047
 build() {
 
-    # prevent building of unneeded utilities
-    # some of these may be desired, but I don't use them
+    # Prevent building of unneeded utilities.
+    # Some of these may be desired, but I don't use them.
+    #
+    # NOTE: I would like to find a good alternative to 'sed' here.
+    #       sbase's sed is not built with the non-posix but very
+    #       handy flag 'sed -i'.
+    #
+    #       obase's sed is very bugged, getting stuck in loops on
+    #       large regex strings. for now, we'll keep using sbase's sed...
     JUNK='cal cols comm link logname pathchk printenv sponge
-            sha224sum sha384sum sha512-224sum sha512-256sum tftp'
+        sha224sum sha384sum sha512-224sum sha512-256sum tftp'
 
     for junk in $JUNK ; do
-        sed "/$junk/d" Makefile >tmp
+        sed "/^\t$junk/d" Makefile >tmp
         mv -f tmp Makefile
         rm "$junk".c "$junk".1
     done

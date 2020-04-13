@@ -9,6 +9,7 @@
 : "${CONFIG:=$ROOT/src/cfg}"
 : "${TOOLS:=$ROOT/src/tools}"
 : "${PROMPT:=→}"
+: "${CONFIRM_PROMPT:=(y\n): }"
 
 # prepend bonsai paths to the running environment's paths
 # programs and libraries inside the chroot will be preferred
@@ -72,6 +73,8 @@ main() {
         c) printf '%s\n' "$PKGS"/*/ | wc -l ;;
         i) isinst "$1" || die "$1 is not installed" && msg "$1 is installed" ;;
         s) searchpkg "$1" ;;
+        cat) getpkgfile "$1" ; cat "$pkgfile" ;;
+        deps) pkgdeps "$1" ; printf '%s\n' "$pkgdeps" ;;
         *relink-world) relink_world "$1" ;;
         h) usage
     esac

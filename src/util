@@ -16,10 +16,71 @@ die() {
 }
 
 confirm() {
-    >&2 printf "\033[33;1m%s \033[mconfirm? %s" "$PROMPT" '(y\n): '
+    >&2 printf "\033[33;1m%s \033[mconfirm? %s" "$PROMPT" "$CONFIRM_PROMPT"
     read -r ans
     if [ "$ans" != y ] ; then
         >&2 printf '%s\n' 'Exiting.'
         exit
     fi
+}
+
+# params: [full_string] [partial_string]
+contains() { [ "${1#*$2}" != "$1" ] || return 1 ; }
+
+# args: [file] [sum]
+chksum() {
+    msg "comparing checksums for ${1##*/}"
+    sum=$(sha512sum "$1")
+    [ "$2" = "${sum%% *}" ] || return 1
+}
+
+# args: [compressed_file] [output_dir]
+extract() {
+    case $1 in
+        *.tar.*|*.tgz|*.txz|*.tbz)
+            decompress "$1" | tar -C "$2" -xf -
+
+            # Ensure extracted tar files are in the top level of $2.
+            #
+            # note: Ee must use a loop here as glob will match '.'
+            #       in some shells even when not in the directory,
+            #       which will cause 'mv' to prematurely error.
+            for dot in "$2"/*/.* ; do
+                mv "$dot" "$2"/ 2>/dev/null ||:
+            done
+            mv "$2"/*/*  "$2"/ 2>/dev/null ||:
+
+            # remove any empty dirs we may have created
+            rmdir "$2"/* 2>/dev/null ||:
+            ;;
+        *.xz|*.gz|*.bz2)
+            out=${1##*/}
+            decompress "$1" >"$2/${out%.*}"
+            ;;
+        *)
+            # not compressed
+            cp -f "$1" "$2"/
+    esac
+}
+
+# args: [compressed_file]
+decompress() {
+    case ${1##*.} in
+        gz|tgz)
+            if command -v gunzip >/dev/null ; then
+                gunzip -qdc "$1"
+            else
+                tgunzip "$1" /dev/stdout
+            fi
+            ;;
+        xz|txz)
+            if command -v xz >/dev/null ; then
+                xz -qdcT 0 "$1"
+            else
+                xzminidec <"$1"
+            fi
+            ;;
+        bz2|tbz)
+            bunzip2 -qdc "$1"
+    esac
 }

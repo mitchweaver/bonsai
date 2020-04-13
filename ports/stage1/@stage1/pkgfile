@@ -1,0 +1,3 @@
+info='the bonsai core system - stage1'
+deps='@stage0 slibtool one-true-awk ubase pkgconf bzip2 libressl curl posix-bc mandoc hpgrep'
+build() { : ; }

@@ -1,0 +1,11 @@
+info='lightweight drop-in replacement for pkg-config'
+ver=1.6.3
+postbuild() {
+    # create symlink for compatibility
+    ln -sf pkgconf "$pkg"/bin/pkg-config
+
+    # ensure paths work during bootstrap
+    export PKG_CONFIG_PATH="$ROOT/lib/pkgconfig:/lib/pkgconfig"
+    >>"$ROOT"/etc/profile printf '%s\n' \
+        "export PKG_CONFIG_PATH=\"$ROOT/lib/pkgconfig:/lib/pkgconfig\""
+}

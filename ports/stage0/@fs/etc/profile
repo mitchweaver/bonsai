@@ -1,0 +1,2 @@
+umask 022
+export PATH="/bin:/local/bin:${HOME}/bin:${HOME}/.local/bin"

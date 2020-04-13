@@ -1,0 +1,21 @@
+/* remove printf calls to silence unnecessary output */
+--- examples/tgzip/tgzip.c 2020-04-12 10:09:31.009519723 -0500
++++ examples/tgzip/tgzip.c 2020-04-12 10:47:39.836905443 -0500
+@@ -49,8 +49,6 @@
+     unsigned int len;
+     unsigned char *source;
+
+-    printf("tgzip - example from the uzlib library\n\n");
+-
+     if (argc < 3)
+     {
+        printf(
+@@ -95,8 +93,6 @@
+     uzlib_compress(&comp, source, len);
+     zlib_finish_block(&comp.out);
+
+-    printf("compressed to %u raw bytes\n", comp.out.outlen);
+-
+     /* -- write output -- */
+
+     putc(0x1f, fout);

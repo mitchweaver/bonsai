@@ -4,19 +4,34 @@
 
 run_build() {
     cd "$workdir" || die "couldn't cd to $workdir"
-    msg "building $name"
 
+    # load user and system flags into the environment
     getflags
 
-    # automatically find and apply patches if they exist
-    bspatch
+    # if pkgfile does not defined a prebuild() function,
+    # try to apply any patches that may exist (convenience)
+    if type prebuild >/dev/null 2>&1 ; then
+        prebuild || die "prebuild failed for $name"
+    else
+        bspatch
+    fi
+
+    msg "building $name"
 
     # if pkgfile has a build() function, execute it
     if type build >/dev/null 2>&1 ; then
-        build
+        build || die "build failed for $name"
     else
-        generic_build
-    fi || die "build failed for $name"
+        generic_build || die "generic build failed for $name"
+    fi
+
+    # run postbuild(), if defined
+    if type postbuild >/dev/null 2>&1 ; then
+        postbuild || die "postbuild failed for $name"
+    fi
+
+    # remove all suckage that gets put here. (ex: docs)
+    rm -r "${pkg:-?}"/sucks 2>/dev/null ||:
 
     # create pkg dir in case it hasn't be already
     # bonsai uses this directory as its pkg "database"
@@ -28,8 +43,7 @@ getflags() {
     # Import user's flags and export them.
     isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
 
-    # If we're bootstrapping, we most likely will not
-    # yet have slibtool or pkgconf.
+    # Only use slibtool/pkgconf if we aren't bootstrapping.
     [ -x /bin/slibtool ] && LIBTOOL=/bin/slibtool
     [ -x /bin/pkgconf  ] && PKG_CONFIG=/bin/pkgconf
 
@@ -67,6 +81,9 @@ getflags() {
 
 # Try to automagically build/install if a pkgfile doesn't
 # define a custom build().  Works for most packages.
+#
+# sc bug, thinks we're using arguments yet we aren't passing any
+# shellcheck disable=SC2119
 generic_build() {
     if [ -f configure ] ; then
         bscfg || return 1

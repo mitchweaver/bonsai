@@ -1,0 +1,30 @@
+info='OpenBSD portable base - fills in what sbase+ubase lacks'
+ver=c43e028b59f3d464fcd47a872e1102ee8601df6b
+deps='bsd-headers'
+prebuild() {
+    find . -type f -name Makefile | \
+    while read -r file ; do
+        # 1. tries to use its own 'mv' command, we are not building this
+        # 2. incorrect use of $PREFIX
+        # 3. incorrect use of $MANDIR
+        # 4. add -D to install invocations to autocreate dirs
+        sed -e 's|\.\./mv/mv|mv|' \
+            -e 's/\${PREFIX}/\${DESTDIR}\${PREFIX}/g' \
+            -e 's/\${MANDIR}/\${DESTDIR}\${MANDIR}/g' \
+            -e 's/install -c/install -D/g' "$file" >tmp
+        mv -f tmp "$file"
+    done
+}
+build() {
+    bsmk -C libopenbsd
+
+    TARGS='yacc m4 lex patch fmt'
+
+    for targ in $TARGS ; do
+        bsmk -C $targ
+    done
+
+    for targ in $TARGS ; do
+        bsmk -C $targ install
+    done
+}
