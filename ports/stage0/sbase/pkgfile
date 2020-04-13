@@ -6,11 +6,15 @@ build() {
     # Some of these may be desired, but I don't use them.
     #
     # NOTE: I would like to find a good alternative to 'sed' here.
-    #       sbase's sed is not built with the non-posix but very
-    #       handy flag 'sed -i'.
     #
-    #       obase's sed is very bugged, getting stuck in loops on
-    #       large regex strings. for now, we'll keep using sbase's sed...
+    #       sbase's sed is not built with the non-posix but
+    #       *very* handy flag 'sed -i'.
+    #
+    #       obase's sed is bugged, gets stuck in loops on large regex strings
+    #
+    #       For now we'll have to settle with using GNU sed...
+    #       We'll use sbase's sed to build GNU sed.
+    #
     JUNK='cal cols comm link logname pathchk printenv sponge
         sha224sum sha384sum sha512-224sum sha512-256sum tftp'
 
@@ -21,6 +25,9 @@ build() {
     done
 
     bsmk sbase-box-install
+
+    # see comment above
+    mv -f "$pkg"/bin/sed "$pkg"/bin/sbase-sed
 
     # wrappers for common utilities
     for file in egrep fgrep poweroff reboot ; do

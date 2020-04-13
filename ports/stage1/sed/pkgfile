@@ -1,0 +1,8 @@
+info='GNU sed'
+ver=4.8
+deps=sbase
+build() {
+    SED=sbase-sed \
+    bscfg
+    bsmk install
+}

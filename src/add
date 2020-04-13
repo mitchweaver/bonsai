@@ -3,6 +3,11 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 add() {
+    if [ "$1" = -f ] ; then
+        FORCE=true
+        shift
+    fi
+
     # packages we have been asked to add
     mainpkgs=$*
 
@@ -45,7 +50,7 @@ add() {
         cd "$WORK" || die "couldn't cd to $WORK"
 
         # warn if package is being reinstalled
-        isinst "$p" && die "$p is already installed"
+        [ "$FORCE" != true ] && isinst "$p" && die "$p is already installed"
 
         # load package variables into the environment
         loadpkgfile "$p"
@@ -55,10 +60,9 @@ add() {
         mkdir -p "$workdir"
 
         # download sources and copy to $workdir
-        if [ -f "$portdir"/sources ] ; then
-            mkdir -p "$SOURCES/$pkgstring"
-            get
-        fi
+        # sc bug:
+        # shellcheck disable=SC2119
+        [ -f "$portdir"/sources ] && get
 
         # build
         run_build
@@ -105,15 +109,17 @@ EOF
                     dl "$file" "$outfile"
                     chksum "$outfile" "$sum" || die 'checksum mismatch!'
                 fi
-                extract "$outfile" "$workdir"
+                [ "$1" = --no-extract ] || extract "$outfile" "$workdir"
                 ;;
             *)
                 # no protocol specified, must be a local file.
                 # checksum it just as we would a remote file, then copy it
                 chksum "$portdir/$file" "$sum" || die 'checksum mismatch!'
-                # if file is in a dir, first create the dir
-                [ -d "$portdir/${file%%/*}" ] && mkdir -p "$workdir/${file%%/*}"
-                cp -f "$portdir/$file" "$workdir/$file"
+                if [ "$1" != --no-extract ] ; then
+                    # if file is in a dir, first create the dir
+                    [ -d "$portdir/${file%%/*}" ] && mkdir -p "$workdir/${file%%/*}"
+                    cp -f "$portdir/$file" "$workdir/$file"
+                fi
         esac
     done <"$portdir"/sources
 }

@@ -81,27 +81,45 @@ searchpkg() {
 
 # calculates dependencies of a $name and stores
 # them in $pkgdeps in the correct installation order
+#
+# wordsplitting is used intentionally, ignore:
+# shellcheck disable=2086,2068
 pkgdeps() {
     # recursively go through the dependency tree appending
     # unique deps to $pkdeps as we go
     dep_recurse() {
+
+        # clear deps from previous file
         unset deps
+
+        # load in deps of package
         loadpkgfile "$1"
+
+        # save the name of the package being checked
+        # we must use the arg array for this otherwise
+        # it will get overwritten on next recurse
+        set -- $name
+
+        # recurse for each dep that exists
         for dep in $deps ; do
-            if ! contains "$pkgdeps" " $dep " ; then
-                pkgdeps=" $pkgdeps $dep "
-                dep_recurse "$dep"
-            fi
+            contains "$pkgdeps" " $dep " || dep_recurse $dep
         done
+
+        # when we reach the bottom-most child of a dependency
+        # tree, we add it to the list and then the recursions complete
+        # appending each of their parents to the list
+        pkgdeps="$pkgdeps $1"
     }
 
     # start recursion
     dep_recurse "$1"
 
-    # remove leading/trailing whitspace
-    # shellcheck disable=SC2086
+    # trim whitespace and clear duplicates
     set -- $pkgdeps
-    pkgdeps=$*
+    pkgdeps=
+    for dep in $@ ; do
+        contains "$pkgdeps" "$dep" || pkgdeps="$pkgdeps $dep"
+    done
 }
 
 # # show what packages depend on given port

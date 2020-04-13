@@ -12,7 +12,9 @@ install:
 	install -D -m 0755 tools/* ${BONSAI_ROOT}/src/tools/
 	install -D -m 0755 tools/* ${PREFIX}/bin/
 	install -D -m 0755 bonsai ${PREFIX}/bin/
-	ln -sf ${PREFIX}/bin/bonsai ${PREFIX}/bin/bs
+	install -D -m 0755 bonsai ${BONSAI_ROOT}/bin/
+	ln -sf bonsai ${PREFIX}/bin/bs
+	ln -sf bonsai ${BONSAI_ROOT}/bin/bs
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # SC1090: file sourcing     -  shellcheck is unaware of sourced pkgfiles

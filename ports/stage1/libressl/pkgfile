@@ -1,0 +1,10 @@
+info="OpenBSD's fork of OpenSSL"
+ver=3.1.0
+deps=sed
+build() {
+    bscfg \
+        --enable-hardening \
+        --disable-nc \
+        --disable-windows-ssp
+    bsmk install
+}

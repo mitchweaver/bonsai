@@ -1,3 +1,22 @@
 info='stage0 metapkg - everything needed to build @stage1 within a chroot'
 deps="@fs @cfg gcc-bin-x86_64 musl kernel-headers bsd-headers sbase obase uzlib xz-embedded make dash"
-build() { : ; }
+build() {
+    # after all deps have been installed, download the sources for @stage1
+    # (you won't yet have curl when you enter the chroot)
+    msg "downloading sources for @stage1"
+
+    loadpkgfile @stage1
+
+    for dep in $deps ; do
+        loadpkgfile $dep
+        [ -f "$portdir"/sources ] && get --no-extract
+        unloadpkgfile $dep
+    done
+
+    # reload the current package
+    loadpkgfile @stage0
+}
+postbuild() {
+    msg "stage0 built successfully!"
+    msg "You may now chroot in and build stage1."
+}
