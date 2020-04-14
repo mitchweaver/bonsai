@@ -31,6 +31,8 @@ test:
 	@#         this is used often in sed calls within pkgfiles
 	@# SC2086: word splitting
 	@#         this is used often, intentionally, in pkgfiles
-	${SHELLCHECK} -e 2034 -e 2016 -e 2086 ports/*/*/pkgfile
+	@# SC2209: shellcheck thinks "deps=sed" for example is a misuse
+	@#         of command output. False positive.
+	${SHELLCHECK} -e 2034 -e 2016 -e 2086 -e 2209 ports/*/*/pkgfile
 	@# count lines of code, excluding comments and blank lines:
 	@echo SLOC: $$(sed '/^\s*#/d;/^\s*$$/d' bonsai  | wc -l)

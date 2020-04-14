@@ -4,8 +4,9 @@
 # SC2034: unused variables - shellcheck is unaware of pkgfile vars use
 # SC2016: expressions in single quotes don't expand - often in sed calls within pkgfiles (intentional)
 # SC2086: word splitting - this is used often, intentionally, in pkgfiles
+# SC2209: shellcheck thinks "deps=sed" for example is a misuse of command output.
 script:
   - make
   - shellcheck -s sh -e 1090 -e 2154 -e 2120 bonsai
   - shellcheck -s sh -e 1090 -e 2154 -e 2120 tools/*
-  - shellcheck -s sh -e 1090 -e 2154 -e 2034 -e 2016 -e 2086 ports/*/*/pkgfile
+  - shellcheck -s sh -e 1090 -e 2154 -e 2034 -e 2016 -e 2086 -e 2209 ports/*/*/pkgfile
