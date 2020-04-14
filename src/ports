@@ -85,6 +85,8 @@ searchpkg() {
 # wordsplitting is used intentionally, ignore:
 # shellcheck disable=2086,2068
 pkgdeps() {
+    master=$1
+
     # recursively go through the dependency tree appending
     # unique deps to $pkdeps as we go
     dep_recurse() {
@@ -105,20 +107,24 @@ pkgdeps() {
             contains "$pkgdeps" " $dep " || dep_recurse $dep
         done
 
-        # when we reach the bottom-most child of a dependency
-        # tree, we add it to the list and then the recursions complete
-        # appending each of their parents to the list
-        pkgdeps="$pkgdeps $1"
+        # When we reach the bottom-most child of a dependency
+        # tree, we add it to the list. Then the recursions
+        # complete appending each of their parents to the list.
+        if [ "$master" != "$1" ] ; then
+            pkgdeps="$pkgdeps $1"
+        fi
     }
 
     # start recursion
     dep_recurse "$1"
 
     # trim whitespace and clear duplicates
+    # note: '${var:+string}' returns 'string' if 'var' is defined
     set -- $pkgdeps
     pkgdeps=
     for dep in $@ ; do
-        contains "$pkgdeps" "$dep" || pkgdeps="$pkgdeps $dep"
+        contains "$pkgdeps" "$dep" ||
+        pkgdeps="$pkgdeps${pkgdeps:+ }$dep"
     done
 }
 

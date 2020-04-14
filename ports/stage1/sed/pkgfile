@@ -1,8 +1,13 @@
 info='GNU sed'
-ver=4.8
+ver=4.7
 deps=sbase
 build() {
-    SED=sbase-sed \
+    # use the more limited sbase-sed to bootstrap gnu sed
+    # mkdir -p slave_sed
+    # ln -sf /bin/sbase-box slave_sed/sed
+    # export PATH="$PATH:./slave_sed"
+    
+    CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE" \
     bscfg
-    bsmk install
+    bsmk clean install
 }

@@ -8,6 +8,9 @@ run_build() {
     # load user and system flags into the environment
     getflags
 
+    # common workarounds for configure script breakage
+    autotools_sucks
+
     # if pkgfile does not defined a prebuild() function,
     # try to apply any patches that may exist (convenience)
     if type prebuild >/dev/null 2>&1 ; then
@@ -76,7 +79,21 @@ getflags() {
 
     # System flags
     export LIBTOOL=${LIBTOOL:-libtool} PKG_CONFIG=${PKG_CONFIG:-pkg-config} \
-           cc="$CC" SHELL=/bin/sh DESTDIR="$pkg" PREFIX=/ prefix=/
+           cc="$CC" DESTDIR="$pkg" PREFIX=/ prefix=/ MAKEINFO=false
+}
+
+# thanks GNU
+autotools_sucks() {
+    # commonly needed variables for whatever reason
+    export SHELL=/bin/sh GREP=grep FGREP=fgrep EGREP=egrep \
+        SED=sed AWK=awk MKDIR_P='mkdir -p'
+
+    # create dummy files to make autoconf happy
+    [ -f INSTALL   ] || :>INSTALL
+    [ -f depcomp   ] || :>depcomp
+    [ -f compile   ] || :>compile
+    [ ! -f missing ] || :>missing
+    [ ! -f build-aux/missing ] || :>build-aux/missing
 }
 
 # Try to automagically build/install if a pkgfile doesn't
@@ -127,22 +144,22 @@ bscfg() {
 
     YES() {
         case $cfghelp in
-            *" --enable-$1 "*|*" --disable-$1 "*)
+            *" --enable-$1"*|*" --disable-$1"*)
                 cfgflags="$cfgflags --enable-$1 "
                 msg "adding flag: --enable-$1 "
                 ;;
-            *" --with-$1 "*|*" --without-$1 "*)
+            *" --with-$1"*|*" --without-$1"*)
                 cfgflags="$cfgflags --with-$1 "
                 msg "adding flag: --with-$1 "
         esac
     }
     NO() {
         case $cfghelp in
-            *" --disable-$1 "*|*" --enable-$1 "*)
+            *" --disable-$1"*|*" --enable-$1"*)
                 cfgflags="$cfgflags --disable-$1 "
                 msg "adding flag: --disable-$1 "
                 ;;
-            *" --without-$1 "*|*" --with-$1 "*)
+            *" --without-$1"*|*" --with-$1"*)
                 cfgflags="$cfgflags --without-$1 "
                 msg "adding flag: --without-$1 "
         esac

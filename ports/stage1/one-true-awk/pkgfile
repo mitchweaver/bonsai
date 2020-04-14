@@ -2,7 +2,7 @@ info='One true awk'
 deps=obase
 ver=c3d8f9c50011b7e8e19449b0712e700c0aeb8543
 build() {
-    bsmk
+    bsmk YACC='yacc -d'
     install -D -m 0755 a.out "$pkg"/bin/awk
     install -D -m 0644 awk.1 "$pkg"/share/man/man1/awk.1
 }
