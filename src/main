@@ -1,32 +1,32 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Variables              http://github.com/bonsai-linux/bonsai
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-: "${ROOT:=${HOME}/env/bonsai}"
-: "${PORTS:=$ROOT/src/ports}"
-: "${PKGS:=$ROOT/src/pkgs}"
-: "${SOURCES:=$ROOT/src/sources}"
-: "${WORK:=$ROOT/src/work}"
-: "${CONFIG:=$ROOT/src/cfg}"
-: "${TOOLS:=$ROOT/src/tools}"
+: "${BONSAI_ROOT:=${HOME}/env/bonsai}"
+: "${PORTS:=$BONSAI_ROOT/src/ports}"
+: "${PKGS:=$BONSAI_ROOT/src/pkgs}"
+: "${SOURCES:=$BONSAI_ROOT/src/sources}"
+: "${WORK:=$BONSAI_ROOT/src/work}"
+: "${CONFIG:=$BONSAI_ROOT/src/cfg}"
+: "${TOOLS:=$BONSAI_ROOT/src/tools}"
 : "${PROMPT:=→}"
 : "${CONFIRM_PROMPT:=(y\n): }"
 
 # prepend bonsai paths to the running environment's paths
 # programs and libraries inside the chroot will be preferred
-export PATH="$ROOT/bin:$PATH"
-export LD_LIBRARY_PATH="$ROOT/lib:$LD_LIBRARY_PATH:/lib:/usr/lib"
+export PATH="$BONSAI_ROOT/bin:$PATH"
+export LD_LIBRARY_PATH="$BONSAI_ROOT/lib:$LD_LIBRARY_PATH:/lib:/usr/lib"
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Main
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 check_env() {
-    [ "$ROOT" ] || die "\$ROOT is not defined"
+    [ "$BONSAI_ROOT" ] || die "\$BONSAI_ROOT is not defined"
 }
 
 init() {
     mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK" "$CONFIG"
     for dir in bin sbin share include etc lib libexec ; do
-        mkdir -p "$ROOT/$dir"
+        mkdir -p "$BONSAI_ROOT/$dir"
     done
 }
 

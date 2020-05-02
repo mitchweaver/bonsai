@@ -1,7 +1,7 @@
 info='the bonsai filesystem'
 build() {
     # create dirs
-    cd "$ROOT" || die "couldn't cd to $ROOT"
+    cd "$BONSAI_ROOT" || die "couldn't cd to $BONSAI_ROOT"
 
     create() {
         perm=$1
@@ -40,11 +40,11 @@ build() {
 
     for file in profile fstab passwd shadow group \
                 os-release hostname hosts ; do
-        if [ -f "$ROOT"/etc/$file ] ; then
-            warn "$ROOT/etc/$file exists, refusing to overwrite"
+        if [ -f "$BONSAI_ROOT"/etc/$file ] ; then
+            warn "$BONSAI_ROOT/etc/$file exists, refusing to overwrite"
             continue
         fi
         msg "installing etc/$file with mode 0644..."
-        install -m 0644 etc/$file "$ROOT"/etc/
+        install -m 0644 etc/$file "$BONSAI_ROOT"/etc/
     done
 }

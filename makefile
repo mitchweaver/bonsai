@@ -11,8 +11,8 @@ install:
 	cp -rf ports ${BONSAI_ROOT}/src/
 	install -D -m 0755 tools/* ${BONSAI_ROOT}/src/tools/
 	install -D -m 0755 tools/* ${PREFIX}/bin/
-	install -D -m 0755 bonsai ${PREFIX}/bin/
-	install -D -m 0755 bonsai ${BONSAI_ROOT}/bin/
+	install -D -m 0755 bonsai ${PREFIX}/bin/bonsai
+	install -D -m 0755 bonsai ${BONSAI_ROOT}/bin/bonsai
 	ln -sf bonsai ${PREFIX}/bin/bs
 	ln -sf bonsai ${BONSAI_ROOT}/bin/bs
 

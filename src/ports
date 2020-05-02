@@ -148,7 +148,7 @@ pkgdeps() {
 #     done
    
 #     # 1. remove duplicates and white space
-#     # 2. convert $root/src/ports/$name/pkgfile -> $name
+#     # 2. convert $BONSAI_ROOT/src/ports/$name/pkgfile -> $name
 #     set -- $(\
 #         for dep in $deps ; do
 #             printf '%s\n' $(basename $(dirname $dep)) $@

@@ -23,7 +23,7 @@ del() {
         # load pkg vars into environment to retrieve $pkg name
         loadpkgfile "$1"
 
-        cd "$ROOT" || die "unable to cd to $ROOT"
+        cd "$BONSAI_ROOT" || die "unable to cd to $BONSAI_ROOT"
 
         if [ -d "$pkg" ] ; then
             # go through $PKGS/$pkg, deleting files as we go
@@ -31,16 +31,16 @@ del() {
             find "$pkg" -type f -o -type l | \
             while read -r file ; do
                 rm -f "$file" 2>/dev/null ||:
-                unlink "$ROOT/${file#$pkg}" 2>/dev/null ||:
+                unlink "$BONSAI_ROOT/${file#$pkg}" 2>/dev/null ||:
             done
             # recurse through dirs in reverse, removing empty dirs as we go
-            # afterwards, remove its equivalent dir in the $ROOT, if empty
+            # afterwards, remove its equivalent dir in the $BONSAI_ROOT, if empty
             #
             # note: sed here is to emulte 'tac', which is not portable
             find "$pkg" -type d | sed '1!G;h;$!d' | \
             while read -r dir ; do
                 rmdir "$dir" 2>/dev/null ||:
-                rmdir "$ROOT/${dir#$pkg}" 2>/dev/null ||:
+                rmdir "$BONSAI_ROOT/${dir#$pkg}" 2>/dev/null ||:
             done
         fi
 

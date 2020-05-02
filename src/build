@@ -75,6 +75,8 @@ getflags() {
     # This also prevents overwriting of packages' internal flags should
     # they be ignorantly overwriting the external $CFLAGS variable
     # instead of using an internally created one such as $CCFLAGS.
+    #
+    # If you disagree with this, please do suggest a better solution.
     export CC="${CC:-gcc} $CFLAGS $CPPFLAGS" CXX="${CXX:-g++} $CFLAGS $CPPFLAGS"
 
     # System flags

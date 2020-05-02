@@ -11,7 +11,7 @@ linkpkg() {
     # (this is done during relink_world)
     if [ "$2" ] ; then
         LINK_PKGS=$2/src/pkgs
-        # remove doubled leading slash if given $ROOT was '/'
+        # remove doubled leading slash if given $BONSAI_ROOT was '/'
         LINK_PKGS=/${LINK_PKGS#//}
     else
         # otherwise use $PKGS from the environment as normal
@@ -21,22 +21,22 @@ linkpkg() {
     # do not attempt to link if pkg is not installed
     isinst "$name" || die "$name is not installed"
 
-    cd "$ROOT" || die "could not cd to $ROOT"
+    cd "$BONSAI_ROOT" || die "could not cd to $BONSAI_ROOT"
 
     msg "creating symlinks for $name"
 
     for dir in bin sbin share include etc lib libexec ; do
         if [ -d "$PKGS/$pkgstring/$dir" ] ; then
             # recursively create pkg subdirectories in
-            # equivalent $ROOT subdirectories
-            # example: $PKGS/$pkgstring/lib/pkgconfig -> $ROOT/lib/pkgconfig
+            # equivalent $BONSAI_ROOT subdirectories
+            # example: $PKGS/$pkgstring/lib/pkgconfig -> $BONSAI_ROOT/lib/pkgconfig
             find "$PKGS/$pkgstring/$dir" ! -path "*$dir" \
                     -type d 2>/dev/null | while read -r subdir ; do
                 mkdir -p "${subdir#$PKGS/$pkgstring/}"
             done
 
             # recursively link all files
-            # example: $PKGS/$pkgstring/include/asm/*.h -> $ROOT/include/asm/*.h
+            # example: $PKGS/$pkgstring/include/asm/*.h -> $BONSAI_ROOT/include/asm/*.h
             find "$PKGS/$pkgstring/$dir" ! -path "*share/*man*" \
                     -type f -o -type l 2>/dev/null | while read -r file ; do
                 file="${file#$PKGS/$pkgstring/}"
@@ -69,12 +69,12 @@ relink() {
     done
 }
 
-# relink the world against a given $ROOT location
+# relink the world against a given $BONSAI_ROOT location
 # (used to convert a stage0 into a chrooted environment)
 relink_world() {
     [ -d "$1" ] || die "no such directory $1"
 
-    msg "relinking world with \$ROOT=$1..."
+    msg "relinking world with \$BONSAI_ROOT=$1..."
     for name in $(listpkgs) ; do
         loadpkgfile "$name"
         linkpkg "$name" "$1"
@@ -83,7 +83,7 @@ relink_world() {
 }
 
 # # * relinks every package installed, used to fix broken / inconsistent symlinks
-# # * also used to bootstrap systems under a different $ROOT
+# # * also used to bootstrap systems under a different $BONSAI_ROOT
 # # params: [--chroot]
 # relink_world() {
 #     # if no args, use the $PKGS variable from the bonsai.rc
