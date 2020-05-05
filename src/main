@@ -21,7 +21,7 @@ export LD_LIBRARY_PATH="$BONSAI_ROOT/lib:$BONSAI_ROOT/libexec:$LD_LIBRARY_PATH:/
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 init() {
     mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK" "$CONFIG"
-    for dir in bin sbin share include etc lib libexec ; do
+    for dir in bin share include etc lib libexec ; do
         mkdir -p "$BONSAI_ROOT/$dir"
     done
 }

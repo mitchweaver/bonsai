@@ -28,13 +28,3 @@
 #                                                         #
 # -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
 ```
-
-A tiny experimental Linux distribution. Focused on simplicity and correctness.
-
-Linux done differently.
-
-For the idealists, for the hobbyists.
-
------
-
-Designed by [Mitch Weaver](https://github.com/mitchweaver)

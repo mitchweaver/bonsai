@@ -1,3 +1,0 @@
-info='the bonsai core system - stage1'
-metapkg=true
-deps='slibtool hbase one-true-awk ubase pkgconf bzip2 libressl curl posix-bc mandoc'

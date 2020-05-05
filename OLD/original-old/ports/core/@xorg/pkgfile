@@ -1,3 +1,0 @@
-info='metapkg for X11'
-metapkg=true
-deps='xorg-server xorg-xinit xorg-xf86-input-libinput xorg-xf86-video-vesa xorg-xf86-video-fbdev'

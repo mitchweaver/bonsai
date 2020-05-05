@@ -1,9 +1,0 @@
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# * If using shared:
-#   -Duseshrplib
-#
-# * Experimental flags:
-#   -Dlocincpth=' ' \
-#   -Donlyextensions=' ' \
-#   -Dinc_version_list=none \
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
