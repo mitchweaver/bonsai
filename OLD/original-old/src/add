@@ -1,0 +1,104 @@
+# 1. downloads, builds, and installs a port
+# 2. --quiet can be provided to silence some messages
+# params: [--quiet] $name
+#
+#
+# To help with confusion, here are the $work variables:
+#-----------------------------------------------------------
+# $work - /src/work
+#
+# $workdir - /src/work/$name/$name          (actual build dir)
+#                           /$name.cfhelp   (./configure --help)
+#                           /$name.cfflags  (./configure flags used)
+#
+# $pkgworkdir - /src/work/$name/$name
+addpkg() {
+    [ "$1" = --quiet ] && { NO_WARN=true ; shift ; }
+    [ "$1" ] || die "addpkg(): no pkg given"
+
+    [ "$UPDATE" ] ||
+    for pkg in $@ ; do
+        isinst "$pkg" >/dev/null && die "port $pkg is already installed"
+    done
+    
+    # the packages asked to install
+    main_packages="$*"
+    # clear array, we will use it to build the list
+    set --
+
+    for mainpkg in $main_packages ; do
+        # grab initial package variables
+        load_pkgfile "$mainpkg"
+
+        # search for dependencies, the value is stored in $pkgdeps
+        pkgdeps "$mainpkg"
+
+        # add deps to list, before the main package
+        case "$pkgdeps" in
+            ""|"* *") ;; # if unset or empty string, there are no deps
+            *) for dep in $pkgdeps ; do
+                   if ! isinst "$dep" >/dev/null ; then
+                       contains "$*" " $dep " || set -- "$* $dep"
+                   fi
+               done
+        esac
+        set -- "$* $mainpkg"
+        unload_pkgfile
+    done
+
+    if [ ! "$NO_WARN" ] ; then
+        warn "these packages will be installed:"
+        printf "\n  %s\n\n" "$*"
+    fi
+
+    # prompt user for confirmation before continuing
+    confirm || return 1
+
+    # main loop
+    for pkg_to_add in $@ ; do
+        export workdir="$WORK"/$pkg_to_add
+
+        # clear any work from previous build
+        rm -rf "${WORK:?}"/$pkg_to_add 2>/dev/null ||:
+
+        # load all pkgfile variables into environment
+        load_pkgfile "$pkg_to_add"
+
+        # download / checksum / extract the package
+        get "$pkg_to_add" || die "failed to get() to tarball"
+
+        # continue if we've been instructed only to download the tarball
+        [ "$DL_ONLY" ] && { unload_pkgfile ; continue ; }
+
+        # create $pkgdir directory
+        ismetapkg "$name" || mkdir -p "$PKGS/$pkg_to_add"
+
+        # build
+        run_build || die "$pkg_to_add failed to build"
+
+        # link and install
+        installpkg "$pkg_to_add" || die "$pkg_to_add failed to install"
+
+        # unload as not to persist from pkg to pkg
+        unload_pkgfile
+    done || die "failed to install $port"
+
+    unset main_packages pkg dep NO_WARN UPDATE
+}
+
+installpkg() {
+    # check again incase we weren't called via addpkg()
+    if [ ! "$UPDATE" ] && isinst "$name" >/dev/null ; then
+        msg "port $name is already installed"
+        unload_pkgfile
+        return 1
+    fi
+
+    if [ -d "$PKGS/$name" ] ; then
+        linkpkg "$name" || die "$name failed to link"
+    fi
+
+    add_db "$name" "$version"
+    msg "$name installed!"
+    clean "$name"
+}

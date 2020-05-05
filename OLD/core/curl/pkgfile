@@ -1,0 +1,30 @@
+info='command line online file transfer and download tool'
+ver=7.69.1
+deps='libressl zlib'
+build() {
+    # export LIBS='-lssl -lcrypto -lz'
+    export PATH_SEPARATOR=':'
+    bscfg \
+        --with-ssl="$PKGS"/libressl \
+        --enable-ipv6 \
+        --with-ca-fallback \
+        --without-ca-bundle \
+        --without-librtmp --without-cyassl \
+        --without-libpsl --without-winidn \
+        --without-libidn2 --without-gnutls \
+        --without-winssl --without-schannel \
+        --without-darwinssl --without-secure-transport \
+        --without-amissl --without-brotli \
+        --disable-ldap --disable-ldaps \
+        --disable-telnet --without-mbedtls \
+        --disable-file --disable-sspi \
+        --disable-dict --disable-telnet \
+        --disable-ldaps --disable-librtsp \
+        --disable-pop3 --disable-imap \
+        --disable-smtp --disable-gopher \
+        --disable-smb --without-libidn \
+        --disable-curldebug \
+        --without-fish-functions-dir \
+        --without-zsh-functions-dir
+    bsmk install
+}

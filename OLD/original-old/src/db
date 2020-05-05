@@ -1,0 +1,33 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# db                     http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# vi:syntax=sh
+# shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+isinst() {
+    if grep -E -- "^$1${DELIM}.*$" "$PKGDB" >/dev/null ; then
+        msg "port $1 is installed"
+    else
+        msg "port $1 is not installed"
+        return 1
+    fi
+}
+
+listpkgs()  { cat "$PKGDB" 2>/dev/null ; }
+countpkgs() { wc -l <"$PKGDB" 2>/dev/null ; }
+sort_db()   { sort -o "$PKGDB" "$PKGDB" 2>/dev/null ; }
+
+# params: $pkgname $pkgversion
+add_db() {
+    if ! grep -F -- "${1}${DELIM}${2}" "$PKGDB" >/dev/null ; then
+        echo "${1}${DELIM}${2}" >>"$PKGDB"
+        sort_db
+    fi
+}
+
+# param: $pkgname
+del_db() {
+    sed -e "s/$1$DELIM.*//" -e '/^$/d' "$PKGDB" >"$PKGDB".tmp
+    mv -f "$PKGDB".tmp "$PKGDB"
+}

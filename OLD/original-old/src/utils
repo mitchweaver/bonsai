@@ -1,0 +1,92 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# utils                  http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# vi:syntax=sh
+# shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+msg() { printf "\033[32;1m${PROMPT}\033[m $*\n" ; }
+msg_no_nl() { printf "\033[32;1m${PROMPT}\033[m $*" ; }
+warn() { >&2 printf "\033[33;1m${PROMPT} \033[mwarning: $*\n" ; }
+die() { >&2 printf "\033[31;1m${PROMPT} \033[merror: $*\n" ; clean ; exit 1 ; }
+
+usage() {
+cat <<EOF
+bonsai pkg mgr
+ 
+commands:
+-----------
+add    | -a
+del    | -d
+relink | -r
+update | -u
+search | -s
+info   | -i
+list   | -l
+print  | -p
+count  | -c
+deps rdeps
+pack unpack
+isinst
+EOF
+}
+
+# converts "bash#4.8" -> "bash"
+pkgid2pkg() { echo "${1%%$DELIM*}" ; }
+
+# converts "bash" -> "bash#4.8"
+pkg2pkgid() { grep -x -E -- "$1$DELIM.*" "$PKGDB" ; }
+
+# params: full_string, partial_string
+contains() { [ "${1#*$2}" != "$1" ] || return 1 ; }
+
+# checks if a function is defined
+defined() {
+    case "$(type "$1")" in
+        *" function"*) ;;
+        *) return 1
+    esac
+}
+
+# prompts user for confirmation - returns 1 on 'n' or bad input
+# params: message to be printed
+confirm() {
+    if [ -z "$NO_PROMPT" ] ; then
+        msg_no_nl "$CONFIRM_PROMPT"
+        read -r ans
+        case "$ans" in
+            y|"") ;; # "" is equivalent to user pressing enter
+            *) return 1
+        esac
+    fi
+}
+
+# retrieves port folder for $name
+getportdir() {
+    while read -r dir ; do
+        case $dir in '#'*) continue ;; esac
+        if [ -f "$PORTS/$dir/$1/pkgfile" ] ; then
+            echo "$PORTS/$dir/$1"
+            return
+        fi
+    done <"$CONFIG"/ports.cfg
+}
+# retrieves pkgfile for $name
+getpkgfile() {
+    echo "$(getportdir "$1")"/pkgfile
+}
+
+# cleans tree and work of empty packages, removes junk
+# params: [$name]
+clean() {
+    if [ "$1" ] ; then
+        rm -rf "${WORK:?}/$1" 2>/dev/null
+        [ -d "$PKGS/$1" ] && 
+        for dir in share/info share/doc sucks ; do
+            rm -rf "${PKGS:?}"/$1/$dir 2>/dev/null
+        done
+    fi
+    rm -rf "${ROOT:?}"/sucks 2>/dev/null
+    find "${WORK:?}" -type d ! -name "$WORK" -exec rmdir "{}"  \; 2>/dev/null
+    find "${PKGS:?}" -type d ! -name "$PKGS" -exec rmdir "{}"  \; 2>/dev/null
+}

@@ -1,0 +1,49 @@
+info='udev replacement developed by Gentoo'
+version=3.2.9
+source=http://dev.gentoo.org/~blueness/$name/$name-$version.tar.gz
+deps=gperf
+sha256=89618619084a19e1451d373c43f141b469c9fd09767973d73dd268b92074d4fc
+prebuild() {
+    # needed for static linking
+    # see: http://crux.nu/ports/crux-3.5/core/eudev/Pkgfile
+    sed '/^Libs:/s/-ludev/-ludev -lrt/' src/libudev/libudev.pc.in >tmp
+    mv -f tmp src/libudev/libudev.pc.in
+}
+build() {
+    bonsai_configure \
+        --enable-hwdb \
+        --enable-split-usr \
+        --disable-manpages \
+        --enable-introspection=no
+
+    # sbase's ln does not have '-n' flag
+    sed 's|\$(LN_S) -n -f|\$(LN_S) -f|g' src/udev/Makefile >tmp
+    mv -f tmp src/udev/Makefile
+
+    bonsai_make CFLAGS="$CFLAGS -D_GNU_SOURCE"
+    bonsai_make install
+    
+    echo '
+    If this command failed,
+    try running it again.'
+     # It happens sometimes and nobody knows how to fix it.
+}
+postbuild() {
+    cd $pkg/bin || exit 1
+
+    # create eudev symlinks to udev tools
+    find . -type f -name 'udev*' | while read -r f ; do
+        f="${f#./}"
+        ln -sf "$f" "e$f"
+    done
+
+    for dir in firmware udev/devices/pts udev/devices/shm ; do
+        mkdir -p /lib/$dir
+    done
+
+    # create binary hwdb
+    LD_LIBRARY_PATH=../lib eudevadm hwdb --update --root=/
+
+    [ ! -d /etc/udev ] && mv -f ../etc/udev /etc/
+    rm -rf ../etc 2>/dev/null
+}

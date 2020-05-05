@@ -1,0 +1,93 @@
+info='Perl programming language'
+version=5.30.1
+source=http://cpan.org/src/${version%%.*}.0/$name-$version.tar.xz
+sha512=8f3339efdcd1bb58fa58a90042181bef86bb09e4598c737e446ed43b56d2ab23d67eced5e36fb08fc61e076acfdb572a12e46a1277f5299a3f412054df0b88bf
+prebuild() {
+    # locale.c needs made writable before can be patched
+    chmod +w locale.c
+    bonsai_patch
+
+    # musl does not have a separate libnsl
+    # remove it as a dep from the configure script
+    # see: http://github.com/openwrt/packages/pull/1393/files
+    sed 's/ nsl //g' Configure > tmp
+    mv -f tmp Configure
+
+    # use system zlib/bzip2, do not bundle
+    rm -rf cpan/Compress-Raw-Zlib/zlib-src
+    rm -rf cpan/Compress-Raw-Bzip2/bzip2-src
+    sed '/\(bzip2\|zlib\|Bzip2\|Zlib\)/d' MANIFEST > tmp
+    mv -f tmp MANIFEST
+    export BUILD_ZLIB=0 \
+           BUILD_BZIP2=0 \
+           BZIP2_LIB=/lib \
+           BZIP2_INCLUDE=/include
+
+    # remove gdbm / db dependencies
+    sed 's/gdbm dbm db//g' Configure > tmp ; mv -f tmp Configure
+    sed '/\(gdbm\|GDBM\)/d' MANIFEST > tmp ; mv -f tmp MANIFEST
+
+# --- useful if dynamic linking:
+# isinst perl >/dev/null && export PERL5LIB="$PERL5LIB:.:\
+# /lib/${name}${version%%.*}/$version:\
+# /lib/${name}${version%%.*}/$version/x86_64-linux-thread-multi:\
+# /lib/${name}${version%%.*}/site_perl/$version:\
+# /lib/${name}${version%%.*}/site_perl/$version/x86_64-linux-thread-multi"
+}
+build() {
+    # overwrite CPATH and C_INCLUDE_PATH to prevent perl from including
+    # its own poll.h over <sys/poll.h> -- (overwrite ".:$root/include")
+    # see: http://serverfault.com/questions/145288/make-error-when-compiling-perl-5-12-1-rhel-5-5
+    CPATH=/include C_INCLUDE_PATH="$CPATH" \
+    sh Configure -des \
+        -Dcf_by=bonsai \
+        -Dcc="$CC $CFLAGS" \
+        -Doptimize="$CFLAGS" \
+        -Accflags="$CFLAGS" \
+        -Aldflags="$LDFLAGS" \
+        -Dprefix="$PREFIX" \
+        -Dvendorprefix="$PREFIX" \
+        -Dotherlibdirs=".:\
+/lib/${name}${version%%.*}/$version:\
+/lib/${name}${version%%.*}/$version/x86_64-linux-thread-multi:\
+/lib/${name}${version%%.*}/site_perl/$version:\
+/lib/${name}${version%%.*}/site_perl/$version/x86_64-linux-thread-multi" \
+        -Dusethreads \
+        -Dusedevel \
+        -Uusedl \
+        -Ui_gdbm \
+        -Ui_db
+
+# -Dprivlib="$PREFIX"/lib/${name}${version%%.*}/${version%.*} \
+# -Dsitelib="$PREFIX"/lib/${name}${version%%.*}/site_${name}/${version%.*} \
+# -Dvendorlib="$PREFIX"/lib/${name}${version%%.*}/site_${name}/${version%.*} \
+
+    CPATH=/include C_INCLUDE_PATH="$CPATH" \
+    bonsai_make
+    bonsai_make install
+}
+postbuild() {
+    # nuke docs and mans ~20MB
+    find "${pkg:?}" -type f -name '*.0' \
+        ! -path '*/bin/*' \
+        ! -path '*/lib/*' \
+        -exec rm "{}" \;
+
+    for dir in site_perl $version ; do
+        find "$pkg"/lib/${name}${version%%.*}/$dir \
+            -name 'TODO*' -o \
+            -name 'Change*' -o \
+            -name 'README*' -o \
+            -name '*.bs' -o \
+            -name '.packlist' -o \
+            -name 'perllocal.pod' -exec rm "{}" \;
+    done
+    find "$pkg" -type d -exec rmdir "{}" 2>/dev/null ||: \;
+
+    # create symlinks without version numbers
+    # ex: perl -> perl5.30.0
+    cd "$pkg"/bin
+    find . -name "*$version" | while read -r bin ; do
+        ln -sf "$bin" "${bin%$version}"
+    done
+}

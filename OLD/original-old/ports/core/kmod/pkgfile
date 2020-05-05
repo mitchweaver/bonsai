@@ -1,0 +1,49 @@
+info='linux kernel module utilities'
+version=26
+source=http://mirrors.edge.kernel.org/pub/linux/utils/kernel/$name/$name-$version.tar.xz
+deps=eudev
+sha256=57bb22c8bb56435991f6b0810a042b0a65e2f1e217551efa58235b7034cdbb9d
+prebuild() {
+    # kmod's configure fails if given --disable-largefile.
+    # we are only targeting x64 so this does not apply to us, force it
+    sed 's|test "x$enable_largefile" = "xno"|false|' configure > tmp
+    mv -f tmp configure
+}
+build() {
+    # kmod cannot be configured statically,
+    # we must force it to be dynamic
+    CFLAGS="-s -Os -pipe -fstack-protector-strong" \
+    LDFLAGS="-s" \
+    bonsai_configure \
+        --disable-static \
+        --enable-shared \
+        --disable-manpages \
+        --with-rootlibdir=/lib \
+        --with-bashcompletiondir="$pkg"/sucks
+
+    # fix unneeded if statement causing build to fail
+    sed 's|if test "\$(libdir)" != .*|if false ; then \\|' Makefile > tmp
+    mv -f tmp Makefile
+
+    # do not use our cflags/ldflags, which conflict with kmod
+    bonsai_make \
+        CFLAGS="-s -Os -pipe -fstack-protector-strong" \
+        LDFLAGS="-s"
+
+    bonsai_make install
+}
+postbuild() {
+    mkdir -p "$pkg"/etc/modprobe.d \
+             "$pkg"/etc/depmod.d \
+             "$pkg"/bin
+
+    install -D -m 0644 man/*.5 "$pkg"/share/man/man5
+    install -D -m 0644 man/*.8 "$pkg"/share/man/man8
+
+    ln -sf kmod "$pkg"/bin/modinfo
+    ln -sf kmod "$pkg"/bin/depmod
+    ln -sf kmod "$pkg"/bin/insmod
+    ln -sf kmod "$pkg"/bin/rmmod
+    ln -sf kmod "$pkg"/bin/modprobe
+    ln -sf kmod "$pkg"/bin/lsmod
+}

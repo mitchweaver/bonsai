@@ -1,0 +1,18 @@
+info='Debian Alquist shell (DASH)'
+version=0.5.10.2
+source=http://gondor.apana.org.au/\~herbert/$name/files/$name-$version.tar.gz
+sha256=3c663919dc5c66ec991da14c7cf7e0be8ad00f3db73986a987c118862b5f6071
+prebuild() {
+
+}
+build() {
+    CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS" \
+    CC="$CC $CFLAGS $LDFLAGS" \
+    bonsai_configure
+    bonsai_make CC="$CC $CFLAGS $LDFLAGS"
+    bonsai_make install
+}
+postbuild() {
+    rm nl
+    ln -sf dash "$pkg"/bin/sh
+}

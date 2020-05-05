@@ -1,0 +1,4 @@
+info="GNU patch"
+version=2.7.6
+source=http://ftp.gnu.org/gnu/$name/$name-$version.tar.xz
+sha256=ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd

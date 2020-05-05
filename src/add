@@ -67,7 +67,7 @@ add() {
         [ -f "$portdir"/sources ] && get
 
         # build
-        run_build
+        run_build || exit 1
 
         # after successful build, create the symlinks in the root
         linkpkg

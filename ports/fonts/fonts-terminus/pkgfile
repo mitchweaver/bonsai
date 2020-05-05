@@ -1,0 +1,11 @@
+info='A clean, fixed width bitmap font'
+ver=4.48_1
+deps='mkfontdir mkfontscale bdftopcf'
+prebuild() {
+    : # do not try to apply patches
+}
+postbuild() {
+    cd "$pkg"/share/fonts/${name#fonts-}
+    mkfontscale
+    mkfontdir
+}

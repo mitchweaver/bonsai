@@ -1,0 +1,24 @@
+info="ext2/3/4 filesystem utilities"
+version=1.45.5
+source=http://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/$name/v$version/$name-$version.tar.xz
+sha256=f9faccc0d90f73556e797dc7cc5979b582bd50d3f8609c0f2ad48c736d44aede
+prebuild() {
+    mkdir -p $pkg/share/man/man5 $pkg/etc $pkg/lib/pkgconfig
+}
+build() {
+    bonsai_configure \
+        --enable-fsck \
+        --enable-symlink-install \
+        --disable-elf-shlibs \
+        --disable-bsd-shlibs \
+        --disable-jbd-debug \
+        --disable-blkid-debug \
+        --disable-testio-debug \
+        --disable-e2initrd-helper \
+        --disable-fuse2fs \
+        --disable-threads \
+        --disable-uuid
+
+    bonsai_make
+    bonsai_make install install-libs
+}

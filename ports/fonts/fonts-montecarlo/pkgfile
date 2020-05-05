@@ -1,0 +1,16 @@
+info='small bitmap font for programmers'
+ver=1.0
+deps='mkfontdir mkfontscale bdftopcf'
+build() {
+    for ft in *.bdf ; do
+        bdftopcf -o "${ft%.bdf}".pcf "$ft"
+    done
+    for ft in *.pcf ; do
+        install -D -m 0644 "$ft" "$pkg"/share/fonts/${name#fonts-}/"$ft"
+    done
+}
+postbuild() {
+    cd "$pkg"/share/fonts/${name#fonts-}
+    mkfontscale
+    mkfontdir
+}

@@ -1,4 +1,4 @@
-BONSAI_ROOT = ${HOME}/env/bonsai
+BONSAI_ROOT = ${HOME}/.bonsai
 PREFIX = ${HOME}/.local
 
 all:
@@ -7,10 +7,8 @@ all:
 	echo 'main "$$@"' >>bonsai
 
 install:
-	mkdir -p ${BONSAI_ROOT}/src ${BONSAI_ROOT}/src/tools
+	mkdir -p ${BONSAI_ROOT}/src
 	cp -rf ports ${BONSAI_ROOT}/src/
-	install -D -m 0755 tools/* ${BONSAI_ROOT}/src/tools/
-	install -D -m 0755 tools/* ${PREFIX}/bin/
 	install -D -m 0755 bonsai ${PREFIX}/bin/bonsai
 	install -D -m 0755 bonsai ${BONSAI_ROOT}/bin/bonsai
 	ln -sf bonsai ${PREFIX}/bin/bs
@@ -24,7 +22,6 @@ SHELLCHECK = shellcheck -s sh -e 1090 -e 2154 -e 2120
 
 test:
 	${SHELLCHECK} bonsai
-	${SHELLCHECK} tools/*
 	@# SC2034: unused variables
 	@#         shellcheck is unaware of how vars in pkgfiles are used
 	@# SC2016: expressions in single quotes don't expand

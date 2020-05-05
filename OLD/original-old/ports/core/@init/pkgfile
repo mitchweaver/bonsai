@@ -1,0 +1,22 @@
+info='the bonsai init system'
+metapkg=true
+deps='@stage0 @stage1 @fs sinit eudev kmod e2fsprogs dhcpcd inetutils shadow'
+build() {
+    msg "installing init with mode 0755..."
+    install -m 0755 init "$root"/init
+
+    for file in dev fsck init mnt net shutdown ; do
+        msg "installing etc/rc.$file with mode 755..."
+        install -m 0755 rc.$file "$root"/etc/rc.$file
+    done
+
+    # don't overwrite user's rc.local or conf if existing
+    if [ ! -f "$root"/etc/rc.conf ] ; then
+        msg "installing etc/rc.conf with mode 644..."
+        install -m 0644 rc.conf "$root"/etc/rc.conf
+    fi
+    if [ ! -f "$root"/etc/rc.local ] ; then
+        msg "installing etc/rc.local with mode 755..."
+        install -m 0755 rc.local "$root"/etc/rc.local
+    fi
+}

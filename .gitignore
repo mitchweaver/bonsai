@@ -15,4 +15,9 @@ a.out
 *isolinux.cfg
 
 old
+musl-ports
+broken
+BROKEN
 tmp
+wip
+WIP

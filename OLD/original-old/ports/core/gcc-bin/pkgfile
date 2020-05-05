@@ -1,0 +1,11 @@
+info='GNU C Compiler x64 musl-libc toolchain (binary)'
+nostrip=true
+version=9.1.0
+source=http://80.211.158.105/pkgs/$name-$version.tar.xz
+sha512=91a34df7742c150abdfe5cf4118b991962e7ad68c9af2d982ac5ee42083e2e633ee46ec4972b8c7db620a5093f7ca7277ff0f8459d3377501ac8ca1a316dcd48
+build() {
+    rm -rf $pkg 2>/dev/null
+    rm -f ./usr 2>/dev/null
+    cd ..
+    cp -rf $name $pkg
+}

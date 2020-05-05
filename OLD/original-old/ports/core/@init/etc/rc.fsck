@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# fsck is not included in ubase, only run
+# fsck if the user happens to have it on their system.
+if command -v fsck >/dev/null ; then
+    mount -o remount,ro /
+
+    fsck -ATa
+    if [ $? -gt 0 ] ; then
+        >&2 echo 'Filesystem errors detected'
+        /bin/sh
+        /sbin/halt -r
+    fi
+
+    mount -o remount,rw /
+else
+    >&2 echo 'Warning: fsck could not be found. Skipping filesystem checks.'
+fi

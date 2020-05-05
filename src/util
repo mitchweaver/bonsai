@@ -57,6 +57,9 @@ extract() {
             out=${1##*/}
             decompress "$1" >"$2/${out%.*}"
             ;;
+        *.zip)
+            unzip -q "$1" -d "$2"
+            ;;
         *)
             # not compressed
             cp -f "$1" "$2"/
@@ -82,5 +85,63 @@ decompress() {
             ;;
         bz2|tbz)
             bunzip2 -qdc "$1"
+            ;;
     esac
+}
+
+# shellcheck disable=SC2094
+mksum() {
+if [ ! -f sources ] ; then
+    >&2 printf '%s\n' "no sources file found in \$PWD"
+    exit 1
+fi
+:>sums
+trap 'rm sums 2>/dev/null' INT
+
+# file syntax:
+#
+# $url  $checksum
+# $url2 $checksum2
+# $url3 $checksum3
+# ...
+while read -r line ; do
+    case $line in
+        //*|\#*) continue ;; # comment
+    esac
+
+    url=${line% *}
+
+    # if file exists, it is a local file (not an actual url)
+    [ -e "$url" ] && continue
+
+    # make temp dir to download file
+    dl=/tmp/mksum-${url##*/}
+    mkdir -p "$dl"
+
+    # download and checksum, appending to temp file
+    printf 'downloading %s\n' "$url"
+    curl -qLsC - --url "$url" -o "$dl/${url##*/}" || exit 1
+
+read -r sum _ <<-EOF
+$(sha512sum "$dl/${url##*/}")
+EOF
+
+    printf '%s %s\n' "$url" "$sum" >>sums
+
+    # remove the temp dir
+    rm -r "$dl"
+done <sources
+
+mv -f sums sources
+
+# add checksums of all port's files, ex: patches, omitting leading './'
+find . -type f ! -name . ! -name pkgfile ! -name sources | \
+while read -r file ; do
+
+read -r sum _ <<-EOF
+$(sha512sum "$file")
+EOF
+
+    printf '%s %s\n' "${file#./}" "$sum"
+done >>sources
 }

@@ -47,13 +47,16 @@ getflags() {
     isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
 
     # Only use slibtool/pkgconf if we aren't bootstrapping.
-    [ -x /bin/slibtool ] && LIBTOOL=/bin/slibtool
-    [ -x /bin/pkgconf  ] && PKG_CONFIG=/bin/pkgconf
+    # [ -x "$BONSAI_ROOT"/bin/slibtool ] && LIBTOOL="$BONSAI_ROOT"/bin/slibtool
+    [ -x "$BONSAI_ROOT"/bin/pkgconf  ] && PKG_CONFIG="$BONSAI_ROOT"/bin/pkgconf
 
     # User flags
     export JOBS=${JOBS:-1} CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
            LIBRARY_PATH LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH \
            BINDIR LIBDIR SBINDIR LIBEXECDIR MANDIR
+
+    # use our musl wrapper if its installed
+    [ -x "$BONSAI_ROOT/bin/musl-gcc" ] && export CC="$BONSAI_ROOT/bin/musl-gcc"
 
     # Makefiles have a problem which goes mostly unrecognized.
     # There is no standard forcing authors to use CFLAGS, CPPFLAGS, etc.
@@ -78,6 +81,7 @@ getflags() {
     #
     # If you disagree with this, please do suggest a better solution.
     export CC="${CC:-gcc} $CFLAGS $CPPFLAGS" CXX="${CXX:-g++} $CFLAGS $CPPFLAGS"
+    # export CC="${CC:-gcc}" CXX="${CXX:-g++}"
 
     # System flags
     export LIBTOOL=${LIBTOOL:-libtool} PKG_CONFIG=${PKG_CONFIG:-pkg-config} \
@@ -94,7 +98,7 @@ autotools_sucks() {
     [ -f INSTALL   ] || :>INSTALL
     [ -f depcomp   ] || :>depcomp
     [ -f compile   ] || :>compile
-    [ ! -f missing ] || :>missing
+    # [ ! -f missing ] || :>missing
     [ ! -f build-aux/missing ] || :>build-aux/missing
 }
 
@@ -167,6 +171,13 @@ bscfg() {
         esac
     }
     SET() {
+        # set the literal '$pkg' to $pkg,
+        # while avoiding use of eval
+        # shellcheck disable=SC2016
+        case $2 in
+            '"$pkg"'/*)
+                set -- "$1" "$pkg/${2#\"$pkg\"}"
+        esac
         case $cfghelp in
             *" --$1="*)
                 cfgflags="$cfgflags --$1=$2 "

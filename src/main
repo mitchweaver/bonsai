@@ -1,7 +1,7 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Variables              http://github.com/bonsai-linux/bonsai
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-: "${BONSAI_ROOT:=${HOME}/env/bonsai}"
+: "${BONSAI_ROOT:=${HOME}/.bonsai}"
 : "${PORTS:=$BONSAI_ROOT/src/ports}"
 : "${PKGS:=$BONSAI_ROOT/src/pkgs}"
 : "${SOURCES:=$BONSAI_ROOT/src/sources}"
@@ -14,15 +14,11 @@
 # prepend bonsai paths to the running environment's paths
 # programs and libraries inside the chroot will be preferred
 export PATH="$BONSAI_ROOT/bin:$PATH"
-export LD_LIBRARY_PATH="$BONSAI_ROOT/lib:$LD_LIBRARY_PATH:/lib:/usr/lib"
+export LD_LIBRARY_PATH="$BONSAI_ROOT/lib:$BONSAI_ROOT/libexec:$LD_LIBRARY_PATH:/lib:/usr/lib"
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # Main
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-check_env() {
-    [ "$BONSAI_ROOT" ] || die "\$BONSAI_ROOT is not defined"
-}
-
 init() {
     mkdir -p "$PKGS" "$PORTS" "$SOURCES" "$WORK" "$CONFIG"
     for dir in bin sbin share include etc lib libexec ; do
@@ -52,7 +48,6 @@ EOF
 }
 
 main() {
-    check_env
     init
     [ "$1" ] || return
 
@@ -73,6 +68,7 @@ main() {
         c) printf '%s\n' "$PKGS"/*/ | wc -l ;;
         i) isinst "$1" || die "$1 is not installed" && msg "$1 is installed" ;;
         s) searchpkg "$1" ;;
+        mksum) mksum ;;
         cat) getpkgfile "$1" ; cat "$pkgfile" ;;
         deps) pkgdeps "$1" ; printf '%s\n' "$pkgdeps" ;;
         *relink-world) relink_world "$1" ;;

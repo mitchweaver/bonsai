@@ -1,8 +1,0 @@
-info='headers taken between NetBSD and OpenBSD for musl-libc compatibility'
-ver=1.0
-build() {
-    for header in sys/*.h ; do
-        msg "installing $header"
-        install -D -m 0644 "$header" "$pkg/include/$header"
-    done
-}

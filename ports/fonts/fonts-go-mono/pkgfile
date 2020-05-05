@@ -1,0 +1,14 @@
+info='Go Mono from nerdfonts'
+ver=2.1.0
+deps='mkfontdir mkfontscale'
+build() {
+    install -D -m 0644 'Go Mono Nerd Font Complete.ttf'             "$pkg"/share/fonts/${name#fonts-}/${name#fonts-}.ttf
+    install -D -m 0644 'Go Mono Bold Nerd Font Complete.ttf'        "$pkg"/share/fonts/${name#fonts-}/${name#fonts-}-bold.ttf
+    install -D -m 0644 'Go Mono Italic Nerd Font Complete.ttf'      "$pkg"/share/fonts/${name#fonts-}/${name#fonts-}-italic.ttf
+    install -D -m 0644 'Go Mono Bold Italic Nerd Font Complete.ttf' "$pkg"/share/fonts/${name#fonts-}/${name#fonts-}-bold-italic.ttf
+}
+postbuild() {
+    cd "$pkg"/share/fonts/${name#fonts-}
+    mkfontscale
+    mkfontdir
+}

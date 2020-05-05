@@ -1,0 +1,67 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# main                   http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# vi:syntax=sh
+# shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+[ "$1" = --debug ] && { shift ; set -ex ; }
+
+export LC_ALL=C LANG=C
+if [ "$BOOTSTRAP" ] ; then
+    export PATH=".:$ROOT/bin:$PATH"
+    [ "$ROOT" ] || { >&2 echo "Error: \$ROOT is not defined" ; exit 1 ; }
+else
+    export ROOT=/ PATH=/bin
+    . /src/config/global.cfg
+fi
+
+main() {
+    while [ "$1" ] ; do
+        case "$1" in
+            # ---- variable setting -------
+            *dlonly|-dl) export DL_ONLY=1 ; shift ;;
+            -y) export NO_PROMPT=1 ; shift ;;
+            -v|V=1) export VERBOSE=1 ; shift ;;
+            # -----------------------------
+            *relink*world) relink_world "$2" ; exit $? ;;
+            list|-l)   listpkgs      ; exit $? ;;
+            search|-s) search "$2"   ; exit $? ;;
+            info|-i)   portinfo "$2" ; exit $? ;;
+            print|-p)  portcat "$2"  ; exit $? ;;
+            count|-c)  countpkgs     ; exit $? ;;
+            pack)      pack "$2"     ; exit $? ;;
+            unpack)    unpack "$2"   ; exit $? ;;
+            rdeps)     rdeps  "$2"   ; exit $? ;;
+            add|-a) shift ; addpkg "$@" ; exit $? ;;
+            del|-d) shift ; delpkg "$@" ; exit $? ;;
+            update|-u) shift ; export UPDATE=1 ; addpkg "$@" ; exit $? ;;
+            *help|-h) usage ; exit ;;
+            relink|-r)
+                shift
+                while [ "$1" ] ; do
+                    linkpkg "$1"
+                    shift
+                done
+                ;;
+            isinst)
+                shift
+                while [ "$1" ] ; do
+                    isinst "$1" || exit 1
+                    shift
+                done
+                ;;
+            deps)
+                pkgdeps "$2"
+                if [ "$pkgdeps" ] ; then
+                    msg "$pkgdeps"
+                    exit $?
+                else
+                    msg "port $2 has no dependencies"
+                    exit 1
+                fi
+                ;;
+            *) [ "$1" ] && set -- add "$@"
+        esac
+    done
+}

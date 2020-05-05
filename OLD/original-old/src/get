@@ -1,0 +1,119 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# get                    http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# vi:syntax=sh
+# shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+# downloads url and extracts to $pkgworkdir
+# params: none
+# assumes: $name $version $source $pkgid $pkgfile $pkgworkdir in environment
+get() {
+    mkdir -p "$SOURCES" "$pkgworkdir"
+    get_ext "$source"
+
+    # do not try to dl / extract if metapkg or source=none
+    [ ! -f "$SOURCES/$pkgid$ext" ] && \
+    [ "$source" ] && [ "$source" != none ] && \
+    dlcurl "$source" "$SOURCES" "$pkgid$ext"
+
+    if [ ! "$DL_ONLY" ] ; then
+        if ! ismetapkg $name && [ -e "$SOURCES/$pkgid$ext" ] ; then
+            [ "$sha512" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha512"
+            [ "$sha256" ] && verify_checksum "$SOURCES/$pkgid$ext" "$sha256"
+            ! [ "$sha512" ] && ! [ "$sha256" ] && die "no checksum found in the pkgfile"
+            extract "$SOURCES/$pkgid$ext" "$pkgworkdir"
+        fi
+        # copy all port's files, except its pkgfile -- (ex: patches)
+        find "$(getportdir $name)" -type f ! -name pkgfile ! -name $name | \
+        while read -r file ; do
+            cp -f "$file" "$pkgworkdir"/
+        done
+    fi
+}
+
+# params: $url $outdir $filename
+dlcurl() {
+    msg "downloading $3..."
+    # curl bugs out with certain characters in filenames, as a fix
+    # have curl output to a temporary file, then rename.
+    curl -q -L -C - -# --retry 5 --url "$1" -o "$2/$$.dlcurl" || die "failed to download $3"
+    mv -f -- "$2/$$.dlcurl" "$2/$3"
+}
+
+# params: $source
+get_ext() {
+    case "$1" in
+        *.tar.*) ext=".tar.${1##*.}" ;;
+              *) ext=".${1##*.}"
+    esac
+}
+
+# decompress a given tarball to stdout
+decompress() {
+    [ -f "$1" ] || die "decompress: no such file $1"
+    case "${1##*.}" in
+        xz|txz) 
+            if type xz-embedded >/dev/null 2>&1 ; then
+                xz-embedded <"$1"
+            else
+                xz -qdc "$1"
+            fi
+            ;;
+        gz|tgz)
+            if type unpigz >/dev/null 2>&1 ; then
+                unpigz -qdc "$1"
+            else
+                gunzip -qdc "$1"
+            fi
+            ;;
+        bz2|tbz) bunzip2 -qdc "$1" ;;
+        lz|tlz)  lzip    -qdc "$1" ;;
+        zip)     unzip   -qp  "$1" ;;
+        *) die "decompress: unsupported filetype"
+    esac || die "decompress: failed to decompress $1"
+}
+
+# decompress and extract a given tarball "$1" to folder "$2"
+extract() {
+    [ -f "$1" ] || die "extract: no such file $1"
+    get_ext "$1"
+    mkdir -p -- "$2"
+    case "$ext" in
+        .tar.*|.tgz|.tbz|.txz)
+            { decompress "$1" | tar -C "$2" -xf - ; } || 
+                die "extract: failed to decompress $1"
+
+            dldir="$2/$(ls "$2")"
+
+            # ensure files are in toplevel (ie $dir/name, not $dir/$name/$name)
+            mv -f -- "$dldir"/* "$2"/ 2>/dev/null
+
+            # copy any hidden files
+            find "$dldir" -name ".*" ! -name . -exec mv -f "{}" "$2"/ \; 2>/dev/null
+
+            # try to remove possible empty dirs
+            rmdir "$dldir" 2>/dev/null ||:
+            ;;
+        *)  # if not a tarball, simply write it out
+            file="$(basename "$1")"
+            decompress "$1" >"$2/${file%%$ext}"
+    esac || die "extract: failed to extract $1"
+}
+
+# verify checksum of $2 against tarball $1
+verify_checksum() {
+    msg_no_nl "verifying checksums... "
+    case "${#2}" in
+        128) set -- $@ sha512sum ;;
+         64) set -- $@ sha256sum ;;
+          *) die "bad SHA sum provided"
+    esac
+    set -- "${2:-?}" $($3 "$1" 2>/dev/null)
+    if [ "$1" = "$2" ] ; then
+        echo "matched!"
+    else
+        >&2 echo "CHECKSUM MISMATCH"
+        exit 1
+    fi
+}

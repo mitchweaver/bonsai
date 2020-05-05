@@ -1,0 +1,9 @@
+info='heirloom base - a compliment to sbase and ubase'
+version=1.5
+source=http://github.com/bonsai-linux/$name/archive/$version.tar.gz
+deps=zlib
+sha256=7bfda0827d15a6f5e698c0db7a759ed64be2acf1dbf31f68752848c5e89e6096
+build() {
+    PREFIX="$DESTDIR" ./build.sh
+    PREFIX="$DESTDIR" ./build.sh install
+}

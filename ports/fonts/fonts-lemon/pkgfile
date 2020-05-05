@@ -1,0 +1,12 @@
+info='font mod of lime by mxnkfish'
+ver=1.0
+deps='mkfontdir mkfontscale bdftopcf'
+build() {
+    bdftopcf -o ${name#-fonts}.pcf lemon.bdf
+    install -D -m 0644 ${name#-fonts}.pcf "$pkg"/share/fonts/${name#fonts-}/${name#-fonts}.pcf
+}
+postbuild() {
+    cd "$pkg"/share/fonts/${name#fonts-}
+    mkfontscale
+    mkfontdir
+}

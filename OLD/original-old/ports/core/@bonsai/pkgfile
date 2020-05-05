@@ -1,0 +1,23 @@
+info='a tiny package manager based on musl-libc'
+metapkg=true
+build() {
+    mkdir -p "$pkg"/bin
+    ln -sf bonsai "$pkg"/bin/bs
+    ln -sf bonsai "$pkg"/bin/bpm
+}
+postbuild() {
+    if isinst git >/dev/null ; then
+        cd "$pkg"
+        if [ -d bonsai ] ; then
+            cd bonsai
+            git pull
+        else
+            git clone http://github.com/bonsai-linux/bonsai
+            cd bonsai
+        fi
+        make
+        make ROOT="${ROOT:-/}" install
+    else
+        warn "git is needed to update bonsai and its ports"
+    fi
+}

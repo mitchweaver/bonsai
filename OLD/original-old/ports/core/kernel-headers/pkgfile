@@ -1,0 +1,19 @@
+info='kernel headers patched for musl libc'
+version=54bd9d10661fa8f667361be00a0a2563622773b0
+source=http://github.com/sabotage-linux/$name/archive/$version.tar.gz
+sha512=286d5bd3bc20673dbebf6756741f3687831337a17a00a25f7639fbc67269e92f694b338dfa8a962e3901b439af012b1263c8aa79b14b085e463a74dd053ac766
+build() {
+    rm -r patches
+    ls
+    bonsai_make ARCH=generic install
+    bonsai_make ARCH=x86_64 install
+}
+postbuild() {
+    # remove non-x86_64 archetectures
+    for junk in create-dist.sh \
+                powerpc or1k openrisc mips \
+                microblaze i386 aarch64 ; do
+        rm -rf $pkg/"$junk" 2>/dev/null
+    done
+    rm -rf $pkg/arm* $pkg/test* 2>/dev/null
+}

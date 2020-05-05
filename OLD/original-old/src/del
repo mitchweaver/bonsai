@@ -1,0 +1,68 @@
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# del                    http://github.com/bonsai-linux/bonsai
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# vi:syntax=sh
+# shellcheck shell=sh
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+# uninstalls a given $name and removes its symlinks
+delpkg() {
+    [ "$1" ] || die "delpkg(): no pkg given"
+
+    # if we are only installing one package, make sure it is installed
+    if [ ! "$2" ] && ! isinst "$1" >/dev/null ; then
+        die "$1 is not installed"
+    fi
+
+    # todo: here we will also add any orphaned sub-deps instead of just "$name"
+    warn "these packages will be deleted:"
+    printf "\n  %s\n\n" "$*"
+
+    # prompt user for confirmation before continuing
+    confirm || return 1
+
+    # delete the packages, one at a time
+    while [ "$1" ] ; do
+        # only proceed if $1 is installed
+        if ! isinst "$1" >/dev/null ; then
+            warn "$1 is not installed"
+            shift
+            continue
+        fi
+
+        cd "$ROOT" || die "delpkg(): unable to cd to \$ROOT"
+
+        if [ -d "$PKGS/$1" ] ; then
+            # go through $PKGS/$1, deleting files as we go
+            # afterwards, remove its symlink in the root
+            find "$PKGS/$1" -type f -o -type l | while read -r file ; do
+                rm -f "$file"
+                link="$ROOT/${file#$PKGS/$1}"
+                if [ ! -L "$link" ] || [ ! -e "$link" ] ; then
+                    rm -f "$link"
+                fi
+            done
+            # recurse through dirs in reverse, removing empty dirs as we go
+            # afterwards, remove its equivalent dir in the ROOT, if empty
+            # note: the sed command here is to emulte 'tac' which is not portable
+            find "$PKGS/$1" -type d | sed '1!G;h;$!d' | while read -r dir ; do
+                rmdir "$dir" 2>/dev/null ||:
+
+                # check that $dir contains at least one slash before removing
+                # (so we don't remove any top level dirs i.e. bin,etc,lib...)
+                case "${dir#$PKGS/$1}" in
+                    *'/'*) rmdir "$ROOT/${dir#$PKGS/$1}" 2>/dev/null ||: ;;
+                    *)
+                esac
+            done
+        else
+            ismetapkg "$1" || warn "$1 was not found in \$PKGS"
+        fi
+
+        del_db "$1"
+        clean
+
+        msg "$1 deleted"
+        shift
+    done
+}
