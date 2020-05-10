@@ -74,9 +74,10 @@ searchpkg() {
     printf '%s\n' "$PORTS"/*/* | \
     while read -r dir ; do
         case $dir in
-            *"$1"*) printf '%s\n' "${dir##*/}"
+            *"$1"*)
+                printf '%s\n' "${dir##*/}"
         esac
-    done
+    done | sort
 }
 
 # calculates dependencies of a $name and stores

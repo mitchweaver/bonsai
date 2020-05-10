@@ -1,0 +1,3 @@
+info='colored ls written in rust'
+ver=0.9.0
+build() { install -D -m 0755 exa-linux-x86_64 "$pkg"/bin/exa ; }

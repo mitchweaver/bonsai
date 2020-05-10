@@ -1,0 +1,8 @@
+info='opensource java development kit'
+ver=11+28
+build() {
+    mkdir -p "$pkg"/bin
+    cd ..
+    cp -rf "$name" "$pkg"/openjdk${ver%+*}
+    ln -sf ../openjdk${ver%+*}/bin/java "$pkg"/bin/java
+}

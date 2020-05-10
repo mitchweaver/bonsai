@@ -1,0 +1,8 @@
+info='tool to run local flash games'
+ver=1.0
+build() {
+    install -D -m 0755 flashplayer "$pkg"/bin/flashplayer
+}
+postbuild() {
+    ln -sf flashplayer "$pkg"/bin/flash-player-projector
+}

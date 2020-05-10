@@ -51,6 +51,9 @@ add() {
         # start back at $WORK directory as $workdir may get deleted
         cd "$WORK" || die "couldn't cd to $WORK"
 
+        # try to remove an empty dir in "$pkgs" should it exist
+        rmdir "$pkgs/$p" 2>/dev/null ||:
+
         # warn if package is being reinstalled
         [ "$FORCE" != true ] && isinst "$p" && die "$p is already installed"
 

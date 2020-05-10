@@ -221,6 +221,6 @@ bspatch() {
     find . -type f -prune -name '*.patch' -o -name '*.diff' | sort | \
     while read -r patch ; do
         msg "applying patch: ${patch##*/}"
-        patch -u -f -l -p0 <"$patch" >/dev/null || die "$patch failed"
+        patch -f -l -p0 <"$patch" >/dev/null || die "$patch failed"
     done
 }

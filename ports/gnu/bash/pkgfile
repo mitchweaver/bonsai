@@ -1,0 +1,18 @@
+info="GNU bourne again shell"
+ver=5.0
+prebuild() {
+    mkdir patches
+    for i in bash50-* ; do
+        mv "$i" patches/"$i".patch
+    done
+    bspatch
+}
+build() {
+    export CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
+    bscfg
+    bsmk install
+}
+postbuild() {
+    # create system shell symlink if it doesnt already exist (ex: from dash)
+    [ -e "$BONSAI_ROOT"/bin/sh ] || ln -sf bash "$pkg"/bin/sh
+}
