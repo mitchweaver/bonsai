@@ -1,0 +1,3 @@
+info='Xorg xtrans library'
+ver=1.4.0
+deps=bzip2

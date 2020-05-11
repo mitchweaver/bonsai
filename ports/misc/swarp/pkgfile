@@ -1,0 +1,3 @@
+info='small utility to warp screen pointer'
+ver=0.1
+deps=xorg-libx11
