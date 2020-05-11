@@ -1,11 +1,14 @@
+# ----- all:
 # SC1090: file sourcing   - shellcheck is unaware of sourced pkgfiles
 # SC2154: undeclared vars - shellcheck is unaware vars inside pkgfiles
 # SC2120: unused arguments - shellcheck is unaware of pkgfile function calls
+# ----- portfiles only:
 # SC2034: unused variables - shellcheck is unaware of pkgfile vars use
 # SC2016: expressions in single quotes don't expand - often in sed calls within pkgfiles (intentional)
 # SC2086: word splitting - this is used often, intentionally, in pkgfiles
 # SC2209: shellcheck thinks "deps=sed" for example is a misuse of command output.
+# SC2164: 'use || exit in case cd fails' -- only used when will never fail
 script:
   - make
   - shellcheck -s sh -e 1090 -e 2154 -e 2120 bonsai
-  - shellcheck -s sh -e 1090 -e 2154 -e 2034 -e 2016 -e 2086 -e 2209 ports/*/*/pkgfile
+  - shellcheck -s sh -e 1090 -e 2154 -e 2034 -e 2016 -e 2086 -e 2209 -e 2164 ports/*/*/pkgfile

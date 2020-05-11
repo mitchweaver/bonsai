@@ -30,6 +30,7 @@ test:
 	@#         this is used often, intentionally, in pkgfiles
 	@# SC2209: shellcheck thinks "deps=sed" for example is a misuse
 	@#         of command output. False positive.
-	${SHELLCHECK} -e 2034 -e 2016 -e 2086 -e 2209 ports/*/*/pkgfile
+	@# SC2164: 'use || exit in case cd fails' -- only used when will never fail
+	${SHELLCHECK} -e 2034 -e 2016 -e 2086 -e 2209 -e 2164 ports/*/*/pkgfile
 	@# count lines of code, excluding comments and blank lines:
 	@echo SLOC: $$(sed '/^\s*#/d;/^\s*$$/d' bonsai  | wc -l)

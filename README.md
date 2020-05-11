@@ -1,4 +1,4 @@
-# bonsai [![Build Status](https://travis-ci.com/bonsai-linux/bonsai.svg?branch=master)](https://travis-ci.com/bonsai-linux/bonsai)
+# bonsai [![Build Status](https://travis-ci.com/mitchweaver/bonsai.svg?branch=master)](https://travis-ci.com/mitchweaver/bonsai)
 
 ```
 # -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
@@ -20,7 +20,7 @@
 #               '#' '##' #  #  ,,# '##;, #                #
 #                                                         #
 #                                                         #
-#          http://github.com/bonsai-linux/bonsai          #
+#          http://github.com/mitchweaver/bonsai           #
 #                                                         #
 #                      * NOTICE *                         #
 #                                                         #
