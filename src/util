@@ -37,7 +37,7 @@ chksum() {
 # args: [compressed_file] [output_dir]
 extract() {
     case $1 in
-        *.tar.*|*.tgz|*.txz|*.tbz)
+        *tar.*|*.tgz|*.txz|*.tbz)
             decompress "$1" | tar -C "$2" -xf -
 
             # Ensure extracted tar files are in the top level of $2.
@@ -48,7 +48,7 @@ extract() {
             for dot in "$2"/*/.* ; do
                 mv "$dot" "$2"/ 2>/dev/null ||:
             done
-            mv "$2"/*/*  "$2"/ 2>/dev/null ||:
+            mv "$2"/*/* "$2"/ 2>/dev/null ||:
 
             # remove any empty dirs we may have created
             rmdir "$2"/* 2>/dev/null ||:
@@ -89,6 +89,7 @@ decompress() {
     esac
 }
 
+# Helper utility to create "sources" files for packages.
 # shellcheck disable=SC2094
 mksum() {
 if [ ! -f sources ] ; then
