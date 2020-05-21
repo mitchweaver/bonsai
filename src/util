@@ -121,7 +121,7 @@ while read -r line ; do
 
     # download and checksum, appending to temp file
     printf 'downloading %s\n' "$url"
-    curl -qLsC - --url "$url" -o "$dl/${url##*/}" || exit 1
+    curl -qL#C - --url "$url" -o "$dl/${url##*/}" || exit 1
 
 read -r sum _ <<-EOF
 $(sha512sum "$dl/${url##*/}")

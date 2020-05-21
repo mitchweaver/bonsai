@@ -1,0 +1,9 @@
+info='hackable text editor'
+ver=1.47.0
+prebuild() { : ; }
+build() {
+    mkdir -p "$pkg/bin"
+    cd ..
+    cp -rf "$name" "$pkg/${name%-bin}"
+    ln -sf "../${name%-bin}/${name%-bin}" "$pkg/bin/${name%-bin}"
+}

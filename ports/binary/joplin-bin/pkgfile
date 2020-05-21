@@ -1,0 +1,5 @@
+info='open source note taking and to-do application'
+ver=1.0.214
+build() {
+    install -D -m 0755 Joplin-$ver.AppImage "$pkg/bin/${name%-bin}"
+}
