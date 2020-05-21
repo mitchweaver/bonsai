@@ -1,0 +1,22 @@
+info='secure, collaborative notebook'
+ver=0.7.2.5
+build() {
+    mkdir -p "$pkg"/bin
+    cp -rf "${name%-bin}" "$pkg"/
+    ln -sf "../${name%-bin}/${name%-bin}" "$pkg/bin/${name%-bin}"
+}
+postbuild() {
+mkdir -p "$pkg"/share/applications
+cat >"$pkg/share/applications/${name%-bin}.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Turtl
+Version=$ver
+Comment=$info
+Icon=${name%-bin}
+Exec=${name%-bin}
+Terminal=false
+Categories=Utility;TextEditor;
+StartupWMClass=Turtl
+EOF
+}
