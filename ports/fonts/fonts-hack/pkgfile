@@ -1,0 +1,13 @@
+info='A typeface designed for source code '
+ver=3.003
+deps='mkfontdir mkfontscale'
+build() {
+    for ttf in *.ttf ; do
+        install -D -m 0644 "$ttf" "$pkg/share/fonts/${name#fonts-}/$ttf"
+    done
+}
+postbuild() {
+    cd "$pkg"/share/fonts/${name#fonts-}
+    mkfontscale
+    mkfontdir
+}

@@ -3,3 +3,17 @@ ver=1.0.214
 build() {
     install -D -m 0755 Joplin-$ver.AppImage "$pkg/bin/${name%-bin}"
 }
+postbuild() {
+mkdir -p "$pkg"/share/applications
+cat >"$pkg/share/applications/${name%-bin}.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Joplin
+Version=$ver
+Comment=$info
+Icon=${name%-bin}
+Exec=${name%-bin}
+Terminal=false
+Categories=Utility;TextEditor;
+EOF
+}

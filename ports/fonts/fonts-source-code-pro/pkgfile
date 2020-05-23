@@ -1,0 +1,16 @@
+info='Monospaced font family for user interface and coding environments'
+ver=1.010
+deps='mkfontdir mkfontscale'
+build() {
+    for ttf in \
+        'SourceCodeVariable-Roman.ttf' \
+        'SourceCodeVariable-Italic.ttf'
+    do
+        install -D -m 0644 "$ttf" "$pkg/share/fonts/${name#fonts-}/$ttf"
+    done
+}
+postbuild() {
+    cd "$pkg"/share/fonts/${name#fonts-}
+    mkfontscale
+    mkfontdir
+}

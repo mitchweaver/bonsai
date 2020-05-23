@@ -18,6 +18,5 @@ Icon=${name%-bin}
 Exec=${name%-bin}
 Terminal=false
 Categories=Utility;TextEditor;
-StartupWMClass=Laverna
 EOF
 }

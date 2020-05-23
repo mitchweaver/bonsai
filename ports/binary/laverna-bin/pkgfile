@@ -19,11 +19,10 @@ cat >"$pkg/usr/share/applications/${name%-bin}.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=Laverna
-Comment=Open Source Evernote alternative
+Comment=$info
 Icon=${name%-bin}
 Exec=${name%-bin}
 Terminal=false
 Categories=Utility;TextEditor;
-StartupWMClass=Laverna
 EOF
 }
