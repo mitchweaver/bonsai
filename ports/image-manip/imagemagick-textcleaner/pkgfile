@@ -1,5 +1,5 @@
-info='ImageMagick script to extract sections of an image with varying whitespace'
-ver=15.10.2019
+info='ImageMagick script to clean up scanned text, helpful for OCR'
+ver=16.12.2018
 # deps='bash imagemagick'
 prebuild() {
     # fix filename given from php
