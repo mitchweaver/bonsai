@@ -1,0 +1,17 @@
+info='classic macOS font'
+ver=$(date +'%d.%m.%y')
+deps='mkfontdir mkfontscale' #p7zip
+build() {
+    7z e SF-Font-Pro.dmg
+    7z e 'San Francisco Pro.pkg'
+    7z e Payload\~
+    mkdir -p "$pkg/share/fonts/San Francisco"
+    for font in *.otf ; do
+        install -D -m 0644 "$font" "$pkg/share/fonts/San Francisco/$font"
+    done
+}
+postbuild() {
+    cd "$pkg/share/fonts/San Francisco"
+    mkfontscale
+    mkfontdir
+}

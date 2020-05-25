@@ -16,6 +16,7 @@ EOF
 chmod +x "$pkg/bin/${name%-bin}"
 
 cat >"$pkg/usr/share/applications/${name%-bin}.desktop" <<EOF
+#!/usr/bin/env xdg-open
 [Desktop Entry]
 Type=Application
 Name=Laverna

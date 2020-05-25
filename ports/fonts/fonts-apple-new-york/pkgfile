@@ -1,0 +1,17 @@
+info='new "New York" version of the macOS font'
+ver=$(date +'%d.%m.%y')
+deps='mkfontdir mkfontscale' #p7zip
+build() {
+    7z e NY-Font.dmg
+    7z e 'NY Fonts.pkg'
+    7z e Payload\~
+    mkdir -p "$pkg/share/fonts/New York"
+    for font in *.otf ; do
+        install -D -m 0644 "$font" "$pkg/share/fonts/New York/$font"
+    done
+}
+postbuild() {
+    cd "$pkg/share/fonts/New York"
+    mkfontscale
+    mkfontdir
+}
