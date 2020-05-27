@@ -1,0 +1,20 @@
+info='The Onion Router browser bundle'
+ver=9.0.10
+build() {
+    mkdir -p "$pkg"/bin
+    cp -rf Browser "$pkg"/Browser
+    ln -sf ../Browser/start-tor-browser "$pkg"/bin/
+}
+postbuild() {
+mkdir -p "$pkg"/share/applications
+cat >"$pkg/share/applications/$name.desktop" <<EOF
+[Desktop Entry]
+Name=Tor Browser
+Exec=start-tor-browser
+Terminal=false
+Type=Application
+Icon=torbrowser
+Categories=Network;Browser
+StartupWMClass=Tor Browser
+EOF
+}
