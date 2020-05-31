@@ -1,0 +1,9 @@
+info='cli tool to interact with wordpress'
+ver=2.4.0
+# deps=php
+build() {
+    install -D -m 0755 "$name-$ver.phar" "$pkg/bin/$name"
+}
+postbuild() {
+    ln -sf "$name" "$pkg"/bin/wp
+}
