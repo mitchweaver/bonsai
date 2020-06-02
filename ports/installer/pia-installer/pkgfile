@@ -1,0 +1,5 @@
+info='Private Internet Access VPN installer'
+ver=2.1-04977
+build() {
+    install -D -m 0755 pia-linux-$ver.run "$pkg"/bin/pia-installer
+}
