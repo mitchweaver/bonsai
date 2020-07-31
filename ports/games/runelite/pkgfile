@@ -1,0 +1,23 @@
+info='RuneLite launcher for OldSchool RuneScape'
+ver=2.1.3
+
+prebuild() {
+    mkdir -p "$pkg"/opt "$pkg"/bin
+}
+
+build() {
+    install -D -m 0755 RuneLite.AppImage "$pkg/opt/$name"
+}
+
+postbuild() {
+cat > "$pkg/bin/$name" <<EOF
+#!/bin/sh
+
+# fix for bug with floating windows and java programs
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+exec "$pkg/opt/$name"
+EOF
+
+chmod +x "$pkg/bin/$name"
+}
