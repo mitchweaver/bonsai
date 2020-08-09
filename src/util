@@ -85,7 +85,6 @@ decompress() {
             ;;
         bz2|tbz)
             bunzip2 -qdc "$1"
-            ;;
     esac
 }
 

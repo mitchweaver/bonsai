@@ -20,4 +20,18 @@ exec "$pkg/opt/$name"
 EOF
 
 chmod +x "$pkg/bin/$name"
+
+install -D -m 0644 runelite.png "$pkg"/share/applications/$name.png
+
+# create desktop file
+cat > "$pkg/share/applications/$name.desktop" <<EOF
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Exec=runelite
+Name=RuneLite
+Comment=RuneLite launcher
+Icon=$pkg/share/applications/$name.png
+Categories=Game
+EOF
 }
