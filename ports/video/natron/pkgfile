@@ -1,0 +1,9 @@
+info="Open source alternative to Adobe After Effects"
+ver=2.3.15
+prebuild() {
+    : # no patch
+}
+build() {
+    mkdir -p "$pkg"
+    cp -rf * "$pkg"/
+}
