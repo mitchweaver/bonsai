@@ -5,5 +5,5 @@ prebuild() {
 }
 build() {
     mkdir -p "$pkg"
-    cp -rf * "$pkg"/
+    cp -rf -- * "$pkg"/
 }
