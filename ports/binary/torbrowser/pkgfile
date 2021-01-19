@@ -1,5 +1,5 @@
 info='The Onion Router browser bundle'
-ver=9.0.10
+ver=10.0.8
 build() {
     mkdir -p "$pkg"/bin
     cp -rf Browser "$pkg"/Browser
