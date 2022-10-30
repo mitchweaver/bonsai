@@ -1,5 +1,2 @@
 info='Open source Spotify client running as a UNIX daemon'
 ver=0.3.3
-build() {
-    install -D -m 0755 "$name" "$pkg/bin/$name"
-}

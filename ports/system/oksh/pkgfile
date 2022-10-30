@@ -3,6 +3,7 @@ ver=7.2
 build() {
     bscfg
     bsmk
-    install -D -m 0755 "$name" "$pkg/bin/$name"
-    install -D -m 0644 "$name.1" "$pkg/share/man/man1/$name.1"
+    # let bonsai handle installation
+    rm Makefile
+    bsinstall
 }
