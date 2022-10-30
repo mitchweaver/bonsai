@@ -38,7 +38,7 @@ loadpkgfile() {
 }
 
 unloadpkgfile() {
-    unset name portdir pkgfile pkgstring pkg workdir
+    unset bin name portdir pkgfile pkgstring pkg workdir
     unset info url ver deps link
     unset -f build prebuild postbuild
 }

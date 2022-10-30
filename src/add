@@ -25,7 +25,7 @@ add() {
         case $pkgdeps in
             ""|"* *")
                 # if unset or empty string, there are no deps
-                ;; 
+                ;;
             *)
                 for dep in $pkgdeps ; do
                     # if dep is not installed, schedule it to be added

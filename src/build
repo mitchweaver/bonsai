@@ -146,15 +146,20 @@ bsinstall() {
     if [ -f Makefile ] || [ -f makefile ] ; then
         bsmk install
     else
-        if [ -f "$name" ] ; then
-            install -D -m 0755 "$name" "$pkg/bin/$name"
-        elif [ -f "bin/$name" ] ; then
-            install -D -m 0755 "bin/$name" "$pkg/bin/$name"
+        # see if a specific bin name was set in the pkgfile
+        # otherwise install as the package name
+        if [ ! "$bin" ] ; then
+            bin=$name
         fi
-        if [ -f "$name.1" ] ; then
-            install -D -m 0644 "$name.1" "$pkg/share/man/man1/$name.1"
-        elif [ -f "share/man/man1/$name.1" ] ; then
-            install -D -m 0644 "share/man/man1/$name.1" "$pkg/share/man/man1/$name.1"
+        if [ -f "$bin" ] ; then
+            install -D -m 0755 "$bin" "$pkg/bin/$bin"
+        elif [ -f "bin/$bin" ] ; then
+            install -D -m 0755 "bin/$bin" "$pkg/bin/$bin"
+        fi
+        if [ -f "$bin.1" ] ; then
+            install -D -m 0644 "$bin.1" "$pkg/share/man/man1/$bin.1"
+        elif [ -f "share/man/man1/$bin.1" ] ; then
+            install -D -m 0644 "share/man/man1/$bin.1" "$pkg/share/man/man1/$bin.1"
         fi
     fi
 }
