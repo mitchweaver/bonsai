@@ -1,5 +1,5 @@
 info='pass clone written in shell'
 ver=2.3.0
 build() {
-    install -D -m 0755 pash "$pkg"/bin/pash
+    install -D -m 0755 "$name" "$pkg/bin/$name"
 }

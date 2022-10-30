@@ -1,0 +1,5 @@
+info='Spotify for the terminal written in Rust'
+ver=0.25.0
+build() {
+    install -D -m 0755 spt "$pkg"/bin/spt
+}
