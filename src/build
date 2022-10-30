@@ -45,6 +45,7 @@ run_build() {
 # Exports flags into the environment to be read by makefiles.
 getflags() {
     # Import user's flags and export them.
+    # shellcheck disable=SC1091
     isinst @cfg >/dev/null && . "$CONFIG"/build.cfg
 
     # Only use slibtool/pkgconf if we aren't bootstrapping.

@@ -18,7 +18,9 @@ install:
 # SC1090: file sourcing     -  shellcheck is unaware of sourced pkgfiles
 # SC2154: undeclared vars   -  shellcheck is unaware vars inside pkgfiles
 # SC2120: unused arguments   - shellcheck is unaware of pkgfile function calls
-SHELLCHECK = shellcheck -s sh -e 1090 -e 2154 -e 2120
+# SC2295: Expansions with '#' - shellcheck thinks "#" which we are using as
+#                               package version delimiter isn't taken literally
+SHELLCHECK = shellcheck -s sh --norc -e 1090 -e 2154 -e 2120 -e 2295
 
 test:
 	${SHELLCHECK} bonsai
