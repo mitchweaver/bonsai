@@ -1,0 +1,7 @@
+info='dead simple X11 color picker'
+ver=1.0
+build() {
+    bsmk
+    rm makefile
+    bsinstall
+}
