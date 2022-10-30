@@ -1,0 +1,13 @@
+info='A bitmap programming font optimized for coziness'
+ver=1.18.0
+build() {
+    install -D -m 0644 CozetteVector.ttf \
+        "$pkg/share/fonts/${name#fonts-}/CozetteVector.ttf"
+    install -D -m 0644 cozette_bitmap.ttf \
+        "$pkg/share/fonts/${name#fonts-}/cozette_bitmap.ttf"
+}
+postbuild() {
+    cd "$pkg/share/fonts/${name#fonts-}"
+    mkfontscale
+    mkfontdir
+}
