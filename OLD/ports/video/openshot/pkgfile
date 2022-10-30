@@ -1,5 +1,0 @@
-info="Easy to use pen source video editer"
-ver=2.5.1
-build() {
-    install -D -m 0755 OpenShot-v$ver-x86_64.AppImage "$pkg/bin/$name"
-}

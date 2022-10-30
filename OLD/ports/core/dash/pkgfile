@@ -1,7 +1,0 @@
-info='Debian Alquist shell (DASH)'
-ver=0.5.10.2
-build() {
-    bscfg
-    bsmk install
-    ln -sf dash "$pkg"/bin/sh
-}

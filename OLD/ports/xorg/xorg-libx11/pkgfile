@@ -1,3 +1,0 @@
-info='Xorg X11 library'
-ver=1.6.9
-deps='xorg-libxau xorg-libxcb'

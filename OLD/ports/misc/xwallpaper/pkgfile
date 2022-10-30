@@ -1,3 +1,0 @@
-info='simple wallpaper setter for X'
-ver=0.6.5
-#deps="automake autoconf pixman-dev xcb-util-image-dev libturbo-jpeg-devel"

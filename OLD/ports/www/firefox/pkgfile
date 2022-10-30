@@ -1,8 +1,0 @@
-info='Mozilla Firefox'
-ver=83.0
-# deps=
-build() {
-    mkdir -p "$pkg"/opt/firefox "$pkg"/share "$pkg"/bin
-    cp -rf -- * "$pkg"/opt/firefox
-    ln -sf "$pkg"/opt/firefox/firefox-bin "$pkg"/bin/firefox
-}

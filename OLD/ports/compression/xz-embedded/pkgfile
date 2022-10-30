@@ -1,8 +1,0 @@
-info='tiny xz decompressor utility'
-ver=20130513
-build() {
-    cd userspace || exit 1
-    bsmk
-    install -D -m 0755 xzminidec "$pkg"/bin/xzminidec
-    ln -sf xzminidec "$pkg"/bin/xz-embedded
-}

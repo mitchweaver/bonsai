@@ -1,6 +1,0 @@
-info='high ratio compression utility using the lzma algorithm'
-ver=5.2.5
-build() {
-    bscfg --disable-lzmadec --disable-lzmainfo
-    bsmk install
-}

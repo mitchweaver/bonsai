@@ -1,3 +1,0 @@
-info='Xorg authentication library'
-ver=1.0.9
-deps=xorg-proto
