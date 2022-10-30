@@ -1,0 +1,10 @@
+info='font mod of monaco by mxnkfish'
+ver=1.0
+build() {
+    install -D -m 0644 "${name#fonts-}.bdf" "$pkg/share/fonts/${name#fonts-}/${name#fonts-}.bdf"
+}
+postbuild() {
+    cd "$pkg/share/fonts/${name#fonts-}"
+    mkfontscale
+    mkfontdir
+}
