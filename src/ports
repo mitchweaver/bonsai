@@ -63,7 +63,7 @@ isinst() {
 }
 
 haslib() {
-    msg "checking for required libraries: $@"
+    msg "checking for required libraries: $*"
     for lib in "$@" ; do
         pkg-config --libs "$lib" >/dev/null || \
             die "missing library: $lib"

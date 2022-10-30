@@ -62,6 +62,7 @@ getflags() {
 
     # add necessary libraries if specified
     if [ "$libs" ] ; then
+        # shellcheck disable=2155,2086
         export LIBS="$LIBS $(${PKG_CONFIG:-pkg-config} --libs $libs)"
         export LDFLAGS="$LDFLAGS $LIBS"
     fi
