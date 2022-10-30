@@ -68,6 +68,11 @@ fi
 EOF
 ```
 
+```
+# generate skeleton config files
+bs a @cfg
+```
+
 ## Usage
 
 ```
