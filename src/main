@@ -45,11 +45,12 @@ usage() {
       [h]  -  usage
 
 EOF
+exit 1
 }
 
 main() {
     init
-    [ "$1" ] || return
+    [ "$1" ] || usage
 
     flag=${1#-}
     shift
