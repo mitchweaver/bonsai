@@ -129,17 +129,6 @@ EOF
     done <"$portdir"/sources
 }
 
-dl() { curl -#fLC - --retry 3 --create-dirs -o "$2" "$1" ; }
-# -*-* downloading with netcat currently work in progress -*-*-*
-# domain=${1#*://}
-# domain=${domain%%/*}
-# file=${1#*://}
-# file=${file#$domain}
-
-# nc -v -C -w 9999 "$domain" "${2:-80}" <<EOF | sed '/.*\r$/d'
-# GET $file HTTP/1.1
-# Host: $domain
-# Connection: close
-
-# EOF
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+dl() {
+    curl -#fLC - --retry 3 --create-dirs -o "$2" "$1"
+}
