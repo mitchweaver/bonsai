@@ -45,3 +45,31 @@ Maybe it will be of use to you too.
 Feel free to open github issues/PR as needed.
 
 \- Mitch
+
+---
+
+## Installation
+
+```
+git clone https://github.com/mitchweaver/bonsai
+cd bonsai
+make
+make install
+```
+
+## Environment
+
+```
+cat >> ~/.profile <<EOF
+if [ -d ~/.bonsai ] ; then
+    export PATH="${HOME}/.bonsai/bin:$PATH"
+    export MANPATH="${HOME}/.bonsai/share/man:$MANPATH"
+fi
+EOF
+```
+
+## Usage
+
+```
+bs -h
+```
