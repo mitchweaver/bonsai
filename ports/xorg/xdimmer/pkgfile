@@ -1,0 +1,9 @@
+info='lightweight X11 utility to dim the screen and/or keyboard backlight when idle'
+# Oct 25, 2021
+ver=a65ae357615f3dc3b3f4dd15891c96e6ee8f043c
+libs=libbsd
+build() {
+    bsmk
+    rm Makefile
+    bsinstall
+}
