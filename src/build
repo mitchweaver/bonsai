@@ -191,6 +191,7 @@ bscfg() {
 
     # 2. Parse the user's autotools.cfg, using our helper funtions
     #    to build up the configure script arguments.
+    [ -f "$CONFIG"/autotools.cfg ] &&
     while read -r func flag arg ; do
         case $func in
             SET) SET "$flag" "$arg" ;;
