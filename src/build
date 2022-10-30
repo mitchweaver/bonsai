@@ -26,6 +26,7 @@ run_build() {
         build || die "build failed for $name"
     else
         generic_build || die "generic build failed for $name"
+        bsinstall || die "generic install failed for $name"
     fi
 
     # run postbuild(), if defined
@@ -117,16 +118,13 @@ generic_build() {
 
     if [ -f Makefile ] || [ -f makefile ] ; then
         bsmk || return 1
-        bsmk install || return 1
     else
-        return 1
+        msg "No makefile found. Assuming binary..."
     fi
 }
 
 # bonsai make function
 bsmk() {
-    [ "$1" = install ] && msg "installing $name"
-
     # * arguments supplied override vars within makefiles should they exist
     # * to enable verbose build output, you can set the $VERBOSE env var
     # * while non-standard, some makefiles use lowercase vars
@@ -140,6 +138,25 @@ bsmk() {
         destdir="$DESTDIR" prefix="$PREFIX" bindir="$BINDIR" \
         sbindir="$BINDIR" libdir="$LIBDIR" libexecdir="$LIBEXECDIR" \
         MAKEINFO=false "$@" || die "make $* failed for $name"
+}
+
+bsinstall() {
+    msg "installing $name"
+
+    if [ -f Makefile ] || [ -f makefile ] ; then
+        bsmk install
+    else
+        if [ -f "$name" ] ; then
+            install -D -m 0755 "$name" "$pkg/bin/$name"
+        elif [ -f "bin/$name" ] ; then
+            install -D -m 0755 "bin/$name" "$pkg/bin/$name"
+        fi
+        if [ -f "$name.1" ] ; then
+            install -D -m 0644 "$name.1" "$pkg/share/man/man1/$name.1"
+        elif [ -f "share/man/man1/$name.1" ] ; then
+            install -D -m 0644 "share/man/man1/$name.1" "$pkg/share/man/man1/$name.1"
+        fi
+    fi
 }
 
 bscfg() {
