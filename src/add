@@ -60,6 +60,11 @@ add() {
         # load package variables into the environment
         loadpkgfile "$p"
 
+        # check if we have required libs to build
+        if [ "$libs" ] ; then
+            haslib "$libs" || die "missing required libraries to build"
+        fi
+
         # clear old working directory should it exist
         rm -rf -- "$workdir" 2>/dev/null ||:
         mkdir -p "$workdir"

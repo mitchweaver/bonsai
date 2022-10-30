@@ -39,7 +39,8 @@ loadpkgfile() {
 
 unloadpkgfile() {
     unset bin name portdir pkgfile pkgstring pkg workdir
-    unset info url ver deps link
+    unset info url ver deps link libs
+    unset LIBS
     unset -f build prebuild postbuild
 }
 
@@ -59,6 +60,14 @@ isinst() {
             done
     esac
     return $?
+}
+
+haslib() {
+    msg "checking for required libraries: $@"
+    for lib in "$@" ; do
+        pkg-config --libs "$lib" >/dev/null || \
+            die "missing library: $lib"
+    done
 }
 
 # list packages installed

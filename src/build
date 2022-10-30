@@ -60,6 +60,12 @@ getflags() {
     # use our musl wrapper if its installed
     [ -x "$BONSAI_ROOT/bin/musl-gcc" ] && export CC="$BONSAI_ROOT/bin/musl-gcc"
 
+    # add necessary libraries if specified
+    if [ "$libs" ] ; then
+        export LIBS="$LIBS $(${PKG_CONFIG:-pkg-config} --libs $libs)"
+        export LDFLAGS="$LDFLAGS $LIBS"
+    fi
+
     # Makefiles have a problem which goes mostly unrecognized.
     # There is no standard forcing authors to use CFLAGS, CPPFLAGS, etc.
     #
