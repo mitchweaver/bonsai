@@ -52,7 +52,7 @@ getflags() {
     [ -x "$BONSAI_ROOT"/bin/pkgconf  ] && PKG_CONFIG="$BONSAI_ROOT"/bin/pkgconf
 
     # User flags
-    export JOBS=${JOBS:-1} CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
+    export JOBS="${JOBS:-1}" CFLAGS LDFLAGS CPPFLAGS CXXFLAGS \
            LIBRARY_PATH LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH \
            BINDIR LIBDIR SBINDIR LIBEXECDIR MANDIR
 
@@ -85,7 +85,7 @@ getflags() {
     # export CC="${CC:-gcc}" CXX="${CXX:-g++}"
 
     # System flags
-    export LIBTOOL=${LIBTOOL:-libtool} PKG_CONFIG=${PKG_CONFIG:-pkg-config} \
+    export LIBTOOL="${LIBTOOL:-libtool}" PKG_CONFIG="${PKG_CONFIG:-pkg-config}" \
            cc="$CC" DESTDIR="$pkg" PREFIX=/ prefix=/ MAKEINFO=false
 }
 
