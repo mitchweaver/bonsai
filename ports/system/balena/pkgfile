@@ -1,0 +1,6 @@
+info='Flash OS images to SD cards & USB drives, safely and easily'
+ver=1.7.9
+build() {
+    mv "balenaEtcher-$ver-x64.AppImage" "$name"
+    bsinstall
+}
