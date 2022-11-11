@@ -7,12 +7,20 @@ all:
 	echo 'main "$$@"' >>bonsai
 
 install:
+	@if [ ! -f bonsai ] ; then >&2 echo "Use 'make' first to build the program." ; exit 1 ; fi
 	mkdir -p ${BONSAI_ROOT}/src
 	cp -rf ports ${BONSAI_ROOT}/src/
 	install -D -m 0755 bonsai ${PREFIX}/bin/bonsai
 	install -D -m 0755 bonsai ${BONSAI_ROOT}/bin/bonsai
 	ln -sf bonsai ${PREFIX}/bin/bs
 	ln -sf bonsai ${BONSAI_ROOT}/bin/bs
+
+clean:
+	rm bonsai
+
+uninstall:
+	rm ${PREFIX}/bin/bonsai
+	unlink ${PREFIX}/bin/bs
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # SC1090: file sourcing     -  shellcheck is unaware of sourced pkgfiles
