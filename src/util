@@ -110,6 +110,8 @@ while read -r line ; do
     esac
 
     url=${line% *}
+    # trim leading slash, if exists
+    url=${url%/}
 
     # if file exists, it is a local file (not an actual url)
     [ -e "$url" ] && continue
