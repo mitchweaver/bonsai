@@ -1,3 +1,6 @@
 info='a modern replacement for ls'
 ver=0.10.1
 deps=unzip
+postbuild() {
+    ln -svf exa "$pkg/bin/ls"
+}
