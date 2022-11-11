@@ -24,6 +24,7 @@ init() {
     for dir in bin share include etc lib libexec ; do
         mkdir -p "$BONSAI_ROOT/$dir"
     done
+    rmdir "$PKGS"/* 2>/dev/null ||:
 }
 
 usage() {
