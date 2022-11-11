@@ -1,0 +1,5 @@
+info='fucking fast file manager'
+ver=2.2
+build() {
+    bsinstall
+}
