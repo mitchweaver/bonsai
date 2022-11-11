@@ -21,6 +21,10 @@ run_build() {
 
     msg "building $name"
 
+    # create pkg dir
+    # bonsai uses this directory as its pkg "database"
+    mkdir -p "$pkg"
+
     # if pkgfile has a build() function, execute it
     if type build >/dev/null 2>&1 ; then
         build || die "build failed for $name"
@@ -36,10 +40,6 @@ run_build() {
 
     # remove all suckage that gets put here. (ex: docs)
     rm -r "${pkg:-?}"/sucks 2>/dev/null ||:
-
-    # create pkg dir in case it hasn't be already
-    # bonsai uses this directory as its pkg "database"
-    mkdir -p "$pkg"
 }
 
 # Exports flags into the environment to be read by makefiles.
