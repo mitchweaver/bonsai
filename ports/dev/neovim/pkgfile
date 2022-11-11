@@ -1,0 +1,16 @@
+info='Vim-fork focused on extensibility and usability'
+ver=0.8.0
+prebuild() {
+    # remove junk
+    rm -r share/applications share/icons share/locale
+}
+build() {
+    for dir in bin lib share ; do
+        cp -r "$dir" "$pkg"/
+    done
+}
+postbuild() {
+    # convenience
+    ln -s nvim "$pkg/bin/vim"
+    ln -s nvim "$pkg/bin/vi"
+}
