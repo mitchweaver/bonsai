@@ -1,0 +1,6 @@
+info='UnZip is an extraction utility for archives compressed in .zip format'
+ver=6.0
+build() {
+    make -f unix/Makefile linux_noasm
+    make -f unix/Makefile prefix="$DESTDIR" install
+}
