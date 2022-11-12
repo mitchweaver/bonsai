@@ -1,0 +1,16 @@
+info='proprietary remote access software'
+ver=unknown
+build() {
+    mkdir -p "$pkg/opt" "$pkg/bin"
+    mv tv_bin "$name"/
+    mv doc "$name"/
+    mv "$name" "$pkg/opt"
+}
+postbuild() {
+cat > "$pkg/bin/$name" <<EOF
+#!/bin/sh
+cd "$pkg/opt/teamviewer" || exit 1
+./$name
+EOF
+chmod 755 "$pkg/bin/$name"
+}
