@@ -1,0 +1,5 @@
+info='crystaldiskmark Linux alternative'
+ver=3.1.2
+build() {
+    install -D -m 0755 "KDiskMark-$ver-fio-3.32-x86_64.AppImage" "$pkg/bin/$name"
+}
