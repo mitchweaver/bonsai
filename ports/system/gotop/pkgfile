@@ -1,0 +1,5 @@
+info='A terminal based graphical activity monitor inspired by gtop and vtop'
+ver=4.2.0
+build() {
+    bsinstall
+}
