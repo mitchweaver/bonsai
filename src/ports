@@ -80,13 +80,21 @@ listpkgs() {
 
 # search for a packaged named $1
 searchpkg() {
-    printf '%s\n' "$PORTS"/*/* | \
-    while read -r dir ; do
-        case $dir in
-            *"$1"*)
-                printf '%s\n' "${dir##*/}"
-        esac
-    done | sort
+    if [ "$1" ] ; then
+        printf '%s\n' "$PORTS"/*/* | \
+        while read -r dir ; do
+            if [ -d "$dir" ] ; then
+                case $dir in
+                    *"$1"*)
+                        loadpkgfile "${dir##*/}"
+                        printf '%s %s\n' "$name" "$info"
+                        # printf '%s\n' "${dir##*/}"
+                esac
+            fi
+        done | sort | column -t -l 2 -o '     '
+    else
+        die "No query given"
+    fi
 }
 
 # calculates dependencies of a $name and stores
