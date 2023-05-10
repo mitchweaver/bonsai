@@ -1,0 +1,6 @@
+info='High-performance implementation of https://github.com/busyloop/lolcat'
+ver='v1.4'
+build() {
+    bsmk
+    install -D -m 0755 lolcat "$pkg"/bin/lolcat
+}
