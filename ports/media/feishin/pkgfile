@@ -1,0 +1,5 @@
+info='modern rewrite of sonixd music player'
+ver='0.0.1-alpha6'
+build() {
+    install -D -m 0755 Feishin-0.0.1-alpha6-linux-x86_64.AppImage "$pkg/bin/$name"
+}
