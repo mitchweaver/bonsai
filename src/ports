@@ -88,7 +88,6 @@ searchpkg() {
                     *"$1"*)
                         loadpkgfile "${dir##*/}"
                         printf '%s %s\n' "$name" "$info"
-                        # printf '%s\n' "${dir##*/}"
                 esac
             fi
         done | sort | column -t -l 2 -o '     '
