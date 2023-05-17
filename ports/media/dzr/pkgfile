@@ -1,0 +1,6 @@
+info="command line deezer client for linux"
+ver=git
+build() {
+    mkdir -p "$pkg"/bin
+    install -D -m 0755 dzr* "$pkg/bin"
+}
