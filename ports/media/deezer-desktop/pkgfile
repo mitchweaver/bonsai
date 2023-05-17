@@ -1,0 +1,5 @@
+info="unofficial deezer client port for linux"
+ver=5.30.520
+build() {
+    install -D -m 0755 $name-$ver-x86_64.AppImage "$pkg/bin/$name"
+}
