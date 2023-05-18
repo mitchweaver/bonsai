@@ -78,3 +78,8 @@ bs a @cfg
 ```
 bs -h
 ```
+
+## Notice
+
+Currently only targeting amd64. Updates for aarch64 support coming soon.
+
