@@ -1,4 +1,4 @@
-# bonsai [![Build Status](https://travis-ci.com/mitchweaver/bonsai.svg?branch=master)](https://travis-ci.com/mitchweaver/bonsai)
+# bonsai
 
 ```
 # -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/- #
@@ -37,11 +37,10 @@ simple to use. Written in POSIX shell with only basic UNIX utilities
 as dependencies, it's meant to be able to be pulled down on any machine
 to quickly get access to the programs you need, root access not required.
 
-As of now I am personally using it for miscellaneous things not commonly
-found in the distros I use. As I get time it will get fleshed out as a
-serious project.
+Nowadays I personally use it for miscellaneous things not commonly
+found in distros. Not meant for public use.
 
-Maybe it will be of use to you too.  
+Maybe it will be helpful to you too.  
 Feel free to open github issues/PR as needed.
 
 \- Mitch
@@ -81,5 +80,5 @@ bs -h
 
 ## Notice
 
-Currently only targeting amd64. Updates for aarch64 support coming soon.
+Currently only targeting amd64.
 
