@@ -1,0 +1,5 @@
+info='apple music electron client for linux'
+ver=2.1.2
+build() {
+    install -D -m 0755 "apple-music_${ver}_x64.AppImage" "$pkg/bin/$name"
+}
