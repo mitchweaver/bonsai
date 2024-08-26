@@ -3,3 +3,8 @@ ver=2.1.2
 build() {
     install -D -m 0755 "apple-music_${ver}_x64.AppImage" "$pkg/bin/$name"
 }
+postbuild() {
+    mkdir -p "$pkg/share/applications" "$pkg/share/icons"
+    install -D -m 0644 "res/${name}.desktop" "$pkg/share/applications/${name}.desktop"
+    install -D -m 0644 "res/${name}.png" "$pkg/share/icons/${name}.png"
+}
