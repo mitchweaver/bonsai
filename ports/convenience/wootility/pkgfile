@@ -1,0 +1,5 @@
+info='wooting.io utility'
+ver=4.6.21
+build() {
+    install -D -m 0755 "wootility-lekker-${ver}.AppImage" "$pkg/bin/$name"
+}
